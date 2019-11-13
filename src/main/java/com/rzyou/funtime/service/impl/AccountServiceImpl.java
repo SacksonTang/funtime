@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -83,7 +84,12 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public PageInfo<FuntimeUserAccountRechargeRecord> getRechargeDetailForPage(Integer startPage, Integer pageSize, String queryDate, Integer state, Long userId) {
         PageHelper.startPage(startPage,pageSize);
-        return new PageInfo<>(null);
+        List<FuntimeUserAccountRechargeRecord> list = userAccountRechargeRecordMapper.getRechargeDetailForPage(queryDate,userId,state);
+        if(list==null||list.isEmpty()){
+            return new PageInfo<>(null);
+        }else{
+            return new PageInfo<>(list);
+        }
 
     }
 
