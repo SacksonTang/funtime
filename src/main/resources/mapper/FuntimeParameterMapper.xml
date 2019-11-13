@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeParameterMapper">
+  <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeParameter">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="key_type" jdbcType="VARCHAR" property="keyType" />
+    <result column="key" jdbcType="VARCHAR" property="key" />
+    <result column="value" jdbcType="VARCHAR" property="value" />
+    <result column="key_name" jdbcType="VARCHAR" property="keyName" />
+    <result column="parameter_desc" jdbcType="VARCHAR" property="parameterDesc" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, key_type, key, value, key_name, parameter_desc, flag, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_funtime_parameter
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_funtime_parameter
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeParameter">
+    insert into t_funtime_parameter (id, key_type, key, 
+      value, key_name, parameter_desc, 
+      flag, create_time)
+    values (#{id,jdbcType=INTEGER}, #{keyType,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}, 
+      #{value,jdbcType=VARCHAR}, #{keyName,jdbcType=VARCHAR}, #{parameterDesc,jdbcType=VARCHAR}, 
+      #{flag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeParameter">
+    insert into t_funtime_parameter
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="keyType != null">
+        key_type,
+      </if>
+      <if test="key != null">
+        key,
+      </if>
+      <if test="value != null">
+        value,
+      </if>
+      <if test="keyName != null">
+        key_name,
+      </if>
+      <if test="parameterDesc != null">
+        parameter_desc,
+      </if>
+      <if test="flag != null">
+        flag,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="keyType != null">
+        #{keyType,jdbcType=VARCHAR},
+      </if>
+      <if test="key != null">
+        #{key,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null">
+        #{value,jdbcType=VARCHAR},
+      </if>
+      <if test="keyName != null">
+        #{keyName,jdbcType=VARCHAR},
+      </if>
+      <if test="parameterDesc != null">
+        #{parameterDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null">
+        #{flag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeParameter">
+    update t_funtime_parameter
+    <set>
+      <if test="keyType != null">
+        key_type = #{keyType,jdbcType=VARCHAR},
+      </if>
+      <if test="key != null">
+        key = #{key,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null">
+        value = #{value,jdbcType=VARCHAR},
+      </if>
+      <if test="keyName != null">
+        key_name = #{keyName,jdbcType=VARCHAR},
+      </if>
+      <if test="parameterDesc != null">
+        parameter_desc = #{parameterDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null">
+        flag = #{flag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeParameter">
+    update t_funtime_parameter
+    set key_type = #{keyType,jdbcType=VARCHAR},
+      key = #{key,jdbcType=VARCHAR},
+      value = #{value,jdbcType=VARCHAR},
+      key_name = #{keyName,jdbcType=VARCHAR},
+      parameter_desc = #{parameterDesc,jdbcType=VARCHAR},
+      flag = #{flag,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

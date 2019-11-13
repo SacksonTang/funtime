@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeUserRedpacketDetailMapper">
+  <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeUserRedpacketDetail">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="redpacket_id" jdbcType="BIGINT" property="redpacketId" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="grab_user_id" jdbcType="BIGINT" property="grabUserId" />
+    <result column="version" jdbcType="BIGINT" property="version" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, redpacket_id, amount, create_time, grab_user_id, version
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_funtime_user_redpacket_detail
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_funtime_user_redpacket_detail
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacketDetail">
+    insert into t_funtime_user_redpacket_detail (id, redpacket_id, amount, 
+      create_time, grab_user_id, version
+      )
+    values (#{id,jdbcType=BIGINT}, #{redpacketId,jdbcType=BIGINT}, #{amount,jdbcType=DECIMAL}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{grabUserId,jdbcType=BIGINT}, #{version,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacketDetail">
+    insert into t_funtime_user_redpacket_detail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="redpacketId != null">
+        redpacket_id,
+      </if>
+      <if test="amount != null">
+        amount,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="grabUserId != null">
+        grab_user_id,
+      </if>
+      <if test="version != null">
+        version,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="redpacketId != null">
+        #{redpacketId,jdbcType=BIGINT},
+      </if>
+      <if test="amount != null">
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="grabUserId != null">
+        #{grabUserId,jdbcType=BIGINT},
+      </if>
+      <if test="version != null">
+        #{version,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacketDetail">
+    update t_funtime_user_redpacket_detail
+    <set>
+      <if test="redpacketId != null">
+        redpacket_id = #{redpacketId,jdbcType=BIGINT},
+      </if>
+      <if test="amount != null">
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="grabUserId != null">
+        grab_user_id = #{grabUserId,jdbcType=BIGINT},
+      </if>
+      <if test="version != null">
+        version = #{version,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacketDetail">
+    update t_funtime_user_redpacket_detail
+    set redpacket_id = #{redpacketId,jdbcType=BIGINT},
+      amount = #{amount,jdbcType=DECIMAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      grab_user_id = #{grabUserId,jdbcType=BIGINT},
+      version = #{version,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

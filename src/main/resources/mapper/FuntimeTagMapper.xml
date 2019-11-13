@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeTagMapper">
+  <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeTag">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="tag_type" jdbcType="VARCHAR" property="tagType" />
+    <result column="tag_type_name" jdbcType="VARCHAR" property="tagTypeName" />
+    <result column="tag_name" jdbcType="VARCHAR" property="tagName" />
+    <result column="sort" jdbcType="INTEGER" property="sort" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, tag_type, tag_name, sort, create_time,tag_type_name,flag
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_funtime_tag
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="queryTagsByUserId"  resultType="java.lang.Integer" parameterType="java.lang.Long">
+    select
+      t.id
+    from t_funtime_user_tag ut inner join t_funtime_tag t on ut.tag_id = t.id
+    where ut.user_id = #{userId}
+  </select>
+  <select id="queryTagsByType" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_tag
+    where tag_type = #{tagType} order by sort asc
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_funtime_tag
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeTag">
+    insert into t_funtime_tag
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+
+      <if test="tagType != null">
+        tag_type,
+      </if>
+      <if test="tagTypeName != null">
+        tag_type_name,
+      </if>
+      <if test="tagName != null">
+        tag_name,
+      </if>
+      <if test="sort != null">
+        sort,
+      </if>
+      <if test="flag != null">
+        flag,
+      </if>
+
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+      <if test="tagType != null">
+        #{tagType,jdbcType=VARCHAR},
+      </if>
+      <if test="tagTypeName != null">
+        #{tagTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="tagName != null">
+        #{tagName,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null">
+        #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="flag != null">
+        #{flag,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeTag">
+    update t_funtime_tag
+    <set>
+      <if test="tagType != null">
+        tag_type = #{tagType,jdbcType=VARCHAR},
+      </if>
+      <if test="tagTypeName != null">
+        tag_type_name = #{tagTypeName,jdbcType=VARCHAR},
+      </if>
+      <if test="tagName != null">
+        tag_name = #{tagName,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null">
+        sort = #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="flag != null">
+        flag = #{flag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+</mapper>

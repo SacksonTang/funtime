@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeUserAccountGifttransRecordMapper">
+  <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeUserAccountGifttransRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="action_type" jdbcType="VARCHAR" property="actionType" />
+    <result column="order_no" jdbcType="VARCHAR" property="orderNo" />
+    <result column="operation_type" jdbcType="VARCHAR" property="operationType" />
+    <result column="operation_desc" jdbcType="VARCHAR" property="operationDesc" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="gift_id" jdbcType="INTEGER" property="giftId" />
+    <result column="gift_name" jdbcType="VARCHAR" property="giftName" />
+    <result column="to_user_id" jdbcType="BIGINT" property="toUserId" />
+    <result column="give_channel_id" jdbcType="INTEGER" property="giveChannelId" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="version" jdbcType="BIGINT" property="version" />
+    <result column="complete_time" jdbcType="TIMESTAMP" property="completeTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, action_type, operation_type, operation_desc, amount, num, gift_id, gift_name, 
+    to_user_id, give_channel_id, state, create_time, version, complete_time,order_no
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_funtime_user_account_gifttrans_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_funtime_user_account_gifttrans_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountGifttransRecord">
+    insert into t_funtime_user_account_gifttrans_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="orderNo != null">
+        order_no,
+      </if>
+      <if test="actionType != null">
+        action_type,
+      </if>
+      <if test="operationType != null">
+        operation_type,
+      </if>
+      <if test="operationDesc != null">
+        operation_desc,
+      </if>
+      <if test="amount != null">
+        amount,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
+      <if test="giftId != null">
+        gift_id,
+      </if>
+      <if test="giftName != null">
+        gift_name,
+      </if>
+      <if test="toUserId != null">
+        to_user_id,
+      </if>
+      <if test="giveChannelId != null">
+        give_channel_id,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="version != null">
+        version,
+      </if>
+      <if test="completeTime != null">
+        complete_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="orderNo != null">
+        #{orderNo},
+      </if>
+      <if test="actionType != null">
+        #{actionType,jdbcType=VARCHAR},
+      </if>
+      <if test="operationType != null">
+        #{operationType,jdbcType=VARCHAR},
+      </if>
+      <if test="operationDesc != null">
+        #{operationDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null">
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
+      </if>
+      <if test="giftId != null">
+        #{giftId,jdbcType=INTEGER},
+      </if>
+      <if test="giftName != null">
+        #{giftName,jdbcType=VARCHAR},
+      </if>
+      <if test="toUserId != null">
+        #{toUserId,jdbcType=BIGINT},
+      </if>
+      <if test="giveChannelId != null">
+        #{giveChannelId,jdbcType=INTEGER},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="version != null">
+        #{version,jdbcType=BIGINT},
+      </if>
+      <if test="completeTime != null">
+        #{completeTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountGifttransRecord">
+    update t_funtime_user_account_gifttrans_record
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="actionType != null">
+        action_type = #{actionType,jdbcType=VARCHAR},
+      </if>
+      <if test="operationType != null">
+        operation_type = #{operationType,jdbcType=VARCHAR},
+      </if>
+      <if test="operationDesc != null">
+        operation_desc = #{operationDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null">
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="giftId != null">
+        gift_id = #{giftId,jdbcType=INTEGER},
+      </if>
+      <if test="giftName != null">
+        gift_name = #{giftName,jdbcType=VARCHAR},
+      </if>
+      <if test="toUserId != null">
+        to_user_id = #{toUserId,jdbcType=BIGINT},
+      </if>
+      <if test="giveChannelId != null">
+        give_channel_id = #{giveChannelId,jdbcType=INTEGER},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="version != null">
+        version = #{version,jdbcType=BIGINT},
+      </if>
+      <if test="completeTime != null">
+        complete_time = #{completeTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+</mapper>

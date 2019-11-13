@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeUserAccountRechargeRecordMapper">
+  <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="order_no" jdbcType="VARCHAR" property="orderNo" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="rmb" jdbcType="DECIMAL" property="rmb" />
+    <result column="recharge_card_id" jdbcType="VARCHAR" property="rechargeCardId" />
+    <result column="recharge_channel_id" jdbcType="INTEGER" property="rechargeChannelId" />
+    <result column="recharge_conf_id" jdbcType="INTEGER" property="rechargeConfId" />
+    <result column="horn_num" jdbcType="INTEGER" property="hornNum" />
+    <result column="os" jdbcType="VARCHAR" property="os" />
+    <result column="phone_type" jdbcType="VARCHAR" property="phoneType" />
+    <result column="imei" jdbcType="VARCHAR" property="imei" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="version" jdbcType="BIGINT" property="version" />
+    <result column="complete_time" jdbcType="TIMESTAMP" property="completeTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, amount, rmb, recharge_card_id, recharge_channel_id, recharge_conf_id,
+    horn_num, os, phone_type, imei, state, create_time, version, complete_time,order_no
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_funtime_user_account_recharge_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="getRechargeDetailForPage"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user_account_recharge_record
+    where 1=1
+      <if test="queryDate!=null and queryDate!=''">
+         and create_time between contact(queryDate,'-01 00:00:00') and contact(queryDate,'-01 00:00:00')
+      </if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_funtime_user_account_recharge_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord" keyProperty="id" useGeneratedKeys="true">
+    insert into t_funtime_user_account_recharge_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="orderNo != null">
+        order_no,
+      </if>
+      <if test="amount != null">
+        amount,
+      </if>
+      <if test="rmb != null">
+        rmb,
+      </if>
+      <if test="rechargeCardId != null">
+        recharge_card_id,
+      </if>
+      <if test="rechargeChannelId != null">
+        recharge_channel_id,
+      </if>
+      <if test="rechargeConfId != null">
+        recharge_conf_id,
+      </if>
+      <if test="hornNum != null">
+        horn_num,
+      </if>
+      <if test="os != null">
+        os,
+      </if>
+      <if test="phoneType != null">
+        phone_type,
+      </if>
+      <if test="imei != null">
+        imei,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+
+        create_time,
+
+      <if test="version != null">
+        version,
+      </if>
+      <if test="completeTime != null">
+        complete_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+
+      <if test="orderNo != null">
+        #{orderNo},
+      </if>
+      <if test="amount != null">
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="rmb != null">
+        #{rmb,jdbcType=DECIMAL},
+      </if>
+      <if test="rechargeCardId != null">
+        #{rechargeCardId,jdbcType=VARCHAR},
+      </if>
+      <if test="rechargeChannelId != null">
+        #{rechargeChannelId,jdbcType=INTEGER},
+      </if>
+      <if test="rechargeConfId != null">
+        #{rechargeConfId,jdbcType=INTEGER},
+      </if>
+      <if test="hornNum != null">
+        #{hornNum,jdbcType=INTEGER},
+      </if>
+      <if test="os != null">
+        #{os,jdbcType=VARCHAR},
+      </if>
+      <if test="phoneType != null">
+        #{phoneType,jdbcType=VARCHAR},
+      </if>
+      <if test="imei != null">
+        #{imei,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=INTEGER},
+      </if>
+
+        now(),
+
+      <if test="version != null">
+        #{version,jdbcType=BIGINT},
+      </if>
+      <if test="completeTime != null">
+        #{completeTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord">
+    update t_funtime_user_account_recharge_record
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="amount != null">
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="rmb != null">
+        rmb = #{rmb,jdbcType=DECIMAL},
+      </if>
+      <if test="rechargeCardId != null">
+        recharge_card_id = #{rechargeCardId,jdbcType=VARCHAR},
+      </if>
+      <if test="rechargeChannelId != null">
+        recharge_channel_id = #{rechargeChannelId,jdbcType=INTEGER},
+      </if>
+      <if test="rechargeConfId != null">
+        recharge_conf_id = #{rechargeConfId,jdbcType=INTEGER},
+      </if>
+      <if test="hornNum != null">
+        horn_num = #{hornNum,jdbcType=INTEGER},
+      </if>
+      <if test="os != null">
+        os = #{os,jdbcType=VARCHAR},
+      </if>
+      <if test="phoneType != null">
+        phone_type = #{phoneType,jdbcType=VARCHAR},
+      </if>
+      <if test="imei != null">
+        imei = #{imei,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+
+      <if test="version != null">
+        version = #{version,jdbcType=BIGINT},
+      </if>
+      <if test="completeTime != null">
+        complete_time = #{completeTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+</mapper>

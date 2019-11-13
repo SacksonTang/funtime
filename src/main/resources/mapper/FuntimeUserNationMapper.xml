@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeUserNationMapper">
+  <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeUserNation">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="nation_province_id" jdbcType="INTEGER" property="nationProvinceId" />
+    <result column="nation_city_id" jdbcType="INTEGER" property="nationCityId" />
+    <result column="nation_district_id" jdbcType="INTEGER" property="nationDistrictId" />
+    <result column="is_default" jdbcType="INTEGER" property="isDefault" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, nation_province_id, nation_city_id, nation_district_id, is_default, 
+    create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_funtime_user_nation
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_funtime_user_nation
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeUserNation">
+    insert into t_funtime_user_nation (id, user_id, nation_province_id, 
+      nation_city_id, nation_district_id, is_default, 
+      create_time)
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{nationProvinceId,jdbcType=INTEGER}, 
+      #{nationCityId,jdbcType=INTEGER}, #{nationDistrictId,jdbcType=INTEGER}, #{isDefault,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserNation">
+    insert into t_funtime_user_nation
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="nationProvinceId != null">
+        nation_province_id,
+      </if>
+      <if test="nationCityId != null">
+        nation_city_id,
+      </if>
+      <if test="nationDistrictId != null">
+        nation_district_id,
+      </if>
+      <if test="isDefault != null">
+        is_default,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="nationProvinceId != null">
+        #{nationProvinceId,jdbcType=INTEGER},
+      </if>
+      <if test="nationCityId != null">
+        #{nationCityId,jdbcType=INTEGER},
+      </if>
+      <if test="nationDistrictId != null">
+        #{nationDistrictId,jdbcType=INTEGER},
+      </if>
+      <if test="isDefault != null">
+        #{isDefault,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUserNation">
+    update t_funtime_user_nation
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="nationProvinceId != null">
+        nation_province_id = #{nationProvinceId,jdbcType=INTEGER},
+      </if>
+      <if test="nationCityId != null">
+        nation_city_id = #{nationCityId,jdbcType=INTEGER},
+      </if>
+      <if test="nationDistrictId != null">
+        nation_district_id = #{nationDistrictId,jdbcType=INTEGER},
+      </if>
+      <if test="isDefault != null">
+        is_default = #{isDefault,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeUserNation">
+    update t_funtime_user_nation
+    set user_id = #{userId,jdbcType=BIGINT},
+      nation_province_id = #{nationProvinceId,jdbcType=INTEGER},
+      nation_city_id = #{nationCityId,jdbcType=INTEGER},
+      nation_district_id = #{nationDistrictId,jdbcType=INTEGER},
+      is_default = #{isDefault,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

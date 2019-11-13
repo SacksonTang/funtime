@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeUserMapper">
+  <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeUser">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="fullname" jdbcType="VARCHAR" property="fullname" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="open_type" jdbcType="INTEGER" property="openType" />
+    <result column="openid" jdbcType="VARCHAR" property="openid" />
+    <result column="access_token" jdbcType="VARCHAR" property="accessToken" />
+    <result column="phone_number" jdbcType="VARCHAR" property="phoneNumber" />
+    <result column="phone_imei" jdbcType="VARCHAR" property="phoneImei" />
+    <result column="drainage_channel_id" jdbcType="INTEGER" property="drainageChannelId" />
+    <result column="portrait_address" jdbcType="VARCHAR" property="portraitAddress" />
+    <result column="sex" jdbcType="INTEGER" property="sex" />
+    <result column="birthday" jdbcType="INTEGER" property="birthday" />
+    <result column="height" jdbcType="INTEGER" property="height" />
+    <result column="sign_text" jdbcType="VARCHAR" property="signText" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="realname_authentication_flag" jdbcType="INTEGER" property="realnameAuthenticationFlag" />
+    <result column="token" jdbcType="VARCHAR" property="token" />
+    <result column="online_state" jdbcType="INTEGER" property="onlineState" />
+    <result column="create_room" jdbcType="INTEGER" property="createRoom" />
+    <result column="registration_time" jdbcType="TIMESTAMP" property="registrationTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="last_login_time" jdbcType="TIMESTAMP" property="lastLoginTime" />
+    <result column="concerns" jdbcType="INTEGER" property="concerns" />
+    <result column="fans" jdbcType="INTEGER" property="fans" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
+    <result column="version" jdbcType="BIGINT" property="version" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, username, fullname, nickname, password, open_type, openid, access_token, phone_number,
+    phone_imei, drainage_channel_id, portrait_address, sex, birthday, height, sign_text,
+    state, realname_authentication_flag, token, online_state, create_room, registration_time,
+    update_time, last_login_time, concerns, fans, ip, flag, version
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="queryUserInfo" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user
+    where 1=1
+    <if test="phone!=null and phone != ''">
+      and phone_number = #{phone}
+    </if>
+    limit 1
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_funtime_user
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUser" keyProperty="id" useGeneratedKeys="true">
+    insert into t_funtime_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="fullname != null">
+        fullname,
+      </if>
+      <if test="nickname != null">
+        nickname,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="openType != null">
+        open_type,
+      </if>
+      <if test="openid != null">
+        openid,
+      </if>
+      <if test="accessToken != null">
+        access_token,
+      </if>
+      <if test="phoneNumber != null">
+        phone_number,
+      </if>
+      <if test="phoneImei != null">
+        phone_imei,
+      </if>
+      <if test="drainageChannelId != null">
+        drainage_channel_id,
+      </if>
+      <if test="portraitAddress != null">
+        portrait_address,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="birthday != null">
+        birthday,
+      </if>
+      <if test="height != null">
+        height,
+      </if>
+      <if test="signText != null">
+        sign_text,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="realnameAuthenticationFlag != null">
+        realname_authentication_flag,
+      </if>
+      <if test="token != null">
+        token,
+      </if>
+      <if test="onlineState != null">
+        online_state,
+      </if>
+      <if test="createRoom != null">
+        create_room,
+      </if>
+      <if test="registrationTime != null">
+        registration_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="lastLoginTime != null">
+        last_login_time,
+      </if>
+      <if test="concerns != null">
+        concerns,
+      </if>
+      <if test="fans != null">
+        fans,
+      </if>
+      <if test="ip != null">
+        ip,
+      </if>
+      <if test="flag != null">
+        flag,
+      </if>
+      <if test="version != null">
+        version,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="fullname != null">
+        #{fullname,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="openType != null">
+        #{openType,jdbcType=INTEGER},
+      </if>
+      <if test="openid != null">
+        #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="accessToken != null">
+        #{accessToken,jdbcType=VARCHAR},
+      </if>
+      <if test="phoneNumber != null">
+        #{phoneNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="phoneImei != null">
+        #{phoneImei,jdbcType=VARCHAR},
+      </if>
+      <if test="drainageChannelId != null">
+        #{drainageChannelId,jdbcType=INTEGER},
+      </if>
+      <if test="portraitAddress != null">
+        #{portraitAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="birthday != null">
+        #{birthday,jdbcType=INTEGER},
+      </if>
+      <if test="height != null">
+        #{height,jdbcType=INTEGER},
+      </if>
+      <if test="signText != null">
+        #{signText,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="realnameAuthenticationFlag != null">
+        #{realnameAuthenticationFlag,jdbcType=INTEGER},
+      </if>
+      <if test="token != null">
+        #{token,jdbcType=VARCHAR},
+      </if>
+      <if test="onlineState != null">
+        #{onlineState,jdbcType=INTEGER},
+      </if>
+      <if test="createRoom != null">
+        #{createRoom,jdbcType=INTEGER},
+      </if>
+      <if test="registrationTime != null">
+        #{registrationTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastLoginTime != null">
+        #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="concerns != null">
+        #{concerns,jdbcType=INTEGER},
+      </if>
+      <if test="fans != null">
+        #{fans,jdbcType=INTEGER},
+      </if>
+      <if test="ip != null">
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null">
+        #{flag,jdbcType=INTEGER},
+      </if>
+      <if test="version != null">
+        #{version,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUser">
+    update t_funtime_user
+    <set>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="fullname != null">
+        fullname = #{fullname,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        nickname = #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="openType != null">
+        open_type = #{openType,jdbcType=INTEGER},
+      </if>
+      <if test="openid != null">
+        openid = #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="accessToken != null">
+        access_token = #{accessToken,jdbcType=VARCHAR},
+      </if>
+      <if test="phoneNumber != null">
+        phone_number = #{phoneNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="phoneImei != null">
+        phone_imei = #{phoneImei,jdbcType=VARCHAR},
+      </if>
+      <if test="drainageChannelId != null">
+        drainage_channel_id = #{drainageChannelId,jdbcType=INTEGER},
+      </if>
+      <if test="portraitAddress != null">
+        portrait_address = #{portraitAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="birthday != null">
+        birthday = #{birthday,jdbcType=INTEGER},
+      </if>
+      <if test="height != null">
+        height = #{height,jdbcType=INTEGER},
+      </if>
+      <if test="signText != null">
+        sign_text = #{signText,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="realnameAuthenticationFlag != null">
+        realname_authentication_flag = #{realnameAuthenticationFlag,jdbcType=INTEGER},
+      </if>
+      <if test="token != null">
+        token = #{token,jdbcType=VARCHAR},
+      </if>
+      <if test="onlineState != null">
+        online_state = #{onlineState,jdbcType=INTEGER},
+      </if>
+      <if test="createRoom != null">
+        create_room = #{createRoom,jdbcType=INTEGER},
+      </if>
+      <if test="registrationTime != null">
+        registration_time = #{registrationTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastLoginTime != null">
+        last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="concerns != null">
+        concerns = #{concerns,jdbcType=INTEGER},
+      </if>
+      <if test="fans != null">
+        fans = #{fans,jdbcType=INTEGER},
+      </if>
+      <if test="ip != null">
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null">
+        flag = #{flag,jdbcType=INTEGER},
+      </if>
+      <if test="newVersion != null">
+        version = #{newVersion,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT} and version = #{version}
+  </update>
+
+</mapper>

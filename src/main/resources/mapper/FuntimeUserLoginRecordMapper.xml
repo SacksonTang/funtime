@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeUserLoginRecordMapper">
+  <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeUserLoginRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="device_name" jdbcType="VARCHAR" property="deviceName" />
+    <result column="login_type" jdbcType="VARCHAR" property="loginType" />
+    <result column="operation" jdbcType="INTEGER" property="operation" />
+    <result column="phone_imei" jdbcType="VARCHAR" property="phoneImei" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="operation_time" jdbcType="TIMESTAMP" property="operationTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, user_id, nickname, device_name, login_type, operation, phone_imei, ip, operation_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user_login_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_funtime_user_login_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeUserLoginRecord">
+    insert into t_funtime_user_login_record (id, user_id, nickname,
+      device_name, login_type, operation,
+      phone_imei, ip, operation_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{nickname,jdbcType=VARCHAR},
+      #{deviceName,jdbcType=VARCHAR}, #{loginType,jdbcType=VARCHAR}, #{operation,jdbcType=INTEGER},
+      #{phoneImei,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{operationTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserLoginRecord">
+    insert into t_funtime_user_login_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="nickname != null">
+        nickname,
+      </if>
+      <if test="deviceName != null">
+        device_name,
+      </if>
+      <if test="loginType != null">
+        login_type,
+      </if>
+      <if test="operation != null">
+        operation,
+      </if>
+      <if test="phoneImei != null">
+        phone_imei,
+      </if>
+      <if test="ip != null">
+        ip,
+      </if>
+      <if test="operationTime != null">
+        operation_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="nickname != null">
+        #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="deviceName != null">
+        #{deviceName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginType != null">
+        #{loginType,jdbcType=VARCHAR},
+      </if>
+      <if test="operation != null">
+        #{operation,jdbcType=INTEGER},
+      </if>
+      <if test="phoneImei != null">
+        #{phoneImei,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null">
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="operationTime != null">
+        #{operationTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUserLoginRecord">
+    update t_funtime_user_login_record
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="nickname != null">
+        nickname = #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="deviceName != null">
+        device_name = #{deviceName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginType != null">
+        login_type = #{loginType,jdbcType=VARCHAR},
+      </if>
+      <if test="operation != null">
+        operation = #{operation,jdbcType=INTEGER},
+      </if>
+      <if test="phoneImei != null">
+        phone_imei = #{phoneImei,jdbcType=VARCHAR},
+      </if>
+      <if test="ip != null">
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="operationTime != null">
+        operation_time = #{operationTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeUserLoginRecord">
+    update t_funtime_user_login_record
+    set user_id = #{userId,jdbcType=BIGINT},
+      nickname = #{nickname,jdbcType=VARCHAR},
+      device_name = #{deviceName,jdbcType=VARCHAR},
+      login_type = #{loginType,jdbcType=VARCHAR},
+      operation = #{operation,jdbcType=INTEGER},
+      phone_imei = #{phoneImei,jdbcType=VARCHAR},
+      ip = #{ip,jdbcType=VARCHAR},
+      operation_time = #{operationTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
