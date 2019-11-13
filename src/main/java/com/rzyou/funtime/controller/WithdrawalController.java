@@ -29,14 +29,7 @@ public class WithdrawalController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            if (record==null) {
 
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
-            }
-
-            accountService.recharge(record);
 
             return result;
         } catch (BusinessException be) {

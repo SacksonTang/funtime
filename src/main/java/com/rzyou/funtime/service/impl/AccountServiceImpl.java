@@ -83,6 +83,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public PageInfo<FuntimeUserAccountRechargeRecord> getRechargeDetailForPage(Integer startPage, Integer pageSize, String queryDate, Integer state, Long userId) {
         PageHelper.startPage(startPage,pageSize);
+        return new PageInfo<>(null);
 
     }
 
