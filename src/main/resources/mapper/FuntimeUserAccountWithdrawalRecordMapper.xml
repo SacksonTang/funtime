@@ -35,7 +35,7 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
 
-  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountWithdrawalRecord">
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountWithdrawalRecord" useGeneratedKeys="true" keyProperty="id">
     insert into t_funtime_user_account_withdrawal_record
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">

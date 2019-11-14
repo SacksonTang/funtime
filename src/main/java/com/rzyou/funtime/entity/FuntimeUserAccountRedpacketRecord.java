@@ -22,6 +22,16 @@ public class FuntimeUserAccountRedpacketRecord {
 
     private String orderNo;
 
+    private Long giftRecordId;
+
+    public Long getGiftRecordId() {
+        return giftRecordId;
+    }
+
+    public void setGiftRecordId(Long giftRecordId) {
+        this.giftRecordId = giftRecordId;
+    }
+
     public String getOrderNo() {
         return orderNo;
     }

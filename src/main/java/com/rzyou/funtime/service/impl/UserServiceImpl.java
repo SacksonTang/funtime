@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -25,6 +26,11 @@ public class UserServiceImpl implements UserService {
     @Autowired
     FuntimeUserAccountMapper accountMapper;
 
+
+    @Override
+    public FuntimeUser queryUserById(Long id) {
+        return userMapper.selectByPrimaryKey(id);
+    }
 
     @Override
     public FuntimeUser queryUserInfoByPhone(String phone){
@@ -181,6 +187,49 @@ public class UserServiceImpl implements UserService {
     @Override
     public FuntimeUserAccount getUserAccountInfoById(Long userId) {
         return accountMapper.selectByUserId(userId);
+    }
+
+    @Override
+    public void updateUserAccountForPlus(Long userId,BigDecimal blackDiamond, BigDecimal blueDiamond, Integer hornNumber) {
+
+
+        int k = accountMapper.updateUserAccountForPlus(userId,blackDiamond,blueDiamond,hornNumber);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public void updateUserAccountForSub(Long userId,BigDecimal blackDiamond, BigDecimal blueDiamond, Integer hornNumber) {
+        FuntimeUserAccount info = getUserAccountInfoById(userId);
+        if (info==null){
+            throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        BigDecimal exp ;
+        if(blackDiamond!=null){
+            exp = info.getBlackDiamond().subtract(blackDiamond);
+            if(exp.intValue()<0){
+                throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLACK_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLACK_NOT_EN.getDesc());
+            }
+        }
+        if(blueDiamond!=null){
+            exp = info.getBlueDiamond().subtract(blueDiamond);
+            if(exp.intValue()<0){
+                throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            }
+        }
+        if(hornNumber!=null){
+            exp = new BigDecimal(info.getHornNumber() - hornNumber);
+            if(exp.intValue()<0){
+                throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_HORN_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_HORN_NOT_EN.getDesc());
+            }
+        }
+        int k = accountMapper.updateUserAccountForSub(info.getId(),blackDiamond,blueDiamond,hornNumber,info.getVersion(),System.currentTimeMillis());
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+
+
     }
 
     public Boolean updateByPrimaryKeySelective(FuntimeUser user){

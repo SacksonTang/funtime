@@ -20,6 +20,12 @@
     from t_funtime_parameter
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="getParameterValueByKey" parameterType="java.lang.String" resultType="java.lang.String">
+    select
+     value
+    from t_funtime_parameter
+    where key=#{key} limit 1
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from t_funtime_parameter
     where id = #{id,jdbcType=INTEGER}

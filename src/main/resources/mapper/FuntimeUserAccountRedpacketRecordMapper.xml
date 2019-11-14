@@ -10,9 +10,11 @@
     <result column="send_time" jdbcType="TIMESTAMP" property="sendTime" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="tag_id" jdbcType="INTEGER" property="tagId" />
+    <result column="gift_record_id" jdbcType="INTEGER" property="giftRecordId" />
+
   </resultMap>
   <sql id="Base_Column_List">
-    id, user_id, detail_id, amount, send_time, create_time, tag_id,order_no
+    id, user_id, detail_id, amount, send_time, create_time, tag_id,order_no,gift_record_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -20,17 +22,35 @@
     from t_funtime_user_account_redpacket_record
     where id = #{id,jdbcType=BIGINT}
   </select>
+  <select id="getRedpacketOfRecieveForPage"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user_account_redpacket_record
+    where 1=1
+    <if test="userId!=null">
+      and user_id = #{userId}
+    </if>
+    <if test="startDate!=null and endDate!=null">
+      and create_time between #{startDate} and #{endDate}
+    </if>
+    order by create_time desc
+  </select>
+  <select id="getRedpacketRecordByredId"  parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    d.id, d.amount
+    from t_funtime_user_account_redpacket_record d inner join t_funtime_user_redpacket_detail l on d.detail_id = l.id
+    where l.redpacket_id = #{redId}
+    order by d.amount desc,create_time asc
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_account_redpacket_record
     where id = #{id,jdbcType=BIGINT}
   </delete>
 
-  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountRedpacketRecord">
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountRedpacketRecord" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user_account_redpacket_record
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
+
       <if test="userId != null">
         user_id,
       </if>
@@ -52,11 +72,12 @@
       <if test="tagId != null">
         tag_id,
       </if>
+      <if test="giftRecordId != null">
+        gift_record_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
+
       <if test="userId != null">
         #{userId,jdbcType=BIGINT},
       </if>
@@ -78,6 +99,9 @@
       <if test="tagId != null">
         #{tagId,jdbcType=INTEGER},
       </if>
+      <if test="giftRecordId != null">
+        #{giftRecordId},
+      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountRedpacketRecord">
@@ -95,13 +119,22 @@
       <if test="sendTime != null">
         send_time = #{sendTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
+
       <if test="tagId != null">
         tag_id = #{tagId,jdbcType=INTEGER},
       </if>
+      <if test="giftRecordId != null">
+        gift_record_id=#{giftRecordId},
+      </if>
     </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateTagById" >
+    update t_funtime_user_account_redpacket_record
+
+       set tag_id = #{tagId,jdbcType=INTEGER}
+
     where id = #{id,jdbcType=BIGINT}
   </update>
 

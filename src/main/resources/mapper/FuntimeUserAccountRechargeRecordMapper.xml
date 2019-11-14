@@ -34,9 +34,17 @@
     <include refid="Base_Column_List" />
     from t_funtime_user_account_recharge_record
     where 1=1
-      <if test="queryDate!=null and queryDate!=''">
-         and create_time between contact(queryDate,'-01 00:00:00') and contact(queryDate,'-01 00:00:00')
+      <if test="userId!=null">
+        and user_id = #{userId}
       </if>
+      <if test="state!=null">
+      and state = #{state}
+      </if>
+      <if test="startDate!=null and startDate!='' and endDate!=null and endDate!=''">
+         and create_time between #{startDate} and #{endDate}
+      </if>
+      order by create_time desc
+
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_account_recharge_record

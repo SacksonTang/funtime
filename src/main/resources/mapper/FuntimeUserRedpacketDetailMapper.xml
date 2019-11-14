@@ -18,33 +18,63 @@
     from t_funtime_user_redpacket_detail
     where id = #{id,jdbcType=BIGINT}
   </select>
+  <select id="queryDetailByRedIdAll"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user_redpacket_detail
+    where redpacket_id = #{redId}
+  </select>
+  <select id="queryDetailByRedId"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user_redpacket_detail
+    where grab_user_id is not null
+    <if test="redId!=null">
+      and redpacket_id = #{redId}
+    </if>
+
+  </select>
+  <select id="queryDetailByRedIdAndUserId"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user_redpacket_detail
+    where 1=1
+        <if test="redId!=null">
+          and redpacket_id = #{redId}
+        </if>
+        <if test="grabUserId!=null">
+          and grab_user_id = #{grabUserId}
+        </if>
+        limit 1
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_redpacket_detail
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacketDetail">
-    insert into t_funtime_user_redpacket_detail (id, redpacket_id, amount, 
+  <insert id="insertBatch" >
+    insert into t_funtime_user_redpacket_detail (redpacket_id, amount,
       create_time, grab_user_id, version
       )
-    values (#{id,jdbcType=BIGINT}, #{redpacketId,jdbcType=BIGINT}, #{amount,jdbcType=DECIMAL}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{grabUserId,jdbcType=BIGINT}, #{version,jdbcType=BIGINT}
+    values
+    <foreach collection="details" item="detail" separator=",">
+    (#{detail.redpacketId,jdbcType=BIGINT}, #{detail.amount,jdbcType=DECIMAL},
+      now(), #{detail.grabUserId,jdbcType=BIGINT}, #{detail.version,jdbcType=BIGINT}
       )
+    </foreach>
   </insert>
-  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacketDetail">
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacketDetail" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user_redpacket_detail
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
+
       <if test="redpacketId != null">
         redpacket_id,
       </if>
       <if test="amount != null">
         amount,
       </if>
-      <if test="createTime != null">
+
         create_time,
-      </if>
+
       <if test="grabUserId != null">
         grab_user_id,
       </if>
@@ -53,18 +83,16 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
+
       <if test="redpacketId != null">
         #{redpacketId,jdbcType=BIGINT},
       </if>
       <if test="amount != null">
         #{amount,jdbcType=DECIMAL},
       </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
+
+        now(),
+
       <if test="grabUserId != null">
         #{grabUserId,jdbcType=BIGINT},
       </if>
@@ -82,9 +110,6 @@
       <if test="amount != null">
         amount = #{amount,jdbcType=DECIMAL},
       </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
       <if test="grabUserId != null">
         grab_user_id = #{grabUserId,jdbcType=BIGINT},
       </if>
@@ -94,13 +119,18 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacketDetail">
+  <update id="updateDetailById" >
     update t_funtime_user_redpacket_detail
-    set redpacket_id = #{redpacketId,jdbcType=BIGINT},
-      amount = #{amount,jdbcType=DECIMAL},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      grab_user_id = #{grabUserId,jdbcType=BIGINT},
-      version = #{version,jdbcType=BIGINT}
-    where id = #{id,jdbcType=BIGINT}
+    <set>
+
+      <if test="grabUserId != null">
+        grab_user_id = #{grabUserId,jdbcType=BIGINT},
+      </if>
+      <if test="newVersion != null">
+        version = #{newVersion,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id} and version = #{version}
   </update>
+
 </mapper>

@@ -9,6 +9,8 @@ import java.util.List;
 @Mapper
 public interface FuntimeTagMapper {
 
+    Integer getRedpacketTag(String tagType);
+
     List<Integer> queryTagsByUserId(Long userId);
 
     List<FuntimeTag> queryTagsByType(String tagType);

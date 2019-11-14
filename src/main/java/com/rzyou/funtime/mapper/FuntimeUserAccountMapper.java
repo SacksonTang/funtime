@@ -11,7 +11,9 @@ public interface FuntimeUserAccountMapper {
 
     int updateUserAccountForPlus(@Param("id") Long id, @Param("blackDiamond") BigDecimal blackDiamond, @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber);
 
-    int updateUserAccountForSub(@Param("id") Long id, @Param("blackDiamond") BigDecimal blackDiamond, @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber);
+    int updateUserAccountForSub(@Param("id") Long id, @Param("blackDiamond") BigDecimal blackDiamond
+            , @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber
+            , @Param("version") Long version,@Param("newVersion") Long newVersion);
 
 
     int deleteByPrimaryKey(Long id);

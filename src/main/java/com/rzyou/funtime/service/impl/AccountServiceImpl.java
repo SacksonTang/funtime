@@ -2,17 +2,18 @@ package com.rzyou.funtime.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.rzyou.funtime.common.BusinessException;
-import com.rzyou.funtime.common.ErrorMsgEnum;
-import com.rzyou.funtime.common.OperationType;
-import com.rzyou.funtime.common.PayState;
-import com.rzyou.funtime.entity.FuntimeRechargeConf;
-import com.rzyou.funtime.entity.FuntimeUserAccountBlueLog;
-import com.rzyou.funtime.entity.FuntimeUserAccountHornLog;
-import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
+import com.rzyou.funtime.common.*;
+import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.AccountService;
+import com.rzyou.funtime.service.ParameterService;
+import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.utils.DateUtil;
+import com.rzyou.funtime.utils.RedPacketUtil;
 import com.rzyou.funtime.utils.StringUtil;
+import com.sun.org.apache.regexp.internal.RE;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +21,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.math.RoundingMode;
+import java.util.*;
 
 @Service
 public class AccountServiceImpl implements AccountService {
     private static Logger log = LoggerFactory.getLogger(AccountServiceImpl.class);
+
+    @Autowired
+    UserService userService;
+    @Autowired
+    ParameterService parameterService;
+
     @Autowired
     FuntimeUserAccountRechargeRecordMapper userAccountRechargeRecordMapper;
+    @Autowired
+    FuntimeUserAccountGifttransRecordMapper userAccountGifttransRecordMapper;
     @Autowired
     FuntimeUserAccountBlueLogMapper userAccountBlueLogMapper;
     @Autowired
@@ -34,7 +44,20 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     FuntimeUserAccountHornLogMapper userAccountHornLogMapper;
     @Autowired
+    FuntimeUserAccountBlackLogMapper userAccountBlackLogMapper;
+    @Autowired
     FuntimeRechargeConfMapper rechargeConfMapper;
+    @Autowired
+    FuntimeUserRedpacketMapper userRedpacketMapper;
+    @Autowired
+    FuntimeUserRedpacketDetailMapper userRedpacketDetailMapper;
+    @Autowired
+    FuntimeUserAccountRedpacketRecordMapper userAccountRedpacketRecordMapper;
+    @Autowired
+    FuntimeTagMapper tagMapper;
+    @Autowired
+    FuntimeGiftMapper giftMapper;
+
 
     @Override
     @Transactional
@@ -84,13 +107,375 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public PageInfo<FuntimeUserAccountRechargeRecord> getRechargeDetailForPage(Integer startPage, Integer pageSize, String queryDate, Integer state, Long userId) {
         PageHelper.startPage(startPage,pageSize);
-        List<FuntimeUserAccountRechargeRecord> list = userAccountRechargeRecordMapper.getRechargeDetailForPage(queryDate,userId,state);
+        String startDate = queryDate+"-01 00:00:01";
+        String endDate = currentFinalDay(queryDate) ;
+
+        List<FuntimeUserAccountRechargeRecord> list = userAccountRechargeRecordMapper.getRechargeDetailForPage(startDate,endDate,userId,state);
         if(list==null||list.isEmpty()){
             return new PageInfo<>(null);
         }else{
             return new PageInfo<>(list);
         }
 
+    }
+
+    public String currentFinalDay(String queryDate){
+        String endDate ;
+        try {
+            endDate = DateUtil.currentFinalDay(queryDate);
+            return endDate;
+        } catch (Exception e) {
+            throw new BusinessException(ErrorMsgEnum.ORDER_DATE_ERROR.getValue(),ErrorMsgEnum.ORDER_DATE_ERROR.getDesc());
+        }
+
+    }
+
+    @Override
+    @Transactional
+    public void createRedpacket(FuntimeUserRedpacket redpacket) {
+
+        String invalid_day = parameterService.getParameterValueByKey("redpacket_invalid_day");
+
+        redpacket.setInvalidTime(DateUtils.addDays(new Date(),Integer.parseInt(invalid_day)));
+        redpacket.setState(RedpacketState.START.getValue());
+
+        int k = userRedpacketMapper.insertSelective(redpacket);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+
+        RedPacketUtil redPacketUtil = new RedPacketUtil(redpacket.getAmount().intValue());
+        Integer[] redPackets = redPacketUtil.splitRedPacket(redpacket.getAmount().intValue(), redpacket.getRedpacketNum());
+        if(redPackets.length>0) {
+            List<FuntimeUserRedpacketDetail> details = new ArrayList<>();
+            FuntimeUserRedpacketDetail detail;
+            for (Integer red : redPackets) {
+                detail = new FuntimeUserRedpacketDetail();
+                detail.setVersion(System.currentTimeMillis());
+                detail.setAmount(new BigDecimal(red));
+                detail.setRedpacketId(redpacket.getId());
+
+                details.add(detail);
+
+            }
+            userRedpacketDetailMapper.insertBatch(details);
+        }
+
+    }
+
+    @Override
+    @Transactional
+    public Map<String,Object> grabRedpacket(Long userId, Long redpacketId){
+
+        FuntimeUserRedpacket redpacket = userRedpacketMapper.selectByPrimaryKey(redpacketId);
+        if (redpacket==null){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_EXISTS.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_EXISTS.getDesc());
+        }
+        if (redpacket.getBestowCondition()==1){
+            return grabRedpacketNoCondition(userId, redpacketId,null);
+        }else{
+            return grabRedpacketBestowCondition(userId,redpacketId,redpacket.getGiftId(),redpacket.getUserId());
+        }
+
+    }
+    public Map<String,Object> grabRedpacketBestowCondition(Long userId, Long redpacketId, Integer giftId,Long toUserId) {
+
+        //礼物赠送
+        Long recordId = giftTrans(userId,toUserId,giftId,1,"红包赠送",GiveChannel.REDPACKET.getValue());
+
+        return grabRedpacketNoCondition(userId, redpacketId,recordId);
+
+    }
+
+
+    //无条件
+    public Map<String,Object> grabRedpacketNoCondition(Long userId, Long redpacketId,Long giftRecordId) {
+
+        checkUser(userId);
+        //有没有抢过
+        if(!checkRedpacketGrab(userId,redpacketId)){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_GRABED.getValue(),ErrorMsgEnum.REDPACKET_IS_GRABED.getDesc());
+        }
+
+        List<FuntimeUserRedpacketDetail> details = userRedpacketDetailMapper.queryDetailByRedId(redpacketId);
+
+        if (details==null||details.isEmpty()){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_OVER.getValue(),ErrorMsgEnum.REDPACKET_IS_OVER.getDesc());
+        }
+        //是否最后一个
+        boolean isLastOne = details.size()==1?true:false;
+
+        FuntimeUserRedpacketDetail detail = details.get(0);
+        //修改红包明细
+        updateDetailById(detail.getId(),userId,detail.getVersion(),System.currentTimeMillis());
+
+        //新建红包记录
+        Long recordId = saveAccountRedpacketRecord(userId,detail.getId(),detail.getAmount(),detail.getCreateTime(),giftRecordId);
+
+        //用户账户增加
+        userService.updateUserAccountForPlus(userId,null,detail.getAmount(),null);
+
+        //新建用户日志
+        saveUserAccountBlueLog(userId,detail.getAmount(),recordId,OperationType.GRABREDPACKET.getAction(),OperationType.GRABREDPACKET.getOperationType());
+
+        //最后一个打标签
+        if(isLastOne){
+
+            tagSetup(redpacketId);
+
+            updateRedpacketState(recordId,RedpacketState.SUCCESS.getValue());
+        }
+
+        Map<String,Object> result = new HashMap<>();
+        result.put("amount",detail.getAmount().intValue());
+        return result;
+
+    }
+
+    public void updateRedpacketState(Long id,Integer state){
+        int k = userRedpacketMapper.updateStateById(state,id);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+    }
+
+    private void tagSetup(Long redpacketId) {
+
+        List<FuntimeUserAccountRedpacketRecord> records = userAccountRedpacketRecordMapper.getRedpacketRecordByredId(redpacketId);
+        if(records==null||records.isEmpty()||records.size()<=5){
+            throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        //从大到小有序,相同时间早的排前面
+        int[] arrays = new int[records.size()];
+        for (int i =0 ;i<arrays.length-1;i++){
+            arrays[i] = records.get(i).getAmount().intValue();
+        }
+
+
+        int max = arrays[0];
+        int min = arrays[arrays.length-1];
+        records.get(0).setTagId(RedpacketTag.SORT_1.getValue());//首榜
+        records.get(arrays.length-1).setTagId(RedpacketTag.SORT_4.getValue());//小可怜
+
+        if (max==min){
+            for (int i = 1;i<arrays.length-2;i++){
+                records.get(i).setTagId(RedpacketTag.SORT_1.getValue());
+            }
+        }else {
+
+            for (int i = 1; i < arrays.length - 2; i++) {
+                if (arrays[i] == max) {
+                    records.get(i).setTagId(RedpacketTag.SORT_1.getValue());//首榜
+                }
+
+                if (arrays[i] == min) {
+                    records.get(i).setTagId(RedpacketTag.SORT_4.getValue());//小可怜
+                }
+            }
+
+            int second = 0;
+            for (int i = 1; i < arrays.length - 2; i++) {
+
+                if (arrays[i] < max && arrays[i] > min) {
+                    second = arrays[i];
+                    records.get(i).setTagId(RedpacketTag.SORT_2.getValue());//运气王
+                    break;
+                }
+            }
+            //有第二的
+            if (second > 0) {
+                for (int i = 2; i < arrays.length - 2; i++) {
+                    if (arrays[i]==second){
+                        records.get(i).setTagId(RedpacketTag.SORT_2.getValue());//运气王
+                    }
+                }
+                int third = 0;
+                for (int i = 2; i < arrays.length - 2; i++) {
+                    if (arrays[i] < second && arrays[i] > min) {
+                        third = arrays[i];
+                        records.get(i).setTagId(RedpacketTag.SORT_3.getValue());//小幸运
+                        break;
+                    }
+                }
+
+                //有第三
+                if (third > 0) {
+                    for (int i = 3; i < arrays.length - 2; i++) {
+                        if (arrays[i]==third){
+                            records.get(i).setTagId(RedpacketTag.SORT_3.getValue());//运气王
+                        }
+                    }
+                    //无第三
+                } else {
+
+                }
+
+                //无第二的,数组所有值不是最大就是最小
+            } else {
+                for (int i = 1; i < arrays.length - 2; i++) {
+                    if (arrays[i] == max) {
+                        records.get(i).setTagId(RedpacketTag.SORT_1.getValue());//首榜
+                    }
+                    if (arrays[i] == min) {
+                        records.get(i).setTagId(RedpacketTag.SORT_4.getValue());//小可怜
+                    }
+                }
+            }
+
+            for (FuntimeUserAccountRedpacketRecord record : records){
+                if (record.getTagId()!=null){
+                    userAccountRedpacketRecordMapper.updateTagById(record.getId(),record.getTagId());
+                }
+            }
+        }
+    }
+
+
+    @Override
+    public PageInfo<FuntimeUserRedpacket> getRedpacketOfSendForPage(Integer startPage, Integer pageSize, String queryDate, Long userId) {
+        PageHelper.startPage(startPage,pageSize);
+
+        String startDate = queryDate+"-01 00:00:01";
+        String endDate = currentFinalDay(queryDate) ;
+
+        List<FuntimeUserRedpacket> list = userRedpacketMapper.getRedpacketInfoByUserId(startDate,endDate,userId);
+        if(list==null||list.isEmpty()){
+            return new PageInfo<>(null);
+        }else{
+            return new PageInfo<>(list);
+        }
+    }
+
+    @Override
+    public PageInfo<FuntimeUserAccountRedpacketRecord> getRedpacketOfRecieveForPage(Integer startPage, Integer pageSize, String queryDate, Long userId) {
+        PageHelper.startPage(startPage,pageSize);
+
+        String startDate = queryDate+"-01 00:00:01";
+        String endDate = currentFinalDay(queryDate) ;
+
+        List<FuntimeUserAccountRedpacketRecord> list = userAccountRedpacketRecordMapper.getRedpacketOfRecieveForPage(startDate,endDate,userId);
+        if(list==null||list.isEmpty()){
+            return new PageInfo<>(null);
+        }else{
+            return new PageInfo<>(list);
+        }
+    }
+
+    @Override
+    public Long giftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum,String operationDesc,Integer giveChannelId) {
+
+        checkUser(userId);
+        checkUser(toUserId);
+        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
+        if (userAccount==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
+        if (funtimeGift==null){
+            throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
+        }
+
+        Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
+        //账户余额不足
+        if (userAccount.getBlueDiamond().intValue()<amount){
+            throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+        }
+
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
+
+        Long recordId = saveFuntimeUserAccountGifttransRecord(userId,operationDesc,new BigDecimal(amount)
+                ,giftNum,giftId,funtimeGift.getGiftName(),toUserId,giveChannelId);
+
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.HALF_UP);
+
+        //用户送减去蓝钻
+        userService.updateUserAccountForSub(userId,null,new BigDecimal(amount),null);
+
+        //用户收加上黑钻
+        userService.updateUserAccountForPlus(toUserId,black,null,null);
+
+        //用户送的日志
+        saveUserAccountBlueLog(userId,new BigDecimal(amount),recordId
+                ,OperationType.GIVEGIFT.getAction(),OperationType.GIVEGIFT.getOperationType());
+
+        //用户收的日志
+        saveUserAccountBlackLog(toUserId,black,recordId,OperationType.RECEIVEGIFT.getAction()
+                ,OperationType.RECEIVEGIFT.getOperationType());
+
+        return recordId;
+    }
+
+    @Override
+    public void updateStateForInvalid() {
+        userRedpacketMapper.updateStateForInvalid();
+    }
+
+
+    public Long saveFuntimeUserAccountGifttransRecord(Long userId,String operationDesc,BigDecimal amount,Integer num,Integer giftId
+            ,String giftName,Long toUserId,Integer giveChannelId){
+        FuntimeUserAccountGifttransRecord record = new FuntimeUserAccountGifttransRecord();
+        record.setActionType(OperationType.GIVEGIFT.getAction());
+        record.setAmount(amount);
+        record.setCreateTime(new Date());
+        record.setGiftId(giftId);
+        record.setGiftName(giftName);
+        record.setGiveChannelId(giveChannelId);
+        record.setNum(num);
+        record.setOperationDesc(operationDesc);
+        record.setOperationType(OperationType.GIVEGIFT.getOperationType());
+        record.setOrderNo("C"+StringUtil.createOrderId());
+        record.setState(1);
+        record.setToUserId(toUserId);
+        record.setUserId(userId);
+        record.setVersion(System.currentTimeMillis());
+        int k = userAccountGifttransRecordMapper.insertSelective(record);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return record.getId();
+    }
+
+    public void checkUser(Long userId){
+        FuntimeUser user = userService.queryUserById(userId);
+        if(user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+    }
+
+
+    public void updateDetailById(Long id, Long userId, Long version, long currentTimeMillis) {
+        int k = userRedpacketDetailMapper.updateDetailById(id,userId,version,currentTimeMillis);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+    }
+
+
+    public Long saveAccountRedpacketRecord(Long userId, Long detailId, BigDecimal amount, Date createTime,Long giftRecordId) {
+        FuntimeUserAccountRedpacketRecord record = new FuntimeUserAccountRedpacketRecord();
+        record.setAmount(amount);
+        record.setDetailId(detailId);
+        record.setOrderNo("B"+StringUtil.createOrderId());
+        record.setSendTime(createTime);
+        record.setUserId(userId);
+        record.setGiftRecordId(giftRecordId);
+        int k = userAccountRedpacketRecordMapper.insertSelective(record);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        return record.getId();
+    }
+
+
+
+    public boolean checkRedpacketGrab(Long userId,Long redpacketId){
+        FuntimeUserRedpacketDetail detail = userRedpacketDetailMapper.queryDetailByRedIdAndUserId(redpacketId,userId);
+        if(detail==null){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public void saveUserAccountHornLog(Long userId, Integer amount,Long recordId,String actionType,String operationType){
@@ -119,6 +504,19 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    public void saveUserAccountBlackLog(Long userId, BigDecimal amount,Long recordId,String actionType,String operationType){
+        FuntimeUserAccountBlackLog blackLog = new FuntimeUserAccountBlackLog();
+        blackLog.setUserId(userId);
+        blackLog.setAmount(amount);
+        blackLog.setRelationId(recordId);
+        blackLog.setActionType(actionType);
+        blackLog.setOperationType(operationType);
+        int k = userAccountBlackLogMapper.insertSelective(blackLog);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
 
     public void saveAccountRechargeRecord(FuntimeUserAccountRechargeRecord rechargeRecord,Long version, Integer state,String orderNo){
 
@@ -136,6 +534,7 @@ public class AccountServiceImpl implements AccountService {
         FuntimeUserAccountRechargeRecord record = new FuntimeUserAccountRechargeRecord();
         record.setId(id);
         record.setState(state);
+        record.setCompleteTime(new Date());
         int k = userAccountRechargeRecordMapper.updateByPrimaryKeySelective(record);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());

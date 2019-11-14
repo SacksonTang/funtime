@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface FuntimeUserAccountRechargeRecordMapper {
 
-    List<FuntimeUserAccountRechargeRecord> getRechargeDetailForPage(@Param("queryDate") String queryDate, @Param("userId") Long userId, @Param("state") Integer state);
+    List<FuntimeUserAccountRechargeRecord> getRechargeDetailForPage(@Param("startDate") String startDate,@Param("endDate") String endDate, @Param("userId") Long userId, @Param("state") Integer state);
 
     int deleteByPrimaryKey(Long id);
 

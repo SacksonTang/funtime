@@ -19,6 +19,12 @@
     from t_funtime_tag
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="getRedpacketTag" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    id
+    from t_funtime_tag
+    where tag_type = #{tagType} limit 1
+  </select>
   <select id="queryTagsByUserId"  resultType="java.lang.Integer" parameterType="java.lang.Long">
     select
       t.id

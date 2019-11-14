@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface FuntimeParameterMapper {
+
+    String getParameterValueByKey(String key);
+
     int deleteByPrimaryKey(Integer id);
 
     int insert(FuntimeParameter record);

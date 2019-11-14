@@ -26,6 +26,26 @@ public class FuntimeUserRedpacket {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
 
+    private BigDecimal grabAmount;
+
+    private Integer grabNum;
+
+    public BigDecimal getGrabAmount() {
+        return grabAmount;
+    }
+
+    public void setGrabAmount(BigDecimal grabAmount) {
+        this.grabAmount = grabAmount;
+    }
+
+    public Integer getGrabNum() {
+        return grabNum;
+    }
+
+    public void setGrabNum(Integer grabNum) {
+        this.grabNum = grabNum;
+    }
+
     public Long getId() {
         return id;
     }

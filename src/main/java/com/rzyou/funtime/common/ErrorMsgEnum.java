@@ -4,6 +4,7 @@ public enum ErrorMsgEnum {
 
     SUCCESS("0","成功"),
     PARAMETER_ERROR("99999","获取参数失败"),
+    PARAMETER_CONF_ERROR("99998","获取配置参数失败"),
     UNKNOWN_ERROR("10000","系统繁忙，请稍后再试...."),
     DATA_ORER_ERROR("10001","数据操作失败"),
     USER_NOT_EXISTS("10002","用户不存在"),
@@ -17,6 +18,9 @@ public enum ErrorMsgEnum {
     USER_GETTOKEN_FAIL("10010","获取token失败"),
     USER_SMS_FAIL("10011","短信发送失败"),
     USER_LOGINTYPE_ERROR("10012","登录类型LOGINTYPE错误"),
+    USER_ACCOUNT_BLACK_NOT_EN("10013","账户黑钻不足,请及时充值"),
+    USER_ACCOUNT_BLUE_NOT_EN("10014","账户蓝钻不足,请及时充值"),
+    USER_ACCOUNT_HORN_NOT_EN("10015","账户喇叭不足,请及时充值"),
 
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
@@ -29,7 +33,15 @@ public enum ErrorMsgEnum {
 
     ORDER_NOT_EXISTS("40001","充值订单记录不存在"),
     ORDER_IS_INVALID("40002","订单记录已失效"),
-    RECHARGE_CONF_NOT_EXISTS("40003","充值配置不存在")
+    ORDER_DATE_ERROR("40003","日期格式有误"),
+    RECHARGE_CONF_NOT_EXISTS("40004","充值配置不存在"),
+
+
+    REDPACKET_IS_OVER("50001","红包已经抢完"),
+    REDPACKET_IS_GRABED("50002","亲,您已经抢过,请点其他红包,谢谢"),
+    REDPACKET_IS_NOT_EXISTS("50003","红包不存在"),
+
+    GIFT_NOT_EXISTS("60001","礼物不存在")
 
     ;
 

@@ -4,9 +4,12 @@ import com.rzyou.funtime.entity.FuntimeTag;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface UserService {
+
+    FuntimeUser queryUserById(Long id);
 
     FuntimeUser queryUserInfoByPhone(String phone);
 
@@ -28,4 +31,20 @@ public interface UserService {
     List<FuntimeTag> queryTagsByType(String tagType);
 
     FuntimeUserAccount getUserAccountInfoById(Long userId);
+
+    /**
+     * 账户增加
+     * @param blackDiamond
+     * @param blueDiamond
+     * @param hornNumber
+     */
+    void updateUserAccountForPlus(Long userId,BigDecimal blackDiamond,BigDecimal blueDiamond,Integer hornNumber);
+
+    /**
+     * 账户减少
+     * @param blackDiamond
+     * @param blueDiamond
+     * @param hornNumber
+     */
+    void updateUserAccountForSub(Long userId,BigDecimal blackDiamond,BigDecimal blueDiamond,Integer hornNumber);
 }

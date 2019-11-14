@@ -12,6 +12,8 @@
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="invalid_time" jdbcType="TIMESTAMP" property="invalidTime" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="grabAmount"  property="grabAmount" />
+    <result column="grabNum"  property="grabNum" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, redpacket_num, amount, redpacket_desc, bestow_condition, gift_id, state, 
@@ -23,21 +25,27 @@
     from t_funtime_user_redpacket
     where id = #{id,jdbcType=BIGINT}
   </select>
+
+
+  <select id="getRedpacketInfoByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    t.id, t.user_id, t.redpacket_num, t.amount, t.redpacket_desc, t.bestow_condition, t.gift_id, t.state,
+    t.invalid_time, t.create_time
+    ,sum(l.amount) grabAmount,count(l.id) grabNum
+    from t_funtime_user_redpacket t inner join t_funtime_user_redpacket_detail l on t.id = l.redpacket_id
+    where user_id = #{userId} and l.grab_user_id is null
+    <if test="startDate!=null and endDate!=null">
+      and t.create_time between #{startDate} and #{endDate}
+    </if>
+    group by t.id
+    order by t.create_time desc
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_redpacket
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacket">
-    insert into t_funtime_user_redpacket (id, user_id, redpacket_num, 
-      amount, redpacket_desc, bestow_condition, 
-      gift_id, state, invalid_time, 
-      create_time)
-    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{redpacketNum,jdbcType=INTEGER}, 
-      #{amount,jdbcType=DECIMAL}, #{redpacketDesc,jdbcType=VARCHAR}, #{bestowCondition,jdbcType=INTEGER}, 
-      #{giftId,jdbcType=INTEGER}, #{state,jdbcType=INTEGER}, #{invalidTime,jdbcType=TIMESTAMP}, 
-      #{createTime,jdbcType=TIMESTAMP})
-  </insert>
-  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacket">
+
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacket" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user_redpacket
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -131,23 +139,28 @@
       <if test="invalidTime != null">
         invalid_time = #{invalidTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
+
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacket">
+  <update id="updateStateById" >
     update t_funtime_user_redpacket
-    set user_id = #{userId,jdbcType=BIGINT},
-      redpacket_num = #{redpacketNum,jdbcType=INTEGER},
-      amount = #{amount,jdbcType=DECIMAL},
-      redpacket_desc = #{redpacketDesc,jdbcType=VARCHAR},
-      bestow_condition = #{bestowCondition,jdbcType=INTEGER},
-      gift_id = #{giftId,jdbcType=INTEGER},
-      state = #{state,jdbcType=INTEGER},
-      invalid_time = #{invalidTime,jdbcType=TIMESTAMP},
-      create_time = #{createTime,jdbcType=TIMESTAMP}
+    <set>
+
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+
+
+    </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <update id="updateStateForInvalid" >
+    update t_funtime_user_redpacket
+
+        set state = 3,
+
+    where invalid_time > NOW()
+  </update>
+
 </mapper>

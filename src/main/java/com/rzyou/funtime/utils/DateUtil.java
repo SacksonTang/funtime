@@ -22,40 +22,30 @@ public class DateUtil {
         return time;
     }
 
-    /**
-     *
-     * @Description：查询当月开始时间
-     * @Date：2018/11/22 下午2:54
-     * @Author：ChengJian
-     * @UpdateRemark:
-     * @Version:1.0
-     *
-     */
-    public static String currentFirstDay(Date date){
-        Calendar calendar=Calendar.getInstance();
-        Date theDate=calendar.getTime();
-        GregorianCalendar gcLast=(GregorianCalendar)Calendar.getInstance();
-        gcLast.setTime(date);
-        //设置为第一天
-        gcLast.set(Calendar.DAY_OF_MONTH, 1);
-        return SDF1.format(gcLast.getTime())+" 00:00:00";
+
+
+    public static Date getDateByDayMonth(String day_month) throws Exception{
+        String date = day_month+"-01";
+        return SDF1.parse(date);
     }
 
     /**
      *
-     * @Description：查询当月最后时间
-     * @Date：2018/11/22 下午2:58
-     * @Author：ChengJian
-     * @UpdateRemark:
-     * @Version:1.0
+     * @Description：查询月份最后时间
      *
      */
-    public static String currentFinalDay(Date date){
+    public static String currentFinalDay(String date) throws Exception{
+
         Calendar calendar=Calendar.getInstance();
+        calendar.setTime(getDateByDayMonth(date));
         //设置日期为本月最大日期
         calendar.set(Calendar.DATE, calendar.getActualMaximum(calendar.DATE));
         //设置日期格式
         return SDF1.format(calendar.getTime())+" 23:59:59";
+    }
+
+    public static void main(String[] args) throws Exception{
+        System.out.println(currentFinalDay("2018-11"));
     }
 
 }

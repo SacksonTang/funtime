@@ -42,7 +42,7 @@
     select
     <include refid="Base_Column_List" />
     from t_funtime_user
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT} and flag = 1
   </select>
   <select id="queryUserInfo" parameterType="java.util.Map" resultMap="BaseResultMap">
     select
