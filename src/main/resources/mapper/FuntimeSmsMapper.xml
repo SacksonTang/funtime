@@ -12,10 +12,12 @@
     <result column="expire_time" jdbcType="TIMESTAMP" property="expireTime" />
     <result column="is_used" jdbcType="INTEGER" property="isUsed" />
     <result column="is_sended" jdbcType="INTEGER" property="isSended" />
+    <result column="sms_type" jdbcType="INTEGER" property="smsType" />
+
   </resultMap>
   <sql id="Base_Column_List">
     id, ip, user_id, mobile_number, validate_code, sms, create_time, expire_time, is_used, 
-    is_sended
+    is_sended,sms_type
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -27,22 +29,17 @@
     select
     <include refid="Base_Column_List" />
     from t_funtime_sms
-    where mobile_number = #{mobileNumber} and validate_code = #{validateCode} order by create_time desc limit 1
+    where sms_type = #{type}
+        and mobile_number = #{mobileNumber}
+        and validate_code = #{validateCode}
+        and is_used = 2
+        and expire_time>=NOW()  order by create_time desc limit 1
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_sms
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeSms">
-    insert into t_funtime_sms (id, ip, user_id, 
-      mobile_number, validate_code, sms, 
-      create_time, expire_time, is_used, 
-      is_sended)
-    values (#{id,jdbcType=BIGINT}, #{ip,jdbcType=VARCHAR}, #{userId,jdbcType=BIGINT}, 
-      #{mobileNumber,jdbcType=VARCHAR}, #{validateCode,jdbcType=VARCHAR}, #{sms,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{expireTime,jdbcType=TIMESTAMP}, #{isUsed,jdbcType=INTEGER}, 
-      #{isSended,jdbcType=INTEGER})
-  </insert>
+
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeSms">
     insert into t_funtime_sms
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -76,6 +73,9 @@
       <if test="isSended != null">
         is_sended,
       </if>
+      <if test="smsType != null">
+        sms_type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -107,6 +107,9 @@
       </if>
       <if test="isSended != null">
         #{isSended,jdbcType=INTEGER},
+      </if>
+      <if test="smsType != null">
+        #{smsType,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -143,17 +146,5 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeSms">
-    update t_funtime_sms
-    set ip = #{ip,jdbcType=VARCHAR},
-      user_id = #{userId,jdbcType=BIGINT},
-      mobile_number = #{mobileNumber,jdbcType=VARCHAR},
-      validate_code = #{validateCode,jdbcType=VARCHAR},
-      sms = #{sms,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      expire_time = #{expireTime,jdbcType=TIMESTAMP},
-      is_used = #{isUsed,jdbcType=INTEGER},
-      is_sended = #{isSended,jdbcType=INTEGER}
-    where id = #{id,jdbcType=BIGINT}
-  </update>
+
 </mapper>

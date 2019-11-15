@@ -28,7 +28,7 @@
     select
     <include refid="Base_Column_List" />
     from t_funtime_user_redpacket_detail
-    where grab_user_id is not null
+    where grab_user_id is null
     <if test="redId!=null">
       and redpacket_id = #{redId}
     </if>

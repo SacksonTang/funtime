@@ -276,6 +276,46 @@ public class UserController {
     }
 
     /**
+     * 实名认证
+     */
+    @PostMapping("userValid")
+    public ResultMsg<Object> userValid(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            String fullname = paramJson.getString("fullname");
+            String identityCard = paramJson.getString("identityCard");
+            String depositCard = paramJson.getString("depositCard");
+            String alipayNo = paramJson.getString("alipayNo");
+            String wxNo = paramJson.getString("wxNo");
+
+            if (StringUtils.isBlank(fullname)||StringUtils.isBlank(identityCard)
+                    ||StringUtils.isBlank(depositCard)||StringUtils.isBlank(alipayNo)
+                    ||userId==null||StringUtils.isBlank(wxNo)) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            userService.userValid(userId,fullname,identityCard,depositCard,alipayNo,wxNo);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 修改相册信息
      */
 

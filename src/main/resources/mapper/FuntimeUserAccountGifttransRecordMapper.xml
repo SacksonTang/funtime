@@ -29,6 +29,38 @@
     from t_funtime_user_account_gifttrans_record
     where id = #{id,jdbcType=BIGINT}
   </select>
+
+  <select id="getGiftOfSendForPage"  resultMap="BaseResultMap">
+    select
+    d.id, d.amount, d.num, d.gift_id, d.gift_name,
+    d.to_user_id, d.create_time,u.nikename,g.animation_type,
+    g.animation_url
+    from t_funtime_user_account_gifttrans_record d
+        inner join t_funtime_user u on d.to_user_id = u.id
+        inner join t_funtime_gift g on d.gift_id = g.id
+    where d.user_id = #{userId}
+
+    <if test="startDate!=null and endDate!=null">
+      and create_time between #{startDate} and #{endDate}
+    </if>
+    order by create_time desc
+  </select>
+  <select id="getGiftOfRecieveForPage"  resultMap="BaseResultMap">
+    select
+    d.id, d.amount, d.num, d.gift_id, d.gift_name,
+    d.to_user_id, d.create_time,u.nikename,g.animation_type,
+    g.animation_url
+    from t_funtime_user_account_gifttrans_record d
+    inner join t_funtime_user u on d.user_id = u.id
+    inner join t_funtime_gift g on d.gift_id = g.id
+    where to_user_id = #{userId}
+
+    <if test="startDate!=null and endDate!=null">
+      and create_time between #{startDate} and #{endDate}
+    </if>
+    order by create_time desc
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_account_gifttrans_record
     where id = #{id,jdbcType=BIGINT}

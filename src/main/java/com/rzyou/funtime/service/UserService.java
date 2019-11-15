@@ -49,4 +49,6 @@ public interface UserService {
     void updateUserAccountForSub(Long userId,BigDecimal blackDiamond,BigDecimal blueDiamond,Integer hornNumber);
 
     void updatePhoneNumber(Long userId, String newPhoneNumber, String code);
+
+    void userValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo);
 }

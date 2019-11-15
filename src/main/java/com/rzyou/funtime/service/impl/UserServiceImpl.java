@@ -29,6 +29,8 @@ public class UserServiceImpl implements UserService {
     FuntimeUserLoginRecordMapper loginRecordMapper;
     @Autowired
     FuntimeUserAccountMapper accountMapper;
+    @Autowired
+    FuntimeUserValidMapper userValidMapper;
 
 
     @Override
@@ -258,6 +260,21 @@ public class UserServiceImpl implements UserService {
 
         smsService.updateSmsInfoById(smsId,1);
 
+    }
+
+    @Override
+    public void userValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo) {
+        FuntimeUserValid userValid = new FuntimeUserValid();
+        userValid.setAlipayNo(alipayNo);
+        userValid.setDepositCard(depositCard);
+        userValid.setFullname(fullname);
+        userValid.setIdentityCard(identityCard);
+        userValid.setWxNo(wxNo);
+        userValid.setUserId(userId);
+        int k = userValidMapper.insertSelective(userValid);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
     }
 
     public Boolean updateByPrimaryKeySelective(FuntimeUser user){

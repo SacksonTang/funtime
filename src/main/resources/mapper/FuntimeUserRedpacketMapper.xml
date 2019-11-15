@@ -33,7 +33,7 @@
     t.invalid_time, t.create_time
     ,sum(l.amount) grabAmount,count(l.id) grabNum
     from t_funtime_user_redpacket t inner join t_funtime_user_redpacket_detail l on t.id = l.redpacket_id
-    where user_id = #{userId} and l.grab_user_id is null
+    where user_id = #{userId} and l.grab_user_id is not null
     <if test="startDate!=null and endDate!=null">
       and t.create_time between #{startDate} and #{endDate}
     </if>
@@ -158,9 +158,9 @@
   <update id="updateStateForInvalid" >
     update t_funtime_user_redpacket
 
-        set state = 3,
+        set state = 3
 
-    where invalid_time > NOW()
+    where   NOW()>invalid_time
   </update>
 
 </mapper>

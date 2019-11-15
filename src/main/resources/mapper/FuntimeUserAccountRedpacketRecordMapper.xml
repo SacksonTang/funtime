@@ -40,7 +40,7 @@
     d.id, d.amount
     from t_funtime_user_account_redpacket_record d inner join t_funtime_user_redpacket_detail l on d.detail_id = l.id
     where l.redpacket_id = #{redId}
-    order by d.amount desc,create_time asc
+    order by d.amount desc,d.create_time asc
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_account_redpacket_record

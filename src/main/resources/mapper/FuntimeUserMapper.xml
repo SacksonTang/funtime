@@ -54,6 +54,14 @@
     </if>
     limit 1
   </select>
+  <select id="queryUserInfoByPhone" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user
+    where phone_number = #{phone}
+
+    limit 1
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user
     where id = #{id,jdbcType=BIGINT}
@@ -330,5 +338,11 @@
     </set>
     where id = #{id,jdbcType=BIGINT} and version = #{version}
   </update>
+
+  <update id="updatePhoneNumberById">
+    update t_funtime_user set phone_number = #{phone} ,version = #{newVersion} where id = #{id} and version = #{version}
+  </update>
+
+
 
 </mapper>

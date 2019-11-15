@@ -4,38 +4,38 @@
   <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeParameter">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="key_type" jdbcType="VARCHAR" property="keyType" />
-    <result column="key" jdbcType="VARCHAR" property="key" />
-    <result column="value" jdbcType="VARCHAR" property="value" />
+    <result column="parameter_key" jdbcType="VARCHAR" property="parameterKey" />
+    <result column="parameter_value" jdbcType="VARCHAR" property="parameterValue" />
     <result column="key_name" jdbcType="VARCHAR" property="keyName" />
     <result column="parameter_desc" jdbcType="VARCHAR" property="parameterDesc" />
     <result column="flag" jdbcType="INTEGER" property="flag" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, key_type, key, value, key_name, parameter_desc, flag, create_time
+    id, key_type, parameter_key, parameter_value, key_name, parameter_desc, flag, create_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from t_funtime_parameter
     where id = #{id,jdbcType=INTEGER}
   </select>
   <select id="getParameterValueByKey" parameterType="java.lang.String" resultType="java.lang.String">
     select
-     value
+     parameter_value
     from t_funtime_parameter
-    where key=#{key} limit 1
+    where parameter_key=#{key} limit 1
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from t_funtime_parameter
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeParameter">
-    insert into t_funtime_parameter (id, key_type, key, 
-      value, key_name, parameter_desc, 
+    insert into t_funtime_parameter (id, key_type, parameter_key,
+      parameter_value, key_name, parameter_desc,
       flag, create_time)
-    values (#{id,jdbcType=INTEGER}, #{keyType,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}, 
-      #{value,jdbcType=VARCHAR}, #{keyName,jdbcType=VARCHAR}, #{parameterDesc,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=INTEGER}, #{keyType,jdbcType=VARCHAR}, #{parameterKey,jdbcType=VARCHAR},
+      #{parameterValue,jdbcType=VARCHAR}, #{keyName,jdbcType=VARCHAR}, #{parameterDesc,jdbcType=VARCHAR},
       #{flag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeParameter">
@@ -47,11 +47,11 @@
       <if test="keyType != null">
         key_type,
       </if>
-      <if test="key != null">
-        key,
+      <if test="parameterKey != null">
+        parameter_key,
       </if>
-      <if test="value != null">
-        value,
+      <if test="parameterValue != null">
+        parameter_value,
       </if>
       <if test="keyName != null">
         key_name,
@@ -73,11 +73,11 @@
       <if test="keyType != null">
         #{keyType,jdbcType=VARCHAR},
       </if>
-      <if test="key != null">
-        #{key,jdbcType=VARCHAR},
+      <if test="parameterKey != null">
+        #{parameterKey,jdbcType=VARCHAR},
       </if>
-      <if test="value != null">
-        #{value,jdbcType=VARCHAR},
+      <if test="parameterValue != null">
+        #{parameterValue,jdbcType=VARCHAR},
       </if>
       <if test="keyName != null">
         #{keyName,jdbcType=VARCHAR},
@@ -99,11 +99,11 @@
       <if test="keyType != null">
         key_type = #{keyType,jdbcType=VARCHAR},
       </if>
-      <if test="key != null">
-        key = #{key,jdbcType=VARCHAR},
+      <if test="parameterKey != null">
+        parameter_key = #{parameterKey,jdbcType=VARCHAR},
       </if>
-      <if test="value != null">
-        value = #{value,jdbcType=VARCHAR},
+      <if test="parameterValue != null">
+        parameter_value = #{parameterValue,jdbcType=VARCHAR},
       </if>
       <if test="keyName != null">
         key_name = #{keyName,jdbcType=VARCHAR},
@@ -123,8 +123,8 @@
   <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeParameter">
     update t_funtime_parameter
     set key_type = #{keyType,jdbcType=VARCHAR},
-      key = #{key,jdbcType=VARCHAR},
-      value = #{value,jdbcType=VARCHAR},
+      parameter_key = #{parameterKey,jdbcType=VARCHAR},
+      parameter_value = #{parameterValue,jdbcType=VARCHAR},
       key_name = #{keyName,jdbcType=VARCHAR},
       parameter_desc = #{parameterDesc,jdbcType=VARCHAR},
       flag = #{flag,jdbcType=INTEGER},
