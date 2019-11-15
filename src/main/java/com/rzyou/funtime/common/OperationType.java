@@ -6,11 +6,13 @@ public enum OperationType {
     ,GRABREDPACKET("IN","GRABREDPACKET","抢红包")
     ,RECEIVEGIFT("IN","RECEIVEGIFT","收礼物")
     ,GAMEIN("IN","GAMEIN","游戏收入")
+    ,BLACK_BLUE_IN("IN","BLACK_BLUE_IN","黑钻兑换蓝钻")
 
     ,WITHDRAWAL("OUT","WITHDRAWAL","提现")
     ,GIVEREDPACKET("OUT","GIVEREDPACKET","发红包")
     ,GIVEGIFT("OUT","GIVEGIFT","送礼物")
     ,GAMEOUT("OUT","GAMEOUT","游戏支出")
+    ,BLACK_BLUE_OUT("OUT","BLACK_BLUE_OUT","黑钻兑换蓝钻")
     ;
 
      private String action;

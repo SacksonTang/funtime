@@ -25,6 +25,16 @@ public class FuntimeSms {
 
     private Integer isSended;
 
+    private Integer smsType;
+
+    public Integer getSmsType() {
+        return smsType;
+    }
+
+    public void setSmsType(Integer smsType) {
+        this.smsType = smsType;
+    }
+
     public Long getId() {
         return id;
     }

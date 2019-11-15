@@ -7,11 +7,9 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface FuntimeSmsMapper {
 
-    FuntimeSms querySmsByMobile(@Param("mobileNumber") String mobileNumber, @Param("validateCode") String validateCode);
+    FuntimeSms querySmsByMobile(@Param("type") Integer type, @Param("mobileNumber") String mobileNumber, @Param("validateCode") String validateCode);
 
     int deleteByPrimaryKey(Long id);
-
-    int insert(FuntimeSms record);
 
     int insertSelective(FuntimeSms record);
 
@@ -19,5 +17,4 @@ public interface FuntimeSmsMapper {
 
     int updateByPrimaryKeySelective(FuntimeSms record);
 
-    int updateByPrimaryKey(FuntimeSms record);
 }

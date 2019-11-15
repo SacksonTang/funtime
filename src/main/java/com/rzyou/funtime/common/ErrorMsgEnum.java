@@ -21,6 +21,7 @@ public enum ErrorMsgEnum {
     USER_ACCOUNT_BLACK_NOT_EN("10013","账户黑钻不足,请及时充值"),
     USER_ACCOUNT_BLUE_NOT_EN("10014","账户蓝钻不足,请及时充值"),
     USER_ACCOUNT_HORN_NOT_EN("10015","账户喇叭不足,请及时充值"),
+    PHONE_NUMBER_IS_REGISTER("10016","手机号已被注册"),
 
 
     SMS_NOT_EXISTS("20000","验证码不存在"),

@@ -1,5 +1,7 @@
 package com.rzyou.funtime.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -23,7 +25,7 @@ public class FuntimeGift {
     private String animationUrl;
 
     private BigDecimal animationLength;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
 
     private Integer sort;

@@ -6,6 +6,7 @@ import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.service.AccountService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,43 @@ public class GiftTransController {
 
             accountService.giftTrans(userId,toUserId,giftId,giftNum,"送礼物",giveChannel);
 
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    @PostMapping("getGiftTransForPage")
+    public ResultMsg<Object> getGiftTransForPage(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+
+            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
+            String queryDate = paramJson.getString("queryDate");
+            Integer type = paramJson.getInteger("type");
+            Long userId = paramJson.getLong("userId");
+            if(type==null||userId==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            //发出
+            if(type.intValue()==1){
+                result.setData(accountService.getGiftOfSendForPage(startPage, pageSize, queryDate, userId));
+            }else{
+                result.setData(accountService.getGiftOfRecieveForPage(startPage, pageSize, queryDate, userId));
+            }
 
             return result;
         } catch (BusinessException be) {

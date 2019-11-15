@@ -24,7 +24,7 @@ public class TelLogin implements LoginStrategy {
     @Transactional
     public FuntimeUser login(FuntimeUser user) {
         //校验验证码
-        smsService.validateSms(user.getPhoneNumber(),user.getCode());
+        //smsService.validateSms(user.getPhoneNumber(),user.getCode());
 
         String userId;
         FuntimeUser funtimeUser = userService.queryUserInfoByPhone(user.getPhoneNumber());

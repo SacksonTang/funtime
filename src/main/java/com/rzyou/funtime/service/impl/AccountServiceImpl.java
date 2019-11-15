@@ -11,7 +11,7 @@ import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.RedPacketUtil;
 import com.rzyou.funtime.utils.StringUtil;
-import com.sun.org.apache.regexp.internal.RE;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -53,6 +53,8 @@ public class AccountServiceImpl implements AccountService {
     FuntimeUserRedpacketDetailMapper userRedpacketDetailMapper;
     @Autowired
     FuntimeUserAccountRedpacketRecordMapper userAccountRedpacketRecordMapper;
+    @Autowired
+    FuntimeUserConvertRecordMapper userConvertRecordMapper;
     @Autowired
     FuntimeTagMapper tagMapper;
     @Autowired
@@ -112,7 +114,7 @@ public class AccountServiceImpl implements AccountService {
 
         List<FuntimeUserAccountRechargeRecord> list = userAccountRechargeRecordMapper.getRechargeDetailForPage(startDate,endDate,userId,state);
         if(list==null||list.isEmpty()){
-            return new PageInfo<>(null);
+            return new PageInfo<>();
         }else{
             return new PageInfo<>(list);
         }
@@ -223,7 +225,7 @@ public class AccountServiceImpl implements AccountService {
 
             tagSetup(redpacketId);
 
-            updateRedpacketState(recordId,RedpacketState.SUCCESS.getValue());
+            updateRedpacketState(redpacketId,RedpacketState.SUCCESS.getValue());
         }
 
         Map<String,Object> result = new HashMap<>();
@@ -232,8 +234,8 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    public void updateRedpacketState(Long id,Integer state){
-        int k = userRedpacketMapper.updateStateById(state,id);
+    public void updateRedpacketState(Long redpacketId,Integer state){
+        int k = userRedpacketMapper.updateStateById(state,redpacketId);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
         }
@@ -248,7 +250,7 @@ public class AccountServiceImpl implements AccountService {
 
         //从大到小有序,相同时间早的排前面
         int[] arrays = new int[records.size()];
-        for (int i =0 ;i<arrays.length-1;i++){
+        for (int i =0 ;i<arrays.length;i++){
             arrays[i] = records.get(i).getAmount().intValue();
         }
 
@@ -259,12 +261,12 @@ public class AccountServiceImpl implements AccountService {
         records.get(arrays.length-1).setTagId(RedpacketTag.SORT_4.getValue());//小可怜
 
         if (max==min){
-            for (int i = 1;i<arrays.length-2;i++){
+            for (int i = 1;i<arrays.length-1;i++){
                 records.get(i).setTagId(RedpacketTag.SORT_1.getValue());
             }
         }else {
 
-            for (int i = 1; i < arrays.length - 2; i++) {
+            for (int i = 1; i < arrays.length-1 ; i++) {
                 if (arrays[i] == max) {
                     records.get(i).setTagId(RedpacketTag.SORT_1.getValue());//首榜
                 }
@@ -275,7 +277,7 @@ public class AccountServiceImpl implements AccountService {
             }
 
             int second = 0;
-            for (int i = 1; i < arrays.length - 2; i++) {
+            for (int i = 1; i < arrays.length - 1; i++) {
 
                 if (arrays[i] < max && arrays[i] > min) {
                     second = arrays[i];
@@ -285,13 +287,13 @@ public class AccountServiceImpl implements AccountService {
             }
             //有第二的
             if (second > 0) {
-                for (int i = 2; i < arrays.length - 2; i++) {
+                for (int i = 2; i < arrays.length - 1; i++) {
                     if (arrays[i]==second){
                         records.get(i).setTagId(RedpacketTag.SORT_2.getValue());//运气王
                     }
                 }
                 int third = 0;
-                for (int i = 2; i < arrays.length - 2; i++) {
+                for (int i = 2; i < arrays.length - 1; i++) {
                     if (arrays[i] < second && arrays[i] > min) {
                         third = arrays[i];
                         records.get(i).setTagId(RedpacketTag.SORT_3.getValue());//小幸运
@@ -301,7 +303,7 @@ public class AccountServiceImpl implements AccountService {
 
                 //有第三
                 if (third > 0) {
-                    for (int i = 3; i < arrays.length - 2; i++) {
+                    for (int i = 3; i < arrays.length - 1; i++) {
                         if (arrays[i]==third){
                             records.get(i).setTagId(RedpacketTag.SORT_3.getValue());//运气王
                         }
@@ -313,7 +315,7 @@ public class AccountServiceImpl implements AccountService {
 
                 //无第二的,数组所有值不是最大就是最小
             } else {
-                for (int i = 1; i < arrays.length - 2; i++) {
+                for (int i = 1; i < arrays.length - 1; i++) {
                     if (arrays[i] == max) {
                         records.get(i).setTagId(RedpacketTag.SORT_1.getValue());//首榜
                     }
@@ -341,7 +343,7 @@ public class AccountServiceImpl implements AccountService {
 
         List<FuntimeUserRedpacket> list = userRedpacketMapper.getRedpacketInfoByUserId(startDate,endDate,userId);
         if(list==null||list.isEmpty()){
-            return new PageInfo<>(null);
+            return new PageInfo<>();
         }else{
             return new PageInfo<>(list);
         }
@@ -356,13 +358,14 @@ public class AccountServiceImpl implements AccountService {
 
         List<FuntimeUserAccountRedpacketRecord> list = userAccountRedpacketRecordMapper.getRedpacketOfRecieveForPage(startDate,endDate,userId);
         if(list==null||list.isEmpty()){
-            return new PageInfo<>(null);
+            return new PageInfo<>();
         }else{
             return new PageInfo<>(list);
         }
     }
 
     @Override
+    @Transactional
     public Long giftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum,String operationDesc,Integer giveChannelId) {
 
         checkUser(userId);
@@ -411,6 +414,112 @@ public class AccountServiceImpl implements AccountService {
         userRedpacketMapper.updateStateForInvalid();
     }
 
+    @Override
+    @Transactional
+    public void diamondConvert(Long userId, String from, String to, BigDecimal amount,Integer convertType) {
+
+        BigDecimal val = convert(from,to,amount);
+
+        BigDecimal toAmount = amount.multiply(val).setScale(2,RoundingMode.HALF_UP);
+
+        Long recordId = saveFuntimeUserConvertRecord(userId,val,convertType,amount,toAmount);
+
+        //用户送减去黑钻
+        userService.updateUserAccountForSub(userId,amount,null,null);
+
+        //用户收加上蓝钻
+        userService.updateUserAccountForPlus(userId,null,toAmount,null);
+
+        //用户减的日志
+        saveUserAccountBlueLog(userId,toAmount,recordId
+                ,OperationType.BLACK_BLUE_IN.getAction(),OperationType.BLACK_BLUE_IN.getOperationType());
+
+        //用户加的日志
+        saveUserAccountBlackLog(userId,amount,recordId,OperationType.BLACK_BLUE_OUT.getAction()
+                ,OperationType.BLACK_BLUE_OUT.getOperationType());
+
+
+    }
+
+    @Override
+    public PageInfo<FuntimeUserConvertRecord> getUserConvertRecordForPage(Integer startPage, Integer pageSize, Long userId, String queryDate,Integer convertType) {
+        PageHelper.startPage(startPage,pageSize);
+
+        String startDate = queryDate+"-01 00:00:01";
+        String endDate = currentFinalDay(queryDate) ;
+
+        List<FuntimeUserConvertRecord> list = userConvertRecordMapper.getUserConvertRecordForPage(convertType,startDate,endDate,userId);
+        if(list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }else{
+            return new PageInfo<>(list);
+        }
+    }
+
+    @Override
+    public PageInfo<FuntimeUserAccountGifttransRecord> getGiftOfSendForPage(Integer startPage, Integer pageSize, String queryDate, Long userId) {
+        PageHelper.startPage(startPage,pageSize);
+
+        String startDate = null;
+        String endDate = null;
+        if(StringUtils.isNotBlank(queryDate)) {
+            startDate = queryDate + "-01 00:00:01";
+            endDate = currentFinalDay(queryDate);
+        }
+
+        List<FuntimeUserAccountGifttransRecord> list = userAccountGifttransRecordMapper.getGiftOfSendForPage(startDate,endDate,userId);
+        if(list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }else{
+            return new PageInfo<>(list);
+        }
+    }
+
+    @Override
+    public PageInfo<FuntimeUserAccountGifttransRecord> getGiftOfRecieveForPage(Integer startPage, Integer pageSize, String queryDate, Long userId) {
+        PageHelper.startPage(startPage,pageSize);
+        String startDate = null;
+        String endDate = null;
+        if(StringUtils.isNotBlank(queryDate)) {
+            startDate = queryDate + "-01 00:00:01";
+            endDate = currentFinalDay(queryDate);
+        }
+
+        List<FuntimeUserAccountGifttransRecord> list = userAccountGifttransRecordMapper.getGiftOfRecieveForPage(startDate,endDate,userId);
+        if(list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }else{
+            return new PageInfo<>(list);
+        }
+    }
+
+    public Long saveFuntimeUserConvertRecord(Long userId,BigDecimal convertRatio,Integer convertType,BigDecimal fromAmount,BigDecimal toAmount){
+        FuntimeUserConvertRecord record = new FuntimeUserConvertRecord();
+        record.setConvertRatio(convertRatio);
+        record.setConvertType(convertType);
+        record.setFromAmount(fromAmount);
+        record.setToAmount(toAmount);
+        record.setUserId(userId);
+        int k = userConvertRecordMapper.insertSelective(record);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return record.getId();
+    }
+
+    public BigDecimal convert(String from, String to, BigDecimal amount){
+        StringBuffer key = new StringBuffer();
+        key.append(from).append("_to_").append(to);
+
+        String val = parameterService.getParameterValueByKey(key.toString());
+
+        if (StringUtils.isBlank(val)){
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
+        }
+
+        return new BigDecimal(val);
+    }
+
 
     public Long saveFuntimeUserAccountGifttransRecord(Long userId,String operationDesc,BigDecimal amount,Integer num,Integer giftId
             ,String giftName,Long toUserId,Integer giveChannelId){
@@ -429,6 +538,7 @@ public class AccountServiceImpl implements AccountService {
         record.setToUserId(toUserId);
         record.setUserId(userId);
         record.setVersion(System.currentTimeMillis());
+        record.setCompleteTime(new Date());
         int k = userAccountGifttransRecordMapper.insertSelective(record);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());

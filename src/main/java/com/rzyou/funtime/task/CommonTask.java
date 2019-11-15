@@ -11,7 +11,7 @@ public class CommonTask {
     @Autowired
     AccountService accountService;
 
-    @Scheduled(cron = "0 /1 ?")
+    @Scheduled(fixedRate = 1000*60)
     public void redpacketTask(){
 
         try {

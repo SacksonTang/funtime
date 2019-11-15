@@ -1,5 +1,7 @@
 package com.rzyou.funtime.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public class FuntimeParameter {
@@ -7,16 +9,16 @@ public class FuntimeParameter {
 
     private String keyType;
 
-    private String key;
+    private String parameterKey;
 
-    private String value;
+    private String parameterValue;
 
     private String keyName;
 
     private String parameterDesc;
 
     private Integer flag;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
 
     public Integer getId() {
@@ -35,20 +37,20 @@ public class FuntimeParameter {
         this.keyType = keyType == null ? null : keyType.trim();
     }
 
-    public String getKey() {
-        return key;
+    public String getParameterKey() {
+        return parameterKey;
     }
 
-    public void setKey(String key) {
-        this.key = key == null ? null : key.trim();
+    public void setParameterKey(String parameterKey) {
+        this.parameterKey = parameterKey == null ? null : parameterKey.trim();
     }
 
-    public String getValue() {
-        return value;
+    public String getParameterValue() {
+        return parameterValue;
     }
 
-    public void setValue(String value) {
-        this.value = value == null ? null : value.trim();
+    public void setParameterValue(String parameterValue) {
+        this.parameterValue = parameterValue == null ? null : parameterValue.trim();
     }
 
     public String getKeyName() {

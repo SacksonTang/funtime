@@ -47,4 +47,6 @@ public interface UserService {
      * @param hornNumber
      */
     void updateUserAccountForSub(Long userId,BigDecimal blackDiamond,BigDecimal blueDiamond,Integer hornNumber);
+
+    void updatePhoneNumber(Long userId, String newPhoneNumber, String code);
 }

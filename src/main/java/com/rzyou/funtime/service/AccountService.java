@@ -1,10 +1,7 @@
 package com.rzyou.funtime.service;
 
 import com.github.pagehelper.PageInfo;
-import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
-import com.rzyou.funtime.entity.FuntimeUserAccountRedpacketRecord;
-import com.rzyou.funtime.entity.FuntimeUserRedpacket;
-import org.apache.ibatis.annotations.Param;
+import com.rzyou.funtime.entity.*;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -28,4 +25,11 @@ public interface AccountService {
 
     void updateStateForInvalid();
 
+    void diamondConvert(Long userId, String from, String to, BigDecimal amount,Integer convertType);
+
+    PageInfo<FuntimeUserConvertRecord> getUserConvertRecordForPage(Integer startPage, Integer pageSize, Long userId, String queryDate,Integer convertType);
+
+    PageInfo<FuntimeUserAccountGifttransRecord> getGiftOfSendForPage(Integer startPage, Integer pageSize, String queryDate, Long userId);
+
+    PageInfo<FuntimeUserAccountGifttransRecord> getGiftOfRecieveForPage(Integer startPage, Integer pageSize, String queryDate, Long userId);
 }

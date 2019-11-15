@@ -2,8 +2,10 @@ package com.rzyou.funtime.service.impl;
 
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.SmsType;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
+import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import java.util.*;
 @Service
 public class UserServiceImpl implements UserService {
 
+    @Autowired
+    SmsService smsService;
     @Autowired
     FuntimeUserMapper userMapper;
     @Autowired
@@ -224,11 +228,35 @@ public class UserServiceImpl implements UserService {
                 throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_HORN_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_HORN_NOT_EN.getDesc());
             }
         }
-        int k = accountMapper.updateUserAccountForSub(info.getId(),blackDiamond,blueDiamond,hornNumber,info.getVersion(),System.currentTimeMillis());
+        int k = accountMapper.updateUserAccountForSub(userId,blackDiamond,blueDiamond,hornNumber,info.getVersion(),System.currentTimeMillis());
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
 
+
+    }
+
+    @Override
+    @Transactional
+    public void updatePhoneNumber(Long userId, String newPhoneNumber, String code) {
+
+        FuntimeUser user = userMapper.queryUserInfoByPhone(newPhoneNumber);
+        if (user!=null){
+            throw new BusinessException(ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getValue(),ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getDesc());
+        }
+        user = userMapper.selectByPrimaryKey(userId);
+        if(user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+
+        Long smsId = smsService.validateSms(SmsType.UPDATE_PHONENUMBER.getValue(),newPhoneNumber,code);
+
+        int k = userMapper.updatePhoneNumberById(userId,user.getVersion(),System.currentTimeMillis(),newPhoneNumber);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+
+        smsService.updateSmsInfoById(smsId,1);
 
     }
 
