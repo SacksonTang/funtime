@@ -3,6 +3,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
@@ -11,11 +13,31 @@ import java.io.*;
 import java.nio.charset.Charset;
 
 public class HttpHelper {
+    private static Logger log = LoggerFactory.getLogger(HttpHelper.class);
 
     public static JSONObject getParamterJson(HttpServletRequest request){
         try {
             String str = getBodyString(request);
+            log.info("请求Body: {} ", str);
             JSONObject obj = JSONObject.parseObject(str);
+            String token = obj.getString("token");
+            if(StringUtils.isBlank(token)){
+                throw new BusinessException(ErrorMsgEnum.USER_TOKEN_ERROR.getValue(),ErrorMsgEnum.USER_TOKEN_ERROR.getDesc());
+            }
+            JSONObject paramJson = obj.getJSONObject("param");
+            return paramJson;
+        }catch (Exception e){
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        }
+
+    }
+
+    public static JSONObject getParamterJsonNoToken(HttpServletRequest request){
+        try {
+            String str = getBodyString(request);
+            log.info("请求Body: {} ", str);
+            JSONObject obj = JSONObject.parseObject(str);
+
             JSONObject paramJson = obj.getJSONObject("param");
             return paramJson;
         }catch (Exception e){

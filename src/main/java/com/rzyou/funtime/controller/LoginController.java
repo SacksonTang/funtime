@@ -60,7 +60,7 @@ public class LoginController {
         ResultMsg<Object> result = new ResultMsg<>();
 
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            JSONObject paramJson = HttpHelper.getParamterJsonNoToken(request);
 
             FuntimeUser user = JSONObject.toJavaObject(paramJson, FuntimeUser.class);
             if (user == null || StringUtils.isBlank(user.getPhoneNumber())
