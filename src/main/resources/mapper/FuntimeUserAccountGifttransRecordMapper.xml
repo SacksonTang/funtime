@@ -33,7 +33,7 @@
   <select id="getGiftOfSendForPage"  resultMap="BaseResultMap">
     select
     d.id, d.amount, d.num, d.gift_id, d.gift_name,
-    d.to_user_id, d.create_time,u.nikename,g.animation_type,
+    d.to_user_id, d.create_time,u.nickname,g.animation_type,
     g.animation_url
     from t_funtime_user_account_gifttrans_record d
         inner join t_funtime_user u on d.to_user_id = u.id
@@ -48,7 +48,7 @@
   <select id="getGiftOfRecieveForPage"  resultMap="BaseResultMap">
     select
     d.id, d.amount, d.num, d.gift_id, d.gift_name,
-    d.to_user_id, d.create_time,u.nikename,g.animation_type,
+    d.to_user_id, d.create_time,u.nickname,g.animation_type,
     g.animation_url
     from t_funtime_user_account_gifttrans_record d
     inner join t_funtime_user u on d.user_id = u.id

@@ -48,4 +48,5 @@ app:
   pay:
     notifyUrl: "http://127.0.0.1:8086/pay/notifyWxPay"
     ip: "127.0.0.1"
+  logpath: C:\log
 

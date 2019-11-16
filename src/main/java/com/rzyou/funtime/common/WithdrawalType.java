@@ -3,7 +3,7 @@ package com.rzyou.funtime.common;
 public enum WithdrawalType {
 
     DESPOSIT_CARD(1,"银行卡领赏")
-    ,WX(2,"微信领赏")
+    ,WXPAY(2,"微信领赏")
     ,ALIPAY(3,"支付宝领赏")
 
     ;

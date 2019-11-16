@@ -24,7 +24,8 @@
 
 
 
-    <property name="LOG_PATH" value="C:\log" />
+    <!--<property name="LOG_PATH" value="C:\log" />-->
+    <springProperty scope="context" name="LOG_PATH" source="app.logpath"/>
     <!--设置系统日志目录-->
     <property name="APPDIR" value="funtime" />
 
