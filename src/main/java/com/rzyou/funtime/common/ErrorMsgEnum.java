@@ -22,6 +22,12 @@ public enum ErrorMsgEnum {
     USER_ACCOUNT_BLUE_NOT_EN("10014","账户蓝钻不足,请及时充值"),
     USER_ACCOUNT_HORN_NOT_EN("10015","账户喇叭不足,请及时充值"),
     PHONE_NUMBER_IS_REGISTER("10016","手机号已被注册"),
+    USERAGREEMENT_IS_EXISTS("10017","用户已经同意该协议"),
+    USERVALID_IS_EXISTS("10018","用户已经同意该协议"),
+    USERVALID_IS_NOT_VALID("10019","用户未认证"),
+    USERAGREEMENT_IS_NOT_EXISTS("10020","用户未同意协议"),
+    USERCONCERN_IS_EXISTS("10021","已关注该用户"),
+    USERCONCERN_IS_NOT_EXISTS("10022","未关注该用户"),
 
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
@@ -42,7 +48,12 @@ public enum ErrorMsgEnum {
     REDPACKET_IS_GRABED("50002","亲,您已经抢过,请点其他红包,谢谢"),
     REDPACKET_IS_NOT_EXISTS("50003","红包不存在"),
 
-    GIFT_NOT_EXISTS("60001","礼物不存在")
+    GIFT_NOT_EXISTS("60001","礼物不存在"),
+
+    WITHDRAWAL_DAY_LIMIT("70001","提现超出每日金额限额"),
+    WITHDRAWAL_MONTH_LIMIT("70002","提现超出每月次数限额"),
+    WITHDRAWAL_MIN_LIMIT("70003","提现金额小于最低领赏金额"),
+    WITHDRAWAL_OPERATION_LIMIT("70004","客服小姐姐很忙,请等她处理完再提交")
 
     ;
 

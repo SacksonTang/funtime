@@ -1,5 +1,7 @@
 package com.rzyou.funtime.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public class FuntimeUserValid {
@@ -16,7 +18,7 @@ public class FuntimeUserValid {
     private String alipayNo;
 
     private String wxNo;
-
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
 
     public Long getId() {

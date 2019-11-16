@@ -34,6 +34,8 @@ public class AccountServiceImpl implements AccountService {
     ParameterService parameterService;
 
     @Autowired
+    FuntimeUserAccountWithdrawalRecordMapper userAccountWithdrawalRecordMapper;
+    @Autowired
     FuntimeUserAccountRechargeRecordMapper userAccountRechargeRecordMapper;
     @Autowired
     FuntimeUserAccountGifttransRecordMapper userAccountGifttransRecordMapper;
@@ -59,6 +61,8 @@ public class AccountServiceImpl implements AccountService {
     FuntimeTagMapper tagMapper;
     @Autowired
     FuntimeGiftMapper giftMapper;
+    @Autowired
+    FuntimeWithdrawalConfMapper withdrawalConfMapper;
 
 
     @Override
@@ -492,6 +496,135 @@ public class AccountServiceImpl implements AccountService {
             return new PageInfo<>(list);
         }
     }
+
+    @Override
+    @Transactional
+    public void applyWithdrawal(Long userId,Integer withdrawalType, BigDecimal blackAmount) {
+
+        userService.checkAgreementByuserId(userId,withdrawalType);
+
+        FuntimeUser user = userService.queryUserById(userId);
+        if(user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+
+        //待处理的条数
+        int count = userAccountWithdrawalRecordMapper.getWithdrawalRecordByUserId(userId);
+        if(count>0){
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_OPERATION_LIMIT.getValue(),ErrorMsgEnum.WITHDRAWAL_OPERATION_LIMIT.getDesc());
+        }
+
+        checkWithdrawalConf(userId,blackAmount);
+
+        String withdrawalCard = getWithdrawalCard(userId, withdrawalType);
+
+        //黑对RMB比例
+        BigDecimal val = convert("black", "rmb", blackAmount);
+
+        BigDecimal rmbAmount = val.multiply(blackAmount).setScale(2,RoundingMode.HALF_UP);
+
+        BigDecimal channelAmount = getServiceAmount(blackAmount.intValue());
+
+        Long recordId = saveFuntimeUserAccountWithdrawalRecord(userId,withdrawalType,withdrawalCard,rmbAmount,blackAmount,val,channelAmount);
+
+        //减去用户黑钻
+        userService.updateUserAccountForSub(userId,blackAmount,null,null);
+
+        //用户日志
+        saveUserAccountBlackLog(userId,blackAmount,recordId,OperationType.WITHDRAWAL.getAction(),OperationType.WITHDRAWAL.getOperationType());
+
+    }
+
+    @Override
+    public PageInfo<FuntimeUserAccountWithdrawalRecord> getWithdrawalForPage(Integer startPage, Integer pageSize, String queryDate, Integer state, Long userId) {
+        PageHelper.startPage(startPage,pageSize);
+        String startDate = null;
+        String endDate = null;
+        if(StringUtils.isNotBlank(queryDate)) {
+            startDate = queryDate + "-01 00:00:01";
+            endDate = currentFinalDay(queryDate);
+        }
+
+        List<FuntimeUserAccountWithdrawalRecord> list = userAccountWithdrawalRecordMapper.getWithdrawalForPage(startDate,endDate,userId,state);
+        if(list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }else{
+            return new PageInfo<>(list);
+        }
+    }
+
+    private void checkWithdrawalConf(Long userId,BigDecimal black){
+        //每次的最小值
+        String withdrawal_min_once = parameterService.getParameterValueByKey("withdrawal_min_once");
+        if (black.doubleValue()<new BigDecimal(withdrawal_min_once).doubleValue()){
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_MIN_LIMIT.getValue(),ErrorMsgEnum.WITHDRAWAL_MIN_LIMIT.getDesc());
+        }
+        //每日最大限额
+        String startDate = DateUtil.getCurrentDayStart();
+        String endDate = DateUtil.getCurrentDayEnd();
+        BigDecimal dayAmount = userAccountWithdrawalRecordMapper.getSumAmountForDay(startDate,endDate,userId);
+        dayAmount = dayAmount ==null?new BigDecimal(0):dayAmount;
+        String withdrawal_max_day = parameterService.getParameterValueByKey("withdrawal_max_day");
+        if (new BigDecimal(withdrawal_max_day).subtract(dayAmount).doubleValue()<0){
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_DAY_LIMIT.getValue(),ErrorMsgEnum.WITHDRAWAL_DAY_LIMIT.getDesc());
+        }
+        //每月最大次数
+        String withdrawal_maxtime_month = parameterService.getParameterValueByKey("withdrawal_maxtime_month");
+        int count = userAccountWithdrawalRecordMapper.getCountForMonth(startDate,endDate,userId);
+        if (count>=Integer.parseInt(withdrawal_maxtime_month)){
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_MONTH_LIMIT.getValue(),ErrorMsgEnum.WITHDRAWAL_MONTH_LIMIT.getDesc());
+        }
+
+    }
+
+    private Long saveFuntimeUserAccountWithdrawalRecord(Long userId, Integer withdrawalType, String withdrawalCard, BigDecimal rmbAmount, BigDecimal blackAmount, BigDecimal val, BigDecimal channelAmount) {
+        FuntimeUserAccountWithdrawalRecord record = new FuntimeUserAccountWithdrawalRecord();
+
+        record.setAmount(rmbAmount);
+        record.setBlackDiamond(blackAmount);
+        record.setBlackRmbRatio(val);
+        record.setCardNumber(withdrawalCard);
+        record.setChannelAmount(channelAmount);
+        record.setOrderNo("D"+StringUtil.createOrderId());
+        record.setUserId(userId);
+        record.setWithdrawalType(withdrawalType);
+        record.setVersion(System.currentTimeMillis());
+        record.setState(1);
+
+        int k = userAccountWithdrawalRecordMapper.insertSelective(record);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return record.getId();
+
+    }
+
+    private BigDecimal getServiceAmount(int black) {
+        BigDecimal channelAmount = withdrawalConfMapper.getServiceAmount(black);
+        if (channelAmount==null){
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
+        }
+        return channelAmount;
+    }
+
+
+    public String getWithdrawalCard(Long userId,Integer withdrawalType){
+        FuntimeUserValid userValid = userService.queryValidInfoByUserId(userId);
+        if (userValid==null){
+            throw new BusinessException(ErrorMsgEnum.USERVALID_IS_NOT_VALID.getValue(),ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
+        }
+        if (WithdrawalType.DESPOSIT_CARD.getValue()==withdrawalType.intValue()){
+            return userValid.getDepositCard();
+        }else if (WithdrawalType.WXPAY.getValue()==withdrawalType.intValue()){
+            return userValid.getWxNo();
+        }else if (WithdrawalType.ALIPAY.getValue()==withdrawalType.intValue()){
+            return userValid.getAlipayNo();
+        }else{
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        }
+    }
+
+
 
     public Long saveFuntimeUserConvertRecord(Long userId,BigDecimal convertRatio,Integer convertType,BigDecimal fromAmount,BigDecimal toAmount){
         FuntimeUserConvertRecord record = new FuntimeUserConvertRecord();

@@ -8,6 +8,8 @@ import java.util.Date;
 public class FuntimeUserAccountWithdrawalRecord {
     private Long id;
 
+    private String orderNo;
+
     private Long userId;
 
     private Integer withdrawalType;
@@ -20,10 +22,6 @@ public class FuntimeUserAccountWithdrawalRecord {
 
     private BigDecimal blackDiamond;
 
-    private BigDecimal blueDiamond;
-
-    private BigDecimal blueBlackRatio;
-
     private BigDecimal blackRmbRatio;
 
     private BigDecimal channelAmount;
@@ -32,19 +30,11 @@ public class FuntimeUserAccountWithdrawalRecord {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date completeTime;
 
+    private Integer state;
+
     private Integer flag;
 
     private Long version;
-
-    private String orderNo;
-
-    public String getOrderNo() {
-        return orderNo;
-    }
-
-    public void setOrderNo(String orderNo) {
-        this.orderNo = orderNo;
-    }
 
     public Long getId() {
         return id;
@@ -52,6 +42,14 @@ public class FuntimeUserAccountWithdrawalRecord {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo == null ? null : orderNo.trim();
     }
 
     public Long getUserId() {
@@ -102,22 +100,6 @@ public class FuntimeUserAccountWithdrawalRecord {
         this.blackDiamond = blackDiamond;
     }
 
-    public BigDecimal getBlueDiamond() {
-        return blueDiamond;
-    }
-
-    public void setBlueDiamond(BigDecimal blueDiamond) {
-        this.blueDiamond = blueDiamond;
-    }
-
-    public BigDecimal getBlueBlackRatio() {
-        return blueBlackRatio;
-    }
-
-    public void setBlueBlackRatio(BigDecimal blueBlackRatio) {
-        this.blueBlackRatio = blueBlackRatio;
-    }
-
     public BigDecimal getBlackRmbRatio() {
         return blackRmbRatio;
     }
@@ -148,6 +130,14 @@ public class FuntimeUserAccountWithdrawalRecord {
 
     public void setCompleteTime(Date completeTime) {
         this.completeTime = completeTime;
+    }
+
+    public Integer getState() {
+        return state;
+    }
+
+    public void setState(Integer state) {
+        this.state = state;
     }
 
     public Integer getFlag() {

@@ -9,7 +9,7 @@ public interface FuntimeUserValidMapper {
 
     int insertSelective(FuntimeUserValid record);
 
-    FuntimeUserValid selectByPrimaryKey(Long id);
+    FuntimeUserValid selectByUserId(Long userId);
 
     int updateByPrimaryKeySelective(FuntimeUserValid record);
 

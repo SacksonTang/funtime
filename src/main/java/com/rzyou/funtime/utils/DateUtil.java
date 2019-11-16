@@ -22,11 +22,34 @@ public class DateUtil {
         return time;
     }
 
+    public static String getCurrentDateTime(String format) {
+        Date date = new Date();
+        SimpleDateFormat df = new SimpleDateFormat(format, Locale.CHINA);
+
+        String time = df.format(date);
+        return time;
+    }
 
 
     public static Date getDateByDayMonth(String day_month) throws Exception{
         String date = day_month+"-01";
         return SDF1.parse(date);
+    }
+
+    /**
+     * 获取当天时间的开始
+     */
+    public static String getCurrentDayStart(){
+        String date = getCurrentDateTime(YYYY_MM_DD);
+        return date+" 00:00:00";
+    }
+
+    /**
+     * 获取当天时间的结束
+     */
+    public static String getCurrentDayEnd(){
+        String date = getCurrentDateTime(YYYY_MM_DD);
+        return date+" 23:59:59";
     }
 
     /**

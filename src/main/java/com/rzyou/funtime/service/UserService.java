@@ -3,6 +3,7 @@ package com.rzyou.funtime.service;
 import com.rzyou.funtime.entity.FuntimeTag;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
+import com.rzyou.funtime.entity.FuntimeUserValid;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -50,5 +51,15 @@ public interface UserService {
 
     void updatePhoneNumber(Long userId, String newPhoneNumber, String code);
 
-    void userValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo);
+    void saveUserValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo);
+
+    FuntimeUserValid queryValidInfoByUserId(Long userId);
+
+    void saveUserAgreement(Long userId, Integer agreementType);
+
+    void checkAgreementByuserId(Long userId, Integer withdrawalType);
+
+    void saveConcern(Long userId,Long toUserId);
+
+    void deleteConcern(Long userId,Long toUserId);
 }

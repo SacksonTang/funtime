@@ -31,6 +31,10 @@ public class UserServiceImpl implements UserService {
     FuntimeUserAccountMapper accountMapper;
     @Autowired
     FuntimeUserValidMapper userValidMapper;
+    @Autowired
+    FuntimeUserAgreementMapper userAgreementMapper;
+    @Autowired
+    FuntimeUserConcernMapper userConcernMapper;
 
 
     @Override
@@ -263,8 +267,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void userValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo) {
-        FuntimeUserValid userValid = new FuntimeUserValid();
+    public void saveUserValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo) {
+        FuntimeUserValid userValid = queryValidInfoByUserId(userId);
+        if(userValid!=null){
+            throw new BusinessException(ErrorMsgEnum.USERVALID_IS_EXISTS.getValue(),ErrorMsgEnum.USERVALID_IS_EXISTS.getDesc());
+        }
+        userValid = new FuntimeUserValid();
         userValid.setAlipayNo(alipayNo);
         userValid.setDepositCard(depositCard);
         userValid.setFullname(fullname);
@@ -272,6 +280,67 @@ public class UserServiceImpl implements UserService {
         userValid.setWxNo(wxNo);
         userValid.setUserId(userId);
         int k = userValidMapper.insertSelective(userValid);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public FuntimeUserValid queryValidInfoByUserId(Long userId) {
+
+        FuntimeUserValid userValid = userValidMapper.selectByUserId(userId);
+
+        return userValid;
+    }
+
+    @Override
+    public void saveUserAgreement(Long userId, Integer agreementType) {
+
+        FuntimeUserAgreement userAgreement = userAgreementMapper.selectByUserId(userId,agreementType);
+        if(userAgreement!=null){
+            throw new BusinessException(ErrorMsgEnum.USERAGREEMENT_IS_EXISTS.getValue(),ErrorMsgEnum.USERAGREEMENT_IS_EXISTS.getDesc());
+        }
+        userAgreement = new FuntimeUserAgreement();
+        userAgreement.setType(agreementType);
+        userAgreement.setUserId(userId);
+        userAgreement.setAgreement(1);
+        userAgreement.setCreateTime(new Date());
+        int k = userAgreementMapper.insertSelective(userAgreement);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    public void checkAgreementByuserId(Long userId,Integer agreementType){
+        FuntimeUserAgreement userAgreement = userAgreementMapper.selectByUserId(userId,agreementType);
+        if (userAgreement==null){
+            throw new BusinessException(ErrorMsgEnum.USERAGREEMENT_IS_NOT_EXISTS.getValue(),ErrorMsgEnum.USERAGREEMENT_IS_NOT_EXISTS.getDesc());
+        }
+    }
+
+    @Override
+    public void saveConcern(Long userId, Long toUserId) {
+        Long id = userConcernMapper.checkRecordExist(userId,toUserId);
+        if(id!=null){
+            throw new BusinessException(ErrorMsgEnum.USERCONCERN_IS_EXISTS.getValue(),ErrorMsgEnum.USERCONCERN_IS_EXISTS.getDesc());
+        }
+        FuntimeUserConcern concern = new FuntimeUserConcern();
+        concern.setUserId(userId);
+        concern.setToUserId(toUserId);
+        int k = userConcernMapper.insertSelective(concern);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public void deleteConcern(Long userId, Long toUserId) {
+        Long id = userConcernMapper.checkRecordExist(userId,toUserId);
+        if(id==null){
+            throw new BusinessException(ErrorMsgEnum.USERCONCERN_IS_NOT_EXISTS.getValue(),ErrorMsgEnum.USERCONCERN_IS_NOT_EXISTS.getDesc());
+        }
+
+        int k = userConcernMapper.deleteByPrimaryKey(id);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
