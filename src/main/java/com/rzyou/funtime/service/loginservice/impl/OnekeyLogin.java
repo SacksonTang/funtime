@@ -27,22 +27,21 @@ public class OnekeyLogin implements LoginStrategy {
             user.setPortraitAddress("https://");
 
             user.setVersion(System.currentTimeMillis());
-            userService.saveUser(user);
+
+            userService.saveUser(user, null, null, null);
             userId = user.getId().toString();
             String token = JwtHelper.generateJWT(userId);
             user.setToken(token);
 
-            return user;
         }else{
             userId = funtimeUser.getId().toString();
             if(funtimeUser.getState().intValue()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
             String token = JwtHelper.generateJWT(userId);
-            userService.updateUserInfo(funtimeUser.getId(),1,token,user.getPhoneImei(),user.getIp(),funtimeUser.getVersion(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
-            funtimeUser.setToken(token);
+            userService.updateUserInfo(funtimeUser.getId(),1,token,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
 
-            return funtimeUser;
         }
+        return userService.queryUserById(Long.parseLong(userId));
     }
 }

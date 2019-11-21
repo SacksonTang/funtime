@@ -1,5 +1,7 @@
 package com.rzyou.funtime.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.SmsType;
@@ -7,6 +9,7 @@ import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +38,8 @@ public class UserServiceImpl implements UserService {
     FuntimeUserAgreementMapper userAgreementMapper;
     @Autowired
     FuntimeUserConcernMapper userConcernMapper;
+    @Autowired
+    FuntimeUserThirdMapper userThirdMapper;
 
 
     @Override
@@ -51,18 +56,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUserInfo(Long id, Integer onlineState, String token, String imei, String ip, Long version,String nikename,String loginType,String deviceName){
+    public void updateUserInfo(Long id, Integer onlineState, String token, String imei, String ip,String nikename,String loginType,String deviceName){
         FuntimeUser user = new FuntimeUser();
         user.setToken(token);
         user.setPhoneImei(imei);
         user.setOnlineState(onlineState);
         user.setId(id);
         user.setIp(ip);
-        user.setVersion(version);
         updateByPrimaryKeySelective(user);
 
         //足迹
         saveRecode(id,user.getPhoneImei(),user.getIp(),1, nikename, loginType, deviceName);
+    }
+
+    @Override
+    @Transactional
+    public void updateUserInfo(FuntimeUser user){
+
+        updateByPrimaryKeySelective(user);
+
+        //足迹
+        saveRecode(user.getId(),user.getPhoneImei(),user.getIp(),1, user.getNickname(), user.getLoginType(), user.getDeviceName());
     }
 
 
@@ -81,8 +95,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public FuntimeUserThird queryUserInfoByOpenid(String openid) {
+        return userThirdMapper.queryUserByOpenid(openid);
+    }
+
+    @Override
     @Transactional
-    public Boolean saveUser(FuntimeUser user) {
+    public Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid) {
         insertSelective(user);
 
         //足迹
@@ -90,7 +109,19 @@ public class UserServiceImpl implements UserService {
 
         saveUserAccount(user.getId());
 
+        saveUserThird(user.getId(),openType,openid,unionid);
+
         return true;
+    }
+
+    private void saveUserThird(Long userId, String openType, String openid, String unionid){
+        FuntimeUserThird userThird = new FuntimeUserThird();
+        userThird.setUserId(userId);
+        userThird.setThirdType(openType);
+        userThird.setOpenid(openid);
+        userThird.setUnionid(unionid);
+        userThirdMapper.insertSelective(userThird);
+
     }
 
     private void saveUserAccount(Long userId) {
@@ -133,7 +164,6 @@ public class UserServiceImpl implements UserService {
             updateTagsByUserId(tags,user.getId());
         }
 
-        user.setVersion(funtimeUser.getVersion());
         return updateByPrimaryKeySelective(user);
     }
 
@@ -162,7 +192,6 @@ public class UserServiceImpl implements UserService {
         user.setId(id);
         user.setState(2);
 
-        user.setVersion(funtimeUser.getVersion());
         return updateByPrimaryKeySelective(user);
     }
 
@@ -180,7 +209,6 @@ public class UserServiceImpl implements UserService {
         user.setId(id);
         user.setState(1);
 
-        user.setVersion(funtimeUser.getVersion());
         return updateByPrimaryKeySelective(user);
     }
 
@@ -319,6 +347,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void saveConcern(Long userId, Long toUserId) {
         Long id = userConcernMapper.checkRecordExist(userId,toUserId);
         if(id!=null){
@@ -331,9 +360,12 @@ public class UserServiceImpl implements UserService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        userMapper.updateConcernsPlus(userId);
+        userMapper.updateFansPlus(toUserId);
     }
 
     @Override
+    @Transactional
     public void deleteConcern(Long userId, Long toUserId) {
         Long id = userConcernMapper.checkRecordExist(userId,toUserId);
         if(id==null){
@@ -344,10 +376,52 @@ public class UserServiceImpl implements UserService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        userMapper.updateConcernsSub(userId);
+        userMapper.updateFansSub(toUserId);
     }
 
+    @Override
+    public void updateOnlineState(Long userId, Integer onlineState) {
+        if(userMapper.updateOnlineState(userId, onlineState)!=1){
+
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public PageInfo<FuntimeUser> queryUserInfoByOnline(Integer startPage, Integer pageSize, Integer sex, Integer ageType) {
+        PageHelper.startPage(startPage,pageSize);
+        String startAge = null;
+        String endAge = null;
+        if (ageType.intValue()==1){//小于23
+            endAge = DateUtil.getCurrentYearAdd(new Date(),-23);
+        }else if (ageType.intValue()==2){
+            startAge = DateUtil.getCurrentYearAdd(new Date(),-24);
+            endAge = DateUtil.getCurrentYearAdd(new Date(),-29);
+        }else if (ageType.intValue()==3){
+            startAge = DateUtil.getCurrentYearAdd(new Date(),-30);
+            endAge = DateUtil.getCurrentYearAdd(new Date(),-39);
+        }else if (ageType.intValue()==4){
+            startAge = DateUtil.getCurrentYearAdd(new Date(),-40);
+            endAge = DateUtil.getCurrentYearAdd(new Date(),-49);
+        }else if (ageType.intValue()==5){
+            startAge = DateUtil.getCurrentYearAdd(new Date(),-50);
+            endAge = DateUtil.getCurrentYearAdd(new Date(),-59);
+        }else if (ageType.intValue()==6){
+            startAge = DateUtil.getCurrentYearAdd(new Date(),-60);
+        }else{
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        }
+        List<FuntimeUser> list = userMapper.queryUserInfoByOnline(sex,startAge,endAge);
+        if(list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }else{
+            return new PageInfo<>(list);
+        }
+    }
+
+
     public Boolean updateByPrimaryKeySelective(FuntimeUser user){
-        user.setNewVersion(System.currentTimeMillis());
         if(userMapper.updateByPrimaryKeySelective(user)!=1){
 
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());

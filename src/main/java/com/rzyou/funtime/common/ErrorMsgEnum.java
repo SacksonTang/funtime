@@ -28,7 +28,10 @@ public enum ErrorMsgEnum {
     USERAGREEMENT_IS_NOT_EXISTS("10020","用户未同意协议"),
     USERCONCERN_IS_EXISTS("10021","已关注该用户"),
     USERCONCERN_IS_NOT_EXISTS("10022","未关注该用户"),
-
+    USER_WXLOGIN_TOKEN_ERROR("10023","微信登录获取access_token失败"),
+    USER_WXLOGIN_VALIDTOKEN_ERROR("10024","微信登录检测access_token失败"),
+    USER_WXLOGIN_REFRESHTOKEN_ERROR("10025","微信登录刷新access_token失败"),
+    USER_WXLOGIN_USERINFO_ERROR("10025","微信登录获取用户信息失败"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -53,7 +56,9 @@ public enum ErrorMsgEnum {
     WITHDRAWAL_DAY_LIMIT("70001","提现超出每日金额限额"),
     WITHDRAWAL_MONTH_LIMIT("70002","提现超出每月次数限额"),
     WITHDRAWAL_MIN_LIMIT("70003","提现金额小于最低领赏金额"),
-    WITHDRAWAL_OPERATION_LIMIT("70004","客服小姐姐很忙,请等她处理完再提交")
+    WITHDRAWAL_OPERATION_LIMIT("70004","客服小姐姐很忙,请等她处理完再提交"),
+
+    ROOM_RONGYUN_CREATE_ERROR("80001","融云房间创建失败")
 
     ;
 

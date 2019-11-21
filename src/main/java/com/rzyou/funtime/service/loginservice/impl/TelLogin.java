@@ -7,6 +7,7 @@ import com.rzyou.funtime.jwt.util.JwtHelper;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,9 @@ public class TelLogin implements LoginStrategy {
     @Override
     @Transactional
     public FuntimeUser login(FuntimeUser user) {
+        if (StringUtils.isBlank(user.getPhoneNumber())){
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        }
         //校验验证码
         //smsService.validateSms(user.getPhoneNumber(),user.getCode());
 
@@ -36,23 +40,21 @@ public class TelLogin implements LoginStrategy {
             user.setPortraitAddress("https://");
 
             user.setVersion(System.currentTimeMillis());
-            userService.saveUser(user);
+
+            userService.saveUser(user, null, null, null);
             userId = user.getId().toString();
             String token = JwtHelper.generateJWT(userId);
             user.setToken(token);
 
-            return user;
         }else{
             userId = funtimeUser.getId().toString();
             if(funtimeUser.getState().intValue()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
             String token = JwtHelper.generateJWT(userId);
-            userService.updateUserInfo(funtimeUser.getId(),1,token,user.getPhoneImei(),user.getIp(),funtimeUser.getVersion(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
-            funtimeUser.setToken(token);
+            userService.updateUserInfo(funtimeUser.getId(),1,token,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
 
-            return funtimeUser;
         }
-
+        return userService.queryUserById(Long.parseLong(userId));
     }
 }

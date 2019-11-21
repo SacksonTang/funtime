@@ -2,9 +2,14 @@ package com.rzyou.funtime.service.impl;
 
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.OuyiSmsTemplate;
+import com.rzyou.funtime.common.sms.linkme.LinkmeSmsUtil;
+import com.rzyou.funtime.common.sms.ouyi.OuyiSmsUtil;
 import com.rzyou.funtime.entity.FuntimeSms;
 import com.rzyou.funtime.mapper.FuntimeSmsMapper;
 import com.rzyou.funtime.service.SmsService;
+import com.rzyou.funtime.utils.StringUtil;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +22,34 @@ public class SmsServiceImpl implements SmsService {
     FuntimeSmsMapper funtimeSmsMapper;
 
     @Override
-    public void sendSms(String phone) {
+    public void sendSms(String phone, String resend,String ip,int smsType) {
 
+        String code = StringUtil.createRandom(true,6);
+        if ("1".equals(resend)){
+            OuyiSmsUtil.sengSindleSMS(phone,smsType,code);
+        }else{
+            LinkmeSmsUtil.sendSms(phone,code,smsType);
+        }
+
+        saveSms(phone,code,null,ip,smsType);
+
+    }
+
+    public void saveSms(String phone,String code,String msg,String ip,int smsType){
+        FuntimeSms sms = new FuntimeSms();
+        sms.setIsUsed(2);
+        sms.setCreateTime(new Date());
+        sms.setExpireTime(DateUtils.addMinutes(new Date(),5));
+        sms.setIsSended(2);
+        sms.setIp(ip);
+        sms.setMobileNumber(phone);
+        sms.setSmsType(smsType);
+        sms.setSms(msg);
+        sms.setValidateCode(code);
+        int k = funtimeSmsMapper.insertSelective(sms);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
     }
 
     @Override

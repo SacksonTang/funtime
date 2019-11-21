@@ -11,8 +11,11 @@ import java.util.Locale;
 public class DateUtil {
     public final static String YYYY_MM_DD_HH_MM_SS_TIGHT = "yyyyMMddHHmmss";
     public final static String YYYY_MM_DD = "yyyy-MM-dd";
+    public final static String YYYYMMDD = "yyyyMMdd";
 
     public static SimpleDateFormat SDF1 = new SimpleDateFormat(YYYY_MM_DD, Locale.CHINA);
+    public static SimpleDateFormat SDF2 = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS_TIGHT, Locale.CHINA);
+    public static SimpleDateFormat SDF3 = new SimpleDateFormat(YYYYMMDD, Locale.CHINA);
 
     public static String getCurrentDateTime() {
         Date date = new Date();
@@ -34,6 +37,14 @@ public class DateUtil {
     public static Date getDateByDayMonth(String day_month) throws Exception{
         String date = day_month+"-01";
         return SDF1.parse(date);
+    }
+
+    /**
+     * 当前时间N年
+     */
+    public static String getCurrentYearAdd(Date date,Integer n){
+        Date addYears = DateUtils.addYears(date, n);
+        return SDF3.format(addYears);
     }
 
     /**

@@ -1,13 +1,13 @@
 package com.rzyou.funtime.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.rzyou.funtime.common.BusinessException;
-import com.rzyou.funtime.common.ErrorMsgEnum;
-import com.rzyou.funtime.common.ResultMsg;
+import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.request.HttpHelper;
-import com.rzyou.funtime.common.sms.SmsUtil;
+import com.rzyou.funtime.common.sms.linkme.LinkmeSmsUtil;
+import com.rzyou.funtime.common.sms.ouyi.OuyiSmsUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.jwt.util.JwtHelper;
+import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +28,8 @@ public class LoginController {
 
     @Autowired
     UserService userService;
+    @Autowired
+    SmsService smsService;
     @Autowired
     LoginStrategy telLogin;
     @Autowired
@@ -41,10 +44,10 @@ public class LoginController {
     @PostConstruct
     public void init(){
 
-        context.put(LoginType.TEL,telLogin);
-        context.put(LoginType.WX,wxLogin);
-        context.put(LoginType.QQ,qqLogin);
-        context.put(LoginType.ONEKEY,onekeyLogin);
+        context.put(Constant.LOGIN_TEL,telLogin);
+        context.put(Constant.LOGIN_WX,wxLogin);
+        context.put(Constant.LOGIN_QQ,qqLogin);
+        context.put(Constant.LOGIN_ONEKEY,onekeyLogin);
 
     }
 
@@ -63,13 +66,14 @@ public class LoginController {
             JSONObject paramJson = HttpHelper.getParamterJsonNoToken(request);
 
             FuntimeUser user = JSONObject.toJavaObject(paramJson, FuntimeUser.class);
-            if (user == null || StringUtils.isBlank(user.getPhoneNumber())
-                    || StringUtils.isBlank(user.getCode()) || StringUtils.isBlank(user.getLoginType())) {
+            if (user == null
+                    || StringUtils.isBlank(user.getLoginType())) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
             user.setIp(HttpHelper.getClientIpAddr(request));
+            user.setLastLoginTime(new Date());
             LoginStrategy strategy = context.get(user.getLoginType());
             if(strategy==null){
                 result.setCode(ErrorMsgEnum.USER_LOGINTYPE_ERROR.getValue());
@@ -94,7 +98,7 @@ public class LoginController {
 
     @PostMapping("getToken")
     public ResultMsg<Object> getToken(HttpServletRequest request) {
-        JSONObject paramJson = HttpHelper.getParamterJson(request);
+        JSONObject paramJson = HttpHelper.getParamterJsonNoToken(request);
         String userId = paramJson.getString("userId");
         if (StringUtils.isBlank(userId)) {
             return new ResultMsg<>(ErrorMsgEnum.USER_ID_NOT_EXIST.getValue(), ErrorMsgEnum.USER_ID_NOT_EXIST.getDesc());
@@ -111,9 +115,12 @@ public class LoginController {
     public ResultMsg<Object> sendSms(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            JSONObject paramJson = HttpHelper.getParamterJsonNoToken(request);
             String phone = paramJson.getString("phoneNumber");
-            SmsUtil.sendSms(phone);
+            String resend = paramJson.getString("resend");
+            int smsType = paramJson.getInteger("smsType");
+            String ip = HttpHelper.getClientIpAddr(request);
+            smsService.sendSms(phone,resend,ip,smsType);
         }catch (BusinessException be){
             be.printStackTrace();
             result.setCode(be.getCode());
@@ -128,13 +135,4 @@ public class LoginController {
     }
 
 
-    public class LoginType {
-        private static final String TEL = "TEL";
-        private static final String WX = "WX";
-        private static final String QQ = "QQ";
-        private static final String ONEKEY = "ONEKEY";
-        private static final String WEIBO = "WEIBO";
-
-
-    }
 }

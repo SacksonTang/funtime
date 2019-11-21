@@ -16,26 +16,24 @@ public class HttpHelper {
     private static Logger log = LoggerFactory.getLogger(HttpHelper.class);
 
     public static JSONObject getParamterJson(HttpServletRequest request){
-        try {
-            String str = getBodyString(request);
-            log.info("请求Body: {} ", str);
-            JSONObject obj = JSONObject.parseObject(str);
-            String token = obj.getString("token");
-            if(StringUtils.isBlank(token)){
-                throw new BusinessException(ErrorMsgEnum.USER_TOKEN_ERROR.getValue(),ErrorMsgEnum.USER_TOKEN_ERROR.getDesc());
-            }
-            JSONObject paramJson = obj.getJSONObject("param");
-            return paramJson;
-        }catch (Exception e){
-            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+
+        String str = getBodyString(request);
+        log.debug("请求Body: {} ", str);
+        JSONObject obj = JSONObject.parseObject(str);
+        String token = obj.getString("token");
+        if(StringUtils.isBlank(token)){
+            throw new BusinessException(ErrorMsgEnum.USER_TOKEN_ERROR.getValue(),ErrorMsgEnum.USER_TOKEN_ERROR.getDesc());
         }
+        JSONObject paramJson = obj.getJSONObject("param");
+        return paramJson;
+
 
     }
 
     public static JSONObject getParamterJsonNoToken(HttpServletRequest request){
         try {
             String str = getBodyString(request);
-            log.info("请求Body: {} ", str);
+            log.debug("请求Body: {} ", str);
             JSONObject obj = JSONObject.parseObject(str);
 
             JSONObject paramJson = obj.getJSONObject("param");

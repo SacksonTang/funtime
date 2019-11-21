@@ -1,9 +1,7 @@
 package com.rzyou.funtime.service;
 
-import com.rzyou.funtime.entity.FuntimeTag;
-import com.rzyou.funtime.entity.FuntimeUser;
-import com.rzyou.funtime.entity.FuntimeUserAccount;
-import com.rzyou.funtime.entity.FuntimeUserValid;
+import com.github.pagehelper.PageInfo;
+import com.rzyou.funtime.entity.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -14,11 +12,15 @@ public interface UserService {
 
     FuntimeUser queryUserInfoByPhone(String phone);
 
-    void updateUserInfo(Long id, Integer onlineState, String token, String imei, String ip, Long version,String nikename,String loginType,String deviceName);
+    void updateUserInfo(Long id, Integer onlineState, String token, String imei, String ip, String nikename,String loginType,String deviceName);
+
+    void updateUserInfo(FuntimeUser user);
 
     FuntimeUser getUserBasicInfoById(Long id);
 
-    Boolean saveUser(FuntimeUser user);
+    FuntimeUserThird queryUserInfoByOpenid(String openid);
+
+    Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid);
 
     Boolean updateUserBasicInfoById(FuntimeUser user);
 
@@ -62,4 +64,8 @@ public interface UserService {
     void saveConcern(Long userId,Long toUserId);
 
     void deleteConcern(Long userId,Long toUserId);
+
+    void updateOnlineState(Long userId, Integer onlineState);
+
+    PageInfo<FuntimeUser> queryUserInfoByOnline(Integer startPage, Integer pageSize, Integer sex, Integer ageType);
 }

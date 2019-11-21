@@ -16,12 +16,6 @@ public class FuntimeUser {
 
     private String password;
 
-    private Integer openType;
-
-    private String openid;
-
-    private String accessToken;
-
     private String phoneNumber;
 
     private String phoneImei;
@@ -73,7 +67,69 @@ public class FuntimeUser {
 
     private String deviceName;
 
+    private String province;
+
+    private String city;
+
+    private String district;
+
+    private String longitude;
+
+    private String latitude;
+
+    private String locationDesc;
+
+
     private List<Integer> tags;
+
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
+    }
+
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getLocationDesc() {
+        return locationDesc;
+    }
+
+    public void setLocationDesc(String locationDesc) {
+        this.locationDesc = locationDesc;
+    }
 
     public String getDeviceName() {
         return deviceName;
@@ -131,29 +187,7 @@ public class FuntimeUser {
         this.password = password == null ? null : password.trim();
     }
 
-    public Integer getOpenType() {
-        return openType;
-    }
 
-    public void setOpenType(Integer openType) {
-        this.openType = openType;
-    }
-
-    public String getOpenid() {
-        return openid;
-    }
-
-    public void setOpenid(String openid) {
-        this.openid = openid == null ? null : openid.trim();
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken == null ? null : accessToken.trim();
-    }
 
     public String getPhoneNumber() {
         return phoneNumber;
