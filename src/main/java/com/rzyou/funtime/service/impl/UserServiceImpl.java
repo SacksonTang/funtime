@@ -389,6 +389,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateTokenById(Long userId, String token) {
+        userMapper.updateTokenById(userId, token);
+    }
+
+    @Override
     public PageInfo<FuntimeUser> queryUserInfoByOnline(Integer startPage, Integer pageSize, Integer sex, Integer ageType) {
         PageHelper.startPage(startPage,pageSize);
         String startAge = null;

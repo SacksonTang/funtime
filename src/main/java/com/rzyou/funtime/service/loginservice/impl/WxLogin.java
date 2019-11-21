@@ -67,6 +67,7 @@ public class WxLogin implements LoginStrategy {
             userId = user.getId().toString();
             String token = JwtHelper.generateJWT(userId);
             user.setToken(token);
+            userService.updateTokenById(user.getId(),token);
             return user;
         }else{
             userId = userThird.getUserId().toString();

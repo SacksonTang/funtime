@@ -7,9 +7,6 @@
     <result column="fullname" jdbcType="VARCHAR" property="fullname" />
     <result column="nickname" jdbcType="VARCHAR" property="nickname" />
     <result column="password" jdbcType="VARCHAR" property="password" />
-    <result column="open_type" jdbcType="INTEGER" property="openType" />
-    <result column="openid" jdbcType="VARCHAR" property="openid" />
-    <result column="access_token" jdbcType="VARCHAR" property="accessToken" />
     <result column="phone_number" jdbcType="VARCHAR" property="phoneNumber" />
     <result column="phone_imei" jdbcType="VARCHAR" property="phoneImei" />
     <result column="drainage_channel_id" jdbcType="INTEGER" property="drainageChannelId" />
@@ -31,12 +28,20 @@
     <result column="ip" jdbcType="VARCHAR" property="ip" />
     <result column="flag" jdbcType="INTEGER" property="flag" />
     <result column="version" jdbcType="BIGINT" property="version" />
+    <result column="longitude" jdbcType="VARCHAR" property="longitude" />
+    <result column="latitude" jdbcType="VARCHAR" property="latitude" />
+    <result column="location_desc" jdbcType="VARCHAR" property="locationDesc" />
+    <result column="province" jdbcType="VARCHAR" property="province" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    <result column="district" jdbcType="VARCHAR" property="district" />
+
   </resultMap>
   <sql id="Base_Column_List">
-    id, username, fullname, nickname, password, open_type, openid, access_token, phone_number,
+    id, username, fullname, nickname, password, phone_number,
     phone_imei, drainage_channel_id, portrait_address, sex, birthday, height, sign_text,
     state, realname_authentication_flag, token, online_state, create_room, registration_time,
-    update_time, last_login_time, concerns, fans, ip, flag, version
+    update_time, last_login_time, concerns, fans, ip, flag, version,longitude,latitude,location_desc,
+    province,city,district
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -44,6 +49,7 @@
     from t_funtime_user
     where id = #{id,jdbcType=BIGINT} and flag = 1
   </select>
+
   <select id="queryUserInfo" parameterType="java.util.Map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -52,6 +58,7 @@
     <if test="phone!=null and phone != ''">
       and phone_number = #{phone}
     </if>
+
     limit 1
   </select>
   <select id="queryUserInfoByPhone" parameterType="java.lang.String" resultMap="BaseResultMap">
@@ -62,6 +69,24 @@
 
     limit 1
   </select>
+
+  <select id="queryUserInfoByOnline"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user
+    where online_state = 1 and flag = 1
+      <if test="sex!=null">
+        and sex = #{sex}
+      </if>
+      <if test="startAge!=null">
+        and #{startAge}>=birthday
+      </if>
+      <if test="endAge!=null">
+        and birthday>=#{endAge}
+      </if>
+    order by last_login_time desc
+
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user
     where id = #{id,jdbcType=BIGINT}
@@ -70,9 +95,7 @@
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUser" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
+
       <if test="username != null">
         username,
       </if>
@@ -85,15 +108,7 @@
       <if test="password != null">
         password,
       </if>
-      <if test="openType != null">
-        open_type,
-      </if>
-      <if test="openid != null">
-        openid,
-      </if>
-      <if test="accessToken != null">
-        access_token,
-      </if>
+
       <if test="phoneNumber != null">
         phone_number,
       </if>
@@ -133,9 +148,7 @@
       <if test="createRoom != null">
         create_room,
       </if>
-      <if test="registrationTime != null">
-        registration_time,
-      </if>
+
       <if test="updateTime != null">
         update_time,
       </if>
@@ -157,11 +170,29 @@
       <if test="version != null">
         version,
       </if>
+
+      <if test="longitude != null">
+        longitude,
+      </if>
+      <if test="latitude != null">
+        latitude,
+      </if>
+      <if test="locationDesc != null">
+        location_desc,
+      </if>
+      <if test="province != null">
+        province,
+      </if>
+      <if test="city != null">
+        city,
+      </if>
+      <if test="district != null">
+        district,
+      </if>
+
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
+
       <if test="username != null">
         #{username,jdbcType=VARCHAR},
       </if>
@@ -174,15 +205,7 @@
       <if test="password != null">
         #{password,jdbcType=VARCHAR},
       </if>
-      <if test="openType != null">
-        #{openType,jdbcType=INTEGER},
-      </if>
-      <if test="openid != null">
-        #{openid,jdbcType=VARCHAR},
-      </if>
-      <if test="accessToken != null">
-        #{accessToken,jdbcType=VARCHAR},
-      </if>
+
       <if test="phoneNumber != null">
         #{phoneNumber,jdbcType=VARCHAR},
       </if>
@@ -222,9 +245,7 @@
       <if test="createRoom != null">
         #{createRoom,jdbcType=INTEGER},
       </if>
-      <if test="registrationTime != null">
-        #{registrationTime,jdbcType=TIMESTAMP},
-      </if>
+
       <if test="updateTime != null">
         #{updateTime,jdbcType=TIMESTAMP},
       </if>
@@ -246,6 +267,26 @@
       <if test="version != null">
         #{version,jdbcType=BIGINT},
       </if>
+
+      <if test="longitude != null">
+        #{longitude},
+      </if>
+      <if test="latitude != null">
+        #{latitude},
+      </if>
+      <if test="locationDesc != null">
+        #{locationDesc},
+      </if>
+      <if test="province != null">
+        #{province},
+      </if>
+      <if test="city != null">
+        #{city},
+      </if>
+      <if test="district != null">
+        #{district},
+      </if>
+
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUser">
@@ -263,15 +304,7 @@
       <if test="password != null">
         password = #{password,jdbcType=VARCHAR},
       </if>
-      <if test="openType != null">
-        open_type = #{openType,jdbcType=INTEGER},
-      </if>
-      <if test="openid != null">
-        openid = #{openid,jdbcType=VARCHAR},
-      </if>
-      <if test="accessToken != null">
-        access_token = #{accessToken,jdbcType=VARCHAR},
-      </if>
+
       <if test="phoneNumber != null">
         phone_number = #{phoneNumber,jdbcType=VARCHAR},
       </if>
@@ -314,9 +347,9 @@
       <if test="registrationTime != null">
         registration_time = #{registrationTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
-      </if>
+
+        update_time =now(),
+
       <if test="lastLoginTime != null">
         last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
       </if>
@@ -332,17 +365,51 @@
       <if test="flag != null">
         flag = #{flag,jdbcType=INTEGER},
       </if>
-      <if test="newVersion != null">
-        version = #{newVersion,jdbcType=BIGINT},
+
+      <if test="longitude != null">
+        longitude = #{longitude},
       </if>
+      <if test="latitude != null">
+        latitude = #{latitude},
+      </if>
+      <if test="locationDesc != null">
+        location_desc = #{locationDesc},
+      </if>
+      <if test="province != null">
+        province = #{province},
+      </if>
+      <if test="city != null">
+        city = #{city},
+      </if>
+      <if test="district != null">
+        district = #{district},
+      </if>
+
     </set>
-    where id = #{id,jdbcType=BIGINT} and version = #{version}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 
   <update id="updatePhoneNumberById">
-    update t_funtime_user set phone_number = #{phone} ,version = #{newVersion} where id = #{id} and version = #{version}
+    update t_funtime_user set phone_number = #{phone} ,version = #{newVersion},update_time =now() where id = #{id} and version = #{version}
+  </update>
+  <update id="updateOnlineState">
+    update t_funtime_user set online_state = #{onlineState},update_time =now() where id = #{id}
   </update>
 
-
+  <update id="updateConcernsPlus" parameterType="java.lang.Long">
+    update t_funtime_user set concerns = concerns+1,update_time =now() where id = #{id}
+  </update>
+  <update id="updateFansPlus" parameterType="java.lang.Long">
+    update t_funtime_user set fans = fans+1,update_time =now() where id = #{id}
+  </update>
+  <update id="updateConcernsSub" parameterType="java.lang.Long">
+    update t_funtime_user set concerns = concerns-1,update_time =now() where id = #{id} and concerns>0
+  </update>
+  <update id="updateFansSub" parameterType="java.lang.Long">
+    update t_funtime_user set fans = fans+1,update_time =now() where id = #{id} and fans>0
+  </update>
+<update id="updateTokenById" >
+  update t_funtime_user set token = #{token},update_time =now() where id = #{id}
+</update>
 
 </mapper>

@@ -45,7 +45,7 @@ public class TelLogin implements LoginStrategy {
             userId = user.getId().toString();
             String token = JwtHelper.generateJWT(userId);
             user.setToken(token);
-
+            userService.updateTokenById(user.getId(),token);
         }else{
             userId = funtimeUser.getId().toString();
             if(funtimeUser.getState().intValue()!=1){

@@ -67,5 +67,7 @@ public interface UserService {
 
     void updateOnlineState(Long userId, Integer onlineState);
 
+    void updateTokenById(Long userId,String token);
+
     PageInfo<FuntimeUser> queryUserInfoByOnline(Integer startPage, Integer pageSize, Integer sex, Integer ageType);
 }

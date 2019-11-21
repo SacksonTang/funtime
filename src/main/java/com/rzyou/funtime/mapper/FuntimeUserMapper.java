@@ -33,4 +33,5 @@ public interface FuntimeUserMapper {
     int updateConcernsSub(Long id);
     int updateFansSub(Long id);
 
+    int updateTokenById(@Param("id") Long id, @Param("token") String token);
 }

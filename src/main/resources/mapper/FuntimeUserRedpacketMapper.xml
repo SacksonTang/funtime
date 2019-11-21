@@ -160,7 +160,7 @@
 
         set state = 3
 
-    where   NOW()>invalid_time
+    where   NOW()>invalid_time and state = 1
   </update>
 
 </mapper>
