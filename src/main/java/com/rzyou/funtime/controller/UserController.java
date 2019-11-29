@@ -11,6 +11,7 @@ import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.common.ResultMsg;
+import com.rzyou.funtime.utils.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.omg.CORBA.OBJ_ADAPTER;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class UserController {
             }
 
             List<FuntimeTag> tags = userService.queryTagsByType(tagType);
-            result.setData(tags);
+            result.setData(JsonUtil.getMap("tags",tags));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();
@@ -83,7 +84,7 @@ public class UserController {
             }
 
             FuntimeUser user = userService.getUserBasicInfoById(Long.parseLong(userId));
-            result.setData(user);
+            result.setData(JsonUtil.getMap("user",user));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();
@@ -117,7 +118,7 @@ public class UserController {
             }
 
             FuntimeUserAccount userAccount = userService.getUserAccountInfoById(Long.parseLong(userId));
-            result.setData(userAccount);
+            result.setData(JsonUtil.getMap("userAccount",userAccount));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();
@@ -259,7 +260,7 @@ public class UserController {
                 return result;
             }
 
-            result.setData(userService.queryUserInfoByOnline(startPage,pageSize,sex,ageType));
+            result.setData(JsonUtil.getMap("pageInfo",userService.queryUserInfoByOnline(startPage,pageSize,sex,ageType)));
 
             return result;
         } catch (BusinessException be) {
@@ -332,7 +333,7 @@ public class UserController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            result.setData(accountService.getUserConvertRecordForPage(startPage,pageSize,userId,queryDate,ConvertType.BLACK_BLUE.getValue()));
+            result.setData(JsonUtil.getMap("pageInfo",accountService.getUserConvertRecordForPage(startPage,pageSize,userId,queryDate,ConvertType.BLACK_BLUE.getValue())));
 
             return result;
         } catch (BusinessException be) {
@@ -478,6 +479,98 @@ public class UserController {
             }
 
             userService.deleteConcern(userId,toUserId);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    @PostMapping("getGiftByUserId")
+    public ResultMsg<Object> getGiftByUserId(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+
+            if (userId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            result.setData(JsonUtil.getMap("giftlist",userService.getGiftByUserId(userId)));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    @PostMapping("getPhotoByUserId")
+    public ResultMsg<Object> getPhotoByUserId(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+
+            if (userId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            result.setData(JsonUtil.getMap("photolist",userService.getPhotoByUserId(userId)));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 查询聊天室用户信息
+     * @param request
+     * @return
+     */
+    @PostMapping("queryUserByChatUser")
+    public ResultMsg<Object> queryUserByChatUser(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            Long byUserId = paramJson.getLong("byUserId");
+            if (userId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            result.setData(JsonUtil.getMap("user",userService.queryUserByChatUser(userId,byUserId)));
 
             return result;
         } catch (BusinessException be) {

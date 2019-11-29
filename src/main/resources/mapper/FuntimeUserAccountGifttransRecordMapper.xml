@@ -18,6 +18,11 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="version" jdbcType="BIGINT" property="version" />
     <result column="complete_time" jdbcType="TIMESTAMP" property="completeTime" />
+
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="animation_type" jdbcType="VARCHAR" property="animationType" />
+    <result column="animation_url" jdbcType="VARCHAR" property="animationUrl" />
+
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, action_type, operation_type, operation_desc, amount, num, gift_id, gift_name, 

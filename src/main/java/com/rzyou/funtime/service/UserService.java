@@ -5,6 +5,7 @@ import com.rzyou.funtime.entity.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
 
@@ -18,7 +19,7 @@ public interface UserService {
 
     FuntimeUser getUserBasicInfoById(Long id);
 
-    FuntimeUserThird queryUserInfoByOpenid(String openid);
+    FuntimeUserThird queryUserInfoByOpenid(String openid,String thirdType);
 
     Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid);
 
@@ -69,5 +70,15 @@ public interface UserService {
 
     void updateTokenById(Long userId,String token);
 
+    void updateCreateRoomPlus(Long id);
+
+    void updateCreateRoomSub(Long id);
+
     PageInfo<FuntimeUser> queryUserInfoByOnline(Integer startPage, Integer pageSize, Integer sex, Integer ageType);
+
+    List<Map<String,Object>> getGiftByUserId(Long userId);
+
+    List<FuntimeUserPhotoAlbum> getPhotoByUserId(Long userId);
+
+    Map<String,Object> queryUserByChatUser(Long userId, Long byUserId);
 }

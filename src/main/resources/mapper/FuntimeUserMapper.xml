@@ -50,6 +50,14 @@
     where id = #{id,jdbcType=BIGINT} and flag = 1
   </select>
 
+  <select id="queryUserByChatUser" resultType="java.util.Map">
+    select
+     u.nickname,u.portrait_address portraitAddress,u.sign_text as  signText,u.birthday,u.sex
+     ,(select count(c.id) from t_funtime_user_concern c where c.user_id = #{byUserId} and c.to_user_id = u.id) isConcern
+    from t_funtime_user u
+    where u.id = #{userId} and flag = 1
+  </select>
+
   <select id="queryUserInfo" parameterType="java.util.Map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -407,6 +415,12 @@
   </update>
   <update id="updateFansSub" parameterType="java.lang.Long">
     update t_funtime_user set fans = fans+1,update_time =now() where id = #{id} and fans>0
+  </update>
+  <update id="updateCreateRoomPlus" parameterType="java.lang.Long">
+    update t_funtime_user set create_room = create_room+1,update_time =now() where id = #{id}
+  </update>
+  <update id="updateCreateRoomSub" parameterType="java.lang.Long">
+    update t_funtime_user set create_room = create_room+1,update_time =now() where id = #{id} and create_room>0
   </update>
 <update id="updateTokenById" >
   update t_funtime_user set token = #{token},update_time =now() where id = #{id}

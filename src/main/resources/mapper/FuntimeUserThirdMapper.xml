@@ -18,11 +18,11 @@
     from t_funtime_user_third
     where id = #{id,jdbcType=BIGINT}
   </select>
-  <select id="queryUserByOpenid" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="queryUserByOpenid"  resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from t_funtime_user_third
-    where openid = #{openid}
+    where openid = #{openid} and third_type = #{thirdType}
     limit 1
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">

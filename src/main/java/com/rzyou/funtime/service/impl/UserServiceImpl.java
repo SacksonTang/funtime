@@ -40,6 +40,10 @@ public class UserServiceImpl implements UserService {
     FuntimeUserConcernMapper userConcernMapper;
     @Autowired
     FuntimeUserThirdMapper userThirdMapper;
+    @Autowired
+    FuntimeGiftMapper giftMapper;
+    @Autowired
+    FuntimeUserPhotoAlbumMapper userPhotoAlbumMapper;
 
 
     @Override
@@ -95,8 +99,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public FuntimeUserThird queryUserInfoByOpenid(String openid) {
-        return userThirdMapper.queryUserByOpenid(openid);
+    public FuntimeUserThird queryUserInfoByOpenid(String openid,String thirdType) {
+        return userThirdMapper.queryUserByOpenid(openid,thirdType);
     }
 
     @Override
@@ -144,6 +148,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public Boolean insertSelective(FuntimeUser user) {
+        user.setLastLoginTime(new Date());
         if(userMapper.insertSelective(user)!=1){
 
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
@@ -394,6 +399,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateCreateRoomPlus(Long id) {
+        userMapper.updateCreateRoomPlus(id);
+    }
+
+    @Override
+    public void updateCreateRoomSub(Long id) {
+
+        userMapper.updateCreateRoomSub(id);
+    }
+
+    @Override
     public PageInfo<FuntimeUser> queryUserInfoByOnline(Integer startPage, Integer pageSize, Integer sex, Integer ageType) {
         PageHelper.startPage(startPage,pageSize);
         String startAge = null;
@@ -421,8 +437,36 @@ public class UserServiceImpl implements UserService {
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
+            for (FuntimeUser user:list){
+                List<Integer> tags = tagMapper.queryTagsByUserId(user.getId());
+                user.setTags(tags);
+            }
+
             return new PageInfo<>(list);
         }
+    }
+
+    @Override
+    public List<Map<String,Object>> getGiftByUserId(Long userId) {
+        return giftMapper.getGiftByUserId(userId);
+    }
+
+    @Override
+    public List<FuntimeUserPhotoAlbum> getPhotoByUserId(Long userId) {
+        return userPhotoAlbumMapper.getPhotoAlbumByUserId(userId);
+    }
+
+    @Override
+    public Map<String, Object> queryUserByChatUser(Long userId, Long byUserId) {
+        Map<String,Object> result = userMapper.queryUserByChatUser(userId,byUserId);
+        if (result!=null&&result.get("birthday")!=null){
+            int birthday = Integer.valueOf(result.get("birthday").toString());
+
+            result.put("age",DateUtil.getAgeByBirthday(birthday));
+
+            result.put("constellation",DateUtil.getConstellationByBirthday(birthday));
+        }
+        return result;
     }
 
 

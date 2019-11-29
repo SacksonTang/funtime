@@ -11,7 +11,7 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="tag_id" jdbcType="INTEGER" property="tagId" />
     <result column="gift_record_id" jdbcType="INTEGER" property="giftRecordId" />
-
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, detail_id, amount, send_time, create_time, tag_id,order_no,gift_record_id
@@ -24,16 +24,43 @@
   </select>
   <select id="getRedpacketOfRecieveForPage"  resultMap="BaseResultMap">
     select
-    <include refid="Base_Column_List" />
+     d.id, d.amount, d.send_time, d.create_time, d.tag_id,d.order_no,d.gift_record_id,
+     u.nickname
+    from t_funtime_user_account_redpacket_record d inner join t_funtime_user_redpacket_detail l on d.detail_id = l.id
+      inner join t_funtime_user_redpacket t on l.redpacket_id = t.id
+      inner join t_funtime_user u on t.user_id = u.id
+    where  d.user_id = #{userId}
+      and d.create_time between #{startDate} and #{endDate}
+
+    order by d.create_time desc
+  </select>
+  <select id="getSumGrabAmountById"  resultType="java.math.BigDecimal">
+    select
+     sum(amount)
+
     from t_funtime_user_account_redpacket_record
-    where 1=1
-    <if test="userId!=null">
-      and user_id = #{userId}
-    </if>
-    <if test="startDate!=null and endDate!=null">
+    where  user_id = #{userId}
       and create_time between #{startDate} and #{endDate}
-    </if>
-    order by create_time desc
+
+
+  </select>
+  <select id="getSumGrabTagsById"  resultType="java.util.Map">
+    select
+     d.tag_id tagId
+     ,case when d.tag_id = 1 then '首榜'
+           when d.tag_id = 2 then '运气王'
+           when d.tag_id = 3 then '小幸运'
+           when d.tag_id = 4 then '小可怜'
+           end tagName
+     ,count(d.id) tagTotal
+
+    from t_funtime_user_account_redpacket_record d
+    where  d.user_id = #{userId}
+      and d.create_time between #{startDate} and #{endDate}
+      and d.tag_id is not null
+      group by d.tag_id
+
+
   </select>
   <select id="getRedpacketRecordByredId"  parameterType="java.lang.Long" resultMap="BaseResultMap">
     select

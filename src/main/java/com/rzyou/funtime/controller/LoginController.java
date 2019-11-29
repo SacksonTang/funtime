@@ -10,6 +10,7 @@ import com.rzyou.funtime.jwt.util.JwtHelper;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
+import com.rzyou.funtime.utils.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -82,7 +83,7 @@ public class LoginController {
             }
             FuntimeUser userInfo = strategy.login(user);
 
-            result.setData(userInfo);
+            result.setData(JsonUtil.getMap("user",userInfo));
         } catch (BusinessException be) {
             be.printStackTrace();
             result.setCode(be.getCode());
@@ -100,12 +101,13 @@ public class LoginController {
     public ResultMsg<Object> getToken(HttpServletRequest request) {
         JSONObject paramJson = HttpHelper.getParamterJsonNoToken(request);
         String userId = paramJson.getString("userId");
+        String imei = paramJson.getString("imei");
         if (StringUtils.isBlank(userId)) {
             return new ResultMsg<>(ErrorMsgEnum.USER_ID_NOT_EXIST.getValue(), ErrorMsgEnum.USER_ID_NOT_EXIST.getDesc());
         }
         try {
-            String token = JwtHelper.generateJWT(userId);
-            return new ResultMsg<>(token);
+            String token = JwtHelper.generateJWT(userId,imei);
+            return new ResultMsg<>(JsonUtil.getMap("token",token));
         } catch (Exception e) {
             return new ResultMsg<>(ErrorMsgEnum.USER_GETTOKEN_FAIL.getValue(), ErrorMsgEnum.USER_GETTOKEN_FAIL.getDesc());
         }

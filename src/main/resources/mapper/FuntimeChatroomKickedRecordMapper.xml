@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeChatroomKickedRecordMapper">
+  <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeChatroomKickedRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="room_id" jdbcType="BIGINT" property="roomId" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="kicked_user_id" jdbcType="BIGINT" property="kickedUserId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="expire_time" jdbcType="TIMESTAMP" property="expireTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, room_id, user_id, kicked_user_id, create_time,expire_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_funtime_chatroom_kicked_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="checkUserIsKickedOrNot" resultType="java.lang.Integer">
+    select
+    count(id)
+    from t_funtime_chatroom_kicked_record
+    where room_id = #{roomId} and kicked_user_id = #{kickedUserId} and NOW() between  create_time and expire_time
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_funtime_chatroom_kicked_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeChatroomKickedRecord">
+    insert into t_funtime_chatroom_kicked_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+
+      <if test="roomId != null">
+        room_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="kickedUserId != null">
+        kicked_user_id,
+      </if>
+      expire_time,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+      <if test="roomId != null">
+        #{roomId,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="kickedUserId != null">
+        #{kickedUserId,jdbcType=BIGINT},
+      </if>
+      date_add(NOW(), interval 10 minute),
+    </trim>
+  </insert>
+
+</mapper>

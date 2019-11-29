@@ -5,12 +5,21 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface FuntimeChatroomMicMapper {
     int deleteByPrimaryKey(Long id);
 
+    int lowerWheat(Long id);
+
+    int upperWheat(@Param("id") Long id,@Param("userId") Long userId);
+
+    FuntimeChatroomMic getMicLocationUser(@Param("roomId") Long roomId, @Param("micLocation") Integer micLocation);
+
     int insertBatch(@Param("mics") List<FuntimeChatroomMic> mics);
+
+    List<Map<String, Object>> getMicUserByRoomId(Long roomId);
 
     int insertSelective(FuntimeChatroomMic record);
 

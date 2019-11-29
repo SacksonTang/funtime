@@ -14,4 +14,8 @@ public interface FuntimeChatroomMapper {
     int updateByPrimaryKeySelective(FuntimeChatroom record);
 
     int updateByPrimaryKey(FuntimeChatroom record);
+
+    int updateOnlineNumPlus(Long id);
+
+    int updateOnlineNumSub(Long id);
 }

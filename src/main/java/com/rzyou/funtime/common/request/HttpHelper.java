@@ -17,13 +17,11 @@ public class HttpHelper {
 
     public static JSONObject getParamterJson(HttpServletRequest request){
 
+
         String str = getBodyString(request);
         log.debug("请求Body: {} ", str);
         JSONObject obj = JSONObject.parseObject(str);
-        String token = obj.getString("token");
-        if(StringUtils.isBlank(token)){
-            throw new BusinessException(ErrorMsgEnum.USER_TOKEN_ERROR.getValue(),ErrorMsgEnum.USER_TOKEN_ERROR.getDesc());
-        }
+
         JSONObject paramJson = obj.getJSONObject("param");
         return paramJson;
 

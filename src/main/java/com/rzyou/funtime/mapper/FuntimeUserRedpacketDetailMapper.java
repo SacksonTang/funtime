@@ -4,6 +4,7 @@ import com.rzyou.funtime.entity.FuntimeUserRedpacketDetail;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Mapper
@@ -23,6 +24,9 @@ public interface FuntimeUserRedpacketDetailMapper {
     List<FuntimeUserRedpacketDetail> queryDetailByRedId(Long redId);
 
     List<FuntimeUserRedpacketDetail> queryDetailByRedIdAll(Long redId);
+
+    BigDecimal querySnedSumAmountByGrab(@Param("startDate") String startDate
+            ,@Param("endDate") String endDate,@Param("userId") Long userId);
 
 
     FuntimeUserRedpacketDetail queryDetailByRedIdAndUserId(@Param("redId") Long redId,@Param("grabUserId") Long grabUserId);

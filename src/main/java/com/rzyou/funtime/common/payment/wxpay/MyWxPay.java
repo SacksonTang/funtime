@@ -30,7 +30,7 @@ public class MyWxPay {
             data.put("total_fee", totalFee);
             data.put("spbill_create_ip", ip);
             data.put("notify_url", notifyUrl);
-            data.put("trade_type", "JSAPI");  //
+            data.put("trade_type", "APP");  //
             data.put("attach", orderId);
 
 

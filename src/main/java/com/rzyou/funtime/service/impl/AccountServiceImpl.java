@@ -12,6 +12,7 @@ import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.RedPacketUtil;
 import com.rzyou.funtime.utils.StringUtil;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -23,10 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-
+@Slf4j
 @Service
 public class AccountServiceImpl implements AccountService {
-    private static Logger log = LoggerFactory.getLogger(AccountServiceImpl.class);
 
     @Autowired
     UserService userService;
@@ -66,8 +66,13 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
+    public FuntimeUserAccountRechargeRecord getRechargeRecordById(Long id) {
+        return userAccountRechargeRecordMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
     @Transactional
-    public void recharge(FuntimeUserAccountRechargeRecord record){
+    public Map<String,Object> createRecharge(FuntimeUserAccountRechargeRecord record){
         FuntimeRechargeConf rechargeConf = rechargeConfMapper.selectByPrimaryKey(record.getRechargeConfId());
         if (rechargeConf==null){
             throw new BusinessException(ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getValue(),ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getDesc());
@@ -76,19 +81,28 @@ public class AccountServiceImpl implements AccountService {
         record.setHornNum(rechargeConf.getHornNum());
         record.setAmount(rechargeConf.getRechargeNum());
         String orderNo = "A"+StringUtil.createOrderId();
-        saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
+        Long id = saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
+        Map<String,Object> result = new HashMap<>();
+        result.put("orderId",id);
+        result.put("orderNo",orderNo);
+        return result;
 
     }
 
     @Override
     @Transactional
-    public void paySuccess(Long orderId) {
+    public Map<String,String> paySuccess(Long orderId) {
+        Map<String,String> result = new HashMap<>();
         FuntimeUserAccountRechargeRecord record = userAccountRechargeRecordMapper.selectByPrimaryKey(orderId);
         if(record==null){
-            throw new BusinessException(ErrorMsgEnum.ORDER_NOT_EXISTS.getValue(),ErrorMsgEnum.ORDER_NOT_EXISTS.getDesc());
+            result.put("return_code", "FAIL");
+            result.put("return_msg", ErrorMsgEnum.ORDER_NOT_EXISTS.getDesc());
+            return result;
         }
         if (PayState.PAIED.getValue().equals(record.getState())){
-            return;
+            result.put("return_code", "SUCCESS");
+            result.put("return_msg", "OK");
+            return result;
         }else if (PayState.START.getValue().equals(record.getState())||PayState.FAIL.getValue().equals(record.getState())) {
             //状态变更
             updateState(orderId, PayState.PAIED.getValue());
@@ -103,9 +117,14 @@ public class AccountServiceImpl implements AccountService {
                 saveUserAccountHornLog(record.getUserId(),record.getHornNum(),record.getId()
                         , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
             }
+            result.put("return_code", "SUCCESS");
+            result.put("return_msg", "OK");
+            return result;
         }else{
             log.info("订单号: {} 的订单已失效,请重新下单",record.getOrderNo());
-            throw new BusinessException(ErrorMsgEnum.ORDER_IS_INVALID.getValue(),ErrorMsgEnum.ORDER_IS_INVALID.getDesc());
+            result.put("return_code", "FAIL");
+            result.put("return_msg", ErrorMsgEnum.ORDER_IS_INVALID.getDesc());
+            return result;
         }
 
     }
@@ -187,7 +206,7 @@ public class AccountServiceImpl implements AccountService {
     public Map<String,Object> grabRedpacketBestowCondition(Long userId, Long redpacketId, Integer giftId,Long toUserId) {
 
         //礼物赠送
-        Long recordId = giftTrans(userId,toUserId,giftId,1,"红包赠送",GiveChannel.REDPACKET.getValue());
+        Long recordId = createGiftTrans(userId,toUserId,giftId,1,"红包赠送",GiveChannel.REDPACKET.getValue());
 
         return grabRedpacketNoCondition(userId, redpacketId,recordId);
 
@@ -369,8 +388,29 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public BigDecimal querySnedSumAmountByGrab(Long userId, String queryDate) {
+        String startDate = queryDate+"-01 00:00:01";
+        String endDate = currentFinalDay(queryDate) ;
+        return userRedpacketDetailMapper.querySnedSumAmountByGrab(startDate,endDate,userId);
+    }
+
+    @Override
+    public BigDecimal getSumGrabAmountById(Long userId, String queryDate) {
+        String startDate = queryDate+"-01 00:00:01";
+        String endDate = currentFinalDay(queryDate) ;
+        return userAccountRedpacketRecordMapper.getSumGrabAmountById(startDate,endDate,userId);
+    }
+
+    @Override
+    public List<Map<String,Object>> getSumGrabTagsById(Long userId, String queryDate) {
+        String startDate = queryDate+"-01 00:00:01";
+        String endDate = currentFinalDay(queryDate) ;
+        return userAccountRedpacketRecordMapper.getSumGrabTagsById(startDate,endDate,userId);
+    }
+
+    @Override
     @Transactional
-    public Long giftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum,String operationDesc,Integer giveChannelId) {
+    public Long createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum,String operationDesc,Integer giveChannelId) {
 
         checkUser(userId);
         checkUser(toUserId);
@@ -501,7 +541,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public void applyWithdrawal(Long userId,Integer withdrawalType, BigDecimal blackAmount) {
 
-        userService.checkAgreementByuserId(userId,withdrawalType);
+        userService.checkAgreementByuserId(userId,UserAgreementType.WITHDRAWAL_AGREEMENT.getValue());
 
         FuntimeUser user = userService.queryUserById(userId);
         if(user==null){
@@ -761,7 +801,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-    public void saveAccountRechargeRecord(FuntimeUserAccountRechargeRecord rechargeRecord,Long version, Integer state,String orderNo){
+    public Long saveAccountRechargeRecord(FuntimeUserAccountRechargeRecord rechargeRecord,Long version, Integer state,String orderNo){
 
         rechargeRecord.setState(state);
         rechargeRecord.setVersion(version);
@@ -771,6 +811,7 @@ public class AccountServiceImpl implements AccountService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        return rechargeRecord.getId();
     }
 
     public void updateState(Long id,Integer state){

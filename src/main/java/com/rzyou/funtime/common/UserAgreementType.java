@@ -5,7 +5,7 @@ public enum UserAgreementType {
     ,USER_AGREEMENT(2,"用户协议")
     ,RECHARGE_AGREEMENT(3,"充值协议")
     ,PRIVACY_AGREEMENT(4,"隐私协议")
-
+    ,WITHDRAWAL_AGREEMENT(5,"领赏协议")
     ;
     private int value;
     private String desc;

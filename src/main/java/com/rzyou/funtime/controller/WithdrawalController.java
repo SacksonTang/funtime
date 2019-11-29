@@ -8,6 +8,7 @@ import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.entity.FuntimeUserAccountWithdrawalRecord;
 import com.rzyou.funtime.service.AccountService;
+import com.rzyou.funtime.utils.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("withdrawal")
@@ -72,7 +74,7 @@ public class WithdrawalController {
 
             PageInfo<FuntimeUserAccountWithdrawalRecord> withdrawalForPage = accountService.getWithdrawalForPage(startPage, pageSize, queryDate, state, userId);
 
-            result.setData(withdrawalForPage);
+            result.setData(JsonUtil.getMap("pageInfo",withdrawalForPage));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

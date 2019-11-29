@@ -11,7 +11,7 @@ public enum ErrorMsgEnum {
     USER_IS_DELETE("10003","用户已封禁"),
     USER_IS_NORMAL("10004","用户已经正常"),
     USER_LOGIN_ERROR("10005","用户登录失败"),
-    USER_TOKEN_ERROR("10006","用户令牌token无效"),
+    USER_TOKEN_ERROR("10006","用户令牌token过期或无效"),
     USER_TOKEN_EMPTY("10007","用户令牌token为空"),
     USER_TOKEN_EXPIRE("10008","用户令牌token过期"),
     USER_ID_NOT_EXIST("10009","USERID为空"),
@@ -58,14 +58,25 @@ public enum ErrorMsgEnum {
     WITHDRAWAL_MIN_LIMIT("70003","提现金额小于最低领赏金额"),
     WITHDRAWAL_OPERATION_LIMIT("70004","客服小姐姐很忙,请等她处理完再提交"),
 
-    ROOM_RONGYUN_CREATE_ERROR("80001","融云房间创建失败")
+    ROOM_CREATE_ERROR("80001","房间创建失败"),
+    ROOM_NOT_EXISTS("80002","房间不存在"),
+    ROOM_IS_BLOCK("80003","房间已经封禁"),
+    ROOM_JOIN_PASS_ERROR("80004","房间密码错误"),
+    ROOM_JOIN_PASS_EMPTY("80005","房间密码为空,请输入密码"),
+    ROOM_JOIN_USER_BLOCKED("80006","您已被踢出,请10分钟后再入"),
+    ROOM_JOIN_USER_EXISTS("80007","您已加入该房间"),
+    ROOM_EXIT_USER_NOT_EXISTS("80008","您已退出该房间"),
+    ROOM_KICKED_USER_EXIST("80009","10分钟内您已踢过该用户"),
+    ROOM_MIC_USER_EXIST("80010","麦位已经有人"),
+    ROOM_MIC_LOCATION_NOT_EXIST("80011","无此麦位"),
+    ROOM_MIC_USER_NOT_EXIST("80012","麦位没有此人"),
 
     ;
 
     private String value;
     private String desc;
 
-    private ErrorMsgEnum(String value, String desc) {
+    ErrorMsgEnum(String value, String desc) {
         this.setValue(value);
         this.setDesc(desc);
     }

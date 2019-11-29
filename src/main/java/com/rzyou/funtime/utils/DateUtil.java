@@ -17,12 +17,37 @@ public class DateUtil {
     public static SimpleDateFormat SDF2 = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS_TIGHT, Locale.CHINA);
     public static SimpleDateFormat SDF3 = new SimpleDateFormat(YYYYMMDD, Locale.CHINA);
 
+
+    private final static int[] dayArr = new int[] { 20, 19, 21, 20, 21, 22, 23, 23, 23, 24, 23, 22 };
+    private final static String[] constellationArr = new String[] { "摩羯座", "水瓶座", "双鱼座", "白羊座", "金牛座", "双子座", "巨蟹座", "狮子座", "处女座", "天秤座", "天蝎座", "射手座", "摩羯座" };
+    public static String getConstellation(int month, int day) {
+        return day < dayArr[month - 1] ? constellationArr[month - 1] : constellationArr[month];
+    }
+
     public static String getCurrentDateTime() {
         Date date = new Date();
         SimpleDateFormat df = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS_TIGHT, Locale.CHINA);
 
         String time = df.format(date);
         return time;
+    }
+
+    public static int getAgeByBirthday(int birthday){
+        int currentInt = getCurrentInt();
+        int age;
+        if ((currentInt-birthday)%10000>0){
+            age = (currentInt-birthday)/10000+1;
+        }else{
+            age = (currentInt-birthday)/10000;
+        }
+        return age;
+    }
+
+    public static String getConstellationByBirthday(int birthday){
+        String birth = String.valueOf(birthday);
+        int month = Integer.valueOf(birth.substring(4,6));
+        int day = Integer.valueOf(birth.substring(6,8));
+        return getConstellation(month,day);
     }
 
     public static String getCurrentDateTime(String format) {
@@ -37,6 +62,11 @@ public class DateUtil {
     public static Date getDateByDayMonth(String day_month) throws Exception{
         String date = day_month+"-01";
         return SDF1.parse(date);
+    }
+
+    public static int getCurrentInt(){
+        String current = SDF3.format(new Date());
+        return Integer.parseInt(current);
     }
 
     /**

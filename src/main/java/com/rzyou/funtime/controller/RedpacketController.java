@@ -10,6 +10,7 @@ import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
 import com.rzyou.funtime.entity.FuntimeUserAccountRedpacketRecord;
 import com.rzyou.funtime.entity.FuntimeUserRedpacket;
 import com.rzyou.funtime.service.AccountService;
+import com.rzyou.funtime.utils.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -116,13 +118,18 @@ public class RedpacketController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
+            Map<String,Object> resultMap = new HashMap<>();
             //发出
             if(type.intValue()==1){
-                result.setData(accountService.getRedpacketOfSendForPage(startPage, pageSize, queryDate, userId));
-            }else{
-                result.setData(accountService.getRedpacketOfRecieveForPage(startPage, pageSize, queryDate, userId));
-            }
+                resultMap.put("pageInfo",accountService.getRedpacketOfSendForPage(startPage, pageSize, queryDate, userId));
+                resultMap.put("sendAmountTotal",accountService.querySnedSumAmountByGrab(userId,queryDate));
 
+            }else{
+                resultMap.put("pageInfo",accountService.getRedpacketOfRecieveForPage(startPage, pageSize, queryDate, userId));
+                resultMap.put("grabAmountTotal",accountService.getSumGrabAmountById(userId,queryDate));
+                resultMap.put("tags",accountService.getSumGrabTagsById(userId,queryDate));
+            }
+            result.setData(resultMap);
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

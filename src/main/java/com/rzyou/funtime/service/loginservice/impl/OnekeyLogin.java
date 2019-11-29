@@ -30,7 +30,7 @@ public class OnekeyLogin implements LoginStrategy {
 
             userService.saveUser(user, null, null, null);
             userId = user.getId().toString();
-            String token = JwtHelper.generateJWT(userId);
+            String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
             user.setToken(token);
             userService.updateTokenById(user.getId(),token);
 
@@ -39,10 +39,10 @@ public class OnekeyLogin implements LoginStrategy {
             if(funtimeUser.getState().intValue()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
-            String token = JwtHelper.generateJWT(userId);
+            String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
             userService.updateUserInfo(funtimeUser.getId(),1,token,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
 
         }
-        return userService.queryUserById(Long.parseLong(userId));
+        return userService.getUserBasicInfoById(Long.parseLong(userId));
     }
 }

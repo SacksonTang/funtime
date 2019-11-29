@@ -2,6 +2,7 @@ package com.rzyou.funtime.mapper;
 
 import com.rzyou.funtime.entity.FuntimeUserThird;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface FuntimeUserThirdMapper {
@@ -13,6 +14,6 @@ public interface FuntimeUserThirdMapper {
 
     int updateByPrimaryKeySelective(FuntimeUserThird record);
 
-    FuntimeUserThird queryUserByOpenid(String openid);
+    FuntimeUserThird queryUserByOpenid(@Param("openid") String openid,@Param("thirdType") String thirdType);
 
 }

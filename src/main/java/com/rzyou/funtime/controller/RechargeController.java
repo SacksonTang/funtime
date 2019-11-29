@@ -10,6 +10,7 @@ import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.utils.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("recharge")
@@ -45,7 +48,7 @@ public class RechargeController {
                 return result;
             }
 
-            accountService.recharge(record);
+            result.setData(accountService.createRecharge(record));
 
             return result;
         } catch (BusinessException be) {
@@ -83,7 +86,7 @@ public class RechargeController {
 
             PageInfo<FuntimeUserAccountRechargeRecord> rechargeDetailForPage = accountService.getRechargeDetailForPage(startPage, pageSize, queryDate, state, userId);
 
-            result.setData(rechargeDetailForPage);
+            result.setData(JsonUtil.getMap("pageInfo",rechargeDetailForPage));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

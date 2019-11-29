@@ -1,8 +1,6 @@
 package com.rzyou.funtime.utils;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+
 
 public class RedPacketUtil {
 

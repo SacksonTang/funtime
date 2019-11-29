@@ -9,11 +9,17 @@ public class FuntimeChatroom {
 
     private Long userId;
 
+    private String password;
+
     private String name;
+
+    private String examUrl;
+
+    private String avatarUrl;
 
     private Integer tagId;
 
-    private String desc;
+    private String examDesc;
 
     private Integer isBlock;
 
@@ -29,6 +35,30 @@ public class FuntimeChatroom {
     private Date createTime;
 
     private String chatMessageFile;
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getExamUrl() {
+        return examUrl;
+    }
+
+    public void setExamUrl(String examUrl) {
+        this.examUrl = examUrl;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public Long getUserId() {
         return userId;
@@ -62,12 +92,12 @@ public class FuntimeChatroom {
         this.tagId = tagId;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getExamDesc() {
+        return examDesc;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc == null ? null : desc.trim();
+    public void setExamDesc(String examDesc) {
+        this.examDesc = examDesc;
     }
 
     public Integer getIsBlock() {

@@ -38,18 +38,19 @@ public class FuntimeUserAccountGifttransRecord {
 
     private String orderNo;
 
-    private String nikename;
+    private String nickname;
 
     private String animationType;
 
     private String animationUrl;
 
-    public String getNikename() {
-        return nikename;
+
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setNikename(String nikename) {
-        this.nikename = nikename;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getAnimationType() {

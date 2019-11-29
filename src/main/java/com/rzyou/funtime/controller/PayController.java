@@ -7,7 +7,9 @@ import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
 import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
+import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
 import com.rzyou.funtime.service.AccountService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +27,11 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-
+@Slf4j
 @RestController
 @RequestMapping("pay")
 public class PayController {
 
-    private static Logger log = LoggerFactory.getLogger(PayController.class);
 
     @Value("app.pay.notifyUrl")
     private String notifyUrl ;
@@ -50,22 +51,23 @@ public class PayController {
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
-            String totalFee = paramJson.getString("totalFee");
-            String orderNo = paramJson.getString("orderNo");
             String imei = paramJson.getString("imei");
             String orderId = paramJson.getString("orderId");
-            if(StringUtils.isBlank(totalFee)||StringUtils.isBlank(orderNo)||StringUtils.isBlank(orderId)){
+            if(StringUtils.isBlank(orderId)){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            if(new BigDecimal(totalFee).intValue()<=0){
-                result.setCode(ErrorMsgEnum.TOTAL_FEE_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.TOTAL_FEE_ERROR.getDesc());
+
+
+            FuntimeUserAccountRechargeRecord record = accountService.getRechargeRecordById(Long.parseLong(orderId));
+            if (record==null){
+                result.setCode(ErrorMsgEnum.ORDER_NOT_EXISTS.getValue());
+                result.setMsg(ErrorMsgEnum.ORDER_NOT_EXISTS.getDesc());
                 return result;
             }
 
-            Map<String, String> resultMap = MyWxPay.unifiedOrder(totalFee, ip, orderNo, imei, notifyUrl, orderId);
+            Map<String, String> resultMap = MyWxPay.unifiedOrder(record.getRmb().toString(), ip, record.getOrderNo(), imei, notifyUrl, orderId);
             if("SUCCESS".equals(resultMap.get("return_code"))){
                 return result;
             }else{
@@ -124,9 +126,7 @@ public class PayController {
                 String attach = params.get("attach");
                 Long orderId = Long.parseLong(attach);
 
-                accountService.paySuccess(orderId);
-                return_data.put("return_code", "SUCCESS");
-                return_data.put("return_msg", "OK");
+                return_data = accountService.paySuccess(orderId);
                 return WXPayUtil.mapToXml(return_data);
             }catch (BusinessException e1){
                 e1.printStackTrace();

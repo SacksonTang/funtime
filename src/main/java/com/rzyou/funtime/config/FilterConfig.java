@@ -1,19 +1,27 @@
 package com.rzyou.funtime.config;
 
+import com.rzyou.funtime.filter.TokenAuthorFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 public class FilterConfig {
 
-
-    /**
     @Bean
-    public FilterRegistrationBean httpServletRequestReplacedRegistration() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
-        registration.setFilter(new HttpServletRequestReplacedFilter());
-        registration.addUrlPatterns("/*");
-        registration.setName("httpServletRequestReplacedFilter");
-        registration.setOrder(1);
-        return registration;
-    }*/
+    public FilterRegistrationBean filterRegistrationBean() {
+        FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+        TokenAuthorFilter tokenAuthorFilter = new TokenAuthorFilter();
+        registrationBean.setFilter(tokenAuthorFilter);
+        List<String> urlPatterns = new ArrayList<>();
+        urlPatterns.add("/*");
+        registrationBean.setUrlPatterns(urlPatterns);
+        registrationBean.setOrder(1);
+        return registrationBean;
+    }
+
+
 }

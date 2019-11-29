@@ -6,6 +6,7 @@ import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.service.AccountService;
+import com.rzyou.funtime.utils.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +34,7 @@ public class GiftTransController {
             Integer giftNum = paramJson.getInteger("giftNum");
             Integer giveChannel = paramJson.getInteger("giveChannel");
 
-            accountService.giftTrans(userId,toUserId,giftId,giftNum,"送礼物",giveChannel);
+            accountService.createGiftTrans(userId,toUserId,giftId,giftNum,"送礼物",giveChannel);
 
 
             return result;
@@ -68,9 +69,9 @@ public class GiftTransController {
             }
             //发出
             if(type.intValue()==1){
-                result.setData(accountService.getGiftOfSendForPage(startPage, pageSize, queryDate, userId));
+                result.setData(JsonUtil.getMap("pageInfo",accountService.getGiftOfSendForPage(startPage, pageSize, queryDate, userId)));
             }else{
-                result.setData(accountService.getGiftOfRecieveForPage(startPage, pageSize, queryDate, userId));
+                result.setData(JsonUtil.getMap("pageInfo",accountService.getGiftOfRecieveForPage(startPage, pageSize, queryDate, userId)));
             }
 
             return result;

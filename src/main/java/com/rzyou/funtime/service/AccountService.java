@@ -4,12 +4,16 @@ import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.entity.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 public interface AccountService {
-    void recharge(FuntimeUserAccountRechargeRecord record);
 
-    void paySuccess(Long orderId);
+    FuntimeUserAccountRechargeRecord getRechargeRecordById(Long id);
+
+    Map<String,Object> createRecharge(FuntimeUserAccountRechargeRecord record);
+
+    Map<String,String> paySuccess(Long orderId);
 
     PageInfo<FuntimeUserAccountRechargeRecord> getRechargeDetailForPage(Integer startPage, Integer pageSize, String queryDate, Integer state, Long userId);
 
@@ -21,7 +25,14 @@ public interface AccountService {
 
     PageInfo<FuntimeUserAccountRedpacketRecord> getRedpacketOfRecieveForPage(Integer startPage, Integer pageSize, String queryDate, Long userId);
 
-    Long giftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum,String operationDesc,Integer giveChannelId);
+    BigDecimal querySnedSumAmountByGrab(Long userId, String queryDate);
+
+    BigDecimal getSumGrabAmountById(Long userId, String queryDate);
+
+    List<Map<String,Object>> getSumGrabTagsById(Long userId, String queryDate);
+
+
+    Long createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum,String operationDesc,Integer giveChannelId);
 
     void updateStateForInvalid();
 

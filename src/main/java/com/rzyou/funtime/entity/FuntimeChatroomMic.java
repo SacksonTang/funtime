@@ -19,6 +19,16 @@ public class FuntimeChatroomMic {
 
     private Integer state;
 
+    private Integer userRole;
+
+    public Integer getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(Integer userRole) {
+        this.userRole = userRole;
+    }
+
     public Integer getState() {
         return state;
     }

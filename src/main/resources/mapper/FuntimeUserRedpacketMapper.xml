@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeUserRedpacket">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="room_id" jdbcType="BIGINT" property="roomId" />
     <result column="redpacket_num" jdbcType="INTEGER" property="redpacketNum" />
     <result column="amount" jdbcType="DECIMAL" property="amount" />
     <result column="redpacket_desc" jdbcType="VARCHAR" property="redpacketDesc" />
@@ -17,7 +18,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, redpacket_num, amount, redpacket_desc, bestow_condition, gift_id, state, 
-    invalid_time, create_time
+    invalid_time, create_time,room_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -48,11 +49,12 @@
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacket" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user_redpacket
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
+
       <if test="userId != null">
         user_id,
+      </if>
+      <if test="roomId != null">
+        room_id,
       </if>
       <if test="redpacketNum != null">
         redpacket_num,
@@ -75,16 +77,15 @@
       <if test="invalidTime != null">
         invalid_time,
       </if>
-      <if test="createTime != null">
-        create_time,
-      </if>
+
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
+
       <if test="userId != null">
         #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="roomId != null">
+        #{roomId,jdbcType=BIGINT},
       </if>
       <if test="redpacketNum != null">
         #{redpacketNum,jdbcType=INTEGER},
@@ -107,9 +108,7 @@
       <if test="invalidTime != null">
         #{invalidTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
+
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUserRedpacket">

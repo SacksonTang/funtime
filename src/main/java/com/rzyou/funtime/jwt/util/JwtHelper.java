@@ -40,7 +40,7 @@ public class JwtHelper {
      * @param userId - 用户编号
      * @Modified By:
      */
-    public static String generateJWT(String userId) {
+    public static String generateJWT(String userId,String imei) {
         //签名算法，选择SHA-256
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         //获取当前系统时间
@@ -58,6 +58,7 @@ public class JwtHelper {
         JwtBuilder builder = Jwts.builder().setHeader(headMap)
                 //加密后的客户ID
                 .claim("userId", AESSecretUtil.encryptToStr(userId, SecretConstant.DATAKEY))
+                .claim("imei",AESSecretUtil.encryptToStr(imei, SecretConstant.DATAKEY))
                 //Signature
                 .signWith(signatureAlgorithm, signingKey);
         //添加Token过期时间
@@ -102,22 +103,20 @@ public class JwtHelper {
 
     /**
      * @Description: 校验JWT是否有效
-     * 返回json字符串的demo:
-     * {"freshToken":"A.B.C","userName":"Judy","userId":"123", "userAgent":"xxxx"}
-     * freshToken-刷新后的jwt
-     * userName-客户名称
-     * userId-客户编号
-     * userAgent-客户端浏览器信息
      * @param jsonWebToken - JWT
      * @Modified By:
      */
-    public static String validateLogin(String jsonWebToken) {
+    public static Map<String,Object> validateLogin(String jsonWebToken) {
         Claims claims = parseJWT(jsonWebToken);
 
         if (claims != null) {
             //解密客户编号
             String decryptUserId = AESSecretUtil.decryptToStr((String)claims.get("userId"), SecretConstant.DATAKEY);
-            return decryptUserId;
+            String decryptIemi = AESSecretUtil.decryptToStr((String)claims.get("imei"), SecretConstant.DATAKEY);
+            Map<String,Object> result = new HashMap<>();
+            result.put("userId",decryptUserId);
+            result.put("imei",decryptIemi);
+            return result;
         }else {
             logger.warn("[JWTHelper]-JWT解析出claims为空");
             throw new BusinessException(ErrorMsgEnum.USER_TOKEN_EMPTY.getValue(),ErrorMsgEnum.USER_TOKEN_EMPTY.getDesc());
@@ -125,9 +124,8 @@ public class JwtHelper {
     }
 
     public static void main(String[] args) {
-       String jsonWebKey = generateJWT("123");
+       String jsonWebKey = generateJWT("123","11");
        System.out.println(jsonWebKey);
-       jsonWebKey = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJEODMyMzgwMTdBMjU1NjdBMzk0RTIyRTU3MzJFNUExMSIsImV4cCI6MTU3MzEwNjc2MiwibmJmIjoxNTczMTA0OTYyfQ.-oQrAmoIFzqSY6JcCyMjBW_EQDku5zdHXFa-9MNz1GE";
        Claims claims =  parseJWT(jsonWebKey);
        if(claims!=null) {
            System.out.println(claims.getNotBefore() + "---" + claims.getExpiration());

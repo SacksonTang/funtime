@@ -42,7 +42,7 @@ public class WxLogin implements LoginStrategy {
         String refresh_token = tokenJson.getString("refresh_token");
         String openid = tokenJson.getString("openid");
 
-        FuntimeUserThird userThird = userService.queryUserInfoByOpenid(openid);
+        FuntimeUserThird userThird = userService.queryUserInfoByOpenid(openid,user.getLoginType());
 
         String userId;
         if (userThird==null){
@@ -65,7 +65,7 @@ public class WxLogin implements LoginStrategy {
 
             userService.saveUser(user,"WX",openid,userJson.getString("unionid"));
             userId = user.getId().toString();
-            String token = JwtHelper.generateJWT(userId);
+            String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
             user.setToken(token);
             userService.updateTokenById(user.getId(),token);
             return user;
@@ -77,7 +77,7 @@ public class WxLogin implements LoginStrategy {
             if(funtimeUser.getState()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
-            String token = JwtHelper.generateJWT(userId);
+            String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
             user.setId(funtimeUser.getId());
             user.setToken(token);
             user.setOnlineState(1);

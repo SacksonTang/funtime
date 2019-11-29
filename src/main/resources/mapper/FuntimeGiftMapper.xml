@@ -25,6 +25,14 @@
     from t_funtime_gift
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="getGiftByUserId" parameterType="java.lang.Long" resultType="java.util.Map">
+    select
+     t.id,t.gift_name giftName,animation_type animationtype, animation_url animationUrl,sum(d.num) numTotal,sum(d.amount) amountTotal
+     ,original_price originalPrice, activity_price activityprice
+    from t_funtime_gift t inner join t_funtime_user_account_gifttrans_record d on t.id = d.gift_id
+    where d.user_id = #{userId}
+    group by t.id
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from t_funtime_gift
     where id = #{id,jdbcType=INTEGER}
