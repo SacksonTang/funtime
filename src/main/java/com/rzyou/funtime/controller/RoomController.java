@@ -192,7 +192,9 @@ public class RoomController {
                 return result;
             }
 
-            roomService.roomJoin(userId,roomId,password);
+            boolean isOwner = roomService.roomJoin(userId,roomId,password);
+
+            result.setData(JsonUtil.getMap("isOwer",isOwner));
 
             return result;
         } catch (BusinessException be) {

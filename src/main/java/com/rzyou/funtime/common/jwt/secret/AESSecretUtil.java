@@ -1,14 +1,11 @@
-package com.rzyou.funtime.jwt.secret;
+package com.rzyou.funtime.common.jwt.secret;
 
-import com.rzyou.funtime.jwt.constant.SecretConstant;
+import com.rzyou.funtime.common.jwt.constant.SecretConstant;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 /**

@@ -9,7 +9,7 @@ public interface RoomService {
 
     void roomUpdate(FuntimeChatroom chatroom);
 
-    void roomJoin(Long userId, Long roomId,String password);
+    boolean roomJoin(Long userId, Long roomId,String password);
 
     Map<String, Object> getRoomInfo(Long roomId);
 

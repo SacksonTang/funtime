@@ -1,10 +1,9 @@
-package com.rzyou.funtime.jwt.util;
+package com.rzyou.funtime.common.jwt.util;
 
-import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
-import com.rzyou.funtime.jwt.constant.SecretConstant;
-import com.rzyou.funtime.jwt.secret.AESSecretUtil;
+import com.rzyou.funtime.common.jwt.constant.SecretConstant;
+import com.rzyou.funtime.common.jwt.secret.AESSecretUtil;
 import io.jsonwebtoken.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

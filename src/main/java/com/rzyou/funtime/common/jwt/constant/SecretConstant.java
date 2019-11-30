@@ -1,4 +1,4 @@
-package com.rzyou.funtime.jwt.constant;
+package com.rzyou.funtime.common.jwt.constant;
 
 /**
  * @Author: Helon

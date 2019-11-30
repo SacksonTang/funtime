@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.ResultMsg;
-import com.rzyou.funtime.jwt.util.JwtHelper;
+import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

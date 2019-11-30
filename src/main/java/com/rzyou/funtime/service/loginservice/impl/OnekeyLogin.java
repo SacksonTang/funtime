@@ -3,7 +3,7 @@ package com.rzyou.funtime.service.loginservice.impl;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.entity.FuntimeUser;
-import com.rzyou.funtime.jwt.util.JwtHelper;
+import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import org.springframework.beans.factory.annotation.Autowired;

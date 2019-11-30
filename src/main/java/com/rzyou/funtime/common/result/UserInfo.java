@@ -1,4 +1,4 @@
-package com.rzyou.funtime.result;
+package com.rzyou.funtime.common.result;
 
 import com.rzyou.funtime.entity.FuntimeUser;
 

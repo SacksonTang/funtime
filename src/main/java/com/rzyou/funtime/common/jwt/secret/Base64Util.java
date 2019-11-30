@@ -1,4 +1,4 @@
-package com.rzyou.funtime.jwt.secret;
+package com.rzyou.funtime.common.jwt.secret;
 
 
 

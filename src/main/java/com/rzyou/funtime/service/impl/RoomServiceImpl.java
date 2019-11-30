@@ -77,7 +77,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional
-    public void roomJoin(Long userId, Long roomId,String password) {
+    public boolean roomJoin(Long userId, Long roomId,String password) {
         FuntimeChatroom chatroom = chatroomMapper.selectByPrimaryKey(roomId);
         if (chatroom==null){
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
@@ -117,6 +117,7 @@ public class RoomServiceImpl implements RoomService {
         }
         saveChatroomUser(userId,roomId,userRole);
         updateOnlineNumPlus(roomId);
+        return chatroom.getUserId().equals(userId);
     }
 
     @Override

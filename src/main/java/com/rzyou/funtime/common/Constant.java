@@ -13,6 +13,9 @@ public class Constant {
     public final static long TENCENT_YUN_SDK_APPID = 1;
     public final static String TENCENT_YUN_SDK_APPSECRET = "";
 
+    public final static String MOBPUSH_APPID = "2d2b03f3228f1";
+    public final static String MOBPUSH_APPSECRET = "e760f1673c9beb3647bda6ba4e54055f";
+
     public final static String GET_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token"; //获取微信TOKEN
     public final static String REFRESH_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/refresh_token";//刷新TOKEN
     public final static String CHECK_TOKEN_URL = "https://api.weixin.qq.com/sns/auth";//检查access_token有效性

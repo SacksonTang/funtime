@@ -2,16 +2,13 @@ package com.rzyou.funtime.service.loginservice.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
-import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
-import com.rzyou.funtime.common.httputil.HttpClientUtil;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserThird;
-import com.rzyou.funtime.jwt.util.JwtHelper;
+import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
-import jdk.nashorn.internal.ir.ReturnNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
+
 @Slf4j
 @Service("wxLogin")
 public class WxLogin implements LoginStrategy {
