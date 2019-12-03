@@ -5,6 +5,7 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ConvertType;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.request.HttpHelper;
+import com.rzyou.funtime.common.sms.ouyi.utils.HttpClient;
 import com.rzyou.funtime.entity.FuntimeTag;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
@@ -585,6 +586,35 @@ public class UserController {
             return result;
         }
     }
+
+    @PostMapping("getAuthority")
+    public ResultMsg<Object> getAuthority(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer userRole = paramJson.getInteger("userRole");
+            if (userRole==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            result.setData(JsonUtil.getMap("authority",userService.queryAuthorityByRole(userRole)));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
 
     /**
      * 修改相册信息

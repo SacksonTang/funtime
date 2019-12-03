@@ -1,12 +1,15 @@
 package com.rzyou.funtime.service.loginservice.impl;
 
 import com.rzyou.funtime.common.BusinessException;
+import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
+import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +49,12 @@ public class TelLogin implements LoginStrategy {
             String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
             user.setToken(token);
             userService.updateTokenById(user.getId(),token);
+
+            String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+            boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
+            if (!flag){
+                throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(),ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
+            }
         }else{
             userId = funtimeUser.getId().toString();
             if(funtimeUser.getState().intValue()!=1){

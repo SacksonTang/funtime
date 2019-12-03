@@ -21,4 +21,16 @@ public interface RoomService {
     void upperWheat(Long userId, Long roomId, Integer micLocation);
 
     void lowerWheat(Long userId, Long roomId, Integer micLocation);
+
+    void syncTencent(String usersig);
+
+    void stopWheat(Long userId, Long roomId, Integer micLocation);
+
+    void forbidWheat(Long roomId, Integer micLocation);
+
+    void openWheat(Long userId, Long roomId, Integer micLocation);
+
+    void releaseWheat(Long roomId, Integer micLocation);
+
+    void roomClose(Long userId, Long roomId);
 }

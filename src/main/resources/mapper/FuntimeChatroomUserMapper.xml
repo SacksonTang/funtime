@@ -7,9 +7,12 @@
     <result column="user_id" jdbcType="BIGINT" property="userId" />
     <result column="user_role" jdbcType="INTEGER" property="userRole" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="room_no"  property="roomNo" />
+    <result column="is_sync"  property="isSync" />
+    <result column="flag"  property="flag" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, room_id, user_id, user_role, create_time
+    id, room_id, user_id, user_role, create_time,room_no,is_sync,flag
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -21,12 +24,68 @@
     select
     id
     from t_funtime_chatroom_user
-    where room_id = #{roomId} and user_id = #{userId} limit 1
+    where room_id = #{roomId} and user_id = #{userId} and flag = 1 limit 1
   </select>
+  <select id="getRoomNoByRoomIdAll" resultType="java.lang.String" parameterType="java.lang.Long">
+    select
+    room_no
+    from t_funtime_chatroom_user
+    where room_id = #{roomId}
+    group by room_no
+  </select>
+  <select id="getRoomNoByRoomId" resultType="java.util.Map" parameterType="java.lang.Long">
+    select
+    room_no roomNo,count(id) roomNoCount
+    from t_funtime_chatroom_user
+    where room_id = #{roomId} and flag = 1
+    group by room_no
+  </select>
+  <select id="getJoinRoomUser" resultType="java.lang.String" >
+    select
+    room_no
+    from t_funtime_chatroom_user
+    where flag = 1 and is_sync = 2
+    group by room_no
+  </select>
+  <select id="getJoinRoomUserByRoomNo" resultType="java.lang.Long" parameterType="java.lang.String">
+    select
+     user_id
+    from t_funtime_chatroom_user
+    where room_no = #{roomNo} and flag = 1 and is_sync = 2
+  </select>
+  <select id="getDeleteRoomUser" resultType="java.lang.String" >
+    select
+    room_no
+    from t_funtime_chatroom_user
+    where flag = 2 and is_sync = 2
+    group by room_no
+  </select>
+  <select id="getDeleteRoomUserByRoomNo" resultType="java.lang.String" parameterType="java.lang.String">
+    select
+    user_id
+    from t_funtime_chatroom_user
+    where room_no = #{roomNo} and flag = 2 and is_sync = 2
+  </select>
+
+  <delete id="deleteRoomUser" parameterType="java.lang.String">
+    delete from t_funtime_chatroom_user
+    where room_no = #{roomNo} and flag = 2 and is_sync = 2
+  </delete>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_chatroom_user
     where id = #{id,jdbcType=BIGINT}
   </delete>
+  <delete id="deleteByRoomId" parameterType="java.lang.Long">
+    delete from t_funtime_chatroom_user
+    where room_id = #{roomId}
+  </delete>
+
+  <insert id="insertForRoomJoin" parameterType="com.rzyou.funtime.entity.FuntimeChatroomUser">
+    insert into t_funtime_chatroom_user (room_id, user_id,
+      user_role,room_no)
+    select #{roomId}, #{userId},
+      #{userRole},#{roomNo} from DUAL where 3> (select count(id) from t_funtime_chatroom_user where room_no = #{roomNo} and flag = 1)
+  </insert>
 
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeChatroomUser">
     insert into t_funtime_chatroom_user
@@ -41,6 +100,12 @@
       <if test="userRole != null">
         user_role,
       </if>
+      <if test="roomNo != null">
+        room_no,
+      </if>
+      <if test="isSync != null">
+        is_sync,
+      </if>
 
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -54,8 +119,20 @@
       <if test="userRole != null">
         #{userRole,jdbcType=INTEGER},
       </if>
+      <if test="roomNo != null">
+        #{roomNo},
+      </if>
+      <if test="isSync != null">
+        #{isSync},
+      </if>
 
     </trim>
   </insert>
+  <update id="deleteFlagById">
+    update t_funtime_chatroom_user set flag = 2,is_sync = 2 where id = #{id}
+  </update>
+  <update id="updateSyncByRoomNo">
+    update t_funtime_chatroom_user set is_sync = 1 where room_no = #{roomNo} and user_id = #{userId}
+  </update>
 
 </mapper>

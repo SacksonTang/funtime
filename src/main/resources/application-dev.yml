@@ -1,6 +1,13 @@
 server:
   port: 8086
-
+  tomcat:
+    max-threads: 1000
+    max-connections: 20000
+    min-spare-threads: 30
+    accesslog:
+      enabled: true
+      directory: C:\tomcat_log
+    connection-timeout: 30000
 
 spring:
   datasource:

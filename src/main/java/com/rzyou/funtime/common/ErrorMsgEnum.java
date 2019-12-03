@@ -31,7 +31,8 @@ public enum ErrorMsgEnum {
     USER_WXLOGIN_TOKEN_ERROR("10023","微信登录获取access_token失败"),
     USER_WXLOGIN_VALIDTOKEN_ERROR("10024","微信登录检测access_token失败"),
     USER_WXLOGIN_REFRESHTOKEN_ERROR("10025","微信登录刷新access_token失败"),
-    USER_WXLOGIN_USERINFO_ERROR("10025","微信登录获取用户信息失败"),
+    USER_WXLOGIN_USERINFO_ERROR("10026","微信登录获取用户信息失败"),
+    USER_SYNC_TENCENT_ERROR("10027","同步腾讯接口出错"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -70,6 +71,11 @@ public enum ErrorMsgEnum {
     ROOM_MIC_USER_EXIST("80010","麦位已经有人"),
     ROOM_MIC_LOCATION_NOT_EXIST("80011","无此麦位"),
     ROOM_MIC_USER_NOT_EXIST("80012","麦位没有此人"),
+    ROOM_JOIN_BUSY("800013","系统繁忙,请重新加入"),
+    ROOM_MIC_NO_AUTH("80014","用户每月权限封麦"),
+    ROOM_CREATER_ERROR("80015","只有房间创建者可以设置房间信息"),
+    ROOM_CLOSE_NO_AUTH("80016","只有房间创建者可以关闭房间"),
+    ROOM_CREATE_TENCENT_ERROR("80017","腾讯同步创建聊天室失败")
 
     ;
 

@@ -40,4 +40,6 @@ public interface FuntimeUserMapper {
     int updateCreateRoomSub(Long id);
 
     int updateTokenById(@Param("id") Long id, @Param("token") String token);
+
+    List<Integer> queryAuthorityByRole(Integer userRole);
 }

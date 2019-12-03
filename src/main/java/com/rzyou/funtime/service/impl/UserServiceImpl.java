@@ -3,13 +3,17 @@ package com.rzyou.funtime.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.BusinessException;
+import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.SmsType;
+import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.DateUtil;
+import com.rzyou.funtime.utils.UsersigUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -168,8 +172,16 @@ public class UserServiceImpl implements UserService {
             tags.addAll(user.getTags());
             updateTagsByUserId(tags,user.getId());
         }
+        updateByPrimaryKeySelective(user);
+        if (StringUtils.isNotBlank(user.getNickname())||StringUtils.isNotBlank(user.getPortraitAddress())){
+            String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+            boolean flag = TencentUtil.portraitSet(userSig, user.getId().toString(), user.getNickname(), user.getPortraitAddress());
+            if (!flag){
+                throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(),ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
+            }
+        }
 
-        return updateByPrimaryKeySelective(user);
+        return true;
     }
 
     public void updateTagsByUserId(List<Integer> tags,Long userId){
@@ -467,6 +479,11 @@ public class UserServiceImpl implements UserService {
             result.put("constellation",DateUtil.getConstellationByBirthday(birthday));
         }
         return result;
+    }
+
+    @Override
+    public List<Integer> queryAuthorityByRole(Integer userRole) {
+        return userMapper.queryAuthorityByRole(userRole);
     }
 
 

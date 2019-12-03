@@ -15,6 +15,12 @@ public interface FuntimeChatroomMicMapper {
 
     int upperWheat(@Param("id") Long id,@Param("userId") Long userId);
 
+    int stopWheat(Long id);
+
+    int forbidWheat(Long id);
+
+    Integer getMicLocationUserRole(@Param("roomId") Long roomId, @Param("userId") Long userId);
+
     FuntimeChatroomMic getMicLocationUser(@Param("roomId") Long roomId, @Param("micLocation") Integer micLocation);
 
     int insertBatch(@Param("mics") List<FuntimeChatroomMic> mics);
@@ -28,4 +34,10 @@ public interface FuntimeChatroomMicMapper {
     int updateByPrimaryKeySelective(FuntimeChatroomMic record);
 
     int updateByPrimaryKey(FuntimeChatroomMic record);
+
+    int openWheat(Long id);
+
+    int releaseWheat(@Param("id") Long id,@Param("state") Integer state);
+
+    int deleteByRoomId(Long roomId);
 }

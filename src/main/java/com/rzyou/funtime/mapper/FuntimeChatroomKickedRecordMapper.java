@@ -15,4 +15,5 @@ public interface FuntimeChatroomKickedRecordMapper {
     Integer checkUserIsKickedOrNot(@Param("roomId") Long roomId, @Param("kickedUserId") Long kickedUserId);
 
 
+    int deleteByRoomId(Long roomId);
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -18,6 +19,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -92,20 +94,15 @@ public class HttpClientUtil {
         httpPost.addHeader("Content-Type", contentType);
         // 封装post请求参数
         if (null != paramMap && paramMap.size() > 0) {
-            List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-            // 通过map集成entrySet方法获取entity
-            Set<Entry<String, Object>> entrySet = paramMap.entrySet();
-            // 循环遍历，获取迭代器
-            Iterator<Entry<String, Object>> iterator = entrySet.iterator();
-            while (iterator.hasNext()) {
-                Entry<String, Object> mapEntry = iterator.next();
-                nvps.add(new BasicNameValuePair(mapEntry.getKey(), mapEntry.getValue().toString()));
-            }
+
+            String params = JSONObject.toJSONString(paramMap);
 
             // 为httpPost设置封装好的请求参数
             try {
-                httpPost.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
-            } catch (UnsupportedEncodingException e) {
+                StringEntity entity = new StringEntity(params, "UTF-8");
+                entity.setContentType(contentType);
+                httpPost.setEntity(entity);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -121,12 +118,10 @@ public class HttpClientUtil {
             e.printStackTrace();
         } finally {
             // 关闭资源
-            if (null != httpResponse) {
-                try {
-                    httpResponse.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            try {
+                httpResponse.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             if (null != httpClient) {
                 try {

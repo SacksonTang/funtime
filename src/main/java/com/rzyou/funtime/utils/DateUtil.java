@@ -12,6 +12,7 @@ public class DateUtil {
     public final static String YYYY_MM_DD_HH_MM_SS_TIGHT = "yyyyMMddHHmmss";
     public final static String YYYY_MM_DD = "yyyy-MM-dd";
     public final static String YYYYMMDD = "yyyyMMdd";
+    public final static String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 
     public static SimpleDateFormat SDF1 = new SimpleDateFormat(YYYY_MM_DD, Locale.CHINA);
     public static SimpleDateFormat SDF2 = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS_TIGHT, Locale.CHINA);
@@ -27,6 +28,13 @@ public class DateUtil {
     public static String getCurrentDateTime() {
         Date date = new Date();
         SimpleDateFormat df = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS_TIGHT, Locale.CHINA);
+
+        String time = df.format(date);
+        return time;
+    }
+    public static String getCurrentDateTimeExtr() {
+        Date date = new Date();
+        SimpleDateFormat df = new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS, Locale.CHINA);
 
         String time = df.format(date);
         return time;

@@ -81,4 +81,6 @@ public interface UserService {
     List<FuntimeUserPhotoAlbum> getPhotoByUserId(Long userId);
 
     Map<String,Object> queryUserByChatUser(Long userId, Long byUserId);
+
+    List<Integer> queryAuthorityByRole(Integer userRole);
 }

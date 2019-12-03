@@ -28,7 +28,10 @@
     delete from t_funtime_chatroom_kicked_record
     where id = #{id,jdbcType=BIGINT}
   </delete>
-
+  <delete id="deleteByRoomId" parameterType="java.lang.Long">
+    delete from t_funtime_chatroom_kicked_record
+    where room_id = #{roomId}
+  </delete>
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeChatroomKickedRecord">
     insert into t_funtime_chatroom_kicked_record
     <trim prefix="(" suffix=")" suffixOverrides=",">

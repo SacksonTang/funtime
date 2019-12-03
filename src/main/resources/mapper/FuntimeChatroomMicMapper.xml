@@ -20,31 +20,59 @@
     from t_funtime_chatroom_mic
     where id = #{id,jdbcType=BIGINT}
   </select>
-  <select id="getMicLocationUser" resultType="java.lang.Long" resultMap="BaseResultMap">
+  <select id="getMicLocationUser"  resultMap="BaseResultMap">
     select
     id,mic_user_id
     from t_funtime_chatroom_mic
     where room_id = #{roomId} and mic_location = #{micLocation}  limit 1
   </select>
+  <select id="getMicLocationUserRole"  resultType="java.lang.Integer">
+    select
+    user_role
+    from t_funtime_chatroom_mic
+    where room_id = #{roomId} and mic_user_id = #{userId}  limit 1
+  </select>
     <select id="getMicUserByRoomId" parameterType="java.lang.Long" resultType="java.util.Map">
         select
-        m.mic_location micLocation,m.mic_user_id micUserId,m.user_role userRole,u.nickname
+        m.mic_location micLocation,m.mic_user_id micUserId,m.user_role userRole,m.state,u.nickname
         ,u.portrait_address portraitAddress
         from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
         where room_id = #{roomId}
     </select>
+
+  <delete id="deleteByRoomId" parameterType="java.lang.Long">
+    delete from t_funtime_chatroom_mic
+    where room_id = #{roomId}
+  </delete>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_chatroom_mic
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <delete id="lowerWheat" >
-    update t_funtime_chatroom_mic set mic_user_id = null
+  <update id="lowerWheat" >
+    update t_funtime_chatroom_mic set mic_user_id = null,state = 1
     where id = #{id}
-  </delete>
-  <delete id="upperWheat" >
-    update t_funtime_chatroom_mic set mic_user_id = #{userId}
+  </update>
+  <update id="upperWheat" >
+    update t_funtime_chatroom_mic set mic_user_id = #{userId},state = 2
     where id = #{id}
-  </delete>
+  </update>
+  <update id="stopWheat" >
+    update t_funtime_chatroom_mic set mic_user_id = null,state = 3
+    where id = #{id}
+  </update>
+  <update id="openWheat" >
+    update t_funtime_chatroom_mic set state = 1
+    where id = #{id}
+  </update>
+  <update id="forbidWheat" >
+    update t_funtime_chatroom_mic set state = 4
+    where id = #{id}
+  </update>
+  <update id="releaseWheat" >
+    update t_funtime_chatroom_mic set state = #{state}
+    where id = #{id}
+  </update>
+
   <insert id="insertBatch" >
     insert into t_funtime_chatroom_mic (room_id, mic_location,
       mic_user_id, create_time,user_role
