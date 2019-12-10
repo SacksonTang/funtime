@@ -3,6 +3,8 @@ package com.rzyou.funtime.common;
 
 public class Constant {
 
+    public final static String BChATROOM = "funtimefadacai";
+
     public final static String RONGYUN_APPKEY="mgb7ka1nmdxbg";
     public final static String RONGYUN_APPSECRET="fXnloGxdUB8aN";
 
@@ -40,7 +42,8 @@ public class Constant {
 
     public final static String TENCENT_YUN_SERVICENAME_GROUP = "group_open_http_svc";
     public final static String TENCENT_YUN_SERVICENAME_IM = "im_open_login_svc";
-    public final static String TENCENT_YUN_SERVICENAME_PORTRAIT = "profile";
+    public final static String TENCENT_YUN_SERVICENAME_PORTRAIT = "portrait";
+    public final static String TENCENT_YUN_SERVICENAME_OPENIM = "openim";
 
     public final static String TENCENT_YUN_CREATE_GROUP = "create_group";
     public final static String TENCENT_YUN_DESTROY_GROUP = "destroy_group";
@@ -52,9 +55,26 @@ public class Constant {
     public final static String TENCENT_YUN_ACCOUNT_IMPORT = "account_import";
 
     public final static String TENCENT_YUN_PORTRAIT_SET = "portrait_set";
+    public final static String TENCENT_YUN_BATCHSENDMSG = "batchsendmsg";
 
 
 
-
-
+    public final static int ROOM_MIC_UPPER = 1;
+    public final static int ROOM_MIC_LOWER = 2;
+    public final static int ROOM_MIC_STOP = 3;
+    public final static int ROOM_MIC_OPEN = 4;
+    public final static int ROOM_MIC_FORBID = 5;
+    public final static int ROOM_MIC_RELEASE = 6;
+    public final static int ROOM_CLOSE = 7;
+    public final static int ROOM_GIFT_SEND = 8;
+    public final static int ROOM_GIFT_SEND_ALL = 9;
+    public final static int ROOM_MIC_RANDOM = 10;
+    public final static int ROOM_MSG_NORMAL = 11;
+    public final static int ROOM_ENTER = 12;
+    public final static int ROOM_REDPACKET_SEND = 13;
+    public final static int ROOM_EXPRESSION = 14;
+    public final static int ROOM_MIC_HOLDING = 15;
+    public final static int ROOM_KICKED = 16;
+    public final static int ROOM_MANAGE = 17;
+    public static final int ROOM_MANAGE_CANCEL = 18;
 }

@@ -26,7 +26,7 @@
     where user_id = #{userId}
     and convert_type = #{convertType}
     and create_time between #{startDate} and #{endDate}
-    order by create_time desc
+    order by id desc
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_convert_record

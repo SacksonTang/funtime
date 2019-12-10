@@ -5,16 +5,16 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ConvertType;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.request.HttpHelper;
-import com.rzyou.funtime.common.sms.ouyi.utils.HttpClient;
 import com.rzyou.funtime.entity.FuntimeTag;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.service.AccountService;
+import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.utils.JsonUtil;
+import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.omg.CORBA.OBJ_ADAPTER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +34,14 @@ public class UserController {
     UserService userService;
     @Autowired
     AccountService accountService;
+    @Autowired
+    ParameterService parameterService;
 
+    /**
+     * 根据类型获取标签
+     * @param request
+     * @return
+     */
     @PostMapping("queryTagsByType")
     public ResultMsg<Object> queryTagsByType(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
@@ -319,6 +325,11 @@ public class UserController {
         }
     }
 
+    /**
+     * 兑换列表
+     * @param request
+     * @return
+     */
     @PostMapping("getUserConvertRecordForPage")
     public ResultMsg<Object> getUserConvertRecordForPage(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
@@ -326,7 +337,7 @@ public class UserController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
             Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
-            Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
             String queryDate = paramJson.getString("queryDate");
             Long userId = paramJson.getLong("userId");
             if(StringUtils.isBlank(queryDate)||userId==null){
@@ -495,6 +506,81 @@ public class UserController {
         }
     }
 
+    /**
+     * 关注列表
+     * @param request
+     * @return
+     */
+    @PostMapping("getConcernUserList")
+    public ResultMsg<Object> getConcernUserList(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
+            if (userId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            result.setData(JsonUtil.getMap("concernUserList",userService.getConcernUserList(startPage,pageSize,userId)));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 粉丝列表
+     * @param request
+     * @return
+     */
+    @PostMapping("getFansList")
+    public ResultMsg<Object> getFansList(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
+            if (userId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            result.setData(JsonUtil.getMap("fansList",userService.getFansList(startPage,pageSize,userId)));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 用户礼物列表
+     * @param request
+     * @return
+     */
     @PostMapping("getGiftByUserId")
     public ResultMsg<Object> getGiftByUserId(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
@@ -524,6 +610,50 @@ public class UserController {
         }
     }
 
+
+    /**
+     * 排行榜
+     * @param request
+     * @return
+     */
+    @PostMapping("getRankingList")
+    public ResultMsg<Object> getRankingList(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer type = paramJson.getInteger("type");//1-魅力榜2-贡献榜
+            Integer dateType = paramJson.getInteger("dateType");//1-日2-周3-月
+            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
+            if (type==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String,Object> resultMap = JsonUtil.getMap("rankingList", userService.getRankingList(startPage, pageSize,dateType,type));
+            resultMap.put("is_ranklist_show",parameterService.getParameterValueByKey("is_ranklist_show"));
+
+            result.setData(resultMap);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 用户相册
+     * @param request
+     * @return
+     */
     @PostMapping("getPhotoByUserId")
     public ResultMsg<Object> getPhotoByUserId(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
@@ -587,19 +717,53 @@ public class UserController {
         }
     }
 
+    /**
+     * 房间角色权限
+     * @param request
+     * @return
+     */
     @PostMapping("getAuthority")
     public ResultMsg<Object> getAuthority(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Integer userRole = paramJson.getInteger("userRole");
-            if (userRole==null) {
+
+
+            result.setData(JsonUtil.getMap("authority",userService.queryAuthorityByRole(userRole)));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 获取腾讯签名
+     * @param request
+     * @return
+     */
+    @PostMapping("getUserSig")
+    public ResultMsg<Object> getUserSig(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            result.setData(JsonUtil.getMap("authority",userService.queryAuthorityByRole(userRole)));
+            result.setData(JsonUtil.getMap("userSig", UsersigUtil.getUsersig(userId.toString())));
 
             return result;
         } catch (BusinessException be) {

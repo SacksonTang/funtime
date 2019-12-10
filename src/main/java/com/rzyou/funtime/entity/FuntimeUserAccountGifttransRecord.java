@@ -2,10 +2,12 @@ package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class FuntimeUserAccountGifttransRecord {
+public class FuntimeUserAccountGifttransRecord implements Serializable {
+    private static final long serialVersionUID = 4497399804466483363L;
     private Long id;
 
     private Long userId;

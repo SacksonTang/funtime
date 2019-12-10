@@ -5,9 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
-import com.rzyou.funtime.service.AccountService;
-import com.rzyou.funtime.service.ParameterService;
-import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.service.*;
 import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.RedPacketUtil;
 import com.rzyou.funtime.utils.StringUtil;
@@ -15,8 +13,6 @@ import com.rzyou.funtime.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+
 @Slf4j
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -32,6 +30,10 @@ public class AccountServiceImpl implements AccountService {
     UserService userService;
     @Autowired
     ParameterService parameterService;
+    @Autowired
+    RoomService roomService;
+    @Autowired
+    NoticeService noticeService;
 
     @Autowired
     FuntimeUserAccountWithdrawalRecordMapper userAccountWithdrawalRecordMapper;
@@ -159,6 +161,11 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public void createRedpacket(FuntimeUserRedpacket redpacket) {
 
+        FuntimeChatroom chatroom = roomService.getChatroomById(redpacket.getRoomId());
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+
         String invalid_day = parameterService.getParameterValueByKey("redpacket_invalid_day");
 
         redpacket.setInvalidTime(DateUtils.addDays(new Date(),Integer.parseInt(invalid_day)));
@@ -186,6 +193,15 @@ public class AccountServiceImpl implements AccountService {
             userRedpacketDetailMapper.insertBatch(details);
         }
 
+        //通知
+        List<String> roomNos = roomService.getRoomNoByRoomIdAll(redpacket.getRoomId());
+        if (roomNos == null || roomNos.isEmpty()) {
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        for (String roomNo : roomNos) {
+            noticeService.notice13(redpacket.getRoomId(), roomNo);
+        }
+
     }
 
     @Override
@@ -199,14 +215,14 @@ public class AccountServiceImpl implements AccountService {
         if (redpacket.getBestowCondition()==1){
             return grabRedpacketNoCondition(userId, redpacketId,null);
         }else{
-            return grabRedpacketBestowCondition(userId,redpacketId,redpacket.getGiftId(),redpacket.getUserId());
+            return grabRedpacketBestowCondition(userId,redpacketId,redpacket.getGiftId(),redpacket.getUserId(),redpacket.getRoomId());
         }
 
     }
-    public Map<String,Object> grabRedpacketBestowCondition(Long userId, Long redpacketId, Integer giftId,Long toUserId) {
+    public Map<String,Object> grabRedpacketBestowCondition(Long userId, Long redpacketId, Integer giftId,Long toUserId,Long roomId) {
 
         //礼物赠送
-        Long recordId = createGiftTrans(userId,toUserId,giftId,1,"红包赠送",GiveChannel.REDPACKET.getValue());
+        Long recordId = createGiftTrans(userId,toUserId,giftId,1,"红包赠送",GiveChannel.REDPACKET.getValue(), roomId);
 
         return grabRedpacketNoCondition(userId, redpacketId,recordId);
 
@@ -410,10 +426,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public Long createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum,String operationDesc,Integer giveChannelId) {
+    public Long createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
 
-        checkUser(userId);
-        checkUser(toUserId);
+        FuntimeUser user = userService.queryUserById(userId);
+        FuntimeUser toUser = userService.queryUserById(toUserId);
+        if (user==null||toUser==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
         FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
         if (userAccount==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
@@ -450,6 +469,35 @@ public class AccountServiceImpl implements AccountService {
         saveUserAccountBlackLog(toUserId,black,recordId,OperationType.RECEIVEGIFT.getAction()
                 ,OperationType.RECEIVEGIFT.getOperationType());
 
+        if (roomId!=null) {
+            List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+            if (roomNos == null || roomNos.isEmpty()) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+            }
+            RoomGiftNotice notice = new RoomGiftNotice();
+            notice.setFromImg(user.getPortraitAddress());
+            notice.setFromName(user.getNickname());
+            notice.setFromUid(String.valueOf(userId));
+            notice.setGid(String.valueOf(giftId));
+            notice.setGiftImg(funtimeGift.getAnimationUrl());
+            notice.setRid(String.valueOf(roomId));
+            notice.setToImg(toUser.getPortraitAddress());
+            notice.setToName(toUser.getNickname());
+            notice.setToUid(String.valueOf(toUserId));
+            if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()){
+                notice.setType(Constant.ROOM_GIFT_SEND_ALL);
+                //发送通知全服
+                for (String roomNo : roomNos) {
+                    noticeService.notice9(notice);
+                }
+            }else {
+                notice.setType(Constant.ROOM_GIFT_SEND);
+                //发送通知
+                for (String roomNo : roomNos) {
+                    noticeService.notice8(notice, roomNo);
+                }
+            }
+        }
         return recordId;
     }
 
@@ -543,8 +591,7 @@ public class AccountServiceImpl implements AccountService {
 
         userService.checkAgreementByuserId(userId,UserAgreementType.WITHDRAWAL_AGREEMENT.getValue());
 
-        FuntimeUser user = userService.queryUserById(userId);
-        if(user==null){
+        if(!userService.checkUserExists(userId)){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
 
@@ -586,6 +633,17 @@ public class AccountServiceImpl implements AccountService {
         }
 
         List<FuntimeUserAccountWithdrawalRecord> list = userAccountWithdrawalRecordMapper.getWithdrawalForPage(startDate,endDate,userId,state);
+        if(list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }else{
+            return new PageInfo<>(list);
+        }
+    }
+
+    @Override
+    public PageInfo<FuntimeUserRedpacket> getRedpacketListByRoomId(Integer startPage, Integer pageSize, Long roomId) {
+        PageHelper.startPage(startPage,pageSize);
+        List<FuntimeUserRedpacket> list = userRedpacketMapper.getRedpacketListByRoomId(roomId);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
@@ -720,8 +778,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     public void checkUser(Long userId){
-        FuntimeUser user = userService.queryUserById(userId);
-        if(user==null){
+        if(!userService.checkUserExists(userId)){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
     }

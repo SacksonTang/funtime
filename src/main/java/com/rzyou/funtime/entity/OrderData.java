@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class OrderData implements Serializable {
 
+    private static final long serialVersionUID = 7253834507904119189L;
     private String device_info = "";//设备号
 
     private String body = "";       //商品简单描述  维康动力-医疗###

@@ -3,9 +3,11 @@ package com.rzyou.funtime.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.web.util.pattern.PathPattern;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class FuntimeChatroomUser {
+public class FuntimeChatroomUser implements Serializable {
+    private static final long serialVersionUID = -4072409694383772070L;
     private Long id;
 
     private Long roomId;

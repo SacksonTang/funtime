@@ -2,10 +2,12 @@ package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class FuntimeUser {
+public class FuntimeUser implements Serializable {
+    private static final long serialVersionUID = 8830346720854513695L;
     private Long id;
 
     private String username;
@@ -82,6 +84,25 @@ public class FuntimeUser {
 
     private List<Integer> tags;
 
+    private Long roomId;
+
+    private String guild;
+
+    public String getGuild() {
+        return guild;
+    }
+
+    public void setGuild(String guild) {
+        this.guild = guild;
+    }
+
+    public Long getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
+    }
 
     public String getProvince() {
         return province;

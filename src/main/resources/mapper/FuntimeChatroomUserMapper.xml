@@ -20,9 +20,25 @@
     from t_funtime_chatroom_user
     where id = #{id,jdbcType=BIGINT}
   </select>
+  <select id="getRoomUserById"  resultType="java.util.Map">
+    select
+     u.id userId,u.nickname,u.portrait_address portraitAddress,u.sign_text signText,u.sex
+    from t_funtime_chatroom_user m inner join t_funtime_user u on m.user_id = u.id
+    where m.room_id = #{roomId}  and m.flag = 1 and m.user_role = 4
+    <if test="nickname!=null and nickname!=''">
+      and u.nickname = #{nickname}
+    </if>
+     order by m.create_time desc
+  </select>
   <select id="checkUserIsExist" resultType="java.lang.Long">
     select
     id
+    from t_funtime_chatroom_user
+    where room_id = #{roomId} and user_id = #{userId} and flag = 1 limit 1
+  </select>
+  <select id="getRoomNoByRoomIdAndUser" resultType="java.lang.String">
+    select
+    room_no
     from t_funtime_chatroom_user
     where room_id = #{roomId} and user_id = #{userId} and flag = 1 limit 1
   </select>
@@ -77,9 +93,12 @@
   </delete>
   <delete id="deleteByRoomId" parameterType="java.lang.Long">
     delete from t_funtime_chatroom_user
-    where room_id = #{roomId}
+    where room_id = #{roomId} and user_role>1
   </delete>
-
+  <update id="updateRoomNoByRoomId" >
+    update t_funtime_chatroom_user set roomNo = #{roomNo}
+    where room_id = #{roomId} and user_role = 1
+  </update>
   <insert id="insertForRoomJoin" parameterType="com.rzyou.funtime.entity.FuntimeChatroomUser">
     insert into t_funtime_chatroom_user (room_id, user_id,
       user_role,room_no)

@@ -22,6 +22,11 @@ public class GiftTransController {
     @Autowired
     AccountService accountService;
 
+    /**
+     * 送礼物
+     * @param request
+     * @return
+     */
     @PostMapping("sendGift")
     public ResultMsg<Object> sendGift(HttpServletRequest request){
 
@@ -33,8 +38,9 @@ public class GiftTransController {
             Integer giftId = paramJson.getInteger("giftId");
             Integer giftNum = paramJson.getInteger("giftNum");
             Integer giveChannel = paramJson.getInteger("giveChannel");
+            Long roomId = paramJson.getLong("roomId");
 
-            accountService.createGiftTrans(userId,toUserId,giftId,giftNum,"送礼物",giveChannel);
+            accountService.createGiftTrans(userId,toUserId,giftId,giftNum,"送礼物",giveChannel,roomId);
 
 
             return result;
@@ -51,6 +57,11 @@ public class GiftTransController {
         }
     }
 
+    /**
+     * 礼物列表
+     * @param request
+     * @return
+     */
     @PostMapping("getGiftTransForPage")
     public ResultMsg<Object> getGiftTransForPage(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();

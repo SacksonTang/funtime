@@ -1,10 +1,13 @@
 package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class FuntimeUserValid {
+public class FuntimeUserValid implements Serializable {
+    private static final long serialVersionUID = -3026977537182263576L;
     private Long id;
 
     private Long userId;

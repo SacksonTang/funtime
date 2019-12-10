@@ -2,9 +2,11 @@ package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class FuntimeChatroomMic {
+public class FuntimeChatroomMic implements Serializable {
+    private static final long serialVersionUID = 6101504695021923217L;
     private Long id;
 
     private Long roomId;

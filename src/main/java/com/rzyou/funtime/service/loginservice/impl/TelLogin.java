@@ -41,6 +41,7 @@ public class TelLogin implements LoginStrategy {
             user.setState(1);
             user.setNickname("大侠");
             user.setPortraitAddress("https://");
+            user.setSignText("这个人很懒,什么都没有留下");
 
             user.setVersion(System.currentTimeMillis());
 

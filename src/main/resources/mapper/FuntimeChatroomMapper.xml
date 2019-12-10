@@ -8,7 +8,7 @@
     <result column="password" jdbcType="VARCHAR" property="password" />
     <result column="exam_url" jdbcType="VARCHAR" property="examUrl" />
     <result column="avatar_url" jdbcType="VARCHAR" property="avatarUrl" />
-    <result column="tag_id" jdbcType="INTEGER" property="tagId" />
+    <result column="tags"  property="tags" />
     <result column="exam_desc" jdbcType="VARCHAR" property="examDesc" />
     <result column="is_block" jdbcType="INTEGER" property="isBlock" />
     <result column="is_lock" jdbcType="INTEGER" property="isLock" />
@@ -17,9 +17,11 @@
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="chat_message_file" jdbcType="VARCHAR" property="chatMessageFile" />
+    <result column="portrait_address"  property="portraitAddress" />
+    <result column="nickname"  property="nickname" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, name, tag_id, exam_desc, is_block, is_lock, is_hot, online_num, state, create_time,
+    id, name, tags, exam_desc, is_block, is_lock, is_hot, online_num, state, create_time,
     chat_message_file,user_id,password,exam_url,avatar_url
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -28,11 +30,52 @@
     from t_funtime_chatroom
     where id = #{id,jdbcType=BIGINT}
   </select>
+  <select id="checkRoomExists" parameterType="java.lang.Long" resultType="java.lang.Long">
+    select
+    id
+    from t_funtime_chatroom
+    where id = #{id}
+  </select>
+  <select id="getRoomInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+     m.* ,u.portrait_address,u.nickname
+    from t_funtime_chatroom m inner join t_funtime_user u on m.user_id = u.id
+    where m.id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="getRoomByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_chatroom
+    where user_id = #{userId,jdbcType=BIGINT} limit 1
+  </select>
+  <select id="getRoomList" parameterType="java.lang.Long" resultType="java.util.Map">
+    select
+    m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+    m.online_num onlineNum,u.sex,
+    m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
+    (select GROUP_CONCAT(g.tag_name) from t_funtime_tag g where FIND_IN_SET(g.id,m.tags) >0 order by g.sort asc) tagNames,
+    count(u1.id) maleCount,
+    (m.online_num - count(u1.id)) femaleCount
+    from t_funtime_chatroom m
+         inner join t_funtime_user u on m.user_id = u.id
+         inner join (t_funtime_chatroom_user cu inner join t_funtime_user u1 on cu.user_id = u1.id and u1.sex = 1)
+                   on m.id = cu.room_id
+    where m.is_block = 2 and m.state = 1
+     <if test="tagId!=null and tagId!=''">
+       and FIND_IN_SET(#{tagId},tags)>0
+     </if>
+     group by m.id
+     order by m.online_num desc ,m.id desc
+  </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_chatroom
     where id = #{id,jdbcType=BIGINT}
   </delete>
+  <update id="deleteByRoomId" parameterType="java.lang.Long">
+    update t_funtime_chatroom set state = 2,online_num = 1
+    where id = #{id}
+  </update>
 
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeChatroom" useGeneratedKeys="true" keyProperty="id">
     insert into t_funtime_chatroom
@@ -51,8 +94,8 @@
       <if test="password != null">
         password,
       </if>
-      <if test="tagId != null">
-        tag_id,
+      <if test="tags != null">
+        tags,
       </if>
       <if test="examDesc != null">
         exam_desc,
@@ -91,8 +134,8 @@
       <if test="password != null">
         #{password},
       </if>
-      <if test="tagId != null">
-        #{tagId,jdbcType=INTEGER},
+      <if test="tags != null">
+        #{tags},
       </if>
       <if test="examDesc != null">
         #{examDesc,jdbcType=VARCHAR},
@@ -133,8 +176,8 @@
       <if test="avatarUrl != null">
         avatar_url = #{avatarUrl},
       </if>
-      <if test="tagId != null">
-        tag_id = #{tagId,jdbcType=INTEGER},
+      <if test="tags != null">
+        tags = #{tags},
       </if>
       <if test="examDesc != null">
         exam_desc = #{examDesc,jdbcType=VARCHAR},
@@ -164,7 +207,7 @@
   <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeChatroom">
     update t_funtime_chatroom
     set name = #{name,jdbcType=VARCHAR},
-      tag_id = #{tagId,jdbcType=INTEGER},
+      tags = #{tags},
       desc = #{desc,jdbcType=VARCHAR},
       is_block = #{isBlock,jdbcType=INTEGER},
       is_lock = #{isLock,jdbcType=INTEGER},

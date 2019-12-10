@@ -15,6 +15,8 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="grabAmount"  property="grabAmount" />
     <result column="grabNum"  property="grabNum" />
+    <result column="animation_type"  property="animationType" />
+    <result column="animation_url"  property="animationUrl" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, redpacket_num, amount, redpacket_desc, bestow_condition, gift_id, state, 
@@ -26,7 +28,14 @@
     from t_funtime_user_redpacket
     where id = #{id,jdbcType=BIGINT}
   </select>
-
+  <select id="getRedpacketListByRoomId"  resultMap="BaseResultMap">
+    select
+    t.id, t.user_id, t.redpacket_num, t.amount, t.redpacket_desc, t.bestow_condition, t.gift_id, t.state,
+    t.invalid_time, t.create_time,g.animation_type,g.animation_url
+    from t_funtime_user_redpacket t left join t_funtime_gift g on t.gift_id = g.id
+    where t.room_id = #{roomId} and t.state = 1 and t.invalid_time>=NOW()
+    order by id desc
+  </select>
 
   <select id="getRedpacketInfoByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -34,12 +43,12 @@
     t.invalid_time, t.create_time
     ,sum(l.amount) grabAmount,count(l.id) grabNum
     from t_funtime_user_redpacket t inner join t_funtime_user_redpacket_detail l on t.id = l.redpacket_id
-    where user_id = #{userId} and l.grab_user_id is not null
+    where t.user_id = #{userId} and l.grab_user_id is not null
     <if test="startDate!=null and endDate!=null">
       and t.create_time between #{startDate} and #{endDate}
     </if>
     group by t.id
-    order by t.create_time desc
+    order by t.id desc
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_redpacket

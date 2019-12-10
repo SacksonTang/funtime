@@ -33,17 +33,15 @@
     select
     <include refid="Base_Column_List" />
     from t_funtime_user_account_recharge_record
-    where 1=1
-      <if test="userId!=null">
-        and user_id = #{userId}
-      </if>
+    where  user_id = #{userId}
+
       <if test="state!=null">
       and state = #{state}
       </if>
       <if test="startDate!=null and startDate!='' and endDate!=null and endDate!=''">
          and create_time between #{startDate} and #{endDate}
       </if>
-      order by create_time desc
+      order by id desc
 
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">

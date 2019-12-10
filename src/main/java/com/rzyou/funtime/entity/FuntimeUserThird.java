@@ -1,8 +1,10 @@
 package com.rzyou.funtime.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class FuntimeUserThird {
+public class FuntimeUserThird implements Serializable {
+    private static final long serialVersionUID = -1777813209273139995L;
     private Long id;
 
     private Long userId;

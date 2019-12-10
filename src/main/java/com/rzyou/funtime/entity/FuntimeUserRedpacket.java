@@ -2,10 +2,13 @@ package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.PrimitiveIterator;
 
-public class FuntimeUserRedpacket {
+public class FuntimeUserRedpacket implements Serializable {
+    private static final long serialVersionUID = 5745405731257204305L;
     private Long id;
 
     private Long userId;
@@ -29,6 +32,36 @@ public class FuntimeUserRedpacket {
     private BigDecimal grabAmount;
 
     private Integer grabNum;
+
+    private String animationType;
+
+    private String animationUrl;
+
+    private Long roomId;
+
+    public Long getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
+    }
+
+    public String getAnimationType() {
+        return animationType;
+    }
+
+    public void setAnimationType(String animationType) {
+        this.animationType = animationType;
+    }
+
+    public String getAnimationUrl() {
+        return animationUrl;
+    }
+
+    public void setAnimationUrl(String animationUrl) {
+        this.animationUrl = animationUrl;
+    }
 
     public BigDecimal getGrabAmount() {
         return grabAmount;

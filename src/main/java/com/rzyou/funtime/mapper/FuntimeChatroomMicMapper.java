@@ -37,7 +37,11 @@ public interface FuntimeChatroomMicMapper {
 
     int openWheat(Long id);
 
-    int releaseWheat(@Param("id") Long id,@Param("state") Integer state);
+    int releaseWheat(Long id);
 
     int deleteByRoomId(Long roomId);
+
+    int roomManage(Long id);
+
+    int roomManageCancel(Long roomId);
 }

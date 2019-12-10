@@ -55,6 +55,11 @@ public class WithdrawalController {
         }
     }
 
+    /**
+     * 领赏列表
+     * @param request
+     * @return
+     */
     @PostMapping("getWithdrawalForPage")
     public ResultMsg<Object> getWithdrawalForPage(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();

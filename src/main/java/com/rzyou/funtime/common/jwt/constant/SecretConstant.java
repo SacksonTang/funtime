@@ -12,7 +12,7 @@ public class SecretConstant {
     public static final String BASE64SECRET = "ZW]4l5JH[m6Lm)LaQEjpb!4ElRaG(";
 
     //超时毫秒数（默认30分钟）
-    public static final int EXPIRESSECOND = 30*60*60*1000;
+    public static final int EXPIRESSECOND = 30*24*60*60*1000;
 
     //用于JWT加密的密匙
     public static final String DATAKEY = "u^3y6SPER4jm*fn";

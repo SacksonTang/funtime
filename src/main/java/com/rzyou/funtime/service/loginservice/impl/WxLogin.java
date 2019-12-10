@@ -61,7 +61,7 @@ public class WxLogin implements LoginStrategy {
             user.setPortraitAddress(userJson.getString("headimgurl"));
             user.setSex(userJson.getInteger("sex"));
             user.setVersion(System.currentTimeMillis());
-
+            user.setSignText("这个人很懒,什么都没有留下");
             userService.saveUser(user,"WX",openid,userJson.getString("unionid"));
             userId = user.getId().toString();
             String token = JwtHelper.generateJWT(userId,user.getPhoneImei());

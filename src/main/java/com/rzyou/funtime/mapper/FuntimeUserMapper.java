@@ -11,6 +11,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserMapper {
 
+    List<String> getAllUserId();
+
     Map<String, Object> queryUserByChatUser(@Param("userId") Long userId,@Param("byUserId") Long byUserId);
 
     FuntimeUser queryUserInfo(Map<String,Object> map);
@@ -24,6 +26,9 @@ public interface FuntimeUserMapper {
     int insertSelective(FuntimeUser record);
 
     FuntimeUser selectByPrimaryKey(Long id);
+
+    Long checkUserExists(Long id);
+
 
     int updateByPrimaryKeySelective(FuntimeUser record);
 
@@ -41,5 +46,15 @@ public interface FuntimeUserMapper {
 
     int updateTokenById(@Param("id") Long id, @Param("token") String token);
 
-    List<Integer> queryAuthorityByRole(Integer userRole);
+    List<Map<String,Object>> queryAuthorityByRole(Integer userRole);
+
+    Integer checkAuthorityForUserRole(@Param("userRole") Integer userRole,@Param("authority") Integer authority);
+
+    List<Map<String, Object>> getConcernUserList(Long userId);
+
+    List<Map<String, Object>> getFansList(Long userId);
+
+    List<Map<String, Object>> getContributionList(String startDate, String endDate);
+
+    List<Map<String, Object>> getCharmList(String startDate, String endDate);
 }

@@ -2,9 +2,11 @@ package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class FuntimeChatroom {
+public class FuntimeChatroom implements Serializable {
+    private static final long serialVersionUID = -2515077135331000276L;
     private Long id;
 
     private Long userId;
@@ -17,7 +19,7 @@ public class FuntimeChatroom {
 
     private String avatarUrl;
 
-    private Integer tagId;
+    private String tags;
 
     private String examDesc;
 
@@ -35,6 +37,26 @@ public class FuntimeChatroom {
     private Date createTime;
 
     private String chatMessageFile;
+
+    private String portraitAddress;
+
+    private String nickname;
+
+    public String getPortraitAddress() {
+        return portraitAddress;
+    }
+
+    public void setPortraitAddress(String portraitAddress) {
+        this.portraitAddress = portraitAddress;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 
     public String getAvatarUrl() {
         return avatarUrl;
@@ -84,12 +106,12 @@ public class FuntimeChatroom {
         this.name = name == null ? null : name.trim();
     }
 
-    public Integer getTagId() {
-        return tagId;
+    public String getTags() {
+        return tags;
     }
 
-    public void setTagId(Integer tagId) {
-        this.tagId = tagId;
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 
     public String getExamDesc() {

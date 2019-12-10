@@ -7,7 +7,7 @@
     <result column="gift_name" jdbcType="VARCHAR" property="giftName" />
     <result column="original_price" jdbcType="DECIMAL" property="originalPrice" />
     <result column="activity_price" jdbcType="DECIMAL" property="activityPrice" />
-    <result column="special_effect_tag_id" jdbcType="VARCHAR" property="specialEffectTagId" />
+    <result column="special_effect"  property="specialEffect" />
     <result column="bestowed" jdbcType="INTEGER" property="bestowed" />
     <result column="animation_type" jdbcType="VARCHAR" property="animationType" />
     <result column="animation_url" jdbcType="VARCHAR" property="animationUrl" />
@@ -16,7 +16,7 @@
     <result column="sort" jdbcType="INTEGER" property="sort" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, gift_tag_id, gift_name, original_price, activity_price, special_effect_tag_id, 
+    id, gift_tag_id, gift_name, original_price, activity_price, special_effect,
     bestowed, animation_type, animation_url, animation_length, create_time, sort
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -54,8 +54,8 @@
       <if test="activityPrice != null">
         activity_price,
       </if>
-      <if test="specialEffectTagId != null">
-        special_effect_tag_id,
+      <if test="specialEffect != null">
+        special_effect,
       </if>
       <if test="bestowed != null">
         bestowed,
@@ -90,8 +90,8 @@
       <if test="activityPrice != null">
         #{activityPrice,jdbcType=DECIMAL},
       </if>
-      <if test="specialEffectTagId != null">
-        #{specialEffectTagId,jdbcType=VARCHAR},
+      <if test="specialEffect != null">
+        #{specialEffect},
       </if>
       <if test="bestowed != null">
         #{bestowed,jdbcType=INTEGER},
@@ -128,8 +128,8 @@
       <if test="activityPrice != null">
         activity_price = #{activityPrice,jdbcType=DECIMAL},
       </if>
-      <if test="specialEffectTagId != null">
-        special_effect_tag_id = #{specialEffectTagId,jdbcType=VARCHAR},
+      <if test="specialEffect != null">
+        special_effect = #{specialEffect},
       </if>
       <if test="bestowed != null">
         bestowed = #{bestowed,jdbcType=INTEGER},

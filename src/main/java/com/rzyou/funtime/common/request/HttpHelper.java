@@ -1,19 +1,15 @@
 package com.rzyou.funtime.common.request;
 import com.alibaba.fastjson.JSONObject;
-import com.rzyou.funtime.common.BusinessException;
-import com.rzyou.funtime.common.ErrorMsgEnum;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.charset.Charset;
-
+@Slf4j
 public class HttpHelper {
-    private static Logger log = LoggerFactory.getLogger(HttpHelper.class);
 
     public static JSONObject getParamterJson(HttpServletRequest request){
 
@@ -28,19 +24,7 @@ public class HttpHelper {
 
     }
 
-    public static JSONObject getParamterJsonNoToken(HttpServletRequest request){
-        try {
-            String str = getBodyString(request);
-            log.debug("请求Body: {} ", str);
-            JSONObject obj = JSONObject.parseObject(str);
 
-            JSONObject paramJson = obj.getJSONObject("param");
-            return paramJson;
-        }catch (Exception e){
-            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-        }
-
-    }
 
     public static String getBodyString(HttpServletRequest request) {
         StringBuilder sb = new StringBuilder();

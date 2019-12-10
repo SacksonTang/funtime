@@ -36,14 +36,15 @@
         select
         m.mic_location micLocation,m.mic_user_id micUserId,m.user_role userRole,m.state,u.nickname
         ,u.portrait_address portraitAddress
-        from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
+        from t_funtime_chatroom_mic m left join t_funtime_user u on m.mic_user_id = u.id
         where room_id = #{roomId}
+        order by m.mic_location asc
     </select>
 
-  <delete id="deleteByRoomId" parameterType="java.lang.Long">
-    delete from t_funtime_chatroom_mic
-    where room_id = #{roomId}
-  </delete>
+  <update id="deleteByRoomId" parameterType="java.lang.Long">
+    update t_funtime_chatroom_mic set mic_user_id = null,state = 1,update_time = NOW()
+    where room_id = #{roomId} and user_role >1
+  </update>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_chatroom_mic
     where id = #{id,jdbcType=BIGINT}
@@ -53,11 +54,11 @@
     where id = #{id}
   </update>
   <update id="upperWheat" >
-    update t_funtime_chatroom_mic set mic_user_id = #{userId},state = 2
+    update t_funtime_chatroom_mic set mic_user_id = #{userId}
     where id = #{id}
   </update>
   <update id="stopWheat" >
-    update t_funtime_chatroom_mic set mic_user_id = null,state = 3
+    update t_funtime_chatroom_mic set mic_user_id = null,state = 2
     where id = #{id}
   </update>
   <update id="openWheat" >
@@ -65,14 +66,21 @@
     where id = #{id}
   </update>
   <update id="forbidWheat" >
-    update t_funtime_chatroom_mic set state = 4
+    update t_funtime_chatroom_mic set state = 3
     where id = #{id}
   </update>
   <update id="releaseWheat" >
-    update t_funtime_chatroom_mic set state = #{state}
+    update t_funtime_chatroom_mic set state = 1
     where id = #{id}
   </update>
-
+  <update id="roomManage" >
+    update t_funtime_chatroom_mic set user_role = 2
+    where id = #{id}
+  </update>
+  <update id="roomManageCancel" >
+    update t_funtime_chatroom_mic set user_role = 3
+    where id = #{id}
+  </update>
   <insert id="insertBatch" >
     insert into t_funtime_chatroom_mic (room_id, mic_location,
       mic_user_id, create_time,user_role

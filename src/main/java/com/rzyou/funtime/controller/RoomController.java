@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -27,27 +28,20 @@ public class RoomController {
     RoomService roomService;
 
     /**
-     * 获取token
+     * 房间列表
      */
-    @PostMapping("getAgoraToken")
-    public ResultMsg<Object> getAgoraToken(HttpServletRequest request){
+    @PostMapping("getRoomList")
+    public ResultMsg<Object> getRoomList(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            Long userId = paramJson.getLong("userId");
-            String channelName = paramJson.getString("channelName");
+            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
+            Integer tagId = paramJson.getInteger("tagId");
 
-            if (userId==null|| StringUtils.isBlank(channelName)) {
-
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
-            }
-
-            String token = AgoraTokenUtil.getAgoraToken(userId.intValue(),channelName);
             Map<String,Object> map = new HashMap<>();
-            map.put("token",token);
+            map.put("pageInfo",roomService.getRoomList(startPage, pageSize,tagId));
             result.setData(map);
             return result;
         } catch (BusinessException be) {
@@ -63,6 +57,11 @@ public class RoomController {
         }
     }
 
+    /**
+     * 获取房间信息
+     * @param request
+     * @return
+     */
     @PostMapping("getRoomInfo")
     public ResultMsg<Object> getRoomInfo(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
@@ -80,6 +79,42 @@ public class RoomController {
             Map<String,Object> map = roomService.getRoomInfo(roomId);
 
             result.setData(map);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 获取房间普通用户
+     * @param request
+     * @return
+     */
+    @PostMapping("getRoomUserById")
+    public ResultMsg<Object> getRoomUserById(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
+            Long roomId = paramJson.getLong("roomId");
+
+            String nickname = paramJson.getString("nickname");
+            if (roomId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            result.setData(JsonUtil.getMap("userList",roomService.getRoomUserById(startPage,pageSize,roomId,nickname)));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();
@@ -184,7 +219,7 @@ public class RoomController {
 
             FuntimeChatroom chatroom = JSONObject.toJavaObject(paramJson, FuntimeChatroom.class);
 
-            if (chatroom.getId()==null||chatroom.getName()==null||chatroom.getTagId()==null) {
+            if (chatroom.getId()==null||chatroom.getName()==null||chatroom.getTags()==null) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -322,6 +357,43 @@ public class RoomController {
     }
 
     /**
+     * 抱麦(发通知)
+     * @param request
+     * @return
+     */
+    @PostMapping("holdWheat")
+    public ResultMsg<Object> holdWheat(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            Long micUserId = paramJson.getLong("micUserId");
+            Long roomId = paramJson.getLong("roomId");
+            Integer micLocation = paramJson.getInteger("micLocation");
+            if (userId==null||micUserId==null||roomId==null||micLocation==null||micLocation<1) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            roomService.holdWheat(userId,roomId,micLocation,micUserId);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 上麦
      * @param request
      * @return
@@ -332,16 +404,17 @@ public class RoomController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
+            Long micUserId = paramJson.getLong("micUserId");
             Long roomId = paramJson.getLong("roomId");
             Integer micLocation = paramJson.getInteger("micLocation");
-            if (userId==null||roomId==null||micLocation==null||micLocation<1) {
+            if (micUserId==null||roomId==null||micLocation==null||micLocation<0) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            roomService.upperWheat(userId,roomId,micLocation);
+            roomService.upperWheat(userId,roomId,micLocation,micUserId);
 
             return result;
         } catch (BusinessException be) {
@@ -368,16 +441,17 @@ public class RoomController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
+            Long micUserId = paramJson.getLong("micUserId");
             Long roomId = paramJson.getLong("roomId");
             Integer micLocation = paramJson.getInteger("micLocation");
-            if (userId==null||roomId==null||micLocation==null||micLocation<1) {
+            if (micUserId==null||roomId==null||micLocation==null) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            roomService.lowerWheat(userId,roomId,micLocation);
+            roomService.lowerWheat(userId,roomId,micLocation,micUserId);
 
             return result;
         } catch (BusinessException be) {
@@ -477,15 +551,16 @@ public class RoomController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long roomId = paramJson.getLong("roomId");
+            Long userId = paramJson.getLong("userId");
             Integer micLocation = paramJson.getInteger("micLocation");
-            if (roomId==null||micLocation==null||micLocation<1||micLocation>9) {
+            if (userId==null||roomId==null||micLocation==null||micLocation<1||micLocation>9) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            roomService.forbidWheat(roomId,micLocation);
+            roomService.forbidWheat(roomId,micLocation,userId);
 
             return result;
         } catch (BusinessException be) {
@@ -512,6 +587,7 @@ public class RoomController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long roomId = paramJson.getLong("roomId");
+            Long userId = paramJson.getLong("userId");
             Integer micLocation = paramJson.getInteger("micLocation");
             if (roomId==null||micLocation==null||micLocation<1||micLocation>9) {
 
@@ -520,7 +596,7 @@ public class RoomController {
                 return result;
             }
 
-            roomService.releaseWheat(roomId,micLocation);
+            roomService.releaseWheat(roomId,micLocation,userId);
 
             return result;
         } catch (BusinessException be) {
@@ -536,4 +612,148 @@ public class RoomController {
         }
     }
 
+
+    /**
+     * 设为主持
+     * @param request
+     * @return
+     */
+    @PostMapping("roomManage")
+    public ResultMsg<Object> roomManage(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long roomId = paramJson.getLong("roomId");
+            Long userId = paramJson.getLong("userId");
+            Integer micLocation = paramJson.getInteger("micLocation");
+            Long micUserId = paramJson.getLong("micUserId");
+            if (micUserId == null||roomId==null||micLocation==null||micLocation<1||micLocation>9) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            roomService.roomManage(roomId,micLocation,userId,micUserId);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 取消主持
+     * @param request
+     * @return
+     */
+    @PostMapping("roomManageCancel")
+    public ResultMsg<Object> roomManageCancel(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long roomId = paramJson.getLong("roomId");
+            Long userId = paramJson.getLong("userId");
+            Integer micLocation = paramJson.getInteger("micLocation");
+            Long micUserId = paramJson.getLong("micUserId");
+            if (micUserId == null||roomId==null||micLocation==null||micLocation<1||micLocation>9) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            roomService.roomManageCancel(roomId,micLocation,userId,micUserId);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 抽麦序
+     * @param request
+     * @return
+     */
+    @PostMapping("roomRandomMic")
+    public ResultMsg<Object> roomRandomMic(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long roomId = paramJson.getLong("roomId");
+            Long userId = paramJson.getLong("userId");
+            Integer micLocation = paramJson.getInteger("micLocation");
+            Long micUserId = paramJson.getLong("micUserId");
+            if (micUserId == null||roomId==null||micLocation==null||micLocation<1||micLocation>9) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            int mic = roomService.roomRandomMic(roomId,micLocation,userId,micUserId);
+
+            result.setData(JsonUtil.getMap("mic",mic));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 发送公屏消息
+     * @param request
+     * @return
+     */
+    @PostMapping("sendNotice")
+    public ResultMsg<Object> sendNotice(HttpServletRequest request) {
+        ResultMsg<Object> result = new ResultMsg<>();
+
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            String imgUrl = paramJson.getString("imgUrl");
+            String msg = paramJson.getString("msg");
+            Long roomId = paramJson.getLong("roomId");
+            Integer type = paramJson.getInteger("type");
+            roomService.sendNotice(userId,imgUrl,msg,roomId,type);
+
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
 }

@@ -25,4 +25,6 @@ public interface FuntimeUserRedpacketMapper {
     int updateByPrimaryKeySelective(FuntimeUserRedpacket record);
 
     int updateByPrimaryKey(FuntimeUserRedpacket record);
+
+    List<FuntimeUserRedpacket> getRedpacketListByRoomId(Long roomId);
 }

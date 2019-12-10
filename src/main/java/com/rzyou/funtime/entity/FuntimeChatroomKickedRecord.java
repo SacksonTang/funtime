@@ -2,9 +2,11 @@ package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class FuntimeChatroomKickedRecord {
+public class FuntimeChatroomKickedRecord implements Serializable {
+    private static final long serialVersionUID = 6835512206894090163L;
     private Long id;
 
     private Long roomId;

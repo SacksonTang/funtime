@@ -1,8 +1,10 @@
 package com.rzyou.funtime.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class FuntimeUserAccountHornLog {
+public class FuntimeUserAccountHornLog implements Serializable {
+    private static final long serialVersionUID = -870589656943863042L;
     private Long id;
 
     private Long userId;

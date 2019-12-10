@@ -1,11 +1,14 @@
 package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-
-public class FuntimeGift {
+@Data
+public class FuntimeGift implements Serializable {
+    private static final long serialVersionUID = -6899314288032003355L;
     private Integer id;
 
     private Integer giftTagId;
@@ -16,7 +19,7 @@ public class FuntimeGift {
 
     private BigDecimal activityPrice;
 
-    private String specialEffectTagId;
+    private Integer specialEffect;
 
     private Integer bestowed;
 
@@ -30,99 +33,5 @@ public class FuntimeGift {
 
     private Integer sort;
 
-    public Integer getId() {
-        return id;
-    }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getGiftTagId() {
-        return giftTagId;
-    }
-
-    public void setGiftTagId(Integer giftTagId) {
-        this.giftTagId = giftTagId;
-    }
-
-    public String getGiftName() {
-        return giftName;
-    }
-
-    public void setGiftName(String giftName) {
-        this.giftName = giftName == null ? null : giftName.trim();
-    }
-
-    public BigDecimal getOriginalPrice() {
-        return originalPrice;
-    }
-
-    public void setOriginalPrice(BigDecimal originalPrice) {
-        this.originalPrice = originalPrice;
-    }
-
-    public BigDecimal getActivityPrice() {
-        return activityPrice;
-    }
-
-    public void setActivityPrice(BigDecimal activityPrice) {
-        this.activityPrice = activityPrice;
-    }
-
-    public String getSpecialEffectTagId() {
-        return specialEffectTagId;
-    }
-
-    public void setSpecialEffectTagId(String specialEffectTagId) {
-        this.specialEffectTagId = specialEffectTagId == null ? null : specialEffectTagId.trim();
-    }
-
-    public Integer getBestowed() {
-        return bestowed;
-    }
-
-    public void setBestowed(Integer bestowed) {
-        this.bestowed = bestowed;
-    }
-
-    public String getAnimationType() {
-        return animationType;
-    }
-
-    public void setAnimationType(String animationType) {
-        this.animationType = animationType == null ? null : animationType.trim();
-    }
-
-    public String getAnimationUrl() {
-        return animationUrl;
-    }
-
-    public void setAnimationUrl(String animationUrl) {
-        this.animationUrl = animationUrl == null ? null : animationUrl.trim();
-    }
-
-    public BigDecimal getAnimationLength() {
-        return animationLength;
-    }
-
-    public void setAnimationLength(BigDecimal animationLength) {
-        this.animationLength = animationLength;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Integer getSort() {
-        return sort;
-    }
-
-    public void setSort(Integer sort) {
-        this.sort = sort;
-    }
 }

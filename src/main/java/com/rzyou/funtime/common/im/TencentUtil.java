@@ -19,7 +19,7 @@ public class TencentUtil {
     public static boolean createGroup(String usersig,List<Map<String, String>> memberList,String groupId){
         String url = getGroupUrl(Constant.TENCENT_YUN_CREATE_GROUP,usersig);
 
-        Map<String, Object> paramMap = new HashMap<>();
+        JSONObject paramMap = new JSONObject();
 
         paramMap.put("Name","funtime");
         paramMap.put("Type","ChatRoom");
@@ -39,6 +39,8 @@ public class TencentUtil {
 
     }
 
+
+
     /**
      * 解散房间
      * @param usersig
@@ -48,7 +50,7 @@ public class TencentUtil {
     public static boolean destroyGroup(String usersig, String groupId){
         String url = getGroupUrl(Constant.TENCENT_YUN_DESTROY_GROUP,usersig);
 
-        Map<String, Object> paramMap = new HashMap<>();
+        JSONObject paramMap = new JSONObject();
         paramMap.put("GroupId",groupId);
         String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
         JSONObject result = JSONObject.parseObject(postStr);
@@ -72,7 +74,7 @@ public class TencentUtil {
     public static JSONArray addGroupMember(String usersig, String groupId, List<Map<String, String>> memberList){
         String url = getGroupUrl(Constant.TENCENT_YUN_ADD_GROUP_MEMBER,usersig);
 
-        Map<String, Object> paramMap = new HashMap<>();
+        JSONObject paramMap = new JSONObject();
 
         paramMap.put("Silence",1);
         paramMap.put("GroupId",groupId);
@@ -83,7 +85,7 @@ public class TencentUtil {
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
             log.debug("groupId:{}",groupId);
             log.info("腾讯添加组用户接口:add_group_member 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
-            return null;
+            return result.getJSONArray("MemberList");
         }else{
             log.info("*********腾讯添加组用户接口:add_group_member 调用成功*************");
             return result.getJSONArray("MemberList");
@@ -100,7 +102,7 @@ public class TencentUtil {
     public static boolean deleteGroupMember(String usersig,String groupId,List<String> memberList){
         String url = getGroupUrl(Constant.TENCENT_YUN_DELETE_GROUP_MEMBER,usersig);
 
-        Map<String, Object> paramMap = new HashMap<>();
+        JSONObject paramMap = new JSONObject();
 
         paramMap.put("Silence",1);
         paramMap.put("GroupId",groupId);
@@ -122,33 +124,31 @@ public class TencentUtil {
     /**
      * 聊天室发生普通消息
      * @param usersig
-     * @param groupId
-     * @param data
-     * @param desc
-     * @param ext
-     * @param sound
+
      * @return
      */
-    public static boolean sendGroupMsg(String usersig,String groupId,String data,String desc,String ext,String sound){
+    public static boolean sendGroupMsg(String usersig,String paramMap){
         String url = getGroupUrl(Constant.TENCENT_YUN_SEND_GROUP_MSG,usersig);
 
-        Map<String, Object> paramMap = new HashMap<>();
+        /*
+        JSONObject paramMap = new JSONObject();
         Random random = new Random();
         paramMap.put("OnlineOnlyFlag",1);
         paramMap.put("GroupId",groupId);
         paramMap.put("Random",String.valueOf(random.nextInt(100000000)));
         Map<String,String> msgContent = new HashMap<>();
         msgContent.put("Data",data);
-        msgContent.put("Desc",desc);
-        msgContent.put("Ext",ext);
-        msgContent.put("Sound",sound);
+        msgContent.put("Desc","");
+        msgContent.put("Ext","");
+        msgContent.put("Sound","");
         Map<String,Object> elem = new HashMap<>();
         elem.put("MsgBody","TIMCustomElem");
         elem.put("MsgContent",msgContent);
         List<Map<String,Object>> msgBody = new ArrayList<>();
         msgBody.add(elem);
-        paramMap.put("MsgBody",msgBody);
+        paramMap.put("MsgBody",msgBody);*/
 
+        log.info("paramMap:{}",paramMap);
         String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
@@ -161,29 +161,58 @@ public class TencentUtil {
         }
     }
 
-
     /**
-     * 系统通知
+     * 批量发单聊消息
      * @param usersig
-     * @param groupId
-     * @param content
-     * @param memberList
+     * @param toAccounts
+     * @param data
      * @return
      */
-    public static boolean sendGroupSystemNotification(String usersig,String groupId,String content,List<String> memberList){
-        String url = getGroupUrl(Constant.TENCENT_YUN_SEND_SYSTEM_NOTIFICATION,usersig);
+    public static JSONArray batchsendmsg(String usersig,List<String> toAccounts,String data){
+        String url = getOpenimUrl(Constant.TENCENT_YUN_BATCHSENDMSG,usersig);
 
-        Map<String, Object> paramMap = new HashMap<>();
-
-        paramMap.put("Content",content);
-        paramMap.put("GroupId",groupId);
-        paramMap.put("ToMembers_Account",memberList);
+        JSONObject paramMap = new JSONObject();
+        Random random = new Random();
+        paramMap.put("SyncOtherMachine",2);
+        paramMap.put("To_Account",toAccounts);
+        paramMap.put("Random",String.valueOf(random.nextInt(100000000)));
+        Map<String,String> msgContent = new HashMap<>();
+        msgContent.put("Data",data);
+        msgContent.put("Desc","");
+        msgContent.put("Ext","");
+        msgContent.put("Sound","");
+        Map<String,Object> elem = new HashMap<>();
+        elem.put("MsgBody","TIMCustomElem");
+        elem.put("MsgContent",msgContent);
+        List<Map<String,Object>> msgBody = new ArrayList<>();
+        msgBody.add(elem);
+        paramMap.put("MsgBody",msgBody);
 
         String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
 
+            log.info("腾讯批量发单聊接口:batchsendmsg 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+            return result.getJSONArray("ErrorList");
+        }else{
+            log.info("************腾讯批量发单聊接口:batchsendmsg 调用成功*******************");
+            return null;
+        }
+    }
+
+
+    /**
+     * 系统通知
+     * @param usersig
+     * @return
+     */
+    public static boolean sendGroupSystemNotification(String usersig,String paramMap){
+        String url = getGroupUrl(Constant.TENCENT_YUN_SEND_SYSTEM_NOTIFICATION,usersig);
+        String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
+        JSONObject result = JSONObject.parseObject(postStr);
+        if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
             log.info("腾讯系统通知接口:send_group_system_notification 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+
             return false;
         }else{
             log.info("**************腾讯系统通知接口:send_group_system_notification 调用成功*****************");
@@ -202,7 +231,7 @@ public class TencentUtil {
     public static boolean accountImport(String usersig,String userId,String nickname,String faceUrl){
         String url = getImUrl(Constant.TENCENT_YUN_ACCOUNT_IMPORT,usersig);
 
-        Map<String, Object> paramMap = new HashMap<>();
+        JSONObject paramMap = new JSONObject();
 
         paramMap.put("Identifier",userId);
         paramMap.put("Nick",nickname);
@@ -213,6 +242,7 @@ public class TencentUtil {
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
 
             log.info("腾讯导入用户接口:account_import 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+
             return false;
         }else{
             log.info("*************腾讯导入用户接口:account_import 调用成功******************");
@@ -231,7 +261,7 @@ public class TencentUtil {
     public static boolean portraitSet(String usersig,String userId,String nickname,String faceUrl){
         String url = getPortraitUrl(Constant.TENCENT_YUN_PORTRAIT_SET,usersig);
 
-        Map<String, Object> paramMap = new HashMap<>();
+        JSONObject paramMap = new JSONObject();
 
         paramMap.put("From_Account",userId);
 
@@ -264,7 +294,10 @@ public class TencentUtil {
     }
 
 
+    public static String getOpenimUrl(String command,String usersig){
 
+        return getUrl(Constant.TENCENT_YUN_SERVICENAME_OPENIM,command,usersig);
+    }
 
     public static String getGroupUrl(String command,String usersig){
 

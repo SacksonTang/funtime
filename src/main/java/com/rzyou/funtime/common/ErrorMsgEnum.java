@@ -72,10 +72,16 @@ public enum ErrorMsgEnum {
     ROOM_MIC_LOCATION_NOT_EXIST("80011","无此麦位"),
     ROOM_MIC_USER_NOT_EXIST("80012","麦位没有此人"),
     ROOM_JOIN_BUSY("800013","系统繁忙,请重新加入"),
-    ROOM_MIC_NO_AUTH("80014","用户每月权限封麦"),
+    ROOM_MIC_NO_AUTH("80014","用户没有权限封麦"),
     ROOM_CREATER_ERROR("80015","只有房间创建者可以设置房间信息"),
     ROOM_CLOSE_NO_AUTH("80016","只有房间创建者可以关闭房间"),
-    ROOM_CREATE_TENCENT_ERROR("80017","腾讯同步创建聊天室失败")
+    ROOM_CREATE_TENCENT_ERROR("80017","腾讯同步创建聊天室失败"),
+    ROOM_CREATE_OUT_ERROR("80018","每个用户只能创建一个房间"),
+    ROOM_USER_NO_AUTH("80019","用户无此权限"),
+    ROOM_MIC_IS_STOP("80020","麦位已封麦"),
+    ROOM_MIC_IS_MANAGE("80021","已经是主持"),
+    ROOM_MIC_IS_NOT_MANAGE("80022","不是主持")
+
 
     ;
 

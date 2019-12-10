@@ -45,6 +45,8 @@ public interface FuntimeChatroomUserMapper {
 
     Long checkUserIsExist(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
+    String getRoomNoByRoomIdAndUser(@Param("roomId") Long roomId, @Param("userId") Long userId);
+
     List<Map<String,Object>> getRoomNoByRoomId(Long roomId);
 
     List<String> getRoomNoByRoomIdAll(Long roomId);
@@ -53,7 +55,11 @@ public interface FuntimeChatroomUserMapper {
 
     int deleteRoomUser(String roomNo);
 
+    int updateRoomNoByRoomId(@Param("roomNo") String roomNo,@Param("userId") Long userId);
+
     int updateSyncByRoomNo(@Param("roomNo") String roomNo,@Param("userId") Long userId);
 
     int deleteByRoomId(Long roomId);
+
+    List<Map<String, Object>> getRoomUserById(@Param("roomId") Long roomId,@Param("nickname") String nickname);
 }

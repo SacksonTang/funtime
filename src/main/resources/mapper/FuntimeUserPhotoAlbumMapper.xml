@@ -22,6 +22,7 @@
     <include refid="Base_Column_List" />
     from t_funtime_user_photo_album
     where user_id = #{userId}
+    order by id desc
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_photo_album

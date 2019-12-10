@@ -2,9 +2,11 @@ package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class FuntimeUserTag {
+public class FuntimeUserTag implements Serializable {
+    private static final long serialVersionUID = 367437265825782619L;
     private Long id;
 
     private Long userId;

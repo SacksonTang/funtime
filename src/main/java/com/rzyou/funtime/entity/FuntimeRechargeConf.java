@@ -2,10 +2,12 @@ package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class FuntimeRechargeConf {
+public class FuntimeRechargeConf implements Serializable {
+    private static final long serialVersionUID = -507150281942903742L;
     private Integer id;
 
     private BigDecimal rechargeRmb;

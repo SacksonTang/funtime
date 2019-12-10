@@ -1,16 +1,16 @@
 package com.rzyou.funtime.common;
 
-public enum WithdrawalType {
-
-    DESPOSIT_CARD(1,"银行卡领赏")
-    ,WXPAY(2,"微信领赏")
-    ,ALIPAY(3,"支付宝领赏")
+public enum SpecialEffectType {
+    E_1(1,"坑上头像直送")
+    ,E_2(2,"房间顶部滑动")
+    ,E_3(3,"房间全屏")
+    ,E_4(4,"所有房间全屏")
 
     ;
     private int value;
     private String desc;
 
-    WithdrawalType(int value, String desc) {
+    SpecialEffectType(int value, String desc) {
         this.value = value;
         this.desc = desc;
     }
@@ -30,6 +30,4 @@ public enum WithdrawalType {
     public void setDesc(String desc) {
         this.desc = desc;
     }
-
-
 }

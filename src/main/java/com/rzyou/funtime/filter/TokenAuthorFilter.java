@@ -43,7 +43,7 @@ public class TokenAuthorFilter implements Filter {
         response.setContentType("application/json; charset=utf-8");
 
         String uri = req.getRequestURI();
-        if (uri.contains("login")){
+        if (uri.startsWith("/login")||uri.startsWith("/druid")){
             filterChain.doFilter(request, response);
             return;
         }

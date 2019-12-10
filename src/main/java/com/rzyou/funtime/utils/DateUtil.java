@@ -3,10 +3,7 @@ package com.rzyou.funtime.utils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
+import java.util.*;
 
 public class DateUtil {
     public final static String YYYY_MM_DD_HH_MM_SS_TIGHT = "yyyyMMddHHmmss";
@@ -102,7 +99,57 @@ public class DateUtil {
     }
 
     /**
-     *
+     * 获取本周的开始时间
+     * @return
+     */
+    public static String getCurrentWeekStart(){
+        Calendar calendar = Calendar.getInstance();
+        int week = calendar.get(Calendar.DAY_OF_WEEK)-2;
+        calendar.add(Calendar.DATE, -week);
+        return dateToString(calendar.getTime(),YYYY_MM_DD)+" 00:00:00";
+    }
+
+    /**
+     * 获取本周的结束时间
+     * @return
+     */
+    public static String getCurrentWeekEnd(){
+        Calendar calendar = Calendar.getInstance();
+        int week = calendar.get(Calendar.DAY_OF_WEEK);
+        calendar.add(Calendar.DATE, 8-week);
+        return dateToString(calendar.getTime(),YYYY_MM_DD)+" 23:59:59";
+    }
+
+    /**
+     * 获取本月的开始时间
+     * @return
+     */
+    public static String getCurrentMonthStart(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DATE, 1);
+        return dateToString(calendar.getTime(),YYYY_MM_DD)+" 00:00:00";
+    }
+
+    /**
+     * 获取本月的结束时间
+     * @return
+     */
+    public static String getCurrentMonthEnd(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DATE, 1);
+        calendar.add(Calendar.MONTH, 1);
+        calendar.add(Calendar.DATE, -1);
+        return dateToString(calendar.getTime(),YYYY_MM_DD)+" 23:59:59";
+    }
+
+    public static String dateToString(Date date,String format){
+        SimpleDateFormat df = new SimpleDateFormat(format, Locale.CHINA);
+        return df.format(date);
+    }
+
+
+    /**
+     * date :yyyy-MM
      * @Description：查询月份最后时间
      *
      */
@@ -117,7 +164,8 @@ public class DateUtil {
     }
 
     public static void main(String[] args) throws Exception{
-        System.out.println(currentFinalDay("2018-11"));
+
+        System.out.println(getCurrentWeekStart()+"======"+getCurrentWeekEnd()+"=========="+getCurrentMonthStart()+"========="+getCurrentMonthEnd());
     }
 
 }

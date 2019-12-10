@@ -1,5 +1,7 @@
 package com.rzyou.funtime.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.BusinessException;
@@ -48,7 +50,22 @@ public class UserServiceImpl implements UserService {
     FuntimeGiftMapper giftMapper;
     @Autowired
     FuntimeUserPhotoAlbumMapper userPhotoAlbumMapper;
+    @Autowired
+    FuntimeChatroomMapper chatroomMapper;
 
+
+    @Override
+    public List<String> getAllUserId() {
+        return userMapper.getAllUserId();
+    }
+
+    @Override
+    public boolean checkUserExists(Long id) {
+        if (userMapper.checkUserExists(id)==null){
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public FuntimeUser queryUserById(Long id) {
@@ -96,6 +113,10 @@ public class UserServiceImpl implements UserService {
         if(user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+
+        FuntimeChatroom chatroom = chatroomMapper.getRoomByUserId(id);
+
+        user.setRoomId(chatroom==null?null:chatroom.getId());
 
         List<Integer> tags = queryTagsByUserId(id);
         user.setTags(tags);
@@ -163,8 +184,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public Boolean updateUserBasicInfoById(FuntimeUser user) {
-        FuntimeUser funtimeUser = userMapper.selectByPrimaryKey(user.getId());
-        if(funtimeUser==null){
+        if(!checkUserExists(user.getId())){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
         List<Integer> tags = new ArrayList<>();
@@ -482,9 +502,99 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Integer> queryAuthorityByRole(Integer userRole) {
+    public List<Map<String,Object>> queryAuthorityByRole(Integer userRole) {
         return userMapper.queryAuthorityByRole(userRole);
     }
+
+    @Override
+    public boolean checkAuthorityForUserRole(Integer userRole, Integer authority) {
+        if (userMapper.checkAuthorityForUserRole(userRole,authority)==null){
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public PageInfo<Map<String, Object>> getConcernUserList(Integer startPage, Integer pageSize, Long userId) {
+        PageHelper.startPage(startPage,pageSize);
+        List<Map<String, Object>> list = userMapper.getConcernUserList(userId);
+        if (list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }
+        for (Map<String, Object> map:list){
+            if (map.get("birthday")!=null) {
+                Integer birthday = Integer.valueOf(map.get("birthday").toString());
+                map.put("age",DateUtil.getAgeByBirthday(birthday));
+                map.put("constellation",DateUtil.getConstellationByBirthday(birthday));
+            }
+        }
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public PageInfo<Map<String, Object>> getFansList(Integer startPage, Integer pageSize, Long userId) {
+        PageHelper.startPage(startPage,pageSize);
+        List<Map<String, Object>> list = userMapper.getFansList(userId);
+        if (list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }
+        for (Map<String, Object> map:list){
+            if (map.get("birthday")!=null) {
+                Integer birthday = Integer.valueOf(map.get("birthday").toString());
+                map.put("age",DateUtil.getAgeByBirthday(birthday));
+                map.put("constellation",DateUtil.getConstellationByBirthday(birthday));
+            }
+        }
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public PageInfo<Map<String, Object>> getRankingList(Integer startPage, Integer pageSize, Integer dateType,Integer type) {
+        PageHelper.startPage(startPage,pageSize);
+        String startDate;
+        String endDate;
+        if (dateType == 1){
+            startDate = DateUtil.getCurrentDayStart();
+            endDate = DateUtil.getCurrentDayEnd();
+        }else if (dateType == 2){
+            startDate = DateUtil.getCurrentWeekStart();
+            endDate = DateUtil.getCurrentWeekEnd();
+        }else if (dateType == 3){
+            startDate = DateUtil.getCurrentMonthStart();
+            endDate = DateUtil.getCurrentMonthEnd();
+        }else{
+            return new PageInfo<>();
+        }
+        List<Map<String, Object>> list;
+        if (type == 1){
+            list = userMapper.getCharmList(startDate,endDate);
+        }else{
+            list = userMapper.getContributionList(startDate,endDate);
+        }
+
+        if (list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }
+
+        JSONArray object;
+        for (Map<String,Object> map : list){
+            String groupStr = map.get("groupStr").toString();
+            object = JSONArray.parseArray("["+groupStr+"]");
+            map.put("groupStr",object);
+            /*
+            map.put("userId",object.getString("userId"));
+            map.put("nickname",object.getString("nickname"));
+            map.put("portraitAddress",object.getString("portraitAddress"));
+            map.put("signText",object.getString("signText"));
+
+            map.remove("groupStr");*/
+
+        }
+
+        return new PageInfo<>(list);
+    }
+
+
 
 
     public Boolean updateByPrimaryKeySelective(FuntimeUser user){

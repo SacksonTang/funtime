@@ -62,7 +62,7 @@ public class LoginController {
         ResultMsg<Object> result = new ResultMsg<>();
 
         try {
-            JSONObject paramJson = HttpHelper.getParamterJsonNoToken(request);
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
 
             FuntimeUser user = JSONObject.toJavaObject(paramJson, FuntimeUser.class);
             if (user == null
@@ -95,9 +95,14 @@ public class LoginController {
         return result;
     }
 
+    /**
+     * 获取token
+     * @param request
+     * @return
+     */
     @PostMapping("getToken")
     public ResultMsg<Object> getToken(HttpServletRequest request) {
-        JSONObject paramJson = HttpHelper.getParamterJsonNoToken(request);
+        JSONObject paramJson = HttpHelper.getParamterJson(request);
         String userId = paramJson.getString("userId");
         String imei = paramJson.getString("imei");
         if (StringUtils.isBlank(userId)) {
@@ -111,11 +116,16 @@ public class LoginController {
         }
     }
 
+    /**
+     * 发送短信
+     * @param request
+     * @return
+     */
     @PostMapping("sendSms")
     public ResultMsg<Object> sendSms(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJsonNoToken(request);
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
             String phone = paramJson.getString("phoneNumber");
             String resend = paramJson.getString("resend");
             int smsType = paramJson.getInteger("smsType");

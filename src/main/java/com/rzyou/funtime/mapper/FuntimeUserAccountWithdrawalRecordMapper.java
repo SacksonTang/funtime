@@ -1,6 +1,7 @@
 package com.rzyou.funtime.mapper;
 
 import com.rzyou.funtime.entity.FuntimeUserAccountWithdrawalRecord;
+import com.rzyou.funtime.entity.FuntimeUserRedpacket;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -25,4 +26,5 @@ public interface FuntimeUserAccountWithdrawalRecordMapper {
     int updateByPrimaryKeySelective(FuntimeUserAccountWithdrawalRecord record);
 
     List<FuntimeUserAccountWithdrawalRecord> getWithdrawalForPage(String startDate, String endDate, Long userId, Integer state);
+
 }
