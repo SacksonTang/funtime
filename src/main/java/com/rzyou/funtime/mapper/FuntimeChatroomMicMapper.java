@@ -11,7 +11,7 @@ import java.util.Map;
 public interface FuntimeChatroomMicMapper {
     int deleteByPrimaryKey(Long id);
 
-    int lowerWheat(Long id);
+    int lowerWheat(@Param("id") Long id, @Param("micLocation") int micLocation);
 
     int upperWheat(@Param("id") Long id,@Param("userId") Long userId);
 
@@ -20,6 +20,10 @@ public interface FuntimeChatroomMicMapper {
     int forbidWheat(Long id);
 
     Integer getMicLocationUserRole(@Param("roomId") Long roomId, @Param("userId") Long userId);
+
+    Long getMicLocationId(@Param("roomId") Long roomId, @Param("userId") Long userId);
+
+    Integer getMicLocation(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
     FuntimeChatroomMic getMicLocationUser(@Param("roomId") Long roomId, @Param("micLocation") Integer micLocation);
 
@@ -43,5 +47,5 @@ public interface FuntimeChatroomMicMapper {
 
     int roomManage(Long id);
 
-    int roomManageCancel(Long roomId);
+    int roomManageCancel(Long id);
 }

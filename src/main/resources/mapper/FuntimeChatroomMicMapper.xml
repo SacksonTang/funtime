@@ -22,13 +22,25 @@
   </select>
   <select id="getMicLocationUser"  resultMap="BaseResultMap">
     select
-    id,mic_user_id
+    id,mic_user_id,user_role,state
     from t_funtime_chatroom_mic
     where room_id = #{roomId} and mic_location = #{micLocation}  limit 1
   </select>
   <select id="getMicLocationUserRole"  resultType="java.lang.Integer">
     select
     user_role
+    from t_funtime_chatroom_mic
+    where room_id = #{roomId} and mic_user_id = #{userId}  limit 1
+  </select>
+  <select id="getMicLocationId"  resultType="java.lang.Long">
+    select
+    id
+    from t_funtime_chatroom_mic
+    where room_id = #{roomId} and mic_user_id = #{userId}  limit 1
+  </select>
+  <select id="getMicLocation"  resultType="java.lang.Integer">
+    select
+    mic_location
     from t_funtime_chatroom_mic
     where room_id = #{roomId} and mic_user_id = #{userId}  limit 1
   </select>
@@ -51,6 +63,9 @@
   </delete>
   <update id="lowerWheat" >
     update t_funtime_chatroom_mic set mic_user_id = null,state = 1
+    <if test="micLocation != 10">
+      ,user_role = 3
+    </if>
     where id = #{id}
   </update>
   <update id="upperWheat" >

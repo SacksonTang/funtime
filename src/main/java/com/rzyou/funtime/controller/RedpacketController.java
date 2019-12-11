@@ -29,6 +29,30 @@ public class RedpacketController {
     AccountService accountService;
 
     /**
+     * 房间红包已抢记录
+     */
+    @PostMapping("getRecordListByRedId")
+    public ResultMsg<Object> getRecordListByRedId(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long redpacketId = paramJson.getLong("redpacketId");
+            result.setData(JsonUtil.getMap("records",accountService.getRecordListByRedId(redpacketId)));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 房间待抢红包列表
      * @param request
      * @return
@@ -41,8 +65,8 @@ public class RedpacketController {
             Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
             Long roomId = paramJson.getLong("roomId");
-
-            result.setData(JsonUtil.getMap("pageInfo",accountService.getRedpacketListByRoomId(startPage,pageSize,roomId)));
+            Long userId = paramJson.getLong("userId");
+            result.setData(JsonUtil.getMap("pageInfo",accountService.getRedpacketListByRoomId(startPage,pageSize,roomId,userId)));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

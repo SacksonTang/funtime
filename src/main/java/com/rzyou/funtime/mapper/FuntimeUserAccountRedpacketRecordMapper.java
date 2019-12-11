@@ -16,6 +16,8 @@ public interface FuntimeUserAccountRedpacketRecordMapper {
 
     FuntimeUserAccountRedpacketRecord selectByPrimaryKey(Long id);
 
+    List<FuntimeUserAccountRedpacketRecord> getRedpacketRecordByRedpacketId(Long redId);
+
     int updateByPrimaryKeySelective(FuntimeUserAccountRedpacketRecord record);
 
     List<FuntimeUserAccountRedpacketRecord> getRedpacketRecordByredId(Long redId);

@@ -48,7 +48,7 @@
     from t_funtime_chatroom
     where user_id = #{userId,jdbcType=BIGINT} limit 1
   </select>
-  <select id="getRoomList" parameterType="java.lang.Long" resultType="java.util.Map">
+  <select id="getRoomList" parameterType="java.lang.Integer" resultType="java.util.Map">
     select
     m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
     m.online_num onlineNum,u.sex,
@@ -68,6 +68,25 @@
      order by m.online_num desc ,m.id desc
   </select>
 
+  <select id="getRoomLogList" parameterType="java.lang.Long" resultType="java.util.Map">
+    select
+    m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+    m.online_num onlineNum,u.sex,
+    m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
+    (select GROUP_CONCAT(g.tag_name) from t_funtime_tag g where FIND_IN_SET(g.id,m.tags) >0 order by g.sort asc) tagNames,
+    count(u1.id) maleCount,
+    (m.online_num - count(u1.id)) femaleCount
+    from t_funtime_chatroom m
+    inner join t_funtime_user_visit_log l on m.id = l.room_id
+    inner join t_funtime_user u on m.user_id = u.id
+    inner join (t_funtime_chatroom_user cu inner join t_funtime_user u1 on cu.user_id = u1.id and u1.sex = 1)
+    on m.id = cu.room_id
+    where m.is_block = 2 and m.state = 1
+     and l.user_id = #{userId}
+    group by m.id
+    order by m.online_num desc ,m.id desc
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_chatroom
     where id = #{id,jdbcType=BIGINT}
@@ -76,7 +95,15 @@
     update t_funtime_chatroom set state = 2,online_num = 1
     where id = #{id}
   </update>
+  <insert id="insertUserRoomLog" parameterType="java.util.Map" >
+    insert into t_funtime_user_visit_log (type,user_id, room_id,to_user_id
+    )
+    values
 
+      (#{type},#{userId}, #{roomId},#{toUserId}
+      )
+
+  </insert>
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeChatroom" useGeneratedKeys="true" keyProperty="id">
     insert into t_funtime_chatroom
     <trim prefix="(" suffix=")" suffixOverrides=",">

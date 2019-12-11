@@ -26,9 +26,9 @@
     from t_funtime_user_tag ut inner join t_funtime_tag t on ut.tag_id = t.id
     where ut.user_id = #{userId}
   </select>
-  <select id="queryTagsByType" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="queryTagsByType" parameterType="java.lang.String" resultType="java.util.Map">
     select
-    <include refid="Base_Column_List" />
+    id, tag_name tagName
     from t_funtime_tag
     where tag_type = #{tagType} order by sort asc
   </select>

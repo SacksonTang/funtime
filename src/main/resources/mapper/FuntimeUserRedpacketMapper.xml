@@ -17,6 +17,8 @@
     <result column="grabNum"  property="grabNum" />
     <result column="animation_type"  property="animationType" />
     <result column="animation_url"  property="animationUrl" />
+    <result column="nickname"  property="nickname" />
+    <result column="portrait_address"  property="portraitAddress" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, redpacket_num, amount, redpacket_desc, bestow_condition, gift_id, state, 
@@ -31,9 +33,11 @@
   <select id="getRedpacketListByRoomId"  resultMap="BaseResultMap">
     select
     t.id, t.user_id, t.redpacket_num, t.amount, t.redpacket_desc, t.bestow_condition, t.gift_id, t.state,
-    t.invalid_time, t.create_time,g.animation_type,g.animation_url
+    g.animation_type,g.animation_url,u.nickname,u.portrait_address
     from t_funtime_user_redpacket t left join t_funtime_gift g on t.gift_id = g.id
+      inner join t_funtime_user u on t.user_id = u.id
     where t.room_id = #{roomId} and t.state = 1 and t.invalid_time>=NOW()
+    and not exists (select t.id from t_funtime_user_redpacket_detail l where l.redpacket_id = t.id and l.grab_user_id = #{userId})
     order by id desc
   </select>
 

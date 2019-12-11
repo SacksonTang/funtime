@@ -80,7 +80,8 @@ public enum ErrorMsgEnum {
     ROOM_USER_NO_AUTH("80019","用户无此权限"),
     ROOM_MIC_IS_STOP("80020","麦位已封麦"),
     ROOM_MIC_IS_MANAGE("80021","已经是主持"),
-    ROOM_MIC_IS_NOT_MANAGE("80022","不是主持")
+    ROOM_MIC_IS_NOT_MANAGE("80022","不是主持"),
+    ROOM_JOIN_TENCENT_ERROR("80023","同步腾讯添加用户失败")
 
 
     ;

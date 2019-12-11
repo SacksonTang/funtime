@@ -169,8 +169,9 @@ public interface NoticeService {
      * @param roomNo
      * @param micUserId
      * @param nickname
+     * @param mic
      */
-    void notice10(Integer micLocation, Long roomId, String roomNo, Long micUserId, String nickname);
+    void notice10(Integer micLocation, Long roomId, String roomNo, Long micUserId, String nickname, int mic);
 
     /**
      * 发生房间公屏消息

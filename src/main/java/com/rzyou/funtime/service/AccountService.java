@@ -185,5 +185,12 @@ public interface AccountService {
      * @param roomId
      * @return
      */
-    PageInfo<FuntimeUserRedpacket> getRedpacketListByRoomId(Integer startPage, Integer pageSize,Long roomId);
+    PageInfo<FuntimeUserRedpacket> getRedpacketListByRoomId(Integer startPage, Integer pageSize,Long roomId,Long userId);
+
+    /**
+     * 查询红包已抢记录
+     * @param redpacketId
+     * @return
+     */
+    List<FuntimeUserAccountRedpacketRecord> getRecordListByRedId(Long redpacketId);
 }

@@ -1,10 +1,11 @@
 package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-
+@Data
 public class FuntimeUserPhotoAlbum implements Serializable {
     private static final long serialVersionUID = -7054849645739660860L;
     private Long id;
@@ -17,43 +18,7 @@ public class FuntimeUserPhotoAlbum implements Serializable {
 
     private Integer flag;
 
-    public Long getId() {
-        return id;
-    }
+    private Integer sort;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getResourceUrl() {
-        return resourceUrl;
-    }
-
-    public void setResourceUrl(String resourceUrl) {
-        this.resourceUrl = resourceUrl == null ? null : resourceUrl.trim();
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Integer getFlag() {
-        return flag;
-    }
-
-    public void setFlag(Integer flag) {
-        this.flag = flag;
-    }
 }

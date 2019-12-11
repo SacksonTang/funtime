@@ -1,6 +1,8 @@
 package com.rzyou.funtime.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ConvertType;
 import com.rzyou.funtime.common.ErrorMsgEnum;
@@ -55,7 +57,7 @@ public class UserController {
                 return result;
             }
 
-            List<FuntimeTag> tags = userService.queryTagsByType(tagType);
+            List<Map<String,Object>> tags = userService.queryTagsByType(tagType);
             result.setData(JsonUtil.getMap("tags",tags));
             return result;
         } catch (BusinessException be) {
@@ -621,6 +623,7 @@ public class UserController {
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String userId = paramJson.getString("userId");
             Integer type = paramJson.getInteger("type");//1-魅力榜2-贡献榜
             Integer dateType = paramJson.getInteger("dateType");//1-日2-周3-月
             Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
@@ -630,9 +633,34 @@ public class UserController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            Map<String,Object> resultMap = JsonUtil.getMap("rankingList", userService.getRankingList(startPage, pageSize,dateType,type));
+            PageInfo<Map<String, Object>> list = userService.getRankingList(startPage, pageSize, dateType, type);
+            Map<String,Object> resultMap = JsonUtil.getMap("rankingList", list);
             resultMap.put("is_ranklist_show",parameterService.getParameterValueByKey("is_ranklist_show"));
-
+            if (list.getList()!=null) {
+                JSONArray array;
+                JSONObject object;
+                Map<String, Object> map;
+                for (int j = 0; j < list.getList().size(); j++) {
+                    map = list.getList().get(j);
+                    String groupStr = map.get("groupStr").toString();
+                    array = JSONArray.parseArray("[" + groupStr + "]");
+                    map.put("groupStr", array);
+                    boolean flag = false;
+                    for (int i = 0; i < array.size(); i++) {
+                        object = array.getJSONObject(i);
+                        String id = object.getString("userId");
+                        if (id.equals(userId)) {
+                            resultMap.put("mySort", j);
+                            resultMap.put("myAmount", map.get("amountSum"));
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (flag) {
+                        break;
+                    }
+                }
+            }
             result.setData(resultMap);
 
             return result;
@@ -784,19 +812,21 @@ public class UserController {
      * 修改相册信息
      */
 
-    public ResultMsg<Object> saveUserFile(HttpServletRequest request){
+    @PostMapping("saveUserPhoto")
+    public ResultMsg<Object> saveUserPhoto(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
-            FuntimeUser user = JSONObject.toJavaObject(paramJson, FuntimeUser.class);
-            if (user==null) {
+            Long userId = paramJson.getLong("userId");
+            JSONArray array = paramJson.getJSONArray("photos");
+            if (userId==null||array==null) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            userService.updateUserBasicInfoById(user);
+            userService.updatePhotoByUserId(userId,array);
 
             return result;
         } catch (BusinessException be) {

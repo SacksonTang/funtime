@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface FuntimeTagMapper {
@@ -12,7 +13,7 @@ public interface FuntimeTagMapper {
 
     List<Integer> queryTagsByUserId(Long userId);
 
-    List<FuntimeTag> queryTagsByType(String tagType);
+    List<Map<String,Object>> queryTagsByType(String tagType);
 
     int deleteByPrimaryKey(Integer id);
 

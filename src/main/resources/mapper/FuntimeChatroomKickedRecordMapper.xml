@@ -58,7 +58,7 @@
       <if test="kickedUserId != null">
         #{kickedUserId,jdbcType=BIGINT},
       </if>
-      date_add(NOW(), interval 10 minute),
+      date_add(NOW(), interval 5 second ),
     </trim>
   </insert>
 

@@ -39,6 +39,8 @@ public class NoticeServerImpl implements NoticeService {
         boolean flag = TencentUtil.sendGroupMsg(userSig,data);
         if (flag){
             noticeMapper.updateState(id,1);
+        }else{
+            noticeMapper.updateState(id,2);
         }
 
     }
@@ -49,6 +51,8 @@ public class NoticeServerImpl implements NoticeService {
         boolean flag = TencentUtil.sendGroupSystemNotification(userSig,data);
         if (flag){
             noticeMapper.updateState(id,1);
+        }else{
+            noticeMapper.updateState(id,2);
         }
     }
 
@@ -303,6 +307,7 @@ public class NoticeServerImpl implements NoticeService {
         object.put("uid",micUserId);
         object.put("name",nickname);
         object.put("type",Constant.ROOM_MANAGE);
+        object.put("pos",micLocation);
         String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         if (!TencentUtil.sendGroupMsg(userSig,parameterHandler)) {
@@ -317,6 +322,7 @@ public class NoticeServerImpl implements NoticeService {
         object.put("uid",micUserId);
         object.put("name",nickname);
         object.put("type",Constant.ROOM_MANAGE_CANCEL);
+        object.put("pos",micLocation);
         String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         if (!TencentUtil.sendGroupMsg(userSig,parameterHandler)) {
@@ -325,12 +331,14 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    public void notice10(Integer micLocation, Long roomId, String roomNo, Long micUserId, String nickname) {
+    public void notice10(Integer micLocation, Long roomId, String roomNo, Long micUserId, String nickname, int mic) {
         JSONObject object = new JSONObject();
         object.put("rid",roomId);
         object.put("uid",micUserId);
         object.put("name",nickname);
         object.put("type",Constant.ROOM_MIC_RANDOM);
+        object.put("randomImage",mic);
+        object.put("pos",micLocation);
         String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         if (!TencentUtil.sendGroupMsg(userSig,parameterHandler)) {

@@ -641,14 +641,19 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public PageInfo<FuntimeUserRedpacket> getRedpacketListByRoomId(Integer startPage, Integer pageSize, Long roomId) {
+    public PageInfo<FuntimeUserRedpacket> getRedpacketListByRoomId(Integer startPage, Integer pageSize, Long roomId,Long userId) {
         PageHelper.startPage(startPage,pageSize);
-        List<FuntimeUserRedpacket> list = userRedpacketMapper.getRedpacketListByRoomId(roomId);
+        List<FuntimeUserRedpacket> list = userRedpacketMapper.getRedpacketListByRoomId(roomId,userId);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
             return new PageInfo<>(list);
         }
+    }
+
+    @Override
+    public List<FuntimeUserAccountRedpacketRecord> getRecordListByRedId(Long redpacketId) {
+        return userAccountRedpacketRecordMapper.getRedpacketRecordByRedpacketId(redpacketId);
     }
 
     private void checkWithdrawalConf(Long userId,BigDecimal black){

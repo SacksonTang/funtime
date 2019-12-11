@@ -10,6 +10,9 @@ import java.util.Map;
 public interface FuntimeGiftMapper {
     int deleteByPrimaryKey(Integer id);
 
+    List<Map<String,Object>> getGiftList();
+
+    List<FuntimeGift> getGiftListByBestowed(Integer bestowed);
 
     List<Map<String,Object>> getGiftByUserId(Long userId);
 

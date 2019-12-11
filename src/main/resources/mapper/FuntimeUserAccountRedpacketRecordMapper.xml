@@ -12,6 +12,8 @@
     <result column="tag_id" jdbcType="INTEGER" property="tagId" />
     <result column="gift_record_id" jdbcType="INTEGER" property="giftRecordId" />
     <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="portrait_address"  property="portraitAddress" />
+    <result column="tag_name"  property="tagName" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, detail_id, amount, send_time, create_time, tag_id,order_no,gift_record_id
@@ -68,6 +70,21 @@
     from t_funtime_user_account_redpacket_record d inner join t_funtime_user_redpacket_detail l on d.detail_id = l.id
     where l.redpacket_id = #{redId}
     order by d.amount desc,d.id asc
+  </select>
+  <select id="getRedpacketRecordByRedpacketId"  parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    d.id, d.amount,d.create_time,u.nickname,u.portrait_address
+    ,d.tag_id
+    ,case when d.tag_id = 1 then '首榜'
+           when d.tag_id = 2 then '运气王'
+           when d.tag_id = 3 then '小幸运'
+           when d.tag_id = 4 then '小可怜'
+           end tag_name
+    ,d.user_id
+    from t_funtime_user_account_redpacket_record d inner join t_funtime_user_redpacket_detail l on d.detail_id = l.id
+      inner join t_funtime_user u on d.user_id = u.id
+    where l.redpacket_id = #{redId}
+    order by d.id desc
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_account_redpacket_record

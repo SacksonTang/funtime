@@ -2,6 +2,7 @@ package com.rzyou.funtime.service;
 
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.entity.FuntimeChatroom;
+import com.rzyou.funtime.entity.FuntimeGift;
 
 import java.util.List;
 import java.util.Map;
@@ -41,18 +42,16 @@ public interface RoomService {
      * 推出房间
      * @param userId
      * @param roomId
-     * @param micLocation
      */
-    void roomExit(Long userId, Long roomId, Integer micLocation);
+    void roomExit(Long userId, Long roomId);
 
     /**
      * 踢人
      * @param kickIdUserId
      * @param userId
      * @param roomId
-     * @param micLocation
      */
-    void roomKicked(Long kickIdUserId, Long userId, Long roomId, Integer micLocation);
+    void roomKicked(Long kickIdUserId, Long userId, Long roomId);
 
     /**
      * 抱麦
@@ -78,10 +77,9 @@ public interface RoomService {
      * 下麦
      * @param userId
      * @param roomId
-     * @param micLocation
      * @param micUserId
      */
-    void lowerWheat(Long userId, Long roomId, Integer micLocation, Long micUserId);
+    void lowerWheat(Long userId, Long roomId, Long micUserId);
 
     /**
      * 同步腾讯
@@ -164,29 +162,26 @@ public interface RoomService {
     /**
      * 设为主持
      * @param roomId
-     * @param micLocation
      * @param userId
      * @param micUserId
      */
-    void roomManage(Long roomId, Integer micLocation, Long userId, Long micUserId);
+    void roomManage(Long roomId, Long userId, Long micUserId);
 
     /**
      * 取消主持
      * @param roomId
-     * @param micLocation
      * @param userId
      * @param micUserId
      */
-    void roomManageCancel(Long roomId, Integer micLocation, Long userId, Long micUserId);
+    void roomManageCancel(Long roomId,  Long userId, Long micUserId);
 
     /**
      * 抽麦序
      * @param roomId
-     * @param micLocation
      * @param userId
      * @param micUserId
      */
-    int roomRandomMic(Long roomId, Integer micLocation, Long userId, Long micUserId);
+    int roomRandomMic(Long roomId, Long userId, Long micUserId);
 
     /**
      * 公屏消息
@@ -197,4 +192,26 @@ public interface RoomService {
      * @param type
      */
     void sendNotice(Long userId, String imgUrl, String msg, Long roomId, Integer type);
+
+    /**
+     * 我的足迹
+     * @param startPage
+     * @param pageSize
+     * @param userId
+     * @return
+     */
+    PageInfo<Map<String, Object>> getRoomLogList(Integer startPage, Integer pageSize, Long userId);
+
+    /**
+     * 获取参与赠送的礼物
+     * @param bestowed
+     * @return
+     */
+    List<FuntimeGift> getGiftListByBestowed(Integer bestowed);
+
+    /**
+     * 获取所有礼物
+     * @return
+     */
+    Map<String,Object> getGiftList();
 }

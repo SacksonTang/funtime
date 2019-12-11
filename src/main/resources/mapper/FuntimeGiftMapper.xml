@@ -25,6 +25,19 @@
     from t_funtime_gift
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="getGiftListByBestowed"  parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_gift
+    where bestowed = #{bestowed} order by sort
+  </select>
+  <select id="getGiftList"  resultType="java.util.Map">
+    select
+    t.id, t.gift_tag_id giftTagId ,g.tag_name tagName , t.gift_name giftName, t.special_effect specialEffect,
+     t.animation_type animationType, t.animation_url animationUrl, t.animation_length animationLength
+    from t_funtime_gift t inner join t_funtime_tag g on t.gift_tag_id = g.id
+     order by t.sort
+  </select>
   <select id="getGiftByUserId" parameterType="java.lang.Long" resultType="java.util.Map">
     select
      t.id,t.gift_name giftName,animation_type animationtype, animation_url animationUrl,sum(d.num) numTotal,sum(d.amount) amountTotal

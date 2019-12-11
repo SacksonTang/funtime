@@ -255,7 +255,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<FuntimeTag> queryTagsByType(String tagType) {
+    public List<Map<String,Object>> queryTagsByType(String tagType) {
         return tagMapper.queryTagsByType(tagType);
     }
 
@@ -576,25 +576,29 @@ public class UserServiceImpl implements UserService {
             return new PageInfo<>();
         }
 
-        JSONArray object;
-        for (Map<String,Object> map : list){
-            String groupStr = map.get("groupStr").toString();
-            object = JSONArray.parseArray("["+groupStr+"]");
-            map.put("groupStr",object);
-            /*
-            map.put("userId",object.getString("userId"));
-            map.put("nickname",object.getString("nickname"));
-            map.put("portraitAddress",object.getString("portraitAddress"));
-            map.put("signText",object.getString("signText"));
 
-            map.remove("groupStr");*/
-
-        }
 
         return new PageInfo<>(list);
     }
 
+    @Override
+    public void updatePhotoByUserId(Long userId, JSONArray array) {
+        if (userMapper.checkUserExists(userId)==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        userPhotoAlbumMapper.deleteByUserId(userId);
+        JSONObject object;
+        FuntimeUserPhotoAlbum photoAlbum;
+        List<FuntimeUserPhotoAlbum> list = new ArrayList<>();
+        for (int i = 0;i<array.size();i++){
+            object = array.getJSONObject(i);
+            photoAlbum = JSONObject.toJavaObject(object,FuntimeUserPhotoAlbum.class);
 
+            photoAlbum.setUserId(userId);
+            list.add(photoAlbum);
+        }
+        userPhotoAlbumMapper.insertBatch(list);
+    }
 
 
     public Boolean updateByPrimaryKeySelective(FuntimeUser user){

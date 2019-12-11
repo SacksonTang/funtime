@@ -1,5 +1,6 @@
 package com.rzyou.funtime.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.entity.*;
 
@@ -99,7 +100,7 @@ public interface UserService {
      * @param tagType
      * @return
      */
-    List<FuntimeTag> queryTagsByType(String tagType);
+    List<Map<String,Object>> queryTagsByType(String tagType);
 
     /**
      * 获取用户账务信息
@@ -279,4 +280,10 @@ public interface UserService {
      */
     PageInfo<Map<String,Object>> getRankingList(Integer startPage, Integer pageSize, Integer dateType,Integer type);
 
+    /**
+     * 更新相册
+     * @param userId
+     * @param array
+     */
+    void updatePhotoByUserId(Long userId, JSONArray array);
 }
