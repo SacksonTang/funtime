@@ -57,4 +57,6 @@ public interface FuntimeUserMapper {
     List<Map<String, Object>> getContributionList(String startDate, String endDate);
 
     List<Map<String, Object>> getCharmList(String startDate, String endDate);
+
+    int saveHeart(Long userId);
 }

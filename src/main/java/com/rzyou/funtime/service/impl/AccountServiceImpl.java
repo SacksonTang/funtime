@@ -3,6 +3,7 @@ package com.rzyou.funtime.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
+import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
@@ -426,12 +427,102 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
+    public void createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
+
+        String[] toUserIdArray = toUserIds.split(",");
+
+        if (Arrays.asList(toUserIdArray).contains(userId)){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getDesc());
+        }
+
+        FuntimeUser user = userService.queryUserById(userId);
+
+        if (user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
+        if (userAccount==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
+        if (funtimeGift==null){
+            throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
+        }
+
+        Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
+        //账户余额不足
+        if (userAccount.getBlueDiamond().intValue()<amount*toUserIdArray.length){
+            throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+        }
+
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.HALF_UP);
+        for (String toUserIdStr : toUserIdArray) {
+            Long toUserId = Long.valueOf(toUserIdStr);
+            FuntimeUser toUser = userService.queryUserById(toUserId);
+            if (toUser==null){
+                throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+            }
+            Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannelId);
+
+            //用户送减去蓝钻
+            userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
+
+            //用户收加上黑钻
+            userService.updateUserAccountForPlus(toUserId, black, null, null);
+
+            //用户送的日志
+            saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+                    , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType());
+
+            //用户收的日志
+            saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFT.getAction()
+                    , OperationType.RECEIVEGIFT.getOperationType());
+
+            if (roomId != null) {
+
+                RoomGiftNotice notice = new RoomGiftNotice();
+                notice.setFromImg(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
+                notice.setFromName(user.getNickname());
+                notice.setFromUid(String.valueOf(userId));
+                notice.setGid(String.valueOf(giftId));
+                notice.setGiftImg(CosUtil.generatePresignedUrl(funtimeGift.getAnimationUrl()));
+                notice.setRid(String.valueOf(roomId));
+                notice.setToImg(CosUtil.generatePresignedUrl(toUser.getPortraitAddress()));
+                notice.setToName(toUser.getNickname());
+                notice.setToUid(String.valueOf(toUserId));
+                if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
+                    notice.setType(Constant.ROOM_GIFT_SEND_ALL);
+                    //发送通知全服
+
+                    noticeService.notice9(notice);
+
+                } else {
+                    List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+                    if (roomNos == null || roomNos.isEmpty()) {
+                        throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+                    }
+                    notice.setType(Constant.ROOM_GIFT_SEND);
+                    //发送通知
+                    for (String roomNo : roomNos) {
+                        noticeService.notice8(notice, roomNo);
+                    }
+                }
+            }
+        }
+    }
+
     public Long createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
+
 
         FuntimeUser user = userService.queryUserById(userId);
         FuntimeUser toUser = userService.queryUserById(toUserId);
         if (user==null||toUser==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if (userId.equals(toUserId)){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getDesc());
         }
         FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
         if (userAccount==null){
@@ -450,47 +541,48 @@ public class AccountServiceImpl implements AccountService {
 
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
 
-        Long recordId = saveFuntimeUserAccountGifttransRecord(userId,operationDesc,new BigDecimal(amount)
-                ,giftNum,giftId,funtimeGift.getGiftName(),toUserId,giveChannelId);
+        Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
+                , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannelId);
 
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.HALF_UP);
 
         //用户送减去蓝钻
-        userService.updateUserAccountForSub(userId,null,new BigDecimal(amount),null);
+        userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
 
         //用户收加上黑钻
-        userService.updateUserAccountForPlus(toUserId,black,null,null);
+        userService.updateUserAccountForPlus(toUserId, black, null, null);
 
         //用户送的日志
-        saveUserAccountBlueLog(userId,new BigDecimal(amount),recordId
-                ,OperationType.GIVEGIFT.getAction(),OperationType.GIVEGIFT.getOperationType());
+        saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+                , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType());
 
         //用户收的日志
-        saveUserAccountBlackLog(toUserId,black,recordId,OperationType.RECEIVEGIFT.getAction()
-                ,OperationType.RECEIVEGIFT.getOperationType());
+        saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFT.getAction()
+                , OperationType.RECEIVEGIFT.getOperationType());
 
-        if (roomId!=null) {
-            List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
-            if (roomNos == null || roomNos.isEmpty()) {
-                throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
-            }
+        if (roomId != null) {
+
             RoomGiftNotice notice = new RoomGiftNotice();
-            notice.setFromImg(user.getPortraitAddress());
+            notice.setFromImg(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
             notice.setFromName(user.getNickname());
             notice.setFromUid(String.valueOf(userId));
             notice.setGid(String.valueOf(giftId));
-            notice.setGiftImg(funtimeGift.getAnimationUrl());
+            notice.setGiftImg(CosUtil.generatePresignedUrl(funtimeGift.getAnimationUrl()));
             notice.setRid(String.valueOf(roomId));
-            notice.setToImg(toUser.getPortraitAddress());
+            notice.setToImg(CosUtil.generatePresignedUrl(toUser.getPortraitAddress()));
             notice.setToName(toUser.getNickname());
             notice.setToUid(String.valueOf(toUserId));
-            if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()){
+            if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
                 notice.setType(Constant.ROOM_GIFT_SEND_ALL);
                 //发送通知全服
-                for (String roomNo : roomNos) {
-                    noticeService.notice9(notice);
+
+                noticeService.notice9(notice);
+
+            } else {
+                List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+                if (roomNos == null || roomNos.isEmpty()) {
+                    throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
                 }
-            }else {
                 notice.setType(Constant.ROOM_GIFT_SEND);
                 //发送通知
                 for (String roomNo : roomNos) {
@@ -498,7 +590,99 @@ public class AccountServiceImpl implements AccountService {
                 }
             }
         }
+
         return recordId;
+    }
+
+    @Override
+    public void createGiftTrans(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
+
+        FuntimeUser user = userService.queryUserById(userId);
+
+        if (user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
+        if (userAccount==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
+        if (funtimeGift==null){
+            throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
+        }
+
+        List<Long> toUserIdArray = roomService.getRoomUserByRoomId(roomId);
+        if (toUserIdArray==null||toUserIdArray.isEmpty()){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+
+        toUserIdArray.remove(userId);
+
+        int userNum = toUserIdArray.size();
+
+        Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
+        //账户余额不足
+        if (userAccount.getBlueDiamond().intValue()<amount*userNum){
+            throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+        }
+
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.HALF_UP);
+        for (Long toUserId : toUserIdArray) {
+
+            Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel);
+
+            //用户送减去蓝钻
+            userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
+
+            //用户收加上黑钻
+            userService.updateUserAccountForPlus(toUserId, black, null, null);
+
+            //用户送的日志
+            saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+                    , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType());
+
+            //用户收的日志
+            saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFT.getAction()
+                    , OperationType.RECEIVEGIFT.getOperationType());
+
+        }
+
+        FuntimeChatroom chatroom = roomService.getChatroomById(roomId);
+
+        RoomGiftNotice notice = new RoomGiftNotice();
+        notice.setFromImg(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
+        notice.setFromName(user.getNickname());
+        notice.setFromUid(String.valueOf(userId));
+        notice.setGid(String.valueOf(giftId));
+        notice.setGiftImg(CosUtil.generatePresignedUrl(funtimeGift.getAnimationUrl()));
+        notice.setRid(String.valueOf(roomId));
+        notice.setToImg(CosUtil.generatePresignedUrl(chatroom.getAvatarUrl()));
+        notice.setToName(chatroom.getName());
+        if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
+            notice.setType(Constant.ROOM_GIFT_SEND_ROOM_ALL);
+            //发送通知全服
+
+            noticeService.notice21(notice);
+
+        } else {
+            List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+            if (roomNos == null || roomNos.isEmpty()) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+            }
+            notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
+            //发送通知
+            for (String roomNo : roomNos) {
+                noticeService.notice19(notice, roomNo);
+            }
+        }
+
+    }
+
+    @Override
+    public List<FuntimeRechargeConf> getRechargeConf() {
+        return rechargeConfMapper.getRechargeConf();
     }
 
     @Override
@@ -563,6 +747,14 @@ public class AccountServiceImpl implements AccountService {
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
+            for (FuntimeUserAccountGifttransRecord record : list){
+                if (StringUtils.isNotBlank(record.getAnimationUrl())){
+                    record.setAnimationUrl(CosUtil.generatePresignedUrl(record.getAnimationUrl()));
+                }
+                if (StringUtils.isNotBlank(record.getImageUrl())){
+                    record.setImageUrl(CosUtil.generatePresignedUrl(record.getImageUrl()));
+                }
+            }
             return new PageInfo<>(list);
         }
     }
@@ -581,6 +773,14 @@ public class AccountServiceImpl implements AccountService {
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
+            for (FuntimeUserAccountGifttransRecord record : list){
+                if (StringUtils.isNotBlank(record.getAnimationUrl())){
+                    record.setAnimationUrl(CosUtil.generatePresignedUrl(record.getAnimationUrl()));
+                }
+                if (StringUtils.isNotBlank(record.getImageUrl())){
+                    record.setImageUrl(CosUtil.generatePresignedUrl(record.getImageUrl()));
+                }
+            }
             return new PageInfo<>(list);
         }
     }
@@ -588,8 +788,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void applyWithdrawal(Long userId,Integer withdrawalType, BigDecimal blackAmount) {
-
-        userService.checkAgreementByuserId(userId,UserAgreementType.WITHDRAWAL_AGREEMENT.getValue());
 
         if(!userService.checkUserExists(userId)){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
@@ -647,6 +845,14 @@ public class AccountServiceImpl implements AccountService {
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
+            for (FuntimeUserRedpacket userRedpacket:list){
+                if (StringUtils.isNotBlank(userRedpacket.getAnimationUrl())){
+                    userRedpacket.setAnimationUrl(CosUtil.generatePresignedUrl(userRedpacket.getAnimationUrl()));
+                }
+                if (StringUtils.isNotBlank(userRedpacket.getImageUrl())){
+                    userRedpacket.setImageUrl(CosUtil.generatePresignedUrl(userRedpacket.getImageUrl()));
+                }
+            }
             return new PageInfo<>(list);
         }
     }
@@ -655,6 +861,7 @@ public class AccountServiceImpl implements AccountService {
     public List<FuntimeUserAccountRedpacketRecord> getRecordListByRedId(Long redpacketId) {
         return userAccountRedpacketRecordMapper.getRedpacketRecordByRedpacketId(redpacketId);
     }
+
 
     private void checkWithdrawalConf(Long userId,BigDecimal black){
         //每次的最小值

@@ -5,9 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.FuntimeNotice;
 import com.rzyou.funtime.entity.FuntimeUser;
+import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.entity.RoomGiftNotice;
 import com.rzyou.funtime.mapper.FuntimeNoticeMapper;
 import com.rzyou.funtime.service.NoticeService;
@@ -17,6 +19,7 @@ import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -112,6 +115,61 @@ public class NoticeServerImpl implements NoticeService {
 
     }
 
+    @Override
+    public void snedAllRoomAppNotice(String userSig, String data, Long id) {
+
+        List<String> list = roomService.getAllRoomUser();
+        JSONArray array;
+        if (list!=null&&list.size()<=500) {
+            array = TencentUtil.batchsendmsg(userSig,list,data);
+            if(array == null){
+                noticeMapper.updateState(id,1);
+            }else{
+                JSONObject object;
+                List<String> users = new ArrayList<>();
+                for (int i = 0;i<array.size();i++){
+                    object = array.getJSONObject(i);
+                    users.add(object.getString("To_Account"));
+                }
+                array = TencentUtil.batchsendmsg(userSig,users,data);
+                if (array == null) {
+                    noticeMapper.updateState(id, 1);
+                }else{
+                    noticeMapper.updateState(id, 4);
+                }
+            }
+
+        }else{
+            int size = list.size();
+            int fromIndex = 0;
+            int toIndex = 500;
+            int k = size%toIndex == 0?size/toIndex:size/toIndex+1;
+            for (int j = 1;j<k+1;j++){
+                List<String> spList = list.subList(fromIndex,toIndex);
+                fromIndex = j*toIndex;
+                toIndex =  Math.min((j+1)*toIndex,size) ;
+                array = TencentUtil.batchsendmsg(userSig,spList,data);
+                if(array == null){
+                    noticeMapper.updateState(id,1);
+                }else{
+                    JSONObject object;
+                    List<String> users = new ArrayList<>();
+                    for (int i = 0;i<array.size();i++){
+                        object = array.getJSONObject(i);
+                        users.add(object.getString("To_Account"));
+                    }
+                    array = TencentUtil.batchsendmsg(userSig,users,data);
+                    if (array == null) {
+                        noticeMapper.updateState(id, 1);
+                    }else{
+                        noticeMapper.updateState(id, 4);
+                    }
+                }
+            }
+        }
+
+
+    }
 
 
     @Override
@@ -120,7 +178,9 @@ public class NoticeServerImpl implements NoticeService {
             return noticeMapper.getGroupFailNotice();
         }else if (sendType == 2){
             return noticeMapper.getSingleFailNotice();
-        }else {
+        }else if (sendType == 3){
+            return noticeMapper.getAllRoomFailNotice();
+        }else{
             return noticeMapper.getAllFailNotice();
         }
 
@@ -152,6 +212,9 @@ public class NoticeServerImpl implements NoticeService {
         object.put("rid",roomId);
         object.put("uid",micUserId);
         object.put("name",nickname);
+        if (portraitAddress!=null&&!portraitAddress.startsWith("http")){
+            portraitAddress = CosUtil.generatePresignedUrl(portraitAddress);
+        }
         object.put("imgUrl",portraitAddress);
         object.put("type",Constant.ROOM_MIC_UPPER);
         String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
@@ -361,7 +424,7 @@ public class NoticeServerImpl implements NoticeService {
         if (type == 11){
             object.put("msg",msg);
         }else{
-            object.put("imgUrl",imgUrl);
+            object.put("imgUrl",CosUtil.generatePresignedUrl(imgUrl));
         }
         for (String roomNo : roomNos) {
             String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
@@ -371,13 +434,75 @@ public class NoticeServerImpl implements NoticeService {
         }
     }
 
+    @Override
+    public void notice19(RoomGiftNotice notice, String roomNo) {
+        String object = JSONObject.toJSONString(notice);
+        String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object));
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        if (!TencentUtil.sendGroupMsg(userSig,parameterHandler)) {
+            saveNotice(Constant.ROOM_GIFT_SEND_ROOM, parameterHandler,2);
+        }
+    }
+
+    @Override
+    public void notice20(Long roomId, List<String> roomNos,Integer roomUserCount) {
+        JSONObject object = new JSONObject();
+        object.put("rid",roomId);
+        object.put("roomUserCount",roomUserCount);
+        object.put("type",Constant.ROOM_USER_COUNT);
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        for (String roomNo : roomNos) {
+            String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
+
+            if (!TencentUtil.sendGroupMsg(userSig, parameterHandler)) {
+                saveNotice(Constant.ROOM_USER_COUNT, parameterHandler, 2);
+            }
+        }
+    }
+
+    @Override
+    public void notice21(RoomGiftNotice notice) {
+
+        String object = JSONObject.toJSONString(notice);
+        String parameterHandler = StringEscapeUtils.unescapeJava(object);
+        saveNotice(Constant.ROOM_GIFT_SEND_ROOM_ALL, parameterHandler,0);
+    }
+
+    @Override
+    @Transactional
+    public void notice10001(String content, Long userId, Long roomId) {
+        FuntimeUserAccount userAccountInfo = userService.getUserAccountInfoById(userId);
+        if (userAccountInfo==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if (userAccountInfo.getHornNumber()<1){
+            if (userAccountInfo.getBlueDiamond().subtract(userAccountInfo.getHornPrice()).doubleValue()<0){
+                throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            }
+            userService.updateUserAccountForSub(userId,null,userAccountInfo.getHornPrice(),null);
+        }else {
+            userService.updateUserAccountForSub(userId, null, null, 1);
+        }
+        FuntimeUser user = userService.queryUserById(userId);
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.SERVICE_MSG);
+        object.put("rid",roomId);
+        object.put("uid",userId);
+        object.put("name",user.getNickname());
+        object.put("msg",content);
+        object.put("imgUrl", CosUtil.generatePresignedUrl(user.getPortraitAddress()));
+        String objectStr = JSONObject.toJSONString(object);
+        String parameterHandler = StringEscapeUtils.unescapeJava(objectStr);
+        saveNotice(Constant.SERVICE_MSG, parameterHandler,0);
+    }
+
 
     public String parameterHandler(String groupId,String data){
         JSONObject paramMap = new JSONObject();
         Random random = new Random();
         paramMap.put("OnlineOnlyFlag",1);
         paramMap.put("GroupId",groupId);
-        paramMap.put("Random",String.valueOf(random.nextInt(100000000)));
+        paramMap.put("Random",random.nextInt(100000000));
         Map<String,String> msgContent = new HashMap<>();
         msgContent.put("Data",data);
         msgContent.put("Desc","");

@@ -6,13 +6,13 @@
     <result column="recharge_rmb" jdbcType="DECIMAL" property="rechargeRmb" />
     <result column="recharge_num" jdbcType="DECIMAL" property="rechargeNum" />
     <result column="convertible_ratio" jdbcType="DECIMAL" property="convertibleRatio" />
-    <result column="tag_id" jdbcType="INTEGER" property="tagId" />
+    <result column="tag_colour" jdbcType="VARCHAR" property="tagColour" />
     <result column="tag_name" jdbcType="VARCHAR" property="tagName" />
     <result column="horn_num" jdbcType="INTEGER" property="hornNum" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, recharge_rmb, recharge_num, convertible_ratio, tag_id, tag_name, horn_num, create_time
+    id, recharge_rmb, recharge_num, convertible_ratio, tag_colour, tag_name, horn_num, create_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -20,16 +20,22 @@
     from t_funtime_recharge_conf
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="getRechargeConf"  resultMap="BaseResultMap">
+    select
+    id, recharge_rmb, recharge_num, tag_name, horn_num,tag_colour
+    from t_funtime_recharge_conf
+    order by id
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from t_funtime_recharge_conf
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeRechargeConf">
     insert into t_funtime_recharge_conf (id, recharge_rmb, recharge_num, 
-      convertible_ratio, tag_id, tag_name, 
+      convertible_ratio, tag_colour, tag_name,
       horn_num, create_time)
     values (#{id,jdbcType=INTEGER}, #{rechargeRmb,jdbcType=DECIMAL}, #{rechargeNum,jdbcType=DECIMAL}, 
-      #{convertibleRatio,jdbcType=DECIMAL}, #{tagId,jdbcType=INTEGER}, #{tagName,jdbcType=VARCHAR}, 
+      #{convertibleRatio,jdbcType=DECIMAL}, #{tagColour}, #{tagName,jdbcType=VARCHAR},
       #{hornNum,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeRechargeConf">
@@ -47,8 +53,8 @@
       <if test="convertibleRatio != null">
         convertible_ratio,
       </if>
-      <if test="tagId != null">
-        tag_id,
+      <if test="tagColour != null">
+          tag_colour,
       </if>
       <if test="tagName != null">
         tag_name,
@@ -73,8 +79,8 @@
       <if test="convertibleRatio != null">
         #{convertibleRatio,jdbcType=DECIMAL},
       </if>
-      <if test="tagId != null">
-        #{tagId,jdbcType=INTEGER},
+      <if test="tagColour != null">
+        #{tagColour},
       </if>
       <if test="tagName != null">
         #{tagName,jdbcType=VARCHAR},
@@ -100,7 +106,7 @@
         convertible_ratio = #{convertibleRatio,jdbcType=DECIMAL},
       </if>
       <if test="tagId != null">
-        tag_id = #{tagId,jdbcType=INTEGER},
+        tag_colour = #{tagColour},
       </if>
       <if test="tagName != null">
         tag_name = #{tagName,jdbcType=VARCHAR},
@@ -114,15 +120,5 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeRechargeConf">
-    update t_funtime_recharge_conf
-    set recharge_rmb = #{rechargeRmb,jdbcType=DECIMAL},
-      recharge_num = #{rechargeNum,jdbcType=DECIMAL},
-      convertible_ratio = #{convertibleRatio,jdbcType=DECIMAL},
-      tag_id = #{tagId,jdbcType=INTEGER},
-      tag_name = #{tagName,jdbcType=VARCHAR},
-      horn_num = #{hornNum,jdbcType=INTEGER},
-      create_time = #{createTime,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=INTEGER}
-  </update>
+
 </mapper>

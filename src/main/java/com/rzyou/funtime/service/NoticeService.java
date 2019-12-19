@@ -33,6 +33,13 @@ public interface NoticeService {
      */
     void snedAllAppNotice(String userSig, String data, Long id);
 
+    /**
+     * 全服房間发送
+     * @param userSig
+     * @param data
+     * @param id
+     */
+    void snedAllRoomAppNotice(String userSig, String data, Long id);
 
     /**
      * 抱麦通知
@@ -182,4 +189,33 @@ public interface NoticeService {
      * @param type
      */
     void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type,List<String> roomNos);
+
+    /**
+     * 全房送普通礼物通知
+     * @param notice
+     * @param roomNo
+     */
+    void notice19(RoomGiftNotice notice, String roomNo);
+
+    /**
+     * 更新房间人数通知
+     * @param roomId
+     * @param roomNos
+     */
+    void notice20(Long roomId,List<String> roomNos,Integer roomUserCount);
+
+    /**
+     * 全房送超级大礼通知
+     * @param notice
+     */
+    void notice21(RoomGiftNotice notice);
+
+
+    /**
+     * 大喇叭全服发送
+     * @param content
+     * @param userId
+     * @param roomId
+     */
+    void notice10001(String content, Long userId, Long roomId);
 }

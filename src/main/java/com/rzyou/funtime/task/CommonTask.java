@@ -81,6 +81,12 @@ public class CommonTask {
         failNotices = noticeService.getFailNotice(3);
         if (failNotices != null&&!failNotices.isEmpty()){
             for (FuntimeNotice failNotice : failNotices){
+                noticeService.snedAllRoomAppNotice(userSig, failNotice.getData(),failNotice.getId());
+            }
+        }
+        failNotices = noticeService.getFailNotice(4);
+        if (failNotices != null&&!failNotices.isEmpty()){
+            for (FuntimeNotice failNotice : failNotices){
                 noticeService.snedAllAppNotice(userSig, failNotice.getData(),failNotice.getId());
             }
         }

@@ -103,7 +103,7 @@ public interface AccountService {
     /**
      * 送礼物
      * @param userId
-     * @param toUserId
+     * @param toUserIds
      * @param giftId
      * @param giftNum
      * @param operationDesc
@@ -111,7 +111,7 @@ public interface AccountService {
      * @param roomId
      * @return
      */
-    Long createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId);
+    void createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId);
 
     /**
      * 红包失效更改
@@ -193,4 +193,21 @@ public interface AccountService {
      * @return
      */
     List<FuntimeUserAccountRedpacketRecord> getRecordListByRedId(Long redpacketId);
+
+    /**
+     * 全房送礼物
+     * @param userId
+     * @param giftId
+     * @param giftNum
+     * @param operationDesc
+     * @param giveChannel
+     * @param roomId
+     */
+    void createGiftTrans(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
+
+    /**
+     * 获取充值配置
+     * @return
+     */
+    List<FuntimeRechargeConf> getRechargeConf();
 }

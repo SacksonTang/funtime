@@ -26,11 +26,17 @@
     from t_funtime_notice
     where notice_type in (15,16) and  state in (0,2) and 3 >= operation_num
   </select>
-  <select id="getAllFailNotice"  resultMap="BaseResultMap">
+  <select id="getAllRoomFailNotice"  resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from t_funtime_notice
     where notice_type in (9) and  state in (0,2) and 3 >= operation_num order by id desc limit 1
+  </select>
+  <select id="getAllFailNotice"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_notice
+    where notice_type in (10001) and  state in (0,2) and 3 >= operation_num order by id desc limit 1
   </select>
 
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeNotice">

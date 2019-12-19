@@ -76,11 +76,24 @@
     where flag = 2 and is_sync = 2
     group by room_no
   </select>
+  <select id="getAllRoomUser" resultType="java.lang.String" >
+    select
+    user_id
+    from t_funtime_chatroom_user
+    where flag = 1 and is_sync = 1
+    group by user_id
+  </select>
   <select id="getDeleteRoomUserByRoomNo" resultType="java.lang.String" parameterType="java.lang.String">
     select
     user_id
     from t_funtime_chatroom_user
     where room_no = #{roomNo} and flag = 2 and is_sync = 2
+  </select>
+  <select id="getRoomUserByRoomId" resultType="java.lang.Long" parameterType="java.lang.Long">
+    select
+    user_id
+    from t_funtime_chatroom_user
+    where room_id = #{roomId} and flag = 1
   </select>
 
   <delete id="deleteRoomUser" parameterType="java.lang.String">
@@ -103,7 +116,7 @@
     insert into t_funtime_chatroom_user (room_id, user_id,
       user_role,room_no)
     select #{roomId}, #{userId},
-      #{userRole},#{roomNo} from DUAL where 3> (select count(id) from t_funtime_chatroom_user where room_no = #{roomNo} and flag = 1)
+      #{userRole},#{roomNo} from DUAL where 200> (select count(id) from t_funtime_chatroom_user where room_no = #{roomNo} and flag = 1)
   </insert>
 
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeChatroomUser" keyProperty="id" useGeneratedKeys="true">

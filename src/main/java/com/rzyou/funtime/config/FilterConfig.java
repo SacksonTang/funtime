@@ -17,7 +17,8 @@ public class FilterConfig {
         TokenAuthorFilter tokenAuthorFilter = new TokenAuthorFilter();
         registrationBean.setFilter(tokenAuthorFilter);
         List<String> urlPatterns = new ArrayList<>();
-        urlPatterns.add("/*");
+        String patten = "/*";
+        urlPatterns.add(patten);
         registrationBean.setUrlPatterns(urlPatterns);
         registrationBean.setOrder(1);
         return registrationBean;

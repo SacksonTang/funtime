@@ -34,13 +34,50 @@ public class GiftTransController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
-            Long toUserId = paramJson.getLong("toUserId");
+            String toUserIds = paramJson.getString("toUserIds");
             Integer giftId = paramJson.getInteger("giftId");
             Integer giftNum = paramJson.getInteger("giftNum");
             Integer giveChannel = paramJson.getInteger("giveChannel");
             Long roomId = paramJson.getLong("roomId");
+            if (userId == null || StringUtils.isBlank(toUserIds)||giftId == null || giftNum == null || giveChannel == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
 
-            accountService.createGiftTrans(userId,toUserId,giftId,giftNum,"送礼物",giveChannel,roomId);
+            accountService.createGiftTrans(userId,toUserIds,giftId,giftNum,"送礼物",giveChannel,roomId);
+
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    @PostMapping("sendGiftForRoom")
+    public ResultMsg<Object> sendGiftForRoom(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            Integer giftId = paramJson.getInteger("giftId");
+            Integer giftNum = paramJson.getInteger("giftNum");
+            Long roomId = paramJson.getLong("roomId");
+            if (userId == null || giftId == null || giftNum == null || roomId == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            accountService.createGiftTrans(userId,giftId,giftNum,"送礼物",1,roomId);
 
 
             return result;

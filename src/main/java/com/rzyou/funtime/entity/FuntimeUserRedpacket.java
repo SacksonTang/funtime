@@ -44,4 +44,8 @@ public class FuntimeUserRedpacket implements Serializable {
 
     private String portraitAddress;
 
+    private String giftName;
+
+    private String imageUrl;
+
 }

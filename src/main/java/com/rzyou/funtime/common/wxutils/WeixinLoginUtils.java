@@ -20,14 +20,14 @@ public class WeixinLoginUtils {
      */
     public static JSONObject getAccessToken(String code){
         //构建请求数据
-        String urlToken = Constant.GET_TOKEN_URL+"?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code";
+        String url = Constant.WX_GET_TOKEN_URL+"?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code";
 
-        urlToken = urlToken.replaceAll("APPID",Constant.WX_APPID)
+        url = url.replaceAll("APPID",Constant.WX_APPID)
                 .replaceAll("SECRET",Constant.WX_APPSECRET)
                 .replaceAll("CODE",code);
 
         //调用httpclient处理请求得到返回json数据
-        String returnJson = HttpClientUtil.doGet(urlToken);
+        String returnJson = HttpClientUtil.doGet(url);
         JSONObject resultObj = JSONObject.parseObject(returnJson);
         log.debug("getAccessToken result : {}",returnJson);
         if (resultObj.getString("errcode")!=null){
@@ -41,13 +41,13 @@ public class WeixinLoginUtils {
 
     public static JSONObject refreshToken(String refresh_token){
         //构建请求数据
-        String urlToken = Constant.REFRESH_TOKEN_URL+"?appid=APPID&grant_type=refresh_token&refresh_token=REFRESH_TOKEN";
+        String url = Constant.WX_REFRESH_TOKEN_URL+"?appid=APPID&grant_type=refresh_token&refresh_token=REFRESH_TOKEN";
 
-        urlToken = urlToken.replaceAll("APPID",Constant.WX_APPID)
+        url = url.replaceAll("APPID",Constant.WX_APPID)
                 .replaceAll("REFRESH_TOKEN",refresh_token);
 
         //调用httpclient处理请求得到返回json数据
-        String returnJson = HttpClientUtil.doGet(urlToken);
+        String returnJson = HttpClientUtil.doGet(url);
         log.debug("refreshToken result : {}",returnJson);
         JSONObject resultObj = JSONObject.parseObject(returnJson);
         if (resultObj.getString("errcode")!=null){
@@ -58,13 +58,13 @@ public class WeixinLoginUtils {
 
     public static JSONObject isAccessTokenIsInvalid(String access_token,String openid){
         //构建请求数据
-        String urlToken = Constant.CHECK_TOKEN_URL+"?access_token=ACCESS_TOKEN&openid=OPENID";
+        String url = Constant.WX_CHECK_TOKEN_URL+"?access_token=ACCESS_TOKEN&openid=OPENID";
 
-        urlToken = urlToken.replaceAll("ACCESS_TOKEN",access_token)
+        url = url.replaceAll("ACCESS_TOKEN",access_token)
                 .replaceAll("OPENID",openid);
 
         //调用httpclient处理请求得到返回json数据
-        String returnJson = HttpClientUtil.doGet(urlToken);
+        String returnJson = HttpClientUtil.doGet(url);
         log.debug("isAccessTokenIsInvalid result : {}",returnJson);
         JSONObject resultObj = JSONObject.parseObject(returnJson);
         if (!resultObj.getInteger("errcode").equals(0)){
@@ -75,13 +75,13 @@ public class WeixinLoginUtils {
 
     public static JSONObject getUserInfo(String access_token,String openid){
         //构建请求数据
-        String urlToken = Constant.USERINFO_URL+"?access_token=ACCESS_TOKEN&openid=OPENID";
+        String url = Constant.WX_USERINFO_URL+"?access_token=ACCESS_TOKEN&openid=OPENID";
 
-        urlToken = urlToken.replaceAll("ACCESS_TOKEN",access_token)
+        url = url.replaceAll("ACCESS_TOKEN",access_token)
                 .replaceAll("OPENID",openid);
 
         //调用httpclient处理请求得到返回json数据
-        String returnJson = HttpClientUtil.doGet(urlToken);
+        String returnJson = HttpClientUtil.doGet(url);
         log.debug("getUserInfo result : {}",returnJson);
         JSONObject resultObj = JSONObject.parseObject(returnJson);
         if (resultObj.getString("errcode")!=null){

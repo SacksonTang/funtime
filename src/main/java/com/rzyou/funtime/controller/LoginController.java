@@ -11,9 +11,8 @@ import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +47,17 @@ public class LoginController {
         context.put(Constant.LOGIN_QQ,qqLogin);
         context.put(Constant.LOGIN_ONEKEY,onekeyLogin);
 
+    }
+
+    /**
+     * 心跳
+     */
+    @PostMapping("heart")
+    public ResultMsg<Object> heart(HttpServletRequest request){
+        JSONObject paramJson = HttpHelper.getParamterJson(request);
+        Long userId = paramJson.getLong("userId");
+        userService.saveHeart(userId);
+        return new ResultMsg<>();
     }
 
 

@@ -11,13 +11,14 @@
     <result column="bestowed" jdbcType="INTEGER" property="bestowed" />
     <result column="animation_type" jdbcType="VARCHAR" property="animationType" />
     <result column="animation_url" jdbcType="VARCHAR" property="animationUrl" />
+    <result column="image_url" jdbcType="VARCHAR" property="imageUrl" />
     <result column="animation_length" jdbcType="DECIMAL" property="animationLength" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="sort" jdbcType="INTEGER" property="sort" />
   </resultMap>
   <sql id="Base_Column_List">
     id, gift_tag_id, gift_name, original_price, activity_price, special_effect,
-    bestowed, animation_type, animation_url, animation_length, create_time, sort
+    bestowed, animation_type, animation_url, animation_length, create_time, sort,image_url
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -34,14 +35,15 @@
   <select id="getGiftList"  resultType="java.util.Map">
     select
     t.id, t.gift_tag_id giftTagId ,g.tag_name tagName , t.gift_name giftName, t.special_effect specialEffect,
+     t.original_price originalPrice, t.activity_price activityPrice,t.image_url imageUrl,
      t.animation_type animationType, t.animation_url animationUrl, t.animation_length animationLength
     from t_funtime_gift t inner join t_funtime_tag g on t.gift_tag_id = g.id
      order by t.sort
   </select>
   <select id="getGiftByUserId" parameterType="java.lang.Long" resultType="java.util.Map">
     select
-     t.id,t.gift_name giftName,animation_type animationtype, animation_url animationUrl,sum(d.num) numTotal,sum(d.amount) amountTotal
-     ,original_price originalPrice, activity_price activityprice
+     t.id,t.gift_name giftName,t.animation_type animationtype, t.animation_url animationUrl,sum(d.num) numTotal,sum(d.amount) amountTotal
+     ,t.original_price originalPrice, t.activity_price activityprice,t.image_url imageUrl
     from t_funtime_gift t inner join t_funtime_user_account_gifttrans_record d on t.id = d.gift_id
     where d.user_id = #{userId}
     group by t.id
@@ -79,6 +81,9 @@
       <if test="animationUrl != null">
         animation_url,
       </if>
+      <if test="imageUrl != null">
+        image_url,
+      </if>
       <if test="animationLength != null">
         animation_length,
       </if>
@@ -114,6 +119,9 @@
       </if>
       <if test="animationUrl != null">
         #{animationUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="imageUrl != null">
+        #{imageUrl},
       </if>
       <if test="animationLength != null">
         #{animationLength,jdbcType=DECIMAL},
@@ -152,6 +160,9 @@
       </if>
       <if test="animationUrl != null">
         animation_url = #{animationUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="imageUrl != null">
+        image_url = #{imageUrl},
       </if>
       <if test="animationLength != null">
         animation_length = #{animationLength,jdbcType=DECIMAL},

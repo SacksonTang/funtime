@@ -4,11 +4,13 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.im.TencentUtil;
+import com.rzyou.funtime.common.sms.linkme.LinkmeUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.UsersigUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +22,14 @@ public class OnekeyLogin implements LoginStrategy {
 
     @Override
     public FuntimeUser login(FuntimeUser user) {
+        if (StringUtils.isBlank(user.getToken())||user.getPlatform()==null||user.getChannel()==null){
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        }
+
+        String phoneNumber = LinkmeUtil.getPhone(user.getToken(),user.getChannel(),user.getPlatform(),user.getCode());
+
         String userId ;
-        FuntimeUser funtimeUser = userService.queryUserInfoByPhone(user.getPhoneNumber());
+        FuntimeUser funtimeUser = userService.queryUserInfoByPhone(phoneNumber);
         if(funtimeUser==null){
             //新用户
             user.setOnlineState(1);
@@ -30,8 +38,8 @@ public class OnekeyLogin implements LoginStrategy {
             user.setPortraitAddress("https://");
             user.setSignText("这个人很懒,什么都没有留下");
             user.setVersion(System.currentTimeMillis());
-
-            userService.saveUser(user, null, null, null);
+            user.setPhoneNumber(phoneNumber);
+            userService.saveUser(user, null, null, null,null);
             userId = user.getId().toString();
             String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
             user.setToken(token);

@@ -2,8 +2,7 @@ package com.rzyou.funtime.service.impl;
 
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
-import com.rzyou.funtime.common.OuyiSmsTemplate;
-import com.rzyou.funtime.common.sms.linkme.LinkmeSmsUtil;
+import com.rzyou.funtime.common.sms.linkme.LinkmeUtil;
 import com.rzyou.funtime.common.sms.ouyi.OuyiSmsUtil;
 import com.rzyou.funtime.entity.FuntimeSms;
 import com.rzyou.funtime.mapper.FuntimeSmsMapper;
@@ -28,7 +27,7 @@ public class SmsServiceImpl implements SmsService {
         if ("1".equals(resend)){
             OuyiSmsUtil.sengSindleSMS(phone,smsType,code);
         }else{
-            LinkmeSmsUtil.sendSms(phone,code,smsType);
+            LinkmeUtil.sendSms(phone,code,smsType);
         }
 
         saveSms(phone,code,null,ip,smsType);

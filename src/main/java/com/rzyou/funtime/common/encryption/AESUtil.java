@@ -1,6 +1,6 @@
 package com.rzyou.funtime.common.encryption;
 
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import org.apache.commons.codec.binary.Base64;
 import lombok.extern.slf4j.Slf4j;
 
 import java.security.NoSuchAlgorithmException;
@@ -33,7 +33,7 @@ public class AESUtil {
 
             byte[] result = cipher.doFinal(byteContent);// 加密
 
-            return Base64.encode(result);//通过Base64转码返回
+            return Base64.encodeBase64String(result);//通过Base64转码返回
 
         } catch (Exception ex) {
             log.info("加密错误,加密数据 content:{},exception:{}",content,ex);
@@ -59,7 +59,7 @@ public class AESUtil {
             cipher.init(Cipher.DECRYPT_MODE, getSecretKey(key));
 
             //执行操作
-            byte[] result = cipher.doFinal(Base64.decode(content));
+            byte[] result = cipher.doFinal(Base64.decodeBase64(content));
 
 
             return new String(result, "utf-8");

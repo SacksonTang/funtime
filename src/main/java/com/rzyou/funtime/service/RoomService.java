@@ -214,4 +214,17 @@ public interface RoomService {
      * @return
      */
     Map<String,Object> getGiftList();
+
+    /**
+     * 查询房间用户
+     * @param roomId
+     * @return
+     */
+    List<Long> getRoomUserByRoomId(Long roomId);
+
+    /**
+     * 获取全部腾讯聊天室用户
+     * @return
+     */
+    List<String> getAllRoomUser();
 }

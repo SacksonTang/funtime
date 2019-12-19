@@ -6,7 +6,10 @@ import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ConvertType;
 import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.cos.CosStsUtil;
+import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
+import com.rzyou.funtime.entity.FuntimeAccusation;
 import com.rzyou.funtime.entity.FuntimeTag;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
@@ -439,6 +442,45 @@ public class UserController {
     }
 
     /**
+     * 是否同意协议
+     * @param request
+     * @return
+     */
+    @PostMapping("validUserAgreement")
+    public ResultMsg<Object> validUserAgreement(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            Integer agreementType = paramJson.getInteger("agreementType");
+
+
+            if (userId==null||agreementType==null) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            boolean valid = userService.checkAgreementByuserId(userId,agreementType);
+
+            result.setData(JsonUtil.getMap("isAgree",valid));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 关注
      */
     @PostMapping("saveConcern")
@@ -644,11 +686,16 @@ public class UserController {
                     map = list.getList().get(j);
                     String groupStr = map.get("groupStr").toString();
                     array = JSONArray.parseArray("[" + groupStr + "]");
-                    map.put("groupStr", array);
+
                     boolean flag = false;
                     for (int i = 0; i < array.size(); i++) {
                         object = array.getJSONObject(i);
                         String id = object.getString("userId");
+                        if (object.getString("portraitAddress")!=null){
+                            if (!object.getString("portraitAddress").startsWith("http")){
+                                object.put("portraitAddress", CosUtil.generatePresignedUrl(object.getString("portraitAddress")));
+                            }
+                        }
                         if (id.equals(userId)) {
                             resultMap.put("mySort", j);
                             resultMap.put("myAmount", map.get("amountSum"));
@@ -656,6 +703,7 @@ public class UserController {
                             break;
                         }
                     }
+                    map.put("groupStr", array);
                     if (flag) {
                         break;
                     }
@@ -827,6 +875,69 @@ public class UserController {
             }
 
             userService.updatePhotoByUserId(userId,array);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 举报
+     */
+    @PostMapping("makeAccusation")
+    public ResultMsg<Object> makeAccusation(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            FuntimeAccusation accusation = JSONObject.toJavaObject(paramJson,FuntimeAccusation.class);
+            if (accusation==null||accusation.getUserId()==null
+                    ||accusation.getAccusationId()==null
+                    ||accusation.getType()==null
+                    ||accusation.getTypeTagId()==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            userService.makeAccusation(accusation);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 获取COS临时密钥
+     * @param request
+     * @return
+     */
+    @PostMapping("getCosKey")
+    public ResultMsg<Object> getCosKey(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String allowPrefix = paramJson.getString("allowPrefix");
+            String str = CosStsUtil.getCredential(allowPrefix);
+
+            result.setData(JSONObject.parseObject(str));
 
             return result;
         } catch (BusinessException be) {

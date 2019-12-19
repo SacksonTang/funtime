@@ -42,6 +42,12 @@ public interface FuntimeChatroomUserMapper {
      */
     List<String> getDeleteRoomUserByRoomNo(String roomNo);
 
+    /**
+     * 获取全部腾讯聊天室
+     * @return
+     */
+    List<String> getAllRoomUser();
+
 
     Long checkUserIsExist(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
@@ -62,4 +68,11 @@ public interface FuntimeChatroomUserMapper {
     int deleteByRoomId(Long roomId);
 
     List<Map<String, Object>> getRoomUserById(@Param("roomId") Long roomId,@Param("nickname") String nickname);
+
+    /**
+     * 查询房间用户
+     * @param roomId
+     * @return
+     */
+    List<Long> getRoomUserByRoomId(Long roomId);
 }

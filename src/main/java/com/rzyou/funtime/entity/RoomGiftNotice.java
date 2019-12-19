@@ -29,6 +29,11 @@ public class RoomGiftNotice implements Serializable {
      * 单发消息
      * 15 抱麦
      * 16 踢人
+     * 17 设为主持
+     * 18 取消主持
+     * 19 全房送礼物
+     * 20 更新房间人数
+     * 21 全放送超级大礼
      */
     public Integer type;//通知类型
     public String gid;//送的礼物

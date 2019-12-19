@@ -27,6 +27,8 @@ public class FuntimeGift implements Serializable {
 
     private String animationUrl;
 
+    private String imageUrl;
+
     private BigDecimal animationLength;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;

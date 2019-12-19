@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
+import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
@@ -147,11 +148,13 @@ public class RoomServiceImpl implements RoomService {
         }
 
         if (chatroom.getIsLock().intValue()==1){
-            if (StringUtils.isBlank(password)||StringUtils.isBlank(chatroom.getPassword())){
-                throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getValue(),ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
-            }
-            if (!password.equals(chatroom.getPassword())){
-                throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getValue(),ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
+            if (!chatroom.getUserId().equals(userId)) {
+                if (StringUtils.isBlank(password) || StringUtils.isBlank(chatroom.getPassword())) {
+                    throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
+                }
+                if (!password.equals(chatroom.getPassword())) {
+                    throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
+                }
             }
         }
         FuntimeUser user = userService.queryUserById(userId);
@@ -162,7 +165,6 @@ public class RoomServiceImpl implements RoomService {
         if (userId.equals(chatroom.getUserId())){
             FuntimeChatroomMic chatroomMic = chatroomMicMapper.getMicLocationUser(roomId,10);
             chatroomMicMapper.upperWheat(chatroomMic.getId(),userId);
-            return true;
         }
 
         Integer count = chatroomKickedRecordMapper.checkUserIsKickedOrNot(roomId,userId);
@@ -191,7 +193,7 @@ public class RoomServiceImpl implements RoomService {
 
         }else{
             for (Map<String,Object> map : roomMaps){
-                if (Integer.parseInt(map.get("roomNoCount").toString())<3){
+                if (Integer.parseInt(map.get("roomNoCount").toString())<200){
                     roomNo = map.get("roomNo").toString();
                 }
             }
@@ -210,6 +212,8 @@ public class RoomServiceImpl implements RoomService {
         for (String roomNo1 : roomNos) {
             noticeService.notice12(roomId, userId, user.getNickname(), roomNo1);
         }
+
+        noticeService.notice20(roomId,roomNos,chatroom.getOnlineNum()+1);
 
         return chatroom.getUserId().equals(userId);
     }
@@ -231,10 +235,25 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
         chatroom.setPassword(null);
+        if (StringUtils.isNotBlank((chatroom.getPortraitAddress()))&&!chatroom.getPortraitAddress().startsWith("http")){
+            chatroom.setPortraitAddress(CosUtil.generatePresignedUrl(chatroom.getPortraitAddress()));
+        }
+        if (StringUtils.isNotBlank((chatroom.getAvatarUrl()))){
+            chatroom.setAvatarUrl(CosUtil.generatePresignedUrl(chatroom.getAvatarUrl()));
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("chatroom",chatroom);
 
-        result.put("mic",chatroomMicMapper.getMicUserByRoomId(roomId));
+        List<Map<String, Object>> micUser = chatroomMicMapper.getMicUserByRoomId(roomId);
+        if (micUser!=null&&!micUser.isEmpty()){
+            for (Map<String, Object> map : micUser){
+                if (map.get("portraitAddress")!=null&&!map.get("portraitAddress").toString().startsWith("http")){
+                    map.put("portraitAddress",CosUtil.generatePresignedUrl(map.get("portraitAddress").toString()));
+                }
+            }
+        }
+
+        result.put("mic",micUser);
 
         return result;
     }
@@ -258,9 +277,12 @@ public class RoomServiceImpl implements RoomService {
 
         if (mic!=null) {
             lowerWheat(roomId, mic, userId);
-        }else{
-            deleteChatroomUser(roomId, userId);
         }
+        deleteChatroomUser(roomId, userId);
+        updateOnlineNumSub(roomId);
+
+        List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
+        noticeService.notice20(roomId,roomNos,chatroom.getOnlineNum()-1);
 
     }
 
@@ -343,6 +365,9 @@ public class RoomServiceImpl implements RoomService {
 
         //发送通知
         noticeService.notice16(micLocation, roomId, kickIdUserId, roomNo);
+
+        List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
+        noticeService.notice20(roomId,roomNos,chatroom.getOnlineNum()-1);
 
 
     }
@@ -428,6 +453,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public void lowerWheat(Long userId, Long roomId, Long micUserId) {
 
         int isMe = 1;
@@ -466,6 +492,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public void stopWheat(Long userId, Long roomId, Integer micLocation) {
         Integer userRole = getUserRole(roomId, userId);
         if (!userService.checkAuthorityForUserRole(userRole,UserRoleAuthority.A_5.getValue())){
@@ -491,6 +518,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public void forbidWheat(Long roomId, Integer micLocation, Long userId){
         Integer userRole = getUserRole(roomId, userId);
         if (!userService.checkAuthorityForUserRole(userRole,UserRoleAuthority.A_6.getValue())){
@@ -610,6 +638,14 @@ public class RoomServiceImpl implements RoomService {
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
+            for (Map<String, Object> map : list){
+                if (map.get("examUrl")!=null){
+                    map.put("examUrl",CosUtil.generatePresignedUrl(map.get("examUrl").toString()));
+                }
+                if (map.get("avatarUrl")!=null){
+                    map.put("avatarUrl",CosUtil.generatePresignedUrl(map.get("avatarUrl").toString()));
+                }
+            }
             return new PageInfo<>(list);
         }
     }
@@ -621,6 +657,12 @@ public class RoomServiceImpl implements RoomService {
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }else {
+            for (Map<String, Object> map : list){
+                if (map.get("portraitAddress")!=null&&!map.get("portraitAddress").toString().startsWith("http")){
+                    map.put("portraitAddress",CosUtil.generatePresignedUrl(map.get("portraitAddress").toString()));
+                }
+            }
+
             return new PageInfo<>(list);
         }
     }
@@ -680,6 +722,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public void roomManageCancel(Long roomId, Long userId, Long micUserId) {
         FuntimeUser user = userService.queryUserById(micUserId);
         if (user==null){
@@ -760,13 +803,30 @@ public class RoomServiceImpl implements RoomService {
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
+            for (Map<String, Object> map : list){
+                if (map.get("examUrl")!=null){
+                    map.put("examUrl",CosUtil.generatePresignedUrl(map.get("examUrl").toString()));
+                }
+                if (map.get("avatarUrl")!=null){
+                    map.put("avatarUrl",CosUtil.generatePresignedUrl(map.get("avatarUrl").toString()));
+                }
+            }
             return new PageInfo<>(list);
         }
     }
 
     @Override
     public List<FuntimeGift> getGiftListByBestowed(Integer bestowed) {
-        return giftMapper.getGiftListByBestowed(bestowed);
+        List<FuntimeGift> list = giftMapper.getGiftListByBestowed(bestowed);
+        if (list==null||list.isEmpty()){
+            return null;
+        }else{
+            for (FuntimeGift gift:list){
+                gift.setAnimationUrl(CosUtil.generatePresignedUrl(gift.getAnimationUrl()));
+                gift.setImageUrl(CosUtil.generatePresignedUrl(gift.getImageUrl()));
+            }
+        }
+        return list;
     }
 
     @Override
@@ -777,6 +837,15 @@ public class RoomServiceImpl implements RoomService {
         List<Map<String,Object>> list = giftMapper.getGiftList();
 
         if (list!=null&&!list.isEmpty()){
+            for (Map<String, Object> map : list){
+                if (map.get("animationUrl")!=null){
+                    map.put("animationUrl",CosUtil.generatePresignedUrl(map.get("animationUrl").toString()));
+                }
+                if (map.get("imageUrl")!=null){
+                    map.put("imageUrl",CosUtil.generatePresignedUrl(map.get("imageUrl").toString()));
+                }
+
+            }
             List<Map<String,Object>> tags = tagMapper.queryTagsByType("gift_type");
             if (tags == null){
                 return null;
@@ -787,6 +856,16 @@ public class RoomServiceImpl implements RoomService {
             result.put("gifts",list);
         }
         return result;
+    }
+
+    @Override
+    public List<Long> getRoomUserByRoomId(Long roomId) {
+        return chatroomUserMapper.getRoomUserByRoomId(roomId);
+    }
+
+    @Override
+    public List<String> getAllRoomUser() {
+        return chatroomUserMapper.getAllRoomUser();
     }
 
     public Integer getUserRole(Long roomId,Long userId){

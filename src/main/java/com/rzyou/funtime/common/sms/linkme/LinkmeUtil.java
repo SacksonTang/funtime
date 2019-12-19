@@ -2,6 +2,9 @@ package com.rzyou.funtime.common.sms.linkme;
 
 import com.alibaba.fastjson.JSON;
 
+import com.alibaba.fastjson.JSONObject;
+import com.rzyou.funtime.common.BusinessException;
+import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.SmsType;
 import com.rzyou.funtime.common.httputil.HttpClientUtil;
 import com.rzyou.funtime.utils.StringUtil;
@@ -18,7 +21,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @Slf4j
-public class LinkmeSmsUtil {
+public class LinkmeUtil {
 
     public static String appKey = "270008c663a081d1e8c860281c4a6a55";
 
@@ -44,6 +47,55 @@ public class LinkmeSmsUtil {
             "bK5CSZ5QsvYkiA==";
 
     public final static String smsSingleRequestServerUrl = "https://account.linkedme.cc/sms/text/send";
+    public final static String getPhoneRequestServerUrl = "https://account.linkedme.cc/phone/info";
+
+
+    public static String getPhone(String token,Integer channel,Integer platform,String code){
+        String sign;
+        GetPhoneRequest request;
+        if (code==null){
+            sign = getSign(channel,platform,token);
+            request = new GetPhoneRequest(appKey,channel.toString(),platform.toString(),token,sign);
+        }else {
+            sign = getSign(channel,platform,token,code);
+            request = new GetPhoneRequest(appKey,channel.toString(),platform.toString(),token,code,sign);
+        }
+
+        String requestJson = JSON.toJSONString(request);
+
+        log.debug("before request string is: {}" , requestJson);
+        String response = sendSmsByPost(getPhoneRequestServerUrl, requestJson);
+        log.debug("response after request result is : {}" , response);
+
+        JSONObject resultObj = JSONObject.parseObject(response);
+        if (resultObj==null||resultObj.getJSONObject("header")==null||resultObj.getJSONObject("header").getInteger("code")!=200){
+            throw new BusinessException(ErrorMsgEnum.USER_LOGIN_ONEKEY_ERROR.getValue(),ErrorMsgEnum.USER_LOGIN_ONEKEY_ERROR.getDesc());
+        }
+        String phoneStr = resultObj.getString("body");
+        return RsaUtils.decryptHexData(phoneStr,RSA_Private_key);
+
+    }
+
+    private static String getSign(Integer channel, Integer platform, String token) {
+        Map<String, String> paramsTreeMap = new TreeMap<>();
+        paramsTreeMap.put("app_key",appKey);
+        paramsTreeMap.put("channel",channel.toString());
+        paramsTreeMap.put("platform",platform.toString());
+        paramsTreeMap.put("token",token);
+
+        return RsaUtils.getHexSign(paramsTreeMap,RSA_Private_key);
+    }
+
+    private static String getSign(Integer channel, Integer platform, String token,String code) {
+        Map<String, String> paramsTreeMap = new TreeMap<>();
+        paramsTreeMap.put("app_key",appKey);
+        paramsTreeMap.put("auth_code",code);
+        paramsTreeMap.put("channel",channel.toString());
+        paramsTreeMap.put("platform",platform.toString());
+        paramsTreeMap.put("token",token);
+
+        return RsaUtils.getHexSign(paramsTreeMap,RSA_Private_key);
+    }
 
     public static void sendSms(String phone,String code,int smsType){
 
@@ -120,6 +172,7 @@ public class LinkmeSmsUtil {
 
         return RsaUtils.getHexSign(paramsTreeMap,RSA_Private_key);
     }
+
 
     enum LinkmeSmsType{
         REGISTER(SmsType.REGISTER_LOGIN.getValue(),"110240");

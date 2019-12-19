@@ -4,13 +4,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.qcloud.cos.COS;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.SmsType;
+import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
+import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.DateUtil;
@@ -28,6 +31,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     SmsService smsService;
+    @Autowired
+    ParameterService parameterService;
     @Autowired
     FuntimeUserMapper userMapper;
     @Autowired
@@ -52,6 +57,8 @@ public class UserServiceImpl implements UserService {
     FuntimeUserPhotoAlbumMapper userPhotoAlbumMapper;
     @Autowired
     FuntimeChatroomMapper chatroomMapper;
+    @Autowired
+    FuntimeAccusationMapper accusationMapper;
 
 
     @Override
@@ -113,6 +120,9 @@ public class UserServiceImpl implements UserService {
         if(user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        if (StringUtils.isNotBlank(user.getPortraitAddress())&&!user.getPortraitAddress().startsWith("http")) {
+            user.setPortraitAddress(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
+        }
 
         FuntimeChatroom chatroom = chatroomMapper.getRoomByUserId(id);
 
@@ -130,7 +140,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid) {
+    public Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid,String accessToken) {
         insertSelective(user);
 
         //足迹
@@ -138,17 +148,21 @@ public class UserServiceImpl implements UserService {
 
         saveUserAccount(user.getId());
 
-        saveUserThird(user.getId(),openType,openid,unionid);
+        if (openType!=null) {
+
+            saveUserThird(user.getId(), openType, openid, unionid, accessToken);
+        }
 
         return true;
     }
 
-    private void saveUserThird(Long userId, String openType, String openid, String unionid){
+    private void saveUserThird(Long userId, String openType, String openid, String unionid, String accessToken){
         FuntimeUserThird userThird = new FuntimeUserThird();
         userThird.setUserId(userId);
         userThird.setThirdType(openType);
         userThird.setOpenid(openid);
         userThird.setUnionid(unionid);
+        userThird.setToken(accessToken);
         userThirdMapper.insertSelective(userThird);
 
     }
@@ -195,7 +209,7 @@ public class UserServiceImpl implements UserService {
         updateByPrimaryKeySelective(user);
         if (StringUtils.isNotBlank(user.getNickname())||StringUtils.isNotBlank(user.getPortraitAddress())){
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
-            boolean flag = TencentUtil.portraitSet(userSig, user.getId().toString(), user.getNickname(), user.getPortraitAddress());
+            boolean flag = TencentUtil.portraitSet(userSig, user.getId().toString(), user.getNickname(), CosUtil.generatePresignedUrl(user.getPortraitAddress()));
             if (!flag){
                 throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(),ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
             }
@@ -261,7 +275,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public FuntimeUserAccount getUserAccountInfoById(Long userId) {
-        return accountMapper.selectByUserId(userId);
+        FuntimeUserAccount userAccount = accountMapper.selectByUserId(userId);
+        if (userAccount!=null){
+            String horn_price = parameterService.getParameterValueByKey("horn_price");
+            if (StringUtils.isNotBlank(horn_price)) {
+                userAccount.setHornPrice(new BigDecimal(horn_price));
+            }
+        }
+        return userAccount;
     }
 
     @Override
@@ -376,10 +397,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public void checkAgreementByuserId(Long userId,Integer agreementType){
+    public boolean checkAgreementByuserId(Long userId,Integer agreementType){
         FuntimeUserAgreement userAgreement = userAgreementMapper.selectByUserId(userId,agreementType);
         if (userAgreement==null){
-            throw new BusinessException(ErrorMsgEnum.USERAGREEMENT_IS_NOT_EXISTS.getValue(),ErrorMsgEnum.USERAGREEMENT_IS_NOT_EXISTS.getDesc());
+            return false;
+        }else{
+            return true;
         }
     }
 
@@ -470,6 +493,9 @@ public class UserServiceImpl implements UserService {
             return new PageInfo<>();
         }else{
             for (FuntimeUser user:list){
+                if (StringUtils.isNotBlank(user.getPortraitAddress())&&!user.getPortraitAddress().startsWith("http")){
+                    user.setPortraitAddress(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
+                }
                 List<Integer> tags = tagMapper.queryTagsByUserId(user.getId());
                 user.setTags(tags);
             }
@@ -480,18 +506,42 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Map<String,Object>> getGiftByUserId(Long userId) {
-        return giftMapper.getGiftByUserId(userId);
+        List<Map<String, Object>> list = giftMapper.getGiftByUserId(userId);
+        if (list==null||list.isEmpty()){
+            return null;
+        }else{
+            for (Map<String,Object> map : list){
+                if (map.get("animationUrl")!=null){
+                    map.put("animationUrl", CosUtil.generatePresignedUrl(map.get("animationUrl").toString()));
+                }
+            }
+        }
+        return list;
     }
 
     @Override
     public List<FuntimeUserPhotoAlbum> getPhotoByUserId(Long userId) {
-        return userPhotoAlbumMapper.getPhotoAlbumByUserId(userId);
+        List<FuntimeUserPhotoAlbum> list = userPhotoAlbumMapper.getPhotoAlbumByUserId(userId);
+        if (list == null || list.isEmpty()){
+            return null;
+        }else{
+            for (FuntimeUserPhotoAlbum album : list){
+                if (StringUtils.isNotBlank(album.getResourceUrl())) {
+                    album.setResourceKeyUrl(CosUtil.generatePresignedUrl(album.getResourceUrl()));
+                }
+            }
+        }
+        return list;
     }
 
     @Override
     public Map<String, Object> queryUserByChatUser(Long userId, Long byUserId) {
         Map<String,Object> result = userMapper.queryUserByChatUser(userId,byUserId);
+        if (result!=null&&result.get("portraitAddress")!=null&&!result.get("portraitAddress").toString().startsWith("http")){
+            result.put("portraitAddress", CosUtil.generatePresignedUrl(result.get("portraitAddress").toString()));
+        }
         if (result!=null&&result.get("birthday")!=null){
+
             int birthday = Integer.valueOf(result.get("birthday").toString());
 
             result.put("age",DateUtil.getAgeByBirthday(birthday));
@@ -522,7 +572,11 @@ public class UserServiceImpl implements UserService {
             return new PageInfo<>();
         }
         for (Map<String, Object> map:list){
+            if (map.get("portraitAddress")!=null&&!map.get("portraitAddress").toString().startsWith("http")){
+                map.put("portraitAddress",CosUtil.generatePresignedUrl(map.get("portraitAddress").toString()));
+            }
             if (map.get("birthday")!=null) {
+
                 Integer birthday = Integer.valueOf(map.get("birthday").toString());
                 map.put("age",DateUtil.getAgeByBirthday(birthday));
                 map.put("constellation",DateUtil.getConstellationByBirthday(birthday));
@@ -539,6 +593,9 @@ public class UserServiceImpl implements UserService {
             return new PageInfo<>();
         }
         for (Map<String, Object> map:list){
+            if (map.get("portraitAddress")!=null&&!map.get("portraitAddress").toString().startsWith("http")){
+                map.put("portraitAddress",CosUtil.generatePresignedUrl(map.get("portraitAddress").toString()));
+            }
             if (map.get("birthday")!=null) {
                 Integer birthday = Integer.valueOf(map.get("birthday").toString());
                 map.put("age",DateUtil.getAgeByBirthday(birthday));
@@ -598,6 +655,19 @@ public class UserServiceImpl implements UserService {
             list.add(photoAlbum);
         }
         userPhotoAlbumMapper.insertBatch(list);
+    }
+
+    @Override
+    public void makeAccusation(FuntimeAccusation accusation) {
+        accusation.setState(1);
+        if (accusationMapper.insertSelective(accusation)!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public void saveHeart(Long userId) {
+        userMapper.saveHeart(userId);
     }
 
 

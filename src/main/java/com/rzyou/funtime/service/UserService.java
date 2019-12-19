@@ -77,9 +77,10 @@ public interface UserService {
      * @param openType
      * @param openid
      * @param unionid
+     * @param accessToken
      * @return
      */
-    Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid);
+    Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid,String accessToken);
 
     /**
      * 修改用户基本信息
@@ -163,7 +164,7 @@ public interface UserService {
      * @param userId
      * @param withdrawalType
      */
-    void checkAgreementByuserId(Long userId, Integer withdrawalType);
+    boolean checkAgreementByuserId(Long userId, Integer withdrawalType);
 
     /**
      * 关注用户
@@ -286,4 +287,18 @@ public interface UserService {
      * @param array
      */
     void updatePhotoByUserId(Long userId, JSONArray array);
+
+    /**
+     * 举报
+     * @param accusation
+     */
+    void makeAccusation(FuntimeAccusation accusation);
+
+    /**
+     * 保存心跳
+     * @param userId
+     */
+    void saveHeart(Long userId);
+
+
 }

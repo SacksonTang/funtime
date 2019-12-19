@@ -135,14 +135,14 @@ public class TencentUtil {
         Random random = new Random();
         paramMap.put("OnlineOnlyFlag",1);
         paramMap.put("GroupId",groupId);
-        paramMap.put("Random",String.valueOf(random.nextInt(100000000)));
+        paramMap.put("Random",random.nextInt(100000000));
         Map<String,String> msgContent = new HashMap<>();
         msgContent.put("Data",data);
         msgContent.put("Desc","");
         msgContent.put("Ext","");
         msgContent.put("Sound","");
         Map<String,Object> elem = new HashMap<>();
-        elem.put("MsgBody","TIMCustomElem");
+        elem.put("MsgType","TIMCustomElem");
         elem.put("MsgContent",msgContent);
         List<Map<String,Object>> msgBody = new ArrayList<>();
         msgBody.add(elem);
@@ -175,19 +175,20 @@ public class TencentUtil {
         Random random = new Random();
         paramMap.put("SyncOtherMachine",2);
         paramMap.put("To_Account",toAccounts);
-        paramMap.put("Random",String.valueOf(random.nextInt(100000000)));
+        paramMap.put("MsgRandom",random.nextInt(100000000));
         Map<String,String> msgContent = new HashMap<>();
         msgContent.put("Data",data);
         msgContent.put("Desc","");
         msgContent.put("Ext","");
         msgContent.put("Sound","");
         Map<String,Object> elem = new HashMap<>();
-        elem.put("MsgBody","TIMCustomElem");
+        elem.put("MsgType","TIMCustomElem");
         elem.put("MsgContent",msgContent);
         List<Map<String,Object>> msgBody = new ArrayList<>();
         msgBody.add(elem);
         paramMap.put("MsgBody",msgBody);
 
+        log.info(JSONObject.toJSONString(paramMap));
         String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
@@ -266,14 +267,14 @@ public class TencentUtil {
         paramMap.put("From_Account",userId);
 
         List<Map<String,Object>> profileItems = new ArrayList<>();
-        Map<String,Object> profileItem = new HashMap<>();
+        JSONObject profileItem = new JSONObject();
         if (StringUtils.isNotBlank(nickname)) {
             profileItem.put("Tag", "Tag_Profile_IM_Nick");
             profileItem.put("Value", nickname);
             profileItems.add(profileItem);
         }
         if (StringUtils.isNotBlank(faceUrl)) {
-            profileItem = new HashMap<>();
+            profileItem = new JSONObject();
             profileItem.put("Tag", "Tag_Profile_IM_Image");
             profileItem.put("Value", faceUrl);
             profileItems.add(profileItem);
@@ -285,7 +286,8 @@ public class TencentUtil {
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
 
-            log.info("腾讯设置用户资料接口:portrait_set 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+            log.info("腾讯设置用户资料接口:portrait_set 调用出错,ErrorCode：{},ErrorInfo:{},paramMap:{}",result.getString("ErrorCode")
+                    ,result.getString("ErrorInfo"),JSONObject.toJSONString(paramMap));
             return false;
         }else{
             log.info("*************腾讯设置用户资料接口:portrait_set 调用成功******************");

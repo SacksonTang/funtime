@@ -13,6 +13,9 @@ public class FuntimeUserPhotoAlbum implements Serializable {
     private Long userId;
 
     private String resourceUrl;
+
+    private String resourceKeyUrl;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
 

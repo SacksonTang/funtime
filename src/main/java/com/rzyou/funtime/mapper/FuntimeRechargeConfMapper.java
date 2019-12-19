@@ -3,6 +3,8 @@ package com.rzyou.funtime.mapper;
 import com.rzyou.funtime.entity.FuntimeRechargeConf;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface FuntimeRechargeConfMapper {
     int deleteByPrimaryKey(Integer id);
@@ -13,7 +15,8 @@ public interface FuntimeRechargeConfMapper {
 
     FuntimeRechargeConf selectByPrimaryKey(Integer id);
 
+    List<FuntimeRechargeConf> getRechargeConf();
+
     int updateByPrimaryKeySelective(FuntimeRechargeConf record);
 
-    int updateByPrimaryKey(FuntimeRechargeConf record);
 }

@@ -34,7 +34,9 @@
     <result column="province" jdbcType="VARCHAR" property="province" />
     <result column="city" jdbcType="VARCHAR" property="city" />
     <result column="district" jdbcType="VARCHAR" property="district" />
-    <result column="guild" jdbcType="VARCHAR" property="guild" />
+    <result column="guild_id" jdbcType="VARCHAR" property="guildId" />
+    <result column="channel"  property="channel" />
+    <result column="platform"  property="platform" />
 
   </resultMap>
   <sql id="Base_Column_List">
@@ -42,7 +44,7 @@
     phone_imei, drainage_channel_id, portrait_address, sex, birthday, height, sign_text,
     state, realname_authentication_flag, token, online_state, create_room, registration_time,
     update_time, last_login_time, concerns, fans, ip, flag, version,longitude,latitude,location_desc,
-    province,city,district,guild
+    province,city,district,guild_id,platform,channel
   </sql>
   <select id="getAllUserId" resultType="java.lang.String">
     select
@@ -296,10 +298,15 @@
       <if test="district != null">
         district,
       </if>
-      <if test="guild != null">
-        guild,
+      <if test="guildId != null">
+        guild_id,
       </if>
-
+      <if test="channel != null">
+        channel,
+      </if>
+      <if test="platform != null">
+        platform,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
 
@@ -396,8 +403,14 @@
       <if test="district != null">
         #{district},
       </if>
-      <if test="guild != null">
-        #{guild},
+      <if test="guildId != null">
+        #{guildId},
+      </if>
+      <if test="channel != null">
+        #{channel},
+      </if>
+      <if test="platform != null">
+        #{platform},
       </if>
     </trim>
   </insert>
@@ -496,8 +509,14 @@
       <if test="district != null">
         district = #{district},
       </if>
-      <if test="guild != null">
-        guild = #{guild},
+      <if test="guildId != null">
+        guild_id = #{guildId},
+      </if>
+      <if test="channel != null">
+        channel =  #{channel},
+      </if>
+      <if test="platform != null">
+        platform = #{platform},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
@@ -531,5 +550,9 @@
 <update id="updateTokenById" >
   update t_funtime_user set token = #{token},update_time =now() where id = #{id}
 </update>
+
+  <insert id="saveHeart" parameterType="java.lang.Long">
+    REPLACE INTO t_funtime_heart (user_id) VALUES(#{userId})
+  </insert>
 
 </mapper>

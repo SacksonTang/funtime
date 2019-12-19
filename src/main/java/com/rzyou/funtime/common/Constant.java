@@ -12,13 +12,19 @@ public class Constant {
     public final static String WX_APPID = "wx9c163a6bccdb1cd1";
     public final static String WX_APPSECRET = "2d38bf9d71ca18e6de538faaf0b68e68";
 
-    public final static String MOBPUSH_APPID = "2d2b03f3228f1";
-    public final static String MOBPUSH_APPSECRET = "e760f1673c9beb3647bda6ba4e54055f";
 
-    public final static String GET_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token"; //获取微信TOKEN
-    public final static String REFRESH_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/refresh_token";//刷新TOKEN
-    public final static String CHECK_TOKEN_URL = "https://api.weixin.qq.com/sns/auth";//检查access_token有效性
-    public final static String USERINFO_URL = "https://api.weixin.qq.com/sns/userinfo";//获取用户个人信息
+    public final static String WX_GET_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token"; //获取微信TOKEN
+    public final static String WX_REFRESH_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/refresh_token";//刷新TOKEN
+    public final static String WX_CHECK_TOKEN_URL = "https://api.weixin.qq.com/sns/auth";//检查access_token有效性
+    public final static String WX_USERINFO_URL = "https://api.weixin.qq.com/sns/userinfo";//获取用户个人信息
+
+    public final static String QQ_APPID = "wx9c163a6bccdb1cd1";
+    public final static String QQ_APPSECRET = "2d38bf9d71ca18e6de538faaf0b68e68";
+
+    public final static String QQ_GET_TOKEN_URL = "https://graph.qq.com/oauth2.0/token?grant_type=authorization_code"; //获取QQTOKEN
+    public final static String QQ_REFRESH_TOKEN_URL = "https://graph.qq.com/oauth2.0/token?grant_type=refresh_token";//刷新TOKEN
+    public final static String QQ_GET_OPENID_URL = "https://graph.qq.com/oauth2.0/me";//获取openId
+    public final static String QQ_GET_USERINFO_URL = "https://graph.qq.com/user/get_user_info";//获取用户信息
 
     public final static String CONTENT_TYPE = "application/json";
 
@@ -27,6 +33,10 @@ public class Constant {
     public static final String LOGIN_QQ = "QQ";
     public static final String LOGIN_ONEKEY = "ONEKEY";
     public static final String LOGIN_WEIBO = "WEIBO";
+
+
+    public final static String MOBPUSH_APPID = "2d2b03f3228f1";
+    public final static String MOBPUSH_APPSECRET = "e760f1673c9beb3647bda6ba4e54055f";
 
 
     public final static String AGORA_APP_ID = "392b88d30d4e406da230181043fbe58a";
@@ -42,7 +52,7 @@ public class Constant {
 
     public final static String TENCENT_YUN_SERVICENAME_GROUP = "group_open_http_svc";
     public final static String TENCENT_YUN_SERVICENAME_IM = "im_open_login_svc";
-    public final static String TENCENT_YUN_SERVICENAME_PORTRAIT = "portrait";
+    public final static String TENCENT_YUN_SERVICENAME_PORTRAIT = "profile";
     public final static String TENCENT_YUN_SERVICENAME_OPENIM = "openim";
 
     public final static String TENCENT_YUN_CREATE_GROUP = "create_group";
@@ -57,6 +67,11 @@ public class Constant {
     public final static String TENCENT_YUN_PORTRAIT_SET = "portrait_set";
     public final static String TENCENT_YUN_BATCHSENDMSG = "batchsendmsg";
 
+    public final static String TENCENT_YUN_COS_SECRETID = "AKID5Zom24pOefwypStiSu6l9G7i25qKETjm";
+    public final static String TENCENT_YUN_COS_SECRETKEY = "x71qQHsFNFUS9cpcAbnjRyCF8qfLrDNQ";
+    public final static String TENCENT_YUN_COS_APPID = "1300805214";
+    public final static String TENCENT_YUN_COS_REGION = "ap-shanghai";
+    public final static String TENCENT_YUN_COS_BUCKET = "funtime-1300805214";
 
 
     public final static int ROOM_MIC_UPPER = 1;
@@ -77,4 +92,8 @@ public class Constant {
     public final static int ROOM_KICKED = 16;
     public final static int ROOM_MANAGE = 17;
     public static final int ROOM_MANAGE_CANCEL = 18;
+    public static final int ROOM_GIFT_SEND_ROOM = 19;
+    public static final int ROOM_USER_COUNT = 20;
+    public static final int ROOM_GIFT_SEND_ROOM_ALL = 21;
+    public static final int SERVICE_MSG = 10001;
 }

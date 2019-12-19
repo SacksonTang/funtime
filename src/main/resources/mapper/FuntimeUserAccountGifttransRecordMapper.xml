@@ -18,7 +18,7 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="version" jdbcType="BIGINT" property="version" />
     <result column="complete_time" jdbcType="TIMESTAMP" property="completeTime" />
-
+    <result column="image_url" jdbcType="VARCHAR" property="imageUrl" />
     <result column="nickname" jdbcType="VARCHAR" property="nickname" />
     <result column="animation_type" jdbcType="VARCHAR" property="animationType" />
     <result column="animation_url" jdbcType="VARCHAR" property="animationUrl" />
@@ -39,7 +39,7 @@
     select
     d.id, d.amount, d.num, d.gift_id, d.gift_name,
     d.to_user_id, d.create_time,u.nickname,g.animation_type,
-    g.animation_url
+    g.animation_url,g.image_url
     from t_funtime_user_account_gifttrans_record d
         inner join t_funtime_user u on d.to_user_id = u.id
         inner join t_funtime_gift g on d.gift_id = g.id
@@ -54,7 +54,7 @@
     select
     d.id, d.amount, d.num, d.gift_id, d.gift_name,
     d.to_user_id, d.create_time,u.nickname,g.animation_type,
-    g.animation_url
+    g.animation_url,g.image_url
     from t_funtime_user_account_gifttrans_record d
     inner join t_funtime_user u on d.user_id = u.id
     inner join t_funtime_gift g on d.gift_id = g.id

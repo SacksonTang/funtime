@@ -6,11 +6,12 @@
     <result column="user_id" jdbcType="BIGINT" property="userId" />
     <result column="third_type" jdbcType="VARCHAR" property="thirdType" />
     <result column="openid" jdbcType="VARCHAR" property="openid" />
+    <result column="token" jdbcType="VARCHAR" property="token" />
     <result column="unionid" jdbcType="VARCHAR" property="unionid" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, user_id, third_type, openid, unionid, create_time
+    id, user_id, third_type, openid, unionid, create_time,token
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -46,6 +47,9 @@
       <if test="unionid != null">
         unionid,
       </if>
+      <if test="token != null">
+        token,
+      </if>
 
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -62,7 +66,9 @@
       <if test="unionid != null">
         #{unionid,jdbcType=VARCHAR},
       </if>
-
+      <if test="token != null">
+        #{token},
+      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUserThird">
@@ -80,7 +86,9 @@
       <if test="unionid != null">
         unionid = #{unionid,jdbcType=VARCHAR},
       </if>
-
+      <if test="token != null">
+        token = #{token,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>

@@ -33,6 +33,12 @@ public enum ErrorMsgEnum {
     USER_WXLOGIN_REFRESHTOKEN_ERROR("10025","微信登录刷新access_token失败"),
     USER_WXLOGIN_USERINFO_ERROR("10026","微信登录获取用户信息失败"),
     USER_SYNC_TENCENT_ERROR("10027","同步腾讯接口出错"),
+    USER_LOGIN_ONEKEY_ERROR("10028","一键登录失败"),
+    USER_GETCREDENTIAL_ERROR("10029","获取临时密钥失败"),
+
+    USER_QQLOGIN_GETOPENID_ERROR("10030","QQ登录获取openId失败"),
+    USER_QQLOGIN_GETUSERINFO_ERROR("10031","QQ登录获取用户信息失败"),
+    USER_QQLOGIN_GETTOKEN_ERROR("10032","QQ登录获取token失败"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -51,6 +57,7 @@ public enum ErrorMsgEnum {
     REDPACKET_IS_OVER("50001","红包已经抢完"),
     REDPACKET_IS_GRABED("50002","亲,您已经抢过,请点其他红包,谢谢"),
     REDPACKET_IS_NOT_EXISTS("50003","红包不存在"),
+    REDPACKET_IS_NOT_SELF("50004","自己不能给自己发"),
 
     GIFT_NOT_EXISTS("60001","礼物不存在"),
 

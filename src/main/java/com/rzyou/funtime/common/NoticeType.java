@@ -10,7 +10,7 @@ public enum NoticeType {
     ,ROOM_MIC_RELEASE(Constant.ROOM_MIC_RELEASE,"解禁","")
     ,ROOM_CLOSE(Constant.ROOM_CLOSE,"解散房间","")
     ,ROOM_GIFT_SEND(Constant.ROOM_GIFT_SEND,"送礼","")
-    ,ROOM_GIFT_SEND_ALL(Constant.ROOM_GIFT_SEND_ALL,"全服通知礼物","")
+    ,ROOM_GIFT_SEND_ALL(Constant.ROOM_GIFT_SEND_ALL,"全服房间通知礼物","")
     ,ROOM_MIC_RANDOM(Constant.ROOM_MIC_RANDOM,"抽麦序","")
     ,ROOM_MSG_NORMAL(Constant.ROOM_MSG_NORMAL,"普通公屏消息","")
     ,ROOM_ENTER(Constant.ROOM_ENTER,"进入房间","")
@@ -20,6 +20,10 @@ public enum NoticeType {
     ,ROOM_KICKED(Constant.ROOM_KICKED,"踢人","")
     ,ROOM_MANAGE(Constant.ROOM_MANAGE,"设为主持","")
     ,ROOM_MANAGE_CANCEL(Constant.ROOM_MANAGE_CANCEL,"设为主持","")
+    ,ROOM_GIFT_SEND_ROOM(Constant.ROOM_GIFT_SEND_ROOM,"全房送礼","")
+    ,ROOM_USER_COUNT(Constant.ROOM_USER_COUNT,"房间人数","")
+    ,ROOM_GIFT_SEND_ROOM_ALL(Constant.ROOM_GIFT_SEND_ROOM_ALL,"全房送超级大礼","")
+    ,SERVICE_MSG(Constant.SERVICE_MSG,"全服大喇叭","")
     ;
     private int value;
     private String desc;

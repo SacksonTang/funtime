@@ -1,11 +1,12 @@
 package com.rzyou.funtime.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-
+@Data
 public class FuntimeUserAccount implements Serializable {
     private static final long serialVersionUID = 1770712090611257538L;
     private Long id;
@@ -22,59 +23,5 @@ public class FuntimeUserAccount implements Serializable {
 
     private Long version;
 
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public BigDecimal getBlackDiamond() {
-        return blackDiamond;
-    }
-
-    public void setBlackDiamond(BigDecimal blackDiamond) {
-        this.blackDiamond = blackDiamond;
-    }
-
-    public BigDecimal getBlueDiamond() {
-        return blueDiamond;
-    }
-
-    public void setBlueDiamond(BigDecimal blueDiamond) {
-        this.blueDiamond = blueDiamond;
-    }
-
-    public Integer getHornNumber() {
-        return hornNumber;
-    }
-
-    public void setHornNumber(Integer hornNumber) {
-        this.hornNumber = hornNumber;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
+    private BigDecimal hornPrice;
 }
