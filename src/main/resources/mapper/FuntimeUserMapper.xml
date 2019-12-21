@@ -37,14 +37,14 @@
     <result column="guild_id" jdbcType="VARCHAR" property="guildId" />
     <result column="channel"  property="channel" />
     <result column="platform"  property="platform" />
-
+    <result column="show_id"  property="showId" />
   </resultMap>
   <sql id="Base_Column_List">
     id, username, fullname, nickname, password, phone_number,
     phone_imei, drainage_channel_id, portrait_address, sex, birthday, height, sign_text,
     state, realname_authentication_flag, token, online_state, create_room, registration_time,
     update_time, last_login_time, concerns, fans, ip, flag, version,longitude,latitude,location_desc,
-    province,city,district,guild_id,platform,channel
+    province,city,district,guild_id,platform,channel,show_id
   </sql>
   <select id="getAllUserId" resultType="java.lang.String">
     select
@@ -68,7 +68,7 @@
 
   <select id="queryUserByChatUser" resultType="java.util.Map">
     select
-     u.nickname,u.portrait_address portraitAddress,u.sign_text as  signText,u.birthday,u.sex
+     u.nickname,u.portrait_address portraitAddress,u.sign_text as  signText,u.birthday,u.sex,u.show_id showId
      ,(select count(c.id) from t_funtime_user_concern c where c.user_id = #{byUserId} and c.to_user_id = u.id) isConcern
     from t_funtime_user u
     where u.id = #{userId} and flag = 1
@@ -78,7 +78,7 @@
       SELECT
           t.amountSum,
           GROUP_CONCAT(
-          json_object ( 'userId', t.user_id, 'nickname', u.nickname, 'portraitAddress', u.portrait_address, 'signText', u.sign_text )
+          json_object ( 'userId', t.user_id, 'nickname', u.nickname, 'portraitAddress', u.portrait_address, 'signText', u.sign_text, 'sex', u.sex ,'showId',u.show_id)
           ) groupStr
       FROM
           (
@@ -106,7 +106,7 @@
     SELECT
           t.amountSum,
           GROUP_CONCAT(
-          json_object ( 'userId', t.to_user_id, 'nickname', u.nickname, 'portraitAddress', u.portrait_address, 'signText', u.sign_text )
+          json_object ( 'userId', t.to_user_id, 'nickname', u.nickname, 'portraitAddress', u.portrait_address, 'signText', u.sign_text , 'sex', u.sex ,'showId',u.show_id)
           ) groupStr
       FROM
           (
@@ -131,14 +131,14 @@
 
   <select id="getConcernUserList" resultType="java.util.Map">
     select
-     u.id,u.nickname,u.portrait_address as portraitAddress,u.sign_text as  signText,u.sex,u.birthday
+     u.id,u.nickname,u.portrait_address as portraitAddress,u.sign_text as  signText,u.sex,u.birthday,u.show_id as showId
     from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.to_user_id
     where c.user_id = #{userId}
     order by c.id desc
   </select>
   <select id="getFansList" resultType="java.util.Map">
     select
-     u.id,u.nickname,u.portrait_address as portraitAddress,u.sign_text as  signText,u.sex,u.birthday
+     u.id,u.nickname,u.portrait_address as portraitAddress,u.sign_text as  signText,u.sex,u.birthday,u.show_id as showId
     from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.user_id
     where c.to_user_id = #{userId}
     order by c.id desc
@@ -195,6 +195,13 @@
        user_role = #{userRole} and authority = #{authority} limit 1
 
   </select>
+  <select id="getExpression"  resultType="java.util.Map">
+    select expression_no expressionNo,expression_desc expressionDesc,expression_url expressionUrl,sort
+    from t_funtime_expression
+
+       order by sort
+
+  </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user
@@ -204,7 +211,9 @@
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUser" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user
     <trim prefix="(" suffix=")" suffixOverrides=",">
-
+      <if test="showId != null">
+        show_id,
+      </if>
       <if test="username != null">
         username,
       </if>
@@ -309,7 +318,9 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-
+      <if test="showId != null">
+        #{showId},
+      </if>
       <if test="username != null">
         #{username,jdbcType=VARCHAR},
       </if>
@@ -417,6 +428,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUser">
     update t_funtime_user
     <set>
+      <if test="showId != null">
+        show_id = #{showId},
+      </if>
       <if test="username != null">
         username = #{username,jdbcType=VARCHAR},
       </if>
@@ -548,7 +562,7 @@
     update t_funtime_user set create_room = create_room+1,update_time =now() where id = #{id} and create_room>0
   </update>
 <update id="updateTokenById" >
-  update t_funtime_user set token = #{token},update_time =now() where id = #{id}
+  update t_funtime_user set token = #{token},update_time =now(),show_id = #{id}+666666 where id = #{id}
 </update>
 
   <insert id="saveHeart" parameterType="java.lang.Long">

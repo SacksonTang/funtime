@@ -4,7 +4,9 @@
   <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeUserRedpacket">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="to_user_id" jdbcType="BIGINT" property="toUserId" />
     <result column="room_id" jdbcType="BIGINT" property="roomId" />
+    <result column="type"  property="type" />
     <result column="redpacket_num" jdbcType="INTEGER" property="redpacketNum" />
     <result column="amount" jdbcType="DECIMAL" property="amount" />
     <result column="redpacket_desc" jdbcType="VARCHAR" property="redpacketDesc" />
@@ -20,11 +22,12 @@
     <result column="nickname"  property="nickname" />
     <result column="gift_name"  property="giftName" />
     <result column="image_url"  property="imageUrl" />
+    <result column="sex"  property="sex" />
     <result column="portrait_address"  property="portraitAddress" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, redpacket_num, amount, redpacket_desc, bestow_condition, gift_id, state, 
-    invalid_time, create_time,room_id
+    invalid_time, create_time,room_id,type,to_user_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -35,7 +38,7 @@
   <select id="getRedpacketListByRoomId"  resultMap="BaseResultMap">
     select
     t.id, t.user_id, t.redpacket_num, t.amount, t.redpacket_desc, t.bestow_condition, t.gift_id, t.state,g.gift_name,
-    g.animation_type,g.animation_url,g.image_url,u.nickname,u.portrait_address
+    g.animation_type,g.animation_url,g.image_url,u.nickname,u.portrait_address,u.sex
     from t_funtime_user_redpacket t left join t_funtime_gift g on t.gift_id = g.id
       inner join t_funtime_user u on t.user_id = u.id
     where t.room_id = #{roomId} and t.state = 1 and t.invalid_time>=NOW()
@@ -68,8 +71,14 @@
       <if test="userId != null">
         user_id,
       </if>
+      <if test="toUserId != null">
+        to_user_id,
+      </if>
       <if test="roomId != null">
         room_id,
+      </if>
+      <if test="type != null">
+        type,
       </if>
       <if test="redpacketNum != null">
         redpacket_num,
@@ -99,8 +108,14 @@
       <if test="userId != null">
         #{userId,jdbcType=BIGINT},
       </if>
+      <if test="toUserId != null">
+        #{toUserId,jdbcType=BIGINT},
+      </if>
       <if test="roomId != null">
         #{roomId,jdbcType=BIGINT},
+      </if>
+      <if test="type != null">
+        #{type},
       </if>
       <if test="redpacketNum != null">
         #{redpacketNum,jdbcType=INTEGER},

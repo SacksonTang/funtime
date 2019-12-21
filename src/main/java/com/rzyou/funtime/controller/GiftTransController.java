@@ -45,10 +45,7 @@ public class GiftTransController {
                 return result;
             }
 
-            accountService.createGiftTrans(userId,toUserIds,giftId,giftNum,"送礼物",giveChannel,roomId);
-
-
-            return result;
+            return accountService.createGiftTrans(userId,toUserIds,giftId,giftNum,"送礼物",giveChannel,roomId);
         } catch (BusinessException be) {
             be.printStackTrace();
             result.setCode(be.getCode());
@@ -62,6 +59,11 @@ public class GiftTransController {
         }
     }
 
+    /**
+     * 全房送礼物
+     * @param request
+     * @return
+     */
     @PostMapping("sendGiftForRoom")
     public ResultMsg<Object> sendGiftForRoom(HttpServletRequest request){
 
@@ -77,10 +79,8 @@ public class GiftTransController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            accountService.createGiftTrans(userId,giftId,giftNum,"送礼物",1,roomId);
+            return accountService.createGiftTrans(userId,giftId,giftNum,"送礼物",1,roomId);
 
-
-            return result;
         } catch (BusinessException be) {
             be.printStackTrace();
             result.setCode(be.getCode());

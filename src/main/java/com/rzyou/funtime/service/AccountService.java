@@ -1,6 +1,7 @@
 package com.rzyou.funtime.service;
 
 import com.github.pagehelper.PageInfo;
+import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.entity.*;
 
 import java.math.BigDecimal;
@@ -53,7 +54,7 @@ public interface AccountService {
      * @param redpacketId
      * @return
      */
-    Map<String,Object> grabRedpacket(Long userId, Long redpacketId);
+    ResultMsg<Object> grabRedpacket(Long userId, Long redpacketId);
 
     /**
      * 发出的红包明细
@@ -111,7 +112,7 @@ public interface AccountService {
      * @param roomId
      * @return
      */
-    void createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId);
+    ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId);
 
     /**
      * 红包失效更改
@@ -203,7 +204,7 @@ public interface AccountService {
      * @param giveChannel
      * @param roomId
      */
-    void createGiftTrans(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
+    ResultMsg<Object> createGiftTrans(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
 
     /**
      * 获取充值配置

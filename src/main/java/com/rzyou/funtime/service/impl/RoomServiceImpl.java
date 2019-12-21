@@ -108,6 +108,7 @@ public class RoomServiceImpl implements RoomService {
         FuntimeChatroom chatroom = new FuntimeChatroom();
         chatroom.setUserId(userId);
         chatroom.setName(nickname);
+        chatroom.setExamDesc("这个家伙很懒,什么都没有留下~");
         int k = chatroomMapper.insertSelective(chatroom);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());

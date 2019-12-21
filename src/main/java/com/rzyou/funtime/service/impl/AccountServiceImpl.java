@@ -8,6 +8,7 @@ import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
 import com.rzyou.funtime.utils.DateUtil;
+import com.rzyou.funtime.utils.JsonUtil;
 import com.rzyou.funtime.utils.RedPacketUtil;
 import com.rzyou.funtime.utils.StringUtil;
 
@@ -161,12 +162,12 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void createRedpacket(FuntimeUserRedpacket redpacket) {
-
-        FuntimeChatroom chatroom = roomService.getChatroomById(redpacket.getRoomId());
-        if (chatroom == null){
-            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        if (redpacket.getType() == 1) {
+            FuntimeChatroom chatroom = roomService.getChatroomById(redpacket.getRoomId());
+            if (chatroom == null) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+            }
         }
-
         String invalid_day = parameterService.getParameterValueByKey("redpacket_invalid_day");
 
         redpacket.setInvalidTime(DateUtils.addDays(new Date(),Integer.parseInt(invalid_day)));
@@ -177,41 +178,55 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
 
-        RedPacketUtil redPacketUtil = new RedPacketUtil(redpacket.getAmount().intValue());
-        Integer[] redPackets = redPacketUtil.splitRedPacket(redpacket.getAmount().intValue(), redpacket.getRedpacketNum());
-        if(redPackets.length>0) {
-            List<FuntimeUserRedpacketDetail> details = new ArrayList<>();
-            FuntimeUserRedpacketDetail detail;
-            for (Integer red : redPackets) {
-                detail = new FuntimeUserRedpacketDetail();
-                detail.setVersion(System.currentTimeMillis());
-                detail.setAmount(new BigDecimal(red));
-                detail.setRedpacketId(redpacket.getId());
+        if (redpacket.getType() == 1) {
+            RedPacketUtil redPacketUtil = new RedPacketUtil(redpacket.getAmount().intValue());
+            Integer[] redPackets = redPacketUtil.splitRedPacket(redpacket.getAmount().intValue(), redpacket.getRedpacketNum());
+            if (redPackets.length > 0) {
+                List<FuntimeUserRedpacketDetail> details = new ArrayList<>();
+                FuntimeUserRedpacketDetail detail;
+                for (Integer red : redPackets) {
+                    detail = new FuntimeUserRedpacketDetail();
+                    detail.setVersion(System.currentTimeMillis());
+                    detail.setAmount(new BigDecimal(red));
+                    detail.setRedpacketId(redpacket.getId());
 
-                details.add(detail);
+                    details.add(detail);
 
+                }
+                userRedpacketDetailMapper.insertBatch(details);
             }
-            userRedpacketDetailMapper.insertBatch(details);
-        }
 
-        //通知
-        List<String> roomNos = roomService.getRoomNoByRoomIdAll(redpacket.getRoomId());
-        if (roomNos == null || roomNos.isEmpty()) {
-            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
-        }
-        for (String roomNo : roomNos) {
-            noticeService.notice13(redpacket.getRoomId(), roomNo);
+            //通知
+            List<String> roomNos = roomService.getRoomNoByRoomIdAll(redpacket.getRoomId());
+            if (roomNos == null || roomNos.isEmpty()) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+            }
+            for (String roomNo : roomNos) {
+                noticeService.notice13(redpacket.getRoomId(), roomNo);
+            }
+        }else{
+            //单发
+            FuntimeUserRedpacketDetail detail = new FuntimeUserRedpacketDetail();
+            detail.setVersion(System.currentTimeMillis());
+            detail.setAmount(redpacket.getAmount());
+            detail.setRedpacketId(redpacket.getId());
+            userRedpacketDetailMapper.insertSelective(detail);
         }
 
     }
 
     @Override
     @Transactional
-    public Map<String,Object> grabRedpacket(Long userId, Long redpacketId){
+    public ResultMsg<Object> grabRedpacket(Long userId, Long redpacketId){
 
         FuntimeUserRedpacket redpacket = userRedpacketMapper.selectByPrimaryKey(redpacketId);
         if (redpacket==null){
             throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_EXISTS.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_EXISTS.getDesc());
+        }
+        if (redpacket.getType()==2){
+            if (!userId.equals(redpacket.getToUserId())){
+                throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_YOURS.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_YOURS.getDesc());
+            }
         }
         if (redpacket.getBestowCondition()==1){
             return grabRedpacketNoCondition(userId, redpacketId,null);
@@ -220,18 +235,23 @@ public class AccountServiceImpl implements AccountService {
         }
 
     }
-    public Map<String,Object> grabRedpacketBestowCondition(Long userId, Long redpacketId, Integer giftId,Long toUserId,Long roomId) {
+    public ResultMsg<Object> grabRedpacketBestowCondition(Long userId, Long redpacketId, Integer giftId,Long toUserId,Long roomId) {
 
         //礼物赠送
-        Long recordId = createGiftTrans(userId,toUserId,giftId,1,"红包赠送",GiveChannel.REDPACKET.getValue(), roomId);
+        ResultMsg<Object> resultMsg = createGiftTrans(userId,toUserId,giftId,1,"红包赠送",GiveChannel.REDPACKET.getValue(), roomId);
+        if (ErrorMsgEnum.SUCCESS.getValue().equals(resultMsg.getCode())){
+            Long recordId = Long.parseLong(resultMsg.getData().toString());
+            return new ResultMsg(grabRedpacketNoCondition(userId, redpacketId,recordId));
+        }else{
+            return resultMsg;
+        }
 
-        return grabRedpacketNoCondition(userId, redpacketId,recordId);
 
     }
 
 
     //无条件
-    public Map<String,Object> grabRedpacketNoCondition(Long userId, Long redpacketId,Long giftRecordId) {
+    public ResultMsg<Object> grabRedpacketNoCondition(Long userId, Long redpacketId,Long giftRecordId) {
 
         checkUser(userId);
         //有没有抢过
@@ -270,7 +290,7 @@ public class AccountServiceImpl implements AccountService {
 
         Map<String,Object> result = new HashMap<>();
         result.put("amount",detail.getAmount().intValue());
-        return result;
+        return new ResultMsg<>(result);
 
     }
 
@@ -427,11 +447,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
+    public ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
+
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
 
         String[] toUserIdArray = toUserIds.split(",");
 
-        if (Arrays.asList(toUserIdArray).contains(userId)){
+        if (Arrays.asList(toUserIdArray).contains(userId.toString())){
             throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getDesc());
         }
 
@@ -452,7 +474,9 @@ public class AccountServiceImpl implements AccountService {
         Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
         //账户余额不足
         if (userAccount.getBlueDiamond().intValue()<amount*toUserIdArray.length){
-            throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            resultMsg.setData(JsonUtil.getMap("amount",amount*toUserIdArray.length - userAccount.getBlueDiamond().intValue()));
         }
 
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
@@ -483,6 +507,8 @@ public class AccountServiceImpl implements AccountService {
             if (roomId != null) {
 
                 RoomGiftNotice notice = new RoomGiftNotice();
+                notice.setCount(giftNum);
+                notice.setGiftName(funtimeGift.getGiftName());
                 notice.setFromImg(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
                 notice.setFromName(user.getNickname());
                 notice.setFromUid(String.valueOf(userId));
@@ -492,30 +518,33 @@ public class AccountServiceImpl implements AccountService {
                 notice.setToImg(CosUtil.generatePresignedUrl(toUser.getPortraitAddress()));
                 notice.setToName(toUser.getNickname());
                 notice.setToUid(String.valueOf(toUserId));
+                notice.setFromSex(user.getSex());
+                notice.setToSex(toUser.getSex());
                 if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
                     notice.setType(Constant.ROOM_GIFT_SEND_ALL);
                     //发送通知全服
 
                     noticeService.notice9(notice);
 
-                } else {
-                    List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
-                    if (roomNos == null || roomNos.isEmpty()) {
-                        throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
-                    }
-                    notice.setType(Constant.ROOM_GIFT_SEND);
-                    //发送通知
-                    for (String roomNo : roomNos) {
-                        noticeService.notice8(notice, roomNo);
-                    }
                 }
+                List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+                if (roomNos == null || roomNos.isEmpty()) {
+                    throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+                }
+                notice.setType(Constant.ROOM_GIFT_SEND);
+                //发送通知
+                for (String roomNo : roomNos) {
+                    noticeService.notice8(notice, roomNo);
+                }
+
             }
         }
+        return resultMsg;
     }
 
-    public Long createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
+    public ResultMsg<Object> createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
 
-
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
         FuntimeUser user = userService.queryUserById(userId);
         FuntimeUser toUser = userService.queryUserById(toUserId);
         if (user==null||toUser==null){
@@ -536,7 +565,10 @@ public class AccountServiceImpl implements AccountService {
         Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
         //账户余额不足
         if (userAccount.getBlueDiamond().intValue()<amount){
-            throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            resultMsg.setData(JsonUtil.getMap("amount",amount - userAccount.getBlueDiamond().intValue()));
+            return resultMsg;
         }
 
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
@@ -563,6 +595,8 @@ public class AccountServiceImpl implements AccountService {
         if (roomId != null) {
 
             RoomGiftNotice notice = new RoomGiftNotice();
+            notice.setCount(giftNum);
+            notice.setGiftName(funtimeGift.getGiftName());
             notice.setFromImg(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
             notice.setFromName(user.getNickname());
             notice.setFromUid(String.valueOf(userId));
@@ -572,30 +606,35 @@ public class AccountServiceImpl implements AccountService {
             notice.setToImg(CosUtil.generatePresignedUrl(toUser.getPortraitAddress()));
             notice.setToName(toUser.getNickname());
             notice.setToUid(String.valueOf(toUserId));
+            notice.setFromSex(user.getSex());
+            notice.setToSex(toUser.getSex());
             if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
                 notice.setType(Constant.ROOM_GIFT_SEND_ALL);
                 //发送通知全服
 
                 noticeService.notice9(notice);
 
-            } else {
-                List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
-                if (roomNos == null || roomNos.isEmpty()) {
-                    throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
-                }
-                notice.setType(Constant.ROOM_GIFT_SEND);
-                //发送通知
-                for (String roomNo : roomNos) {
-                    noticeService.notice8(notice, roomNo);
-                }
             }
+            List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+            if (roomNos == null || roomNos.isEmpty()) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+            }
+            notice.setType(Constant.ROOM_GIFT_SEND);
+            //发送通知
+            for (String roomNo : roomNos) {
+                noticeService.notice8(notice, roomNo);
+            }
+
         }
 
-        return recordId;
+        resultMsg.setData(recordId);
+        return resultMsg;
     }
 
     @Override
-    public void createGiftTrans(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
+    public ResultMsg<Object> createGiftTrans(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
+
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
 
         FuntimeUser user = userService.queryUserById(userId);
 
@@ -623,7 +662,10 @@ public class AccountServiceImpl implements AccountService {
         Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
         //账户余额不足
         if (userAccount.getBlueDiamond().intValue()<amount*userNum){
-            throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            resultMsg.setData(JsonUtil.getMap("amount",amount*userNum - userAccount.getBlueDiamond().intValue()));
+            return resultMsg;
         }
 
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
@@ -652,6 +694,8 @@ public class AccountServiceImpl implements AccountService {
         FuntimeChatroom chatroom = roomService.getChatroomById(roomId);
 
         RoomGiftNotice notice = new RoomGiftNotice();
+        notice.setCount(giftNum);
+        notice.setGiftName(funtimeGift.getGiftName());
         notice.setFromImg(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
         notice.setFromName(user.getNickname());
         notice.setFromUid(String.valueOf(userId));
@@ -660,23 +704,25 @@ public class AccountServiceImpl implements AccountService {
         notice.setRid(String.valueOf(roomId));
         notice.setToImg(CosUtil.generatePresignedUrl(chatroom.getAvatarUrl()));
         notice.setToName(chatroom.getName());
+        notice.setFromSex(user.getSex());
         if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
             notice.setType(Constant.ROOM_GIFT_SEND_ROOM_ALL);
             //发送通知全服
 
             noticeService.notice21(notice);
 
-        } else {
-            List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
-            if (roomNos == null || roomNos.isEmpty()) {
-                throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
-            }
-            notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
-            //发送通知
-            for (String roomNo : roomNos) {
-                noticeService.notice19(notice, roomNo);
-            }
         }
+        List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+        if (roomNos == null || roomNos.isEmpty()) {
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
+        //发送通知
+        for (String roomNo : roomNos) {
+            noticeService.notice19(notice, roomNo);
+        }
+
+        return resultMsg;
 
     }
 

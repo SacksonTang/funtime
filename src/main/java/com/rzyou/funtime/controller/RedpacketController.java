@@ -91,11 +91,12 @@ public class RedpacketController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
             FuntimeUserRedpacket redpacket = JSONObject.toJavaObject(paramJson, FuntimeUserRedpacket.class);
-            if (redpacket==null) {
+            if (redpacket==null||(redpacket.getType() == 1&&redpacket.getRedpacketNum()<5)
+                ||(redpacket.getType()==2&&redpacket.getToUserId()==null)) {
 
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
+                    result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                    result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                    return result;
             }
 
             accountService.createRedpacket(redpacket);
@@ -134,10 +135,7 @@ public class RedpacketController {
                 return result;
             }
 
-            Map<String,Object> map = accountService.grabRedpacket(userId,redpacketId);
-
-            result.setData(map);
-            return result;
+            return accountService.grabRedpacket(userId,redpacketId);
         } catch (BusinessException be) {
             be.printStackTrace();
             result.setCode(be.getCode());

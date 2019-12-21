@@ -59,4 +59,6 @@ public interface FuntimeUserMapper {
     List<Map<String, Object>> getCharmList(String startDate, String endDate);
 
     int saveHeart(Long userId);
+
+    List<Map<String, Object>> getExpression();
 }

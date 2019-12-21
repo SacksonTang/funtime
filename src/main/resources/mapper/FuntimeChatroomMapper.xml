@@ -19,6 +19,8 @@
     <result column="chat_message_file" jdbcType="VARCHAR" property="chatMessageFile" />
     <result column="portrait_address"  property="portraitAddress" />
     <result column="nickname"  property="nickname" />
+    <result column="sex"  property="sex" />
+    <result column="show_id"  property="showId" />
   </resultMap>
   <sql id="Base_Column_List">
     id, name, tags, exam_desc, is_block, is_lock, is_hot, online_num, state, create_time,
@@ -38,7 +40,7 @@
   </select>
   <select id="getRoomInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
-     m.* ,u.portrait_address,u.nickname
+     m.* ,u.portrait_address,u.nickname,u.sex,u.show_id
     from t_funtime_chatroom m inner join t_funtime_user u on m.user_id = u.id
     where m.id = #{id,jdbcType=BIGINT}
   </select>
@@ -51,7 +53,7 @@
   <select id="getRoomList" parameterType="java.lang.Integer" resultType="java.util.Map">
     select
     m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
-    m.online_num onlineNum,u.sex,
+    m.online_num onlineNum,u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
     (select GROUP_CONCAT(g.tag_name) from t_funtime_tag g where FIND_IN_SET(g.id,m.tags) >0 order by g.sort asc) tagNames,
     count(u1.id) maleCount,
@@ -71,7 +73,7 @@
   <select id="getRoomLogList" parameterType="java.lang.Long" resultType="java.util.Map">
     select
     m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
-    m.online_num onlineNum,u.sex,
+    m.online_num onlineNum,u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
     (select GROUP_CONCAT(g.tag_name) from t_funtime_tag g where FIND_IN_SET(g.id,m.tags) >0 order by g.sort asc) tagNames,
     count(u1.id) maleCount,

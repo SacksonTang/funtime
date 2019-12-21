@@ -32,4 +32,6 @@ public class FuntimeUserAccountRedpacketRecord implements Serializable {
     private String portraitAddress;
 
     private String tagName;
+
+    private Integer sex;
 }

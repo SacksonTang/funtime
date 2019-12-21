@@ -3,7 +3,6 @@ package com.rzyou.funtime.common;
 public class ResultMsg <T>{
 
     String code;
-    String token;
     String msg;
     T data;
 
@@ -13,11 +12,6 @@ public class ResultMsg <T>{
         this.msg = "操作成功";
     }
 
-    public ResultMsg(String token) {
-        this.code = "0";
-        this.msg = "操作成功";
-        this.token = token;
-    }
 
     public ResultMsg(String code, String msg) {
         this.code = code;
@@ -31,7 +25,7 @@ public class ResultMsg <T>{
     }
 
     public ResultMsg(T data) {
-        this.code = "200";
+        this.code = "0";
         this.msg = "操作成功";
         this.data = data;
     }

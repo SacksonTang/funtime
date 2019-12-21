@@ -76,6 +76,32 @@ public class UserController {
         }
     }
 
+    /**
+     * 获取表情
+     * @param request
+     * @return
+     */
+    @PostMapping("getExpression")
+    public ResultMsg<Object> getExpression(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+
+            List<Map<String,Object>> list = userService.getExpression();
+            result.setData(JsonUtil.getMap("expressions",list));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
 
     /**
      * 获取用户基本信息

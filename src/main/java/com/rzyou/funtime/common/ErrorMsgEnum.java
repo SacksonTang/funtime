@@ -58,6 +58,7 @@ public enum ErrorMsgEnum {
     REDPACKET_IS_GRABED("50002","亲,您已经抢过,请点其他红包,谢谢"),
     REDPACKET_IS_NOT_EXISTS("50003","红包不存在"),
     REDPACKET_IS_NOT_SELF("50004","自己不能给自己发"),
+    REDPACKET_IS_NOT_YOURS("50005","没有权限抢该红包"),
 
     GIFT_NOT_EXISTS("60001","礼物不存在"),
 

@@ -1,7 +1,10 @@
 package com.rzyou.funtime.common.request;
 import com.alibaba.fastjson.JSONObject;
 
+import com.rzyou.funtime.common.BusinessException;
+import com.rzyou.funtime.common.ErrorMsgEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
@@ -15,7 +18,10 @@ public class HttpHelper {
 
 
         String str = getBodyString(request);
-        log.debug("请求Body: {} ", str);
+        log.info("请求Body: {} ", str);
+        if (StringUtils.isBlank(str)){
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        }
         JSONObject obj = JSONObject.parseObject(str);
 
         JSONObject paramJson = obj.getJSONObject("param");

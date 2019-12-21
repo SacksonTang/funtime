@@ -45,5 +45,9 @@ public class RoomGiftNotice implements Serializable {
     public String toUid;//被送人uid
     public String toImg;//被送人头像
     public String toName;//被送人昵称
+    public Integer count;//礼物数量
+    public Integer fromSex;
+    public Integer toSex;
+    public String giftName;
 
 }

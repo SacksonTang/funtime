@@ -12,7 +12,11 @@ public class FuntimeUserRedpacket implements Serializable {
     private static final long serialVersionUID = 5745405731257204305L;
     private Long id;
 
+    private Integer type;
+
     private Long userId;
+
+    private Long toUserId;
 
     private Integer redpacketNum;
 
@@ -47,5 +51,7 @@ public class FuntimeUserRedpacket implements Serializable {
     private String giftName;
 
     private String imageUrl;
+
+    private Integer sex;
 
 }

@@ -670,6 +670,19 @@ public class UserServiceImpl implements UserService {
         userMapper.saveHeart(userId);
     }
 
+    @Override
+    public List<Map<String, Object>> getExpression() {
+        List<Map<String, Object>> list = userMapper.getExpression();
+        if (list!=null&&!list.isEmpty()){
+            for (Map<String, Object> map : list){
+                if (map.get("expressionUrl")!=null){
+                    map.put("expressionUrl",CosUtil.generatePresignedUrl(map.get("expressionUrl").toString()));
+                }
+            }
+        }
+        return list;
+    }
+
 
     public Boolean updateByPrimaryKeySelective(FuntimeUser user){
         if(userMapper.updateByPrimaryKeySelective(user)!=1){

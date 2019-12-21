@@ -300,5 +300,10 @@ public interface UserService {
      */
     void saveHeart(Long userId);
 
+    /**
+     * 获取表情
+     * @return
+     */
+    List<Map<String, Object>> getExpression();
 
 }

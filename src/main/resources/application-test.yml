@@ -39,8 +39,7 @@ spring:
         url-pattern: /druid/*
         reset-enable: false
         login-username: admin
-        login-password: admin
-        allow: 106.52.93.16
+        login-password: funtime@2019
       filter:
         stat:
           db-type: mysql

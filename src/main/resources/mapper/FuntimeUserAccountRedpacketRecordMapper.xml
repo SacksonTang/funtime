@@ -14,6 +14,7 @@
     <result column="nickname" jdbcType="VARCHAR" property="nickname" />
     <result column="portrait_address"  property="portraitAddress" />
     <result column="tag_name"  property="tagName" />
+    <result column="sex"  property="sex" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, detail_id, amount, send_time, create_time, tag_id,order_no,gift_record_id
@@ -73,7 +74,7 @@
   </select>
   <select id="getRedpacketRecordByRedpacketId"  parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
-    d.id, d.amount,d.create_time,u.nickname,u.portrait_address
+    d.id, d.amount,d.create_time,u.nickname,u.portrait_address,u.sex
     ,d.tag_id
     ,case when d.tag_id = 1 then '首榜'
            when d.tag_id = 2 then '运气王'

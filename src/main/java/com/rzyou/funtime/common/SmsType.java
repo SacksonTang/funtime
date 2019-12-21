@@ -3,7 +3,7 @@ package com.rzyou.funtime.common;
 public enum SmsType {
     REGISTER_LOGIN(1,"注册登录")
     ,UPDATE_PHONENUMBER(2,"修改手机号")
-
+    ,WITHDRAWAL(3,"提现")
     ;
     private int value;
     private String desc;

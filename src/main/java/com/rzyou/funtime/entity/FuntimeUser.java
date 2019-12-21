@@ -92,6 +92,8 @@ public class FuntimeUser implements Serializable {
 
     private Integer channel;
 
+    private Long showId;
+
 
 
 }

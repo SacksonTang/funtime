@@ -47,7 +47,7 @@
     <select id="getMicUserByRoomId" parameterType="java.lang.Long" resultType="java.util.Map">
         select
         m.mic_location micLocation,m.mic_user_id micUserId,m.user_role userRole,m.state,u.nickname
-        ,u.portrait_address portraitAddress
+        ,u.portrait_address portraitAddress,u.sex,u.show_id showId
         from t_funtime_chatroom_mic m left join t_funtime_user u on m.mic_user_id = u.id
         where room_id = #{roomId}
         order by m.mic_location asc
