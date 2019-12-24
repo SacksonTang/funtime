@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -81,11 +80,19 @@ public class AccountServiceImpl implements AccountService {
         if (rechargeConf==null){
             throw new BusinessException(ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getValue(),ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getDesc());
         }
+        String max_recharge = parameterService.getParameterValueByKey("max_recharge");
+        BigDecimal maxRecharge = max_recharge == null?new BigDecimal(100000):new BigDecimal(max_recharge);
+        if (rechargeConf.getRechargeRmb().subtract(maxRecharge).doubleValue()>0){
+            throw new BusinessException(ErrorMsgEnum.RECHARGE_NUM_OUT.getValue(),ErrorMsgEnum.RECHARGE_NUM_OUT.getDesc());
+        }
+        //首充送三个
+
         record.setRmb(rechargeConf.getRechargeRmb());
         record.setHornNum(rechargeConf.getHornNum());
         record.setAmount(rechargeConf.getRechargeNum());
         String orderNo = "A"+StringUtil.createOrderId();
-        Long id = saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
+        Long id = saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.PAIED.getValue(), orderNo);
+        userService.updateUserAccountForPlus(record.getUserId(),null,rechargeConf.getRechargeNum(),rechargeConf.getHornNum());
         Map<String,Object> result = new HashMap<>();
         result.put("orderId",id);
         result.put("orderNo",orderNo);
@@ -168,6 +175,10 @@ public class AccountServiceImpl implements AccountService {
                 throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
             }
         }
+        FuntimeUser user = userService.queryUserById(redpacket.getUserId());
+        if (user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
         String invalid_day = parameterService.getParameterValueByKey("redpacket_invalid_day");
 
         redpacket.setInvalidTime(DateUtils.addDays(new Date(),Integer.parseInt(invalid_day)));
@@ -202,7 +213,7 @@ public class AccountServiceImpl implements AccountService {
                 throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
             }
             for (String roomNo : roomNos) {
-                noticeService.notice13(redpacket.getRoomId(), roomNo);
+                noticeService.notice13(redpacket.getRoomId(), roomNo,user.getNickname());
             }
         }else{
             //单发
@@ -471,12 +482,17 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
         }
 
+        Integer userRole = roomService.getUserRole(roomId,userId);
+
+        userRole = userRole == null?4:userRole;
+
         Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
         //账户余额不足
         if (userAccount.getBlueDiamond().intValue()<amount*toUserIdArray.length){
             resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
             resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
             resultMsg.setData(JsonUtil.getMap("amount",amount*toUserIdArray.length - userAccount.getBlueDiamond().intValue()));
+            return resultMsg;
         }
 
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
@@ -571,6 +587,10 @@ public class AccountServiceImpl implements AccountService {
             return resultMsg;
         }
 
+        Integer userRole = roomService.getUserRole(roomId,userId);
+
+        userRole = userRole == null?4:userRole;
+
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
 
         Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
@@ -608,6 +628,7 @@ public class AccountServiceImpl implements AccountService {
             notice.setToUid(String.valueOf(toUserId));
             notice.setFromSex(user.getSex());
             notice.setToSex(toUser.getSex());
+            notice.setUserRole(userRole);
             if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
                 notice.setType(Constant.ROOM_GIFT_SEND_ALL);
                 //发送通知全服
@@ -668,6 +689,10 @@ public class AccountServiceImpl implements AccountService {
             return resultMsg;
         }
 
+        Integer userRole = roomService.getUserRole(roomId,userId);
+
+        userRole = userRole == null?4:userRole;
+
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.HALF_UP);
         for (Long toUserId : toUserIdArray) {
@@ -705,6 +730,7 @@ public class AccountServiceImpl implements AccountService {
         notice.setToImg(CosUtil.generatePresignedUrl(chatroom.getAvatarUrl()));
         notice.setToName(chatroom.getName());
         notice.setFromSex(user.getSex());
+        notice.setUserRole(userRole);
         if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
             notice.setType(Constant.ROOM_GIFT_SEND_ROOM_ALL);
             //发送通知全服

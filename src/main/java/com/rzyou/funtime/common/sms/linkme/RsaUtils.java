@@ -1,7 +1,6 @@
 package com.rzyou.funtime.common.sms.linkme;
 
 import org.apache.commons.lang3.StringUtils;
-import org.thymeleaf.util.MapUtils;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,7 +22,7 @@ public class RsaUtils {
     public static String getHexSign(Map<String, String> paramsTreeMap, String privateKey) {
         String verifySignResult = null;
 
-        if (MapUtils.isEmpty(paramsTreeMap) || StringUtils.isEmpty(privateKey)) {
+        if (paramsTreeMap.isEmpty() || StringUtils.isEmpty(privateKey)) {
             return verifySignResult;
         }
 
@@ -55,7 +54,7 @@ public class RsaUtils {
     public static boolean verifyHexSign(Map<String, String> paramsTreeMap, String publicKey, String sign) {
         boolean verifyResult = false;
 
-        if (MapUtils.isEmpty(paramsTreeMap) || StringUtils.isEmpty(publicKey) || StringUtils.isEmpty(sign)) {
+        if (paramsTreeMap.isEmpty() || StringUtils.isEmpty(publicKey) || StringUtils.isEmpty(sign)) {
             return verifyResult;
         }
 

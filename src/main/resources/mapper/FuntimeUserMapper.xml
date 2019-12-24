@@ -202,6 +202,14 @@
        order by sort
 
   </select>
+  <select id="getBanners"  resultType="java.util.Map">
+    select id ,banner_type as bannerType,banner_url as bannerUrl,banner_desc as bannerDesc
+    ,redirect_url AS redirectUrl
+    from t_funtime_banner
+    where flag = 1 and  now() between start_time and end_time
+    order by id
+
+  </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user

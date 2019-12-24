@@ -62,6 +62,9 @@ public class Constant {
     public final static String TENCENT_YUN_SEND_GROUP_MSG = "send_group_msg";
     public final static String TENCENT_YUN_SEND_SYSTEM_NOTIFICATION = "send_group_system_notification";
 
+    public final static String TENCENT_YUN_GET_GROUP_MENBER_INFO = "get_group_member_info";
+    public final static String TENCENT_YUN_GET_JOINED_GROUP_LIST =  "get_joined_group_list";
+
     public final static String TENCENT_YUN_ACCOUNT_IMPORT = "account_import";
 
     public final static String TENCENT_YUN_PORTRAIT_SET = "portrait_set";
@@ -95,5 +98,6 @@ public class Constant {
     public static final int ROOM_GIFT_SEND_ROOM = 19;
     public static final int ROOM_USER_COUNT = 20;
     public static final int ROOM_GIFT_SEND_ROOM_ALL = 21;
+    public static final int ROOM_REDPACKET_EXIST = 22;
     public static final int SERVICE_MSG = 10001;
 }

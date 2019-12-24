@@ -52,7 +52,7 @@ public enum ErrorMsgEnum {
     ORDER_IS_INVALID("40002","订单记录已失效"),
     ORDER_DATE_ERROR("40003","日期格式有误"),
     RECHARGE_CONF_NOT_EXISTS("40004","充值配置不存在"),
-
+    RECHARGE_NUM_OUT("40005","充值超出最大值"),
 
     REDPACKET_IS_OVER("50001","红包已经抢完"),
     REDPACKET_IS_GRABED("50002","亲,您已经抢过,请点其他红包,谢谢"),
@@ -89,7 +89,8 @@ public enum ErrorMsgEnum {
     ROOM_MIC_IS_STOP("80020","麦位已封麦"),
     ROOM_MIC_IS_MANAGE("80021","已经是主持"),
     ROOM_MIC_IS_NOT_MANAGE("80022","不是主持"),
-    ROOM_JOIN_TENCENT_ERROR("80023","同步腾讯添加用户失败")
+    ROOM_JOIN_TENCENT_ERROR("80023","同步腾讯添加用户失败"),
+    ROOM_IS_CLOSE("80024","房间已解散")
 
 
     ;

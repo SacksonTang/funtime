@@ -6,7 +6,7 @@ import com.tencentyun.TLSSigAPIv2;
 public class UsersigUtil {
 
     public static String getUsersig(String identifier){
-        return getUsersig(identifier,1000*60*24);
+        return getUsersig(identifier,1000*60*60*24);
     }
 
     public static String getUsersig(String identifier,long expire){

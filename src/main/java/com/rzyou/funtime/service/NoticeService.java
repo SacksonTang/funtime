@@ -137,8 +137,9 @@ public interface NoticeService {
      * 发红包
      * @param roomId
      * @param roomNo
+     * @param nickname
      */
-    void notice13(Long roomId, String roomNo);
+    void notice13(Long roomId, String roomNo, String nickname);
 
     /**
      * 踢人
@@ -187,8 +188,9 @@ public interface NoticeService {
      * @param msg
      * @param roomId
      * @param type
+     * @param userRole
      */
-    void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type,List<String> roomNos);
+    void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type, List<String> roomNos, Integer userRole);
 
     /**
      * 全房送普通礼物通知

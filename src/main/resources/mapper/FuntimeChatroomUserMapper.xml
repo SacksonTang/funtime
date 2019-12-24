@@ -36,11 +36,19 @@
     from t_funtime_chatroom_user
     where room_id = #{roomId} and user_id = #{userId} and flag = 1 limit 1
   </select>
-  <select id="getRoomNoByRoomIdAndUser" resultType="java.lang.String">
-    select
-    room_no
-    from t_funtime_chatroom_user
-    where room_id = #{roomId} and user_id = #{userId} and flag = 1 limit 1
+  <select id="getRoomNoByRoomIdAndUser" resultType="java.util.Map">
+    SELECT
+        c1.room_no AS roomNo,
+        ( SELECT count( c2.id ) FROM t_funtime_chatroom_user c2 WHERE c2.room_no = c1.room_no ) roomNoCount
+    FROM
+        t_funtime_chatroom_user c1
+    WHERE
+        c1.room_id = #{roomId}
+        AND c1.user_id = #{userId}
+        AND c1.flag = 1
+    GROUP BY
+        c1.room_no
+
   </select>
   <select id="getRoomNoByRoomIdAll" resultType="java.lang.String" parameterType="java.lang.Long">
     select
@@ -94,6 +102,13 @@
     user_id
     from t_funtime_chatroom_user
     where room_id = #{roomId} and flag = 1
+  </select>
+
+  <select id="getRoomByUserId" resultType="java.lang.Long" parameterType="java.lang.Long">
+    select
+    room_id
+    from t_funtime_chatroom_user
+    where user_id = #{userId} and flag = 1
   </select>
 
   <delete id="deleteRoomUser" parameterType="java.lang.String">
@@ -161,7 +176,7 @@
     </trim>
   </insert>
   <update id="deleteFlagById">
-    update t_funtime_chatroom_user set flag = 2,is_sync = 2 where id = #{id}
+    update t_funtime_chatroom_user set flag = 1,is_sync = 1 where id = #{id}
   </update>
   <update id="updateSyncByRoomNo">
     update t_funtime_chatroom_user set is_sync = 1 where room_no = #{roomNo} and user_id = #{userId}

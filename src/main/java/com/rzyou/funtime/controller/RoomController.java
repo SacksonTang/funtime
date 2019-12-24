@@ -2,12 +2,15 @@ package com.rzyou.funtime.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
+import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.ResultMsg;
+import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.entity.FuntimeChatroom;
 import com.rzyou.funtime.service.RoomService;
 import com.rzyou.funtime.utils.JsonUtil;
+import com.rzyou.funtime.utils.UsersigUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -811,6 +814,89 @@ public class RoomController {
             Integer type = paramJson.getInteger("type");
             roomService.sendNotice(userId,imgUrl,msg,roomId,type);
 
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
+
+    /**
+     * 獲取騰訊聊天室用戶
+     * @param request
+     * @return
+     */
+    @PostMapping("getTencentRoomMember")
+    public ResultMsg<Object> getTencentRoomMember(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String groupId = paramJson.getString("groupId");
+            result.setData(TencentUtil.getGroupMemberInfo(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),groupId));
+
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
+
+    /**
+     * 获取用户加入的群组
+     * @param request
+     * @return
+     */
+    @PostMapping("getGoinedGroupList")
+    public ResultMsg<Object> getGoinedGroupList(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String userId = paramJson.getString("userId");
+            result.setData(TencentUtil.getGoinedGroupList(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),userId));
+
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
+
+    /**
+     * 解散群组
+     * @param request
+     * @return
+     */
+    @PostMapping("destroyGroup")
+    public ResultMsg<Object> destroyGroup(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String groupId = paramJson.getString("groupId");
+            result.setData(TencentUtil.destroyGroup(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),groupId));
 
         } catch (BusinessException be) {
             be.printStackTrace();

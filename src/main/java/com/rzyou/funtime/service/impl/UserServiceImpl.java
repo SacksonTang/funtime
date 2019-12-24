@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.qcloud.cos.COS;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
@@ -269,8 +268,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Map<String,Object>> queryTagsByType(String tagType) {
-        return tagMapper.queryTagsByType(tagType);
+    public List<Map<String,Object>> queryTagsByType(String tagType, Integer type) {
+        List<Map<String,Object>> list = tagMapper.queryTagsByType(tagType);
+        if (type!=null&&type == 1){
+            if (list!=null&&!list.isEmpty()){
+                Map<String,Object> map = new HashMap<>();
+                map.put("id",0);
+                map.put("tagName","全部");
+                list.add(map);
+                map = new HashMap<>();
+                map.put("id",-1);
+                map.put("tagName","热门");
+                list.add(map);
+            }
+        }
+        return list;
     }
 
     @Override
@@ -676,7 +688,22 @@ public class UserServiceImpl implements UserService {
         if (list!=null&&!list.isEmpty()){
             for (Map<String, Object> map : list){
                 if (map.get("expressionUrl")!=null){
+                    map.put("expressionKey",map.get("expressionUrl"));
                     map.put("expressionUrl",CosUtil.generatePresignedUrl(map.get("expressionUrl").toString()));
+                }
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map<String, Object>> getBanners() {
+        List<Map<String, Object>> list = userMapper.getBanners();
+        if (list!=null&&!list.isEmpty()){
+            for (Map<String, Object> map : list){
+                if (map.get("bannerUrl")!=null){
+                    map.put("bannerKey",map.get("bannerUrl"));
+                    map.put("bannerUrl",CosUtil.generatePresignedUrl(map.get("bannerUrl").toString()));
                 }
             }
         }

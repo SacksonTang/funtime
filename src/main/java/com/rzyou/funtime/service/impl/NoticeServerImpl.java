@@ -337,10 +337,11 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    public void notice13(Long roomId, String roomNo) {
+    public void notice13(Long roomId, String roomNo, String nickname) {
         JSONObject object = new JSONObject();
         object.put("rid",roomId);
         object.put("type",Constant.ROOM_REDPACKET_SEND);
+        object.put("name",nickname);
         String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         if (!TencentUtil.sendGroupMsg(userSig,parameterHandler)) {
@@ -410,7 +411,7 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    public void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type,List<String> roomNos) {
+    public void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type, List<String> roomNos, Integer userRole) {
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         FuntimeUser user = userService.queryUserById(userId);
         if (user == null){
@@ -420,6 +421,7 @@ public class NoticeServerImpl implements NoticeService {
         object.put("type",type);
         object.put("rid",roomId);
         object.put("uid",userId);
+        object.put("userRole",userRole);
         object.put("name",user.getNickname());
         if (type == 11){
             object.put("msg",msg);

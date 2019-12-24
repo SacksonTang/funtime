@@ -48,10 +48,17 @@ public interface FuntimeChatroomUserMapper {
      */
     List<String> getAllRoomUser();
 
+    /**
+     * 获取用户已在的房间
+     * @param userId
+     * @return
+     */
+    List<Long> getRoomByUserId(Long userId);
+
 
     Long checkUserIsExist(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
-    String getRoomNoByRoomIdAndUser(@Param("roomId") Long roomId, @Param("userId") Long userId);
+    Map<String,Object> getRoomNoByRoomIdAndUser(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
     List<Map<String,Object>> getRoomNoByRoomId(Long roomId);
 

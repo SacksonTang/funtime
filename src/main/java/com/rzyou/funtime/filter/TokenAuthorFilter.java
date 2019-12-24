@@ -105,7 +105,7 @@ public class TokenAuthorFilter implements Filter {
             }
 
             if (isFilter) {
-                log.info("token filter过滤ok!");
+                log.info("token filter过滤ok!===========uri=========> {}",uri);
                 filterChain.doFilter(request, response);
             }
         }

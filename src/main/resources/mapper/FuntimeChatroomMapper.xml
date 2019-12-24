@@ -12,7 +12,7 @@
     <result column="exam_desc" jdbcType="VARCHAR" property="examDesc" />
     <result column="is_block" jdbcType="INTEGER" property="isBlock" />
     <result column="is_lock" jdbcType="INTEGER" property="isLock" />
-    <result column="is_hot" jdbcType="INTEGER" property="isHot" />
+    <result column="hot" jdbcType="INTEGER" property="hot" />
     <result column="online_num" jdbcType="INTEGER" property="onlineNum" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
@@ -23,7 +23,7 @@
     <result column="show_id"  property="showId" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, name, tags, exam_desc, is_block, is_lock, is_hot, online_num, state, create_time,
+    id, name, tags, exam_desc, is_block, is_lock, hot, online_num, state, create_time,
     chat_message_file,user_id,password,exam_url,avatar_url
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -60,14 +60,20 @@
     (m.online_num - count(u1.id)) femaleCount
     from t_funtime_chatroom m
          inner join t_funtime_user u on m.user_id = u.id
-         inner join (t_funtime_chatroom_user cu inner join t_funtime_user u1 on cu.user_id = u1.id and u1.sex = 1)
+         left join (t_funtime_chatroom_user cu inner join t_funtime_user u1 on cu.user_id = u1.id and u1.sex = 1)
                    on m.id = cu.room_id
     where m.is_block = 2 and m.state = 1
-     <if test="tagId!=null and tagId!=''">
-       and FIND_IN_SET(#{tagId},tags)>0
-     </if>
+
+       <if test="tagId!=null and tagId!='' and tagId!=0">
+          <if test="tagId == -1">
+            and hot > 0
+          </if>
+         <if test="tagId != -1">
+           and FIND_IN_SET(#{tagId},tags)>0
+         </if>
+      </if>
      group by m.id
-     order by m.online_num desc ,m.id desc
+     order by m.hot desc,m.online_num desc ,m.id desc
   </select>
 
   <select id="getRoomLogList" parameterType="java.lang.Long" resultType="java.util.Map">
@@ -135,8 +141,8 @@
       <if test="isLock != null">
         is_lock,
       </if>
-      <if test="isHot != null">
-        is_hot,
+      <if test="hot != null">
+        hot,
       </if>
       <if test="onlineNum != null">
         online_num,
@@ -175,8 +181,8 @@
       <if test="isLock != null">
         #{isLock,jdbcType=INTEGER},
       </if>
-      <if test="isHot != null">
-        #{isHot,jdbcType=INTEGER},
+      <if test="hot != null">
+        #{hot,jdbcType=INTEGER},
       </if>
       <if test="onlineNum != null">
         #{onlineNum,jdbcType=INTEGER},
@@ -196,8 +202,11 @@
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="password != null">
+      <if test="password != null and password!=''">
         password = #{password},
+      </if>
+      <if test="password=='' or password==null">
+        password = null,
       </if>
       <if test="examUrl != null">
         exam_url = #{examUrl},
@@ -217,8 +226,8 @@
       <if test="isLock != null">
         is_lock = #{isLock,jdbcType=INTEGER},
       </if>
-      <if test="isHot != null">
-        is_hot = #{isHot,jdbcType=INTEGER},
+      <if test="hot != null">
+        hot = #{hot,jdbcType=INTEGER},
       </if>
       <if test="onlineNum != null">
         online_num = #{onlineNum,jdbcType=INTEGER},
@@ -240,7 +249,7 @@
       desc = #{desc,jdbcType=VARCHAR},
       is_block = #{isBlock,jdbcType=INTEGER},
       is_lock = #{isLock,jdbcType=INTEGER},
-      is_hot = #{isHot,jdbcType=INTEGER},
+      hot = #{hot,jdbcType=INTEGER},
       online_num = #{onlineNum,jdbcType=INTEGER},
       state = #{state,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},

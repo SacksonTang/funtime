@@ -61,4 +61,6 @@ public interface FuntimeUserMapper {
     int saveHeart(Long userId);
 
     List<Map<String, Object>> getExpression();
+
+    List<Map<String, Object>> getBanners();
 }

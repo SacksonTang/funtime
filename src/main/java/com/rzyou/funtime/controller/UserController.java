@@ -3,9 +3,7 @@ package com.rzyou.funtime.controller;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
-import com.rzyou.funtime.common.BusinessException;
-import com.rzyou.funtime.common.ConvertType;
-import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.cos.CosStsUtil;
 import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
@@ -16,7 +14,6 @@ import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.UserService;
-import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.utils.JsonUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +50,7 @@ public class UserController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             String tagType = paramJson.getString("tagType");
+            Integer type = paramJson.getInteger("type");
             if (StringUtils.isBlank(tagType)) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
@@ -60,7 +58,7 @@ public class UserController {
                 return result;
             }
 
-            List<Map<String,Object>> tags = userService.queryTagsByType(tagType);
+            List<Map<String,Object>> tags = userService.queryTagsByType(tagType,type);
             result.setData(JsonUtil.getMap("tags",tags));
             return result;
         } catch (BusinessException be) {
@@ -88,6 +86,27 @@ public class UserController {
 
             List<Map<String,Object>> list = userService.getExpression();
             result.setData(JsonUtil.getMap("expressions",list));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    @PostMapping("getBanners")
+    public ResultMsg<Object> getBanners(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+
+            List<Map<String,Object>> list = userService.getBanners();
+            result.setData(JsonUtil.getMap("banners",list));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

@@ -227,4 +227,12 @@ public interface RoomService {
      * @return
      */
     List<String> getAllRoomUser();
+
+    /**
+     * 用戶房間角色
+     * @param roomId
+     * @param userId
+     * @return
+     */
+    Integer getUserRole(Long roomId,Long userId);
 }

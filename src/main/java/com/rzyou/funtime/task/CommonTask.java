@@ -62,29 +62,41 @@ public class CommonTask {
      * 处理通知
      */
     @Scheduled(fixedRate = 1000*5)
-    public void notice(){
+    public void notice1() {
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         List<FuntimeNotice> failNotices = noticeService.getFailNotice(1);
-        if (failNotices != null&&!failNotices.isEmpty()){
-            for (FuntimeNotice failNotice : failNotices){
+        if (failNotices != null && !failNotices.isEmpty()) {
+            for (FuntimeNotice failNotice : failNotices) {
 
-                noticeService.sendGroupNotice(userSig, failNotice.getData(),failNotice.getId());
+                noticeService.sendGroupNotice(userSig, failNotice.getData(), failNotice.getId());
             }
         }
-        failNotices = noticeService.getFailNotice(2);
-        if (failNotices != null&&!failNotices.isEmpty()){
-            for (FuntimeNotice failNotice : failNotices){
+    }
+    @Scheduled(fixedRate = 1000*5)
+    public void notice2() {
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        List<FuntimeNotice> failNotices = noticeService.getFailNotice(2);
+        if (failNotices != null && !failNotices.isEmpty()) {
+            for (FuntimeNotice failNotice : failNotices) {
 
-                noticeService.sendSingleNotice(userSig, failNotice.getData(),failNotice.getId());
+                noticeService.sendSingleNotice(userSig, failNotice.getData(), failNotice.getId());
             }
         }
-        failNotices = noticeService.getFailNotice(3);
-        if (failNotices != null&&!failNotices.isEmpty()){
-            for (FuntimeNotice failNotice : failNotices){
-                noticeService.snedAllRoomAppNotice(userSig, failNotice.getData(),failNotice.getId());
+    }
+    @Scheduled(fixedRate = 1000*5)
+    public void notice3() {
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        List<FuntimeNotice> failNotices = noticeService.getFailNotice(3);
+        if (failNotices != null && !failNotices.isEmpty()) {
+            for (FuntimeNotice failNotice : failNotices) {
+                noticeService.snedAllRoomAppNotice(userSig, failNotice.getData(), failNotice.getId());
             }
         }
-        failNotices = noticeService.getFailNotice(4);
+    }
+    @Scheduled(fixedRate = 1000*5)
+    public void notice4(){
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        List<FuntimeNotice> failNotices = noticeService.getFailNotice(4);
         if (failNotices != null&&!failNotices.isEmpty()){
             for (FuntimeNotice failNotice : failNotices){
                 noticeService.snedAllAppNotice(userSig, failNotice.getData(),failNotice.getId());

@@ -28,7 +28,7 @@ public class FuntimeChatroom implements Serializable {
 
     private Integer isLock;
 
-    private Integer isHot;
+    private Integer hot;
 
     private Integer onlineNum;
 

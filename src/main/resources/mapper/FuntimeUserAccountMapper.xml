@@ -125,13 +125,13 @@
     </set>
     where user_id = #{id,jdbcType=BIGINT}
     <if test="blackDiamond != null">
-      and black_diamond-#{blackDiamond,jdbcType=DECIMAL} >0
+      and black_diamond-#{blackDiamond,jdbcType=DECIMAL} >=0
     </if>
     <if test="blueDiamond != null">
-      and blue_diamond-#{blueDiamond,jdbcType=DECIMAL}>0
+      and blue_diamond-#{blueDiamond,jdbcType=DECIMAL}>=0
     </if>
     <if test="hornNumber != null">
-      and horn_number-#{hornNumber,jdbcType=INTEGER}>0
+      and horn_number-#{hornNumber,jdbcType=INTEGER}>=0
     </if>
     <if test="version!=null">
       and version = #{version}

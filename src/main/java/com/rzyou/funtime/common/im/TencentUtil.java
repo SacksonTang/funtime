@@ -12,6 +12,47 @@ import java.util.*;
 public class TencentUtil {
 
     /**
+     * 获取群组用户信息
+     * @param usersig
+     * @param groupId
+     * @return
+     */
+    public static JSONObject getGroupMemberInfo(String usersig,String groupId){
+        String url = getGroupUrl(Constant.TENCENT_YUN_GET_GROUP_MENBER_INFO,usersig);
+
+        JSONObject paramMap = new JSONObject();
+
+        paramMap.put("Name","funtime");
+        paramMap.put("Type","ChatRoom");
+        paramMap.put("GroupId",groupId);
+
+        String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
+        JSONObject result = JSONObject.parseObject(postStr);
+        return result;
+
+    }
+
+    /**
+     * 获取用户加入的群组
+     * @param usersig
+     * @param userId
+     * @return
+     */
+    public static JSONObject getGoinedGroupList(String usersig,String userId){
+        String url = getGroupUrl(Constant.TENCENT_YUN_GET_JOINED_GROUP_LIST,usersig);
+
+        JSONObject paramMap = new JSONObject();
+
+        paramMap.put("Member_Account",userId);
+
+        String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
+        JSONObject result = JSONObject.parseObject(postStr);
+        return result;
+
+    }
+
+
+    /**
      * 创建聊天室
      * @param usersig
      * @return

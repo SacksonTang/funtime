@@ -41,7 +41,7 @@ public class RechargeController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             FuntimeUserAccountRechargeRecord record = JSONObject.toJavaObject(paramJson, FuntimeUserAccountRechargeRecord.class);
 
-            if (record==null) {
+            if (record==null||record.getUserId()==null||record.getRechargeConfId()==null) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());

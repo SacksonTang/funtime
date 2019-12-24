@@ -99,9 +99,10 @@ public interface UserService {
     /**
      * 根据类型获取标签
      * @param tagType
+     * @param type
      * @return
      */
-    List<Map<String,Object>> queryTagsByType(String tagType);
+    List<Map<String,Object>> queryTagsByType(String tagType, Integer type);
 
     /**
      * 获取用户账务信息
@@ -306,4 +307,9 @@ public interface UserService {
      */
     List<Map<String, Object>> getExpression();
 
+    /**
+     * 获取banner图
+     * @return
+     */
+    List<Map<String, Object>> getBanners();
 }

@@ -49,5 +49,6 @@ public class RoomGiftNotice implements Serializable {
     public Integer fromSex;
     public Integer toSex;
     public String giftName;
+    public Integer userRole;
 
 }
