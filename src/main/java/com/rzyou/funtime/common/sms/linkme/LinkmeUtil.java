@@ -6,8 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.SmsType;
-import com.rzyou.funtime.common.httputil.HttpClientUtil;
-import com.rzyou.funtime.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +43,10 @@ public class LinkmeUtil {
             "/XkRDpHshYXEtS2L7ibRHTf6tKzU5AfnXNqkPP/cxaWkAYYU9B3t8QJAQee0Dznt" +
             "yj2NziM3zzLIHu6ssCwB0vH7n0aTpiEUAzC9XCMDIJlmqKHJUAKmi95YB4KHLK9f" +
             "bK5CSZ5QsvYkiA==";
+    public static String public_key = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDaQ8bEuqs3ORehEcaZ1O6lu2Bp" +
+            "Oqiy+y51Re87z5AVx8jHh/0nfFgwuMmn5l4DAbpitwwgi5hdL7HiWU9Nd2ZDbz9H" +
+            "5ZIyxM5Sci72TG4mwOXtgeWb2xrf+NYFz4aUm+bBcpCeOYvoqOHfvqREpEGdH1NY" +
+            "Nl0nXggQw8yKO2r1IQIDAQAB";
 
     public final static String smsSingleRequestServerUrl = "https://account.linkedme.cc/sms/text/send";
     public final static String getPhoneRequestServerUrl = "https://account.linkedme.cc/phone/info";
@@ -61,11 +63,11 @@ public class LinkmeUtil {
             request = new GetPhoneRequest(appKey,channel.toString(),platform.toString(),token,code,sign);
         }
 
-        String requestJson = JSON.toJSONString(request);
+        String requestJson = JSONObject.toJSONString(request);
 
-        log.debug("before request string is: {}" , requestJson);
+        log.info("before request string is: {}" , requestJson);
         String response = sendSmsByPost(getPhoneRequestServerUrl, requestJson);
-        log.debug("response after request result is : {}" , response);
+        log.info("response after request result is : {}" , response);
 
         JSONObject resultObj = JSONObject.parseObject(response);
         if (resultObj==null||resultObj.getJSONObject("header")==null||resultObj.getJSONObject("header").getInteger("code")!=200){
@@ -93,8 +95,13 @@ public class LinkmeUtil {
         paramsTreeMap.put("channel",channel.toString());
         paramsTreeMap.put("platform",platform.toString());
         paramsTreeMap.put("token",token);
+        String sign = RsaUtils.getHexSign(paramsTreeMap, RSA_Private_key);
+        return sign;
+    }
 
-        return RsaUtils.getHexSign(paramsTreeMap,RSA_Private_key);
+    private static boolean verifyHexSign(Map<String, String> paramsTreeMap,String sign){
+        boolean b = RsaUtils.verifyHexSign(paramsTreeMap, public_key, sign);
+        return b;
     }
 
     public static void sendSms(String phone,String code,int smsType){

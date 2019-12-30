@@ -3,6 +3,7 @@ package com.rzyou.funtime.common.cos;
 import com.alibaba.fastjson.JSONObject;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.ClientConfig;
+import com.qcloud.cos.auth.AnonymousCOSCredentials;
 import com.qcloud.cos.auth.BasicCOSCredentials;
 import com.qcloud.cos.auth.COSCredentials;
 import com.qcloud.cos.exception.CosClientException;
@@ -22,21 +23,21 @@ import java.util.Date;
 
 public class CosUtil {
 
+
     public static String generatePresignedUrl(String key){
         if (StringUtils.isBlank(key)) return key;
-        // 初始化永久密钥信息
-        COSCredentials cred = new BasicCOSCredentials(Constant.TENCENT_YUN_COS_SECRETID, Constant.TENCENT_YUN_COS_SECRETKEY);
-        Region region = new Region(Constant.TENCENT_YUN_COS_REGION);
-        ClientConfig clientConfig = new ClientConfig(region);
-        // 生成 cos 客户端。
+
+        // 生成匿名的请求签名，需要重新初始化一个匿名的 cosClient
+        // 初始化用户身份信息, 匿名身份不用传入 SecretId、SecretKey 等密钥信息
+        COSCredentials cred = new AnonymousCOSCredentials();
+        // 设置 bucket 的区域，COS 地域的简称请参照 https://cloud.tencent.com/document/product/436/6224
+        ClientConfig clientConfig = new ClientConfig(new Region(Constant.TENCENT_YUN_COS_REGION));
+        // 生成 cos 客户端
         COSClient cosClient = new COSClient(cred, clientConfig);
-        // 存储桶的命名格式为 BucketName-APPID，此处填写的存储桶名称必须为此格式
+        // bucket 名需包含 appid
+
         GeneratePresignedUrlRequest req =
                 new GeneratePresignedUrlRequest(Constant.TENCENT_YUN_COS_BUCKET, key, HttpMethodName.GET);
-        // 设置签名过期时间(可选), 若未进行设置, 则默认使用 ClientConfig 中的签名过期时间(1小时)
-        // 这里设置签名在半个小时后过期
-        Date expirationDate = new Date(System.currentTimeMillis() + 30L * 60L * 1000L);
-        req.setExpiration(expirationDate);
         URL url = cosClient.generatePresignedUrl(req);
         cosClient.shutdown();
         return url.toString();
@@ -73,7 +74,7 @@ public class CosUtil {
     }
 
     public static void main(String[] args) {
-        CosUtil.upload("123","C:/test/test1.png");
-        //System.out.println(generatePresignedUrl("user/test.jpeg"));
+        //CosUtil.upload("123","C:/test/test1.png");
+        System.out.println(generatePresignedUrl("123/20191217171038test1.png"));
     }
 }

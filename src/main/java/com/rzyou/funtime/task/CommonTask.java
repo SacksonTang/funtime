@@ -61,7 +61,7 @@ public class CommonTask {
     /**
      * 处理通知
      */
-    @Scheduled(fixedRate = 1000*5)
+    @Scheduled(fixedRate = 1000*3)
     public void notice1() {
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         List<FuntimeNotice> failNotices = noticeService.getFailNotice(1);
@@ -72,7 +72,7 @@ public class CommonTask {
             }
         }
     }
-    @Scheduled(fixedRate = 1000*5)
+    @Scheduled(fixedRate = 1000*3)
     public void notice2() {
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         List<FuntimeNotice> failNotices = noticeService.getFailNotice(2);
@@ -83,7 +83,7 @@ public class CommonTask {
             }
         }
     }
-    @Scheduled(fixedRate = 1000*5)
+    @Scheduled(fixedRate = 1000*3)
     public void notice3() {
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         List<FuntimeNotice> failNotices = noticeService.getFailNotice(3);
@@ -93,7 +93,7 @@ public class CommonTask {
             }
         }
     }
-    @Scheduled(fixedRate = 1000*5)
+    @Scheduled(fixedRate = 1000*3)
     public void notice4(){
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         List<FuntimeNotice> failNotices = noticeService.getFailNotice(4);

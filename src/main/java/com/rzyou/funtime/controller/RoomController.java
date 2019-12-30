@@ -1,5 +1,6 @@
 package com.rzyou.funtime.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -869,6 +872,39 @@ public class RoomController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             String userId = paramJson.getString("userId");
             result.setData(TencentUtil.getGoinedGroupList(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),userId));
+
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
+
+
+    @PostMapping("destory")
+    public ResultMsg<Object> destory(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String userId = paramJson.getString("userId");
+            String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+            JSONObject goinedGroupList = TencentUtil.getGoinedGroupList(userSig, userId);
+            if (goinedGroupList!=null){
+                JSONArray groups = goinedGroupList.getJSONArray("GroupIdList");
+                List<String> members = new ArrayList<>();
+                members.add(userId);
+                for (int i =0 ;i<groups.size();i++){
+                    TencentUtil.deleteGroupMember(userSig,groups.getString(i),members);
+                }
+            }
 
 
         } catch (BusinessException be) {

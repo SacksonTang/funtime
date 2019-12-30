@@ -168,7 +168,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void createRedpacket(FuntimeUserRedpacket redpacket) {
+    public Long createRedpacket(FuntimeUserRedpacket redpacket) {
         if (redpacket.getType() == 1) {
             FuntimeChatroom chatroom = roomService.getChatroomById(redpacket.getRoomId());
             if (chatroom == null) {
@@ -181,7 +181,7 @@ public class AccountServiceImpl implements AccountService {
         }
         String invalid_day = parameterService.getParameterValueByKey("redpacket_invalid_day");
 
-        redpacket.setInvalidTime(DateUtils.addDays(new Date(),Integer.parseInt(invalid_day)));
+        redpacket.setInvalidTime(DateUtils.addMinutes(new Date(),Integer.parseInt(invalid_day)));
         redpacket.setState(RedpacketState.START.getValue());
 
         int k = userRedpacketMapper.insertSelective(redpacket);
@@ -206,6 +206,8 @@ public class AccountServiceImpl implements AccountService {
                 }
                 userRedpacketDetailMapper.insertBatch(details);
             }
+            userService.updateUserAccountForSub(redpacket.getUserId(),null,redpacket.getAmount(),null);
+
 
             //通知
             List<String> roomNos = roomService.getRoomNoByRoomIdAll(redpacket.getRoomId());
@@ -222,7 +224,12 @@ public class AccountServiceImpl implements AccountService {
             detail.setAmount(redpacket.getAmount());
             detail.setRedpacketId(redpacket.getId());
             userRedpacketDetailMapper.insertSelective(detail);
+
+            userService.updateUserAccountForSub(redpacket.getUserId(),null,redpacket.getAmount(),null);
+
         }
+
+        return redpacket.getId();
 
     }
 
@@ -234,15 +241,29 @@ public class AccountServiceImpl implements AccountService {
         if (redpacket==null){
             throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_EXISTS.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_EXISTS.getDesc());
         }
+        //个人
         if (redpacket.getType()==2){
-            if (!userId.equals(redpacket.getToUserId())){
+            if (userId.equals(redpacket.getToUserId())){
                 throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_YOURS.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_YOURS.getDesc());
             }
-        }
-        if (redpacket.getBestowCondition()==1){
-            return grabRedpacketNoCondition(userId, redpacketId,null);
+            if (redpacket.getBestowCondition()==1){
+                return grabRedpacketNoCondition2(userId, redpacketId,null);
+            }else{
+                return grabRedpacketBestowCondition2(userId,redpacketId,redpacket.getGiftId(),redpacket.getUserId(),redpacket.getRoomId());
+            }
+
         }else{
-            return grabRedpacketBestowCondition(userId,redpacketId,redpacket.getGiftId(),redpacket.getUserId(),redpacket.getRoomId());
+            //房间
+
+            if (redpacket.getBestowCondition()==1){
+                return grabRedpacketNoCondition(userId, redpacketId,null);
+            }else{
+                if (userId.equals(redpacket.getUserId())){
+                    return grabRedpacketNoCondition(userId, redpacketId,null);
+                }
+                return grabRedpacketBestowCondition(userId,redpacketId,redpacket.getGiftId(),redpacket.getUserId(),redpacket.getRoomId());
+            }
+
         }
 
     }
@@ -252,11 +273,60 @@ public class AccountServiceImpl implements AccountService {
         ResultMsg<Object> resultMsg = createGiftTrans(userId,toUserId,giftId,1,"红包赠送",GiveChannel.REDPACKET.getValue(), roomId);
         if (ErrorMsgEnum.SUCCESS.getValue().equals(resultMsg.getCode())){
             Long recordId = Long.parseLong(resultMsg.getData().toString());
-            return new ResultMsg(grabRedpacketNoCondition(userId, redpacketId,recordId));
+            return grabRedpacketNoCondition(userId, redpacketId,recordId);
         }else{
             return resultMsg;
         }
 
+
+    }
+    public ResultMsg<Object> grabRedpacketBestowCondition2(Long userId, Long redpacketId, Integer giftId,Long toUserId,Long roomId) {
+
+        //礼物赠送
+        ResultMsg<Object> resultMsg = createGiftTrans(userId,toUserId,giftId,1,"红包赠送",GiveChannel.REDPACKET.getValue(), roomId);
+        if (ErrorMsgEnum.SUCCESS.getValue().equals(resultMsg.getCode())){
+            Long recordId = Long.parseLong(resultMsg.getData().toString());
+            return grabRedpacketNoCondition2(userId, redpacketId,recordId);
+        }else{
+            return resultMsg;
+        }
+
+
+    }
+
+    //无条件
+    public ResultMsg<Object> grabRedpacketNoCondition2(Long userId, Long redpacketId,Long giftRecordId) {
+
+        checkUser(userId);
+        //有没有抢过
+        if(!checkRedpacketGrab(userId,redpacketId)){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_GRABED.getValue(),ErrorMsgEnum.REDPACKET_IS_GRABED.getDesc());
+        }
+
+        List<FuntimeUserRedpacketDetail> details = userRedpacketDetailMapper.queryDetailByRedId(redpacketId);
+
+        if (details==null||details.isEmpty()){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_OVER.getValue(),ErrorMsgEnum.REDPACKET_IS_OVER.getDesc());
+        }
+
+        FuntimeUserRedpacketDetail detail = details.get(0);
+        //修改红包明细
+        updateDetailById(detail.getId(),userId,detail.getVersion(),System.currentTimeMillis());
+
+        //新建红包记录
+        Long recordId = saveAccountRedpacketRecord(userId,detail.getId(),detail.getAmount(),detail.getCreateTime(),giftRecordId);
+
+        //用户账户增加
+        userService.updateUserAccountForPlus(userId,null,detail.getAmount(),null);
+
+        //新建用户日志
+        saveUserAccountBlueLog(userId,detail.getAmount(),recordId,OperationType.GRABREDPACKET.getAction(),OperationType.GRABREDPACKET.getOperationType());
+
+        updateRedpacketState(redpacketId,RedpacketState.SUCCESS.getValue());
+
+        Map<String,Object> result = new HashMap<>();
+        result.put("amount",detail.getAmount().intValue());
+        return new ResultMsg<>(result);
 
     }
 
@@ -276,7 +346,7 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_OVER.getValue(),ErrorMsgEnum.REDPACKET_IS_OVER.getDesc());
         }
         //是否最后一个
-        boolean isLastOne = details.size()==1?true:false;
+        boolean isLastOne = details.size()==1;
 
         FuntimeUserRedpacketDetail detail = details.get(0);
         //修改红包明细
@@ -520,22 +590,23 @@ public class AccountServiceImpl implements AccountService {
             saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFT.getAction()
                     , OperationType.RECEIVEGIFT.getOperationType());
 
-            if (roomId != null) {
+            if (giveChannelId.equals(GiveChannel.ROOM.getValue())) {
 
                 RoomGiftNotice notice = new RoomGiftNotice();
                 notice.setCount(giftNum);
                 notice.setGiftName(funtimeGift.getGiftName());
-                notice.setFromImg(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
+                notice.setFromImg(user.getPortraitAddress());
                 notice.setFromName(user.getNickname());
                 notice.setFromUid(String.valueOf(userId));
                 notice.setGid(String.valueOf(giftId));
-                notice.setGiftImg(CosUtil.generatePresignedUrl(funtimeGift.getAnimationUrl()));
+                notice.setGiftImg(funtimeGift.getAnimationUrl());
                 notice.setRid(String.valueOf(roomId));
-                notice.setToImg(CosUtil.generatePresignedUrl(toUser.getPortraitAddress()));
+                notice.setToImg(toUser.getPortraitAddress());
                 notice.setToName(toUser.getNickname());
                 notice.setToUid(String.valueOf(toUserId));
                 notice.setFromSex(user.getSex());
                 notice.setToSex(toUser.getSex());
+                notice.setUserRole(userRole);
                 if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
                     notice.setType(Constant.ROOM_GIFT_SEND_ALL);
                     //发送通知全服
@@ -561,6 +632,7 @@ public class AccountServiceImpl implements AccountService {
     public ResultMsg<Object> createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
 
         ResultMsg<Object> resultMsg = new ResultMsg<>();
+
         FuntimeUser user = userService.queryUserById(userId);
         FuntimeUser toUser = userService.queryUserById(toUserId);
         if (user==null||toUser==null){
@@ -617,13 +689,13 @@ public class AccountServiceImpl implements AccountService {
             RoomGiftNotice notice = new RoomGiftNotice();
             notice.setCount(giftNum);
             notice.setGiftName(funtimeGift.getGiftName());
-            notice.setFromImg(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
+            notice.setFromImg(user.getPortraitAddress());
             notice.setFromName(user.getNickname());
             notice.setFromUid(String.valueOf(userId));
             notice.setGid(String.valueOf(giftId));
-            notice.setGiftImg(CosUtil.generatePresignedUrl(funtimeGift.getAnimationUrl()));
+            notice.setGiftImg(funtimeGift.getAnimationUrl());
             notice.setRid(String.valueOf(roomId));
-            notice.setToImg(CosUtil.generatePresignedUrl(toUser.getPortraitAddress()));
+            notice.setToImg(toUser.getPortraitAddress());
             notice.setToName(toUser.getNickname());
             notice.setToUid(String.valueOf(toUserId));
             notice.setFromSex(user.getSex());
@@ -721,13 +793,13 @@ public class AccountServiceImpl implements AccountService {
         RoomGiftNotice notice = new RoomGiftNotice();
         notice.setCount(giftNum);
         notice.setGiftName(funtimeGift.getGiftName());
-        notice.setFromImg(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
+        notice.setFromImg(user.getPortraitAddress());
         notice.setFromName(user.getNickname());
         notice.setFromUid(String.valueOf(userId));
         notice.setGid(String.valueOf(giftId));
-        notice.setGiftImg(CosUtil.generatePresignedUrl(funtimeGift.getAnimationUrl()));
+        notice.setGiftImg(funtimeGift.getAnimationUrl());
         notice.setRid(String.valueOf(roomId));
-        notice.setToImg(CosUtil.generatePresignedUrl(chatroom.getAvatarUrl()));
+        notice.setToImg(chatroom.getAvatarUrl());
         notice.setToName(chatroom.getName());
         notice.setFromSex(user.getSex());
         notice.setUserRole(userRole);
@@ -758,8 +830,25 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public FuntimeUserRedpacket getRedpacketInfoById(Long id) {
+        FuntimeUserRedpacket redpacket = userRedpacketMapper.getRedpacketInfoById(id);
+
+        return redpacket;
+    }
+
+    @Override
     public void updateStateForInvalid() {
-        userRedpacketMapper.updateStateForInvalid();
+        List<FuntimeUserRedpacket> redpacketListInvalid = userRedpacketMapper.getRedpacketListInvalid();
+        if (redpacketListInvalid!=null&&!redpacketListInvalid.isEmpty()) {
+            for (FuntimeUserRedpacket redpacket : redpacketListInvalid){
+                userService.updateUserAccountForPlus(redpacket.getUserId(),null,redpacket.getGrabAmount(),null);
+            }
+
+            userRedpacketMapper.updateStateForInvalid();
+        }
+
+
+
     }
 
     @Override
@@ -819,14 +908,7 @@ public class AccountServiceImpl implements AccountService {
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
-            for (FuntimeUserAccountGifttransRecord record : list){
-                if (StringUtils.isNotBlank(record.getAnimationUrl())){
-                    record.setAnimationUrl(CosUtil.generatePresignedUrl(record.getAnimationUrl()));
-                }
-                if (StringUtils.isNotBlank(record.getImageUrl())){
-                    record.setImageUrl(CosUtil.generatePresignedUrl(record.getImageUrl()));
-                }
-            }
+
             return new PageInfo<>(list);
         }
     }
@@ -845,14 +927,7 @@ public class AccountServiceImpl implements AccountService {
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
-            for (FuntimeUserAccountGifttransRecord record : list){
-                if (StringUtils.isNotBlank(record.getAnimationUrl())){
-                    record.setAnimationUrl(CosUtil.generatePresignedUrl(record.getAnimationUrl()));
-                }
-                if (StringUtils.isNotBlank(record.getImageUrl())){
-                    record.setImageUrl(CosUtil.generatePresignedUrl(record.getImageUrl()));
-                }
-            }
+
             return new PageInfo<>(list);
         }
     }
@@ -917,21 +992,16 @@ public class AccountServiceImpl implements AccountService {
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
-            for (FuntimeUserRedpacket userRedpacket:list){
-                if (StringUtils.isNotBlank(userRedpacket.getAnimationUrl())){
-                    userRedpacket.setAnimationUrl(CosUtil.generatePresignedUrl(userRedpacket.getAnimationUrl()));
-                }
-                if (StringUtils.isNotBlank(userRedpacket.getImageUrl())){
-                    userRedpacket.setImageUrl(CosUtil.generatePresignedUrl(userRedpacket.getImageUrl()));
-                }
-            }
+
             return new PageInfo<>(list);
         }
     }
 
     @Override
     public List<FuntimeUserAccountRedpacketRecord> getRecordListByRedId(Long redpacketId) {
-        return userAccountRedpacketRecordMapper.getRedpacketRecordByRedpacketId(redpacketId);
+        List<FuntimeUserAccountRedpacketRecord> records = userAccountRedpacketRecordMapper.getRedpacketRecordByRedpacketId(redpacketId);
+
+        return records;
     }
 
 

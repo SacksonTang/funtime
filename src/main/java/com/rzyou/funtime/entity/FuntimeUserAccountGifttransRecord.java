@@ -49,6 +49,6 @@ public class FuntimeUserAccountGifttransRecord implements Serializable {
 
     private String imageUrl;
 
-
+    private Integer concerned;
 
 }

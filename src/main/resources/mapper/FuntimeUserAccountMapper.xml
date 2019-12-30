@@ -133,9 +133,7 @@
     <if test="hornNumber != null">
       and horn_number-#{hornNumber,jdbcType=INTEGER}>=0
     </if>
-    <if test="version!=null">
-      and version = #{version}
-    </if>
+
   </update>
 
 </mapper>

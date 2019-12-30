@@ -58,8 +58,9 @@ public interface NoticeService {
      * @param nickname
      * @param portraitAddress
      * @param roomNo
+     * @param sex
      */
-    void notice1(Integer micLocation, Long roomId, Long micUserId, String nickname, String portraitAddress, String roomNo);
+    void notice1(Integer micLocation, Long roomId, Long micUserId, String nickname, String portraitAddress, String roomNo, Integer sex);
 
     /**
      * 下麦通知

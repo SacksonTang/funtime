@@ -160,8 +160,43 @@ public class RoomServiceImpl implements RoomService {
         }
         //房间已封禁
         if (chatroom.getIsBlock().intValue()==1){
+            log.info("roomJoin==========> {}",ErrorMsgEnum.ROOM_IS_BLOCK.getDesc());
             throw new BusinessException(ErrorMsgEnum.ROOM_IS_BLOCK.getValue(),ErrorMsgEnum.ROOM_IS_BLOCK.getDesc());
         }
+
+        //房主进房
+        if (userId.equals(chatroom.getUserId())){
+            //直接上10号麦
+            FuntimeChatroomMic chatroomMic = chatroomMicMapper.getMicLocationUser(roomId,10);
+            chatroomMicMapper.upperWheat(chatroomMic.getId(),userId);
+        }else{
+            //房间已停播
+            if (chatroom.getState() == 2){
+                log.info("roomJoin==========> {}",ErrorMsgEnum.ROOM_IS_CLOSE.getDesc());
+                throw new BusinessException(ErrorMsgEnum.ROOM_IS_CLOSE.getValue(),ErrorMsgEnum.ROOM_IS_CLOSE.getDesc());
+            }
+            //上锁的房间
+            if (chatroom.getIsLock().intValue()==1){
+                //不是房主
+                //校验密码
+                if (StringUtils.isEmpty(password) || StringUtils.isEmpty(chatroom.getPassword())) {
+                    log.info("roomJoin==========> {}",ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
+                    throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
+                }
+                if (!password.equals(chatroom.getPassword())) {
+                    log.info("roomJoin==========> {}",ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
+                    throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
+                }
+            }
+            //校验是否在踢出房间范围
+            Integer count = chatroomKickedRecordMapper.checkUserIsKickedOrNot(roomId,userId);
+
+            if (count>0){
+                log.info("roomJoin==========> {}",ErrorMsgEnum.ROOM_JOIN_USER_BLOCKED.getDesc());
+                throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_USER_BLOCKED.getValue(),ErrorMsgEnum.ROOM_JOIN_USER_BLOCKED.getDesc());
+            }
+        }
+
         //用户所在的房间
         List<Long> roomIds = chatroomUserMapper.getRoomByUserId(userId);
         boolean flag = false;
@@ -187,34 +222,6 @@ public class RoomServiceImpl implements RoomService {
             }
         }
 
-        //房主进房
-        if (userId.equals(chatroom.getUserId())){
-            //直接上10号麦
-            FuntimeChatroomMic chatroomMic = chatroomMicMapper.getMicLocationUser(roomId,10);
-            chatroomMicMapper.upperWheat(chatroomMic.getId(),userId);
-        }else{
-            //房间已停播
-            if (chatroom.getState() == 2){
-                throw new BusinessException(ErrorMsgEnum.ROOM_IS_CLOSE.getValue(),ErrorMsgEnum.ROOM_IS_CLOSE.getDesc());
-            }
-            //上锁的房间
-            if (chatroom.getIsLock().intValue()==1){
-                //不是房主
-                //校验密码
-                if (StringUtils.isEmpty(password) || StringUtils.isEmpty(chatroom.getPassword())) {
-                    throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
-                }
-                if (!password.equals(chatroom.getPassword())) {
-                    throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
-                }
-            }
-            //校验是否在踢出房间范围
-            Integer count = chatroomKickedRecordMapper.checkUserIsKickedOrNot(roomId,userId);
-
-            if (count>0){
-                throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_USER_BLOCKED.getValue(),ErrorMsgEnum.ROOM_JOIN_USER_BLOCKED.getDesc());
-            }
-        }
         //用户角色
         int userRole = UserRole.ROOM_NORMAL.getValue();
         if (userId.equals(chatroom.getUserId())){
@@ -239,20 +246,27 @@ public class RoomServiceImpl implements RoomService {
                 }
             }
         }
+        boolean newRoom = false;
         //若没有则生成新的编号
         if (roomNo == null){
             roomNo = UUID.randomUUID().toString().replaceAll("-","");
-            //同步腾讯
-            createRoomForTencent(userId,roomNo);
+            newRoom = true;
+
         }
         //进入房间记录
         saveChatroomUserForRoomJoin(userId,roomId,userRole,roomNo,1);
+
         //房间人数+1
         updateOnlineNumPlus(roomId);
         //用户进入房间日志
         saveUserRoomLog(1,userId,roomId,null);
-        //同步腾讯进入房间
-        enterRoomForTencent(userId,roomNo);
+        if (newRoom){
+            //同步腾讯创建房间
+            createRoomForTencent(userId,roomNo);
+        }else {
+            //同步腾讯进入房间
+            enterRoomForTencent(userId, roomNo);
+        }
         //全房消息
         List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
         //发送通知
@@ -282,24 +296,11 @@ public class RoomServiceImpl implements RoomService {
         if (chatroom==null){
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
-        chatroom.setPassword(null);
-        if (StringUtils.isNotBlank((chatroom.getPortraitAddress()))&&!chatroom.getPortraitAddress().startsWith("http")){
-            chatroom.setPortraitAddress(CosUtil.generatePresignedUrl(chatroom.getPortraitAddress()));
-        }
-        if (StringUtils.isNotBlank((chatroom.getAvatarUrl()))){
-            chatroom.setAvatarUrl(CosUtil.generatePresignedUrl(chatroom.getAvatarUrl()));
-        }
+
         Map<String, Object> result = new HashMap<>();
         result.put("chatroom",chatroom);
 
         List<Map<String, Object>> micUser = chatroomMicMapper.getMicUserByRoomId(roomId);
-        if (micUser!=null&&!micUser.isEmpty()){
-            for (Map<String, Object> map : micUser){
-                if (map.get("portraitAddress")!=null&&!map.get("portraitAddress").toString().startsWith("http")){
-                    map.put("portraitAddress",CosUtil.generatePresignedUrl(map.get("portraitAddress").toString()));
-                }
-            }
-        }
 
         result.put("mic",micUser);
         result.put("isRedpacketShow",parameterService.getParameterValueByKey("is_redpacket_show"));
@@ -327,19 +328,26 @@ public class RoomServiceImpl implements RoomService {
             //在麦上先下麦
             lowerWheat(roomId, mic, userId);
         }
-        //删除用户
-        deleteChatroomUser(roomId, userId);
+
         //房间人数-1
         updateOnlineNumSub(roomId);
 
         //如果用户所在腾讯聊天室是最后一个用户,应该要同步删除腾讯聊天室
         Map<String, Object> roomNoMap = chatroomUserMapper.getRoomNoByRoomIdAndUser(roomId, userId);
+
         if (roomNoMap!=null&&!roomNoMap.isEmpty()){
             Integer count = Integer.parseInt(roomNoMap.get("roomNoCount").toString());
             if (count == 1){
                 TencentUtil.destroyGroup(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),roomNoMap.get("roomNo").toString());
             }
+            if (count>1){
+                List<String> members = new ArrayList<>();
+                members.add(userId.toString());
+                TencentUtil.deleteGroupMember(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),roomNoMap.get("roomNo").toString(),members);
+            }
         }
+        //删除用户
+        deleteChatroomUser(roomId, userId);
 
         //通知人数
         List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
@@ -422,6 +430,11 @@ public class RoomServiceImpl implements RoomService {
             if (count1 == 1){
                 TencentUtil.destroyGroup(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),roomNoMap.get("roomNo").toString());
             }
+            if (count1>1){
+                List<String> members = new ArrayList<>();
+                members.add(userId.toString());
+                TencentUtil.deleteGroupMember(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),roomNoMap.get("roomNo").toString(),members);
+            }
         }
 
         //删除用户
@@ -469,6 +482,10 @@ public class RoomServiceImpl implements RoomService {
         if (chatroomMic.getMicUserId()!=null){
             throw new BusinessException(ErrorMsgEnum.ROOM_MIC_USER_EXIST.getValue(),ErrorMsgEnum.ROOM_MIC_USER_EXIST.getDesc());
         }
+        Long micLocationId = chatroomMicMapper.getMicLocationId(roomId, micUserId);
+        if (micLocationId!=null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_MIC_IS_EXIST.getValue(),ErrorMsgEnum.ROOM_MIC_IS_EXIST.getDesc());
+        }
         Map<String, Object> roomNoMap = chatroomUserMapper.getRoomNoByRoomIdAndUser(roomId, userId);
         if (roomNoMap!=null&&!roomNoMap.isEmpty()){
             //发送通知
@@ -514,10 +531,14 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
 
+        k = chatroomUserMapper.updateUserRoleById(chatroomUserMapper.checkUserIsExist(roomId,micUserId),UserRole.ROOM_MIC.getValue());
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
         List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
         //发送通知
         for (String roomNo : roomNos) {
-            noticeService.notice1(micLocation, roomId, micUserId, user.getNickname(), user.getPortraitAddress(), roomNo);
+            noticeService.notice1(micLocation, roomId, micUserId, user.getNickname(), user.getPortraitAddress(), roomNo,user.getSex());
         }
 
 
@@ -551,6 +572,10 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.ROOM_MIC_USER_NOT_EXIST.getValue(),ErrorMsgEnum.ROOM_MIC_USER_NOT_EXIST.getDesc());
         }
         lowerWheat(roomId,micLocation,micUserId);
+        int k = chatroomUserMapper.updateUserRoleById(chatroomUserMapper.checkUserIsExist(roomId,micUserId),UserRole.ROOM_NORMAL.getValue());
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
         List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
 
 
@@ -709,14 +734,7 @@ public class RoomServiceImpl implements RoomService {
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
-            for (Map<String, Object> map : list){
-                if (map.get("examUrl")!=null){
-                    map.put("examUrl",CosUtil.generatePresignedUrl(map.get("examUrl").toString()));
-                }
-                if (map.get("avatarUrl")!=null){
-                    map.put("avatarUrl",CosUtil.generatePresignedUrl(map.get("avatarUrl").toString()));
-                }
-            }
+
             return new PageInfo<>(list);
         }
     }
@@ -728,11 +746,6 @@ public class RoomServiceImpl implements RoomService {
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }else {
-            for (Map<String, Object> map : list){
-                if (map.get("portraitAddress")!=null&&!map.get("portraitAddress").toString().startsWith("http")){
-                    map.put("portraitAddress",CosUtil.generatePresignedUrl(map.get("portraitAddress").toString()));
-                }
-            }
 
             return new PageInfo<>(list);
         }
@@ -782,6 +795,10 @@ public class RoomServiceImpl implements RoomService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        k = chatroomUserMapper.updateUserRoleById(chatroomUserMapper.checkUserIsExist(roomId, micUserId),UserRole.ROOM_CHAIR.getValue());
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
 
         List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
 
@@ -824,6 +841,10 @@ public class RoomServiceImpl implements RoomService {
         }
 
         int k = chatroomMicMapper.roomManageCancel(micLocationUser.getId());
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        k = chatroomUserMapper.updateUserRoleById(chatroomUserMapper.checkUserIsExist(roomId,micUserId),UserRole.ROOM_NORMAL.getValue());
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
@@ -877,14 +898,7 @@ public class RoomServiceImpl implements RoomService {
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
-            for (Map<String, Object> map : list){
-                if (map.get("examUrl")!=null){
-                    map.put("examUrl",CosUtil.generatePresignedUrl(map.get("examUrl").toString()));
-                }
-                if (map.get("avatarUrl")!=null){
-                    map.put("avatarUrl",CosUtil.generatePresignedUrl(map.get("avatarUrl").toString()));
-                }
-            }
+
             return new PageInfo<>(list);
         }
     }
@@ -894,11 +908,6 @@ public class RoomServiceImpl implements RoomService {
         List<FuntimeGift> list = giftMapper.getGiftListByBestowed(bestowed);
         if (list==null||list.isEmpty()){
             return null;
-        }else{
-            for (FuntimeGift gift:list){
-                gift.setAnimationUrl(CosUtil.generatePresignedUrl(gift.getAnimationUrl()));
-                gift.setImageUrl(CosUtil.generatePresignedUrl(gift.getImageUrl()));
-            }
         }
         return list;
     }
@@ -911,15 +920,7 @@ public class RoomServiceImpl implements RoomService {
         List<Map<String,Object>> list = giftMapper.getGiftList();
 
         if (list!=null&&!list.isEmpty()){
-            for (Map<String, Object> map : list){
-                if (map.get("animationUrl")!=null){
-                    map.put("animationUrl",CosUtil.generatePresignedUrl(map.get("animationUrl").toString()));
-                }
-                if (map.get("imageUrl")!=null){
-                    map.put("imageUrl",CosUtil.generatePresignedUrl(map.get("imageUrl").toString()));
-                }
 
-            }
             List<Map<String,Object>> tags = tagMapper.queryTagsByType("gift_type");
             if (tags == null){
                 return null;
@@ -972,6 +973,7 @@ public class RoomServiceImpl implements RoomService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+
     }
 
     public void updateOnlineNumPlus(Long id){

@@ -63,4 +63,12 @@ public interface FuntimeUserMapper {
     List<Map<String, Object>> getExpression();
 
     List<Map<String, Object>> getBanners();
+
+    List<FuntimeUser> queryUserInfoByIndex(String content);
+
+    /**
+     * 客服
+     * @return
+     */
+    Map<String, Object> getCustomerService();
 }

@@ -46,7 +46,7 @@ public interface AccountService {
      * 创建红包
      * @param redpacket
      */
-    void createRedpacket(FuntimeUserRedpacket redpacket);
+    Long createRedpacket(FuntimeUserRedpacket redpacket);
 
     /**
      * 抢红包
@@ -211,4 +211,11 @@ public interface AccountService {
      * @return
      */
     List<FuntimeRechargeConf> getRechargeConf();
+
+    /**
+     * 获取红包信息
+     * @param id
+     * @return
+     */
+    FuntimeUserRedpacket getRedpacketInfoById(Long id);
 }

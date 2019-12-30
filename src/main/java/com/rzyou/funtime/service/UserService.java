@@ -312,4 +312,19 @@ public interface UserService {
      * @return
      */
     List<Map<String, Object>> getBanners();
+
+    /**
+     * 获取首页用户查询
+     * @param startPage
+     * @param pageSize
+     * @param content
+     * @return
+     */
+    PageInfo<FuntimeUser> queryUserInfoByIndex(Integer startPage, Integer pageSize, String content);
+
+    /**
+     * 客服
+     * @return
+     */
+    Map<String, Object> getCustomerService();
 }

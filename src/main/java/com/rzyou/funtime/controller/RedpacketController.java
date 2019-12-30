@@ -37,7 +37,10 @@ public class RedpacketController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long redpacketId = paramJson.getLong("redpacketId");
-            result.setData(JsonUtil.getMap("records",accountService.getRecordListByRedId(redpacketId)));
+            Map<String,Object> resultMap = new HashMap<>();
+            resultMap.put("records",accountService.getRecordListByRedId(redpacketId));
+            resultMap.put("redpacket",accountService.getRedpacketInfoById(redpacketId));
+            result.setData(resultMap);
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();
@@ -99,8 +102,9 @@ public class RedpacketController {
                     return result;
             }
 
-            accountService.createRedpacket(redpacket);
+            Long id = accountService.createRedpacket(redpacket);
 
+            result.setData(JsonUtil.getMap("id",id));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

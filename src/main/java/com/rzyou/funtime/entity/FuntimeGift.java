@@ -35,5 +35,7 @@ public class FuntimeGift implements Serializable {
 
     private Integer sort;
 
+    private Integer flag;
+
 
 }

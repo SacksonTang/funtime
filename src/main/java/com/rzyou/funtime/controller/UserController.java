@@ -100,6 +100,38 @@ public class UserController {
         }
     }
 
+    /**
+     * 获取客服
+     * @param request
+     * @return
+     */
+    @PostMapping("getCustomerService")
+    public ResultMsg<Object> getCustomerService(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+
+            Map<String,Object> resultMap = userService.getCustomerService();
+            result.setData(JsonUtil.getMap("customerService",resultMap));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+
+    /**
+     * banner列表
+     * @param request
+     * @return
+     */
     @PostMapping("getBanners")
     public ResultMsg<Object> getBanners(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
@@ -311,13 +343,41 @@ public class UserController {
             Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
             Integer sex = paramJson.getInteger("sex");
             Integer ageType = paramJson.getInteger("ageType");
-            if(sex==null||ageType==null){
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
-            }
+
 
             result.setData(JsonUtil.getMap("pageInfo",userService.queryUserInfoByOnline(startPage,pageSize,sex,ageType)));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 首页查询用户
+     * @param request
+     * @return
+     */
+    @PostMapping("queryUserInfoByIndex")
+    public ResultMsg<Object> queryUserInfoByIndex(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+
+            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
+            String content = paramJson.getString("content");
+
+
+            result.setData(JsonUtil.getMap("pageInfo",userService.queryUserInfoByIndex(startPage,pageSize,content)));
 
             return result;
         } catch (BusinessException be) {
@@ -736,11 +796,7 @@ public class UserController {
                     for (int i = 0; i < array.size(); i++) {
                         object = array.getJSONObject(i);
                         String id = object.getString("userId");
-                        if (object.getString("portraitAddress")!=null){
-                            if (!object.getString("portraitAddress").startsWith("http")){
-                                object.put("portraitAddress", CosUtil.generatePresignedUrl(object.getString("portraitAddress")));
-                            }
-                        }
+
                         if (id.equals(userId)) {
                             resultMap.put("mySort", j);
                             resultMap.put("myAmount", map.get("amountSum"));
@@ -814,8 +870,8 @@ public class UserController {
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = paramJson.getLong("userId");
-            Long byUserId = paramJson.getLong("byUserId");
+            Long userId = paramJson.getLong("userId");//操作用户
+            Long byUserId = paramJson.getLong("byUserId");//被查用户
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());

@@ -16,6 +16,8 @@ public interface FuntimeUserRedpacketMapper {
     List<FuntimeUserRedpacket> getRedpacketInfoByUserId(@Param("startDate") String startDate
             ,@Param("endDate") String endDate,@Param("userId") Long userId);
 
+    FuntimeUserRedpacket getRedpacketInfoById(Long id);
+
     int deleteByPrimaryKey(Long id);
 
     int insertSelective(FuntimeUserRedpacket record);
@@ -27,4 +29,7 @@ public interface FuntimeUserRedpacketMapper {
     int updateByPrimaryKey(FuntimeUserRedpacket record);
 
     List<FuntimeUserRedpacket> getRedpacketListByRoomId(@Param("roomId") Long roomId,@Param("userId") Long userId);
+
+    List<FuntimeUserRedpacket> getRedpacketListInvalid();
+
 }

@@ -119,9 +119,7 @@ public class UserServiceImpl implements UserService {
         if(user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
-        if (StringUtils.isNotBlank(user.getPortraitAddress())&&!user.getPortraitAddress().startsWith("http")) {
-            user.setPortraitAddress(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
-        }
+
 
         FuntimeChatroom chatroom = chatroomMapper.getRoomByUserId(id);
 
@@ -208,7 +206,7 @@ public class UserServiceImpl implements UserService {
         updateByPrimaryKeySelective(user);
         if (StringUtils.isNotBlank(user.getNickname())||StringUtils.isNotBlank(user.getPortraitAddress())){
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
-            boolean flag = TencentUtil.portraitSet(userSig, user.getId().toString(), user.getNickname(), CosUtil.generatePresignedUrl(user.getPortraitAddress()));
+            boolean flag = TencentUtil.portraitSet(userSig, user.getId().toString(), user.getNickname(), user.getPortraitAddress());
             if (!flag){
                 throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(),ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
             }
@@ -270,19 +268,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Map<String,Object>> queryTagsByType(String tagType, Integer type) {
         List<Map<String,Object>> list = tagMapper.queryTagsByType(tagType);
+        List<Map<String,Object>> results = new ArrayList<>();
         if (type!=null&&type == 1){
             if (list!=null&&!list.isEmpty()){
                 Map<String,Object> map = new HashMap<>();
                 map.put("id",0);
                 map.put("tagName","全部");
-                list.add(map);
+                results.add(map);
                 map = new HashMap<>();
                 map.put("id",-1);
                 map.put("tagName","热门");
-                list.add(map);
+                results.add(map);
             }
+
         }
-        return list;
+        results.addAll(list);
+        return results;
     }
 
     @Override
@@ -481,33 +482,33 @@ public class UserServiceImpl implements UserService {
         PageHelper.startPage(startPage,pageSize);
         String startAge = null;
         String endAge = null;
-        if (ageType.intValue()==1){//小于23
-            endAge = DateUtil.getCurrentYearAdd(new Date(),-23);
-        }else if (ageType.intValue()==2){
-            startAge = DateUtil.getCurrentYearAdd(new Date(),-24);
-            endAge = DateUtil.getCurrentYearAdd(new Date(),-29);
-        }else if (ageType.intValue()==3){
-            startAge = DateUtil.getCurrentYearAdd(new Date(),-30);
-            endAge = DateUtil.getCurrentYearAdd(new Date(),-39);
-        }else if (ageType.intValue()==4){
-            startAge = DateUtil.getCurrentYearAdd(new Date(),-40);
-            endAge = DateUtil.getCurrentYearAdd(new Date(),-49);
-        }else if (ageType.intValue()==5){
-            startAge = DateUtil.getCurrentYearAdd(new Date(),-50);
-            endAge = DateUtil.getCurrentYearAdd(new Date(),-59);
-        }else if (ageType.intValue()==6){
-            startAge = DateUtil.getCurrentYearAdd(new Date(),-60);
-        }else{
-            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        if (ageType!=null) {
+            if (ageType.intValue() == 1) {//小于23
+                endAge = DateUtil.getCurrentYearAdd(new Date(), -23);
+            } else if (ageType.intValue() == 2) {
+                startAge = DateUtil.getCurrentYearAdd(new Date(), -24);
+                endAge = DateUtil.getCurrentYearAdd(new Date(), -29);
+            } else if (ageType.intValue() == 3) {
+                startAge = DateUtil.getCurrentYearAdd(new Date(), -30);
+                endAge = DateUtil.getCurrentYearAdd(new Date(), -39);
+            } else if (ageType.intValue() == 4) {
+                startAge = DateUtil.getCurrentYearAdd(new Date(), -40);
+                endAge = DateUtil.getCurrentYearAdd(new Date(), -49);
+            } else if (ageType.intValue() == 5) {
+                startAge = DateUtil.getCurrentYearAdd(new Date(), -50);
+                endAge = DateUtil.getCurrentYearAdd(new Date(), -59);
+            } else if (ageType.intValue() == 6) {
+                startAge = DateUtil.getCurrentYearAdd(new Date(), -60);
+            } else {
+                throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+            }
         }
         List<FuntimeUser> list = userMapper.queryUserInfoByOnline(sex,startAge,endAge);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
             for (FuntimeUser user:list){
-                if (StringUtils.isNotBlank(user.getPortraitAddress())&&!user.getPortraitAddress().startsWith("http")){
-                    user.setPortraitAddress(CosUtil.generatePresignedUrl(user.getPortraitAddress()));
-                }
+
                 List<Integer> tags = tagMapper.queryTagsByUserId(user.getId());
                 user.setTags(tags);
             }
@@ -521,12 +522,6 @@ public class UserServiceImpl implements UserService {
         List<Map<String, Object>> list = giftMapper.getGiftByUserId(userId);
         if (list==null||list.isEmpty()){
             return null;
-        }else{
-            for (Map<String,Object> map : list){
-                if (map.get("animationUrl")!=null){
-                    map.put("animationUrl", CosUtil.generatePresignedUrl(map.get("animationUrl").toString()));
-                }
-            }
         }
         return list;
     }
@@ -536,12 +531,6 @@ public class UserServiceImpl implements UserService {
         List<FuntimeUserPhotoAlbum> list = userPhotoAlbumMapper.getPhotoAlbumByUserId(userId);
         if (list == null || list.isEmpty()){
             return null;
-        }else{
-            for (FuntimeUserPhotoAlbum album : list){
-                if (StringUtils.isNotBlank(album.getResourceUrl())) {
-                    album.setResourceKeyUrl(CosUtil.generatePresignedUrl(album.getResourceUrl()));
-                }
-            }
         }
         return list;
     }
@@ -549,9 +538,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Object> queryUserByChatUser(Long userId, Long byUserId) {
         Map<String,Object> result = userMapper.queryUserByChatUser(userId,byUserId);
-        if (result!=null&&result.get("portraitAddress")!=null&&!result.get("portraitAddress").toString().startsWith("http")){
-            result.put("portraitAddress", CosUtil.generatePresignedUrl(result.get("portraitAddress").toString()));
-        }
+
         if (result!=null&&result.get("birthday")!=null){
 
             int birthday = Integer.valueOf(result.get("birthday").toString());
@@ -584,9 +571,7 @@ public class UserServiceImpl implements UserService {
             return new PageInfo<>();
         }
         for (Map<String, Object> map:list){
-            if (map.get("portraitAddress")!=null&&!map.get("portraitAddress").toString().startsWith("http")){
-                map.put("portraitAddress",CosUtil.generatePresignedUrl(map.get("portraitAddress").toString()));
-            }
+
             if (map.get("birthday")!=null) {
 
                 Integer birthday = Integer.valueOf(map.get("birthday").toString());
@@ -605,9 +590,7 @@ public class UserServiceImpl implements UserService {
             return new PageInfo<>();
         }
         for (Map<String, Object> map:list){
-            if (map.get("portraitAddress")!=null&&!map.get("portraitAddress").toString().startsWith("http")){
-                map.put("portraitAddress",CosUtil.generatePresignedUrl(map.get("portraitAddress").toString()));
-            }
+
             if (map.get("birthday")!=null) {
                 Integer birthday = Integer.valueOf(map.get("birthday").toString());
                 map.put("age",DateUtil.getAgeByBirthday(birthday));
@@ -672,6 +655,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public void makeAccusation(FuntimeAccusation accusation) {
         accusation.setState(1);
+        if (accusation.getImg1()!=null){
+            accusation.setImg1(CosUtil.generatePresignedUrl(accusation.getImg1()));
+        }
+        if (accusation.getImg2()!=null){
+            accusation.setImg2(CosUtil.generatePresignedUrl(accusation.getImg2()));
+        }
+        if (accusation.getImg3()!=null){
+            accusation.setImg3(CosUtil.generatePresignedUrl(accusation.getImg3()));
+        }
+        if (accusation.getImg4()!=null){
+            accusation.setImg4(CosUtil.generatePresignedUrl(accusation.getImg4()));
+        }
+        if (accusation.getImg5()!=null){
+            accusation.setImg5(CosUtil.generatePresignedUrl(accusation.getImg5()));
+        }
         if (accusationMapper.insertSelective(accusation)!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
@@ -685,29 +683,39 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Map<String, Object>> getExpression() {
         List<Map<String, Object>> list = userMapper.getExpression();
-        if (list!=null&&!list.isEmpty()){
-            for (Map<String, Object> map : list){
-                if (map.get("expressionUrl")!=null){
-                    map.put("expressionKey",map.get("expressionUrl"));
-                    map.put("expressionUrl",CosUtil.generatePresignedUrl(map.get("expressionUrl").toString()));
-                }
-            }
-        }
+
         return list;
     }
 
     @Override
     public List<Map<String, Object>> getBanners() {
         List<Map<String, Object>> list = userMapper.getBanners();
-        if (list!=null&&!list.isEmpty()){
-            for (Map<String, Object> map : list){
-                if (map.get("bannerUrl")!=null){
-                    map.put("bannerKey",map.get("bannerUrl"));
-                    map.put("bannerUrl",CosUtil.generatePresignedUrl(map.get("bannerUrl").toString()));
+
+        return list;
+    }
+
+    @Override
+    public PageInfo<FuntimeUser> queryUserInfoByIndex(Integer startPage, Integer pageSize, String content) {
+        PageHelper.startPage(startPage,pageSize);
+        List<FuntimeUser> list = userMapper.queryUserInfoByIndex(content);
+        if (list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }else{
+            for (FuntimeUser user : list){
+
+                if (user.getBirthday()!=null) {
+                    Integer birthday = user.getBirthday();
+                    user.setAge(DateUtil.getAgeByBirthday(birthday));
+                    user.setConstellation(DateUtil.getConstellationByBirthday(birthday));
                 }
             }
+            return new PageInfo<>(list);
         }
-        return list;
+    }
+
+    @Override
+    public Map<String, Object> getCustomerService() {
+        return userMapper.getCustomerService();
     }
 
 

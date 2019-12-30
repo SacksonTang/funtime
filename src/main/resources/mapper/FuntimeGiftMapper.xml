@@ -15,10 +15,11 @@
     <result column="animation_length" jdbcType="DECIMAL" property="animationLength" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="sort" jdbcType="INTEGER" property="sort" />
+    <result column="flag" jdbcType="INTEGER" property="flag" />
   </resultMap>
   <sql id="Base_Column_List">
     id, gift_tag_id, gift_name, original_price, activity_price, special_effect,
-    bestowed, animation_type, animation_url, animation_length, create_time, sort,image_url
+    bestowed, animation_type, animation_url, animation_length, create_time, sort,image_url,sort,flag
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -30,7 +31,7 @@
     select
     <include refid="Base_Column_List" />
     from t_funtime_gift
-    where bestowed = #{bestowed} order by sort
+    where bestowed = #{bestowed} and flag = 1 order by sort
   </select>
   <select id="getGiftList"  resultType="java.util.Map">
     select
@@ -38,6 +39,7 @@
      t.original_price originalPrice, t.activity_price activityPrice,t.image_url imageUrl,
      t.animation_type animationType, t.animation_url animationUrl, t.animation_length animationLength
     from t_funtime_gift t inner join t_funtime_tag g on t.gift_tag_id = g.id
+    where t.flag = 1
      order by t.sort
   </select>
   <select id="getGiftByUserId" parameterType="java.lang.Long" resultType="java.util.Map">
@@ -88,8 +90,6 @@
         animation_length,
       </if>
 
-        create_time,
-
       <if test="sort != null">
         sort,
       </if>
@@ -126,8 +126,6 @@
       <if test="animationLength != null">
         #{animationLength,jdbcType=DECIMAL},
       </if>
-
-        now(),
 
       <if test="sort != null">
         #{sort,jdbcType=INTEGER},
@@ -170,6 +168,9 @@
 
       <if test="sort != null">
         sort = #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="flag != null">
+        flag = #{flag,jdbcType=INTEGER},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}

@@ -215,6 +215,7 @@ public class TencentUtil {
         JSONObject paramMap = new JSONObject();
         Random random = new Random();
         paramMap.put("SyncOtherMachine",2);
+        paramMap.put("MsgLifeTime",0);
         paramMap.put("To_Account",toAccounts);
         paramMap.put("MsgRandom",random.nextInt(100000000));
         Map<String,String> msgContent = new HashMap<>();

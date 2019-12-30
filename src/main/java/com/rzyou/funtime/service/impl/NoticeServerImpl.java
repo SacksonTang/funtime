@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
-import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.FuntimeNotice;
 import com.rzyou.funtime.entity.FuntimeUser;
@@ -205,16 +204,14 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    public void notice1(Integer micLocation, Long roomId, Long micUserId, String nickname, String portraitAddress, String roomNo) {
+    public void notice1(Integer micLocation, Long roomId, Long micUserId, String nickname, String portraitAddress, String roomNo, Integer sex) {
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         JSONObject object = new JSONObject();
         object.put("pos",micLocation);
         object.put("rid",roomId);
         object.put("uid",micUserId);
         object.put("name",nickname);
-        if (portraitAddress!=null&&!portraitAddress.startsWith("http")){
-            portraitAddress = CosUtil.generatePresignedUrl(portraitAddress);
-        }
+        object.put("sex",sex);
         object.put("imgUrl",portraitAddress);
         object.put("type",Constant.ROOM_MIC_UPPER);
         String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
@@ -426,7 +423,7 @@ public class NoticeServerImpl implements NoticeService {
         if (type == 11){
             object.put("msg",msg);
         }else{
-            object.put("imgUrl",CosUtil.generatePresignedUrl(imgUrl));
+            object.put("imgUrl",imgUrl);
         }
         for (String roomNo : roomNos) {
             String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
@@ -492,7 +489,7 @@ public class NoticeServerImpl implements NoticeService {
         object.put("uid",userId);
         object.put("name",user.getNickname());
         object.put("msg",content);
-        object.put("imgUrl", CosUtil.generatePresignedUrl(user.getPortraitAddress()));
+        object.put("imgUrl", user.getPortraitAddress());
         String objectStr = JSONObject.toJSONString(object);
         String parameterHandler = StringEscapeUtils.unescapeJava(objectStr);
         saveNotice(Constant.SERVICE_MSG, parameterHandler,0);

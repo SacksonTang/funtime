@@ -9,6 +9,7 @@ server:
       directory: /opt/log/tomcat_log
     connection-timeout: 30000
 
+
 spring:
   datasource:
     druid:

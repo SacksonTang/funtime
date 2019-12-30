@@ -54,4 +54,6 @@ public class FuntimeUserRedpacket implements Serializable {
 
     private Integer sex;
 
+    private Integer selfGrab;
+
 }

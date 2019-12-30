@@ -38,6 +38,9 @@
     <result column="channel"  property="channel" />
     <result column="platform"  property="platform" />
     <result column="show_id"  property="showId" />
+    <result column="roomId"  property="roomId" />
+    <result column="isLock"  property="isLock" />
+    <result column="isBlock"  property="isBlock" />
   </resultMap>
   <sql id="Base_Column_List">
     id, username, fullname, nickname, password, phone_number,
@@ -50,7 +53,7 @@
     select
     id
     from t_funtime_user
-    where  flag = 1
+    where  online_state = 1 and flag = 1
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -69,9 +72,9 @@
   <select id="queryUserByChatUser" resultType="java.util.Map">
     select
      u.nickname,u.portrait_address portraitAddress,u.sign_text as  signText,u.birthday,u.sex,u.show_id showId
-     ,(select count(c.id) from t_funtime_user_concern c where c.user_id = #{byUserId} and c.to_user_id = u.id) isConcern
+     ,(select count(c.id) from t_funtime_user_concern c where c.user_id = #{userId} and c.to_user_id = u.id) isConcern
     from t_funtime_user u
-    where u.id = #{userId} and flag = 1
+    where u.id = #{byUserId} and flag = 1
   </select>
 
   <select id="getContributionList" resultType="java.util.Map">
@@ -166,20 +169,36 @@
   </select>
 
   <select id="queryUserInfoByOnline"  resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from t_funtime_user
-    where online_state = 1 and flag = 1
+          select
+          u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text  ,u.birthday,
+          u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
+          m.id roomId,m.is_lock as isLock,m.is_block as isBlock
+          from t_funtime_user u left join t_funtime_chatroom m on u.id = m.user_id
+    where u.online_state = 1 and u.flag = 1
       <if test="sex!=null">
-        and sex = #{sex}
+        and u.sex = #{sex}
       </if>
       <if test="startAge!=null">
-        and #{startAge}>=birthday
+        and #{startAge}>=u.birthday
       </if>
       <if test="endAge!=null">
-        and birthday>=#{endAge}
+        and u.birthday>=#{endAge}
       </if>
-    order by last_login_time desc
+    order by u.last_login_time desc
+
+  </select>
+
+  <select id="queryUserInfoByIndex"  resultMap="BaseResultMap">
+    select
+    u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text  ,u.birthday,
+    u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
+    m.id roomId,m.is_lock as isLock,m.is_block as isBlock
+    from t_funtime_user u left join t_funtime_chatroom m on u.id = m.user_id
+    where  u.flag = 1
+    <if test="content!=null and content!=''">
+      and u.show_id = #{content} or u.nickname like concat('%',#{content},'content') or m.name like concat('%',#{content},'content')
+    </if>
+    order by u.id desc
 
   </select>
 
@@ -202,6 +221,12 @@
        order by sort
 
   </select>
+  <select id="getCustomerService"  resultType="java.util.Map">
+    select email ,qq,phone_number phoneNumber
+    from t_funtime_customer_service
+
+  </select>
+
   <select id="getBanners"  resultType="java.util.Map">
     select id ,banner_type as bannerType,banner_url as bannerUrl,banner_desc as bannerDesc
     ,redirect_url AS redirectUrl

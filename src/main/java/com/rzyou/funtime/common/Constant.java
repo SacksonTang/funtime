@@ -18,8 +18,8 @@ public class Constant {
     public final static String WX_CHECK_TOKEN_URL = "https://api.weixin.qq.com/sns/auth";//检查access_token有效性
     public final static String WX_USERINFO_URL = "https://api.weixin.qq.com/sns/userinfo";//获取用户个人信息
 
-    public final static String QQ_APPID = "wx9c163a6bccdb1cd1";
-    public final static String QQ_APPSECRET = "2d38bf9d71ca18e6de538faaf0b68e68";
+    public final static String QQ_APPID = "101717851";
+    public final static String QQ_APPSECRET = "c040a46cc00bac766ed3b1333b31fa3f";
 
     public final static String QQ_GET_TOKEN_URL = "https://graph.qq.com/oauth2.0/token?grant_type=authorization_code"; //获取QQTOKEN
     public final static String QQ_REFRESH_TOKEN_URL = "https://graph.qq.com/oauth2.0/token?grant_type=refresh_token";//刷新TOKEN

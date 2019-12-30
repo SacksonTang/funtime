@@ -94,6 +94,14 @@ public class FuntimeUser implements Serializable {
 
     private Long showId;
 
+    private Integer age;
+
+    private Integer isLock;
+
+    private Integer isBlock;
+
+    private String constellation;
+
 
 
 }

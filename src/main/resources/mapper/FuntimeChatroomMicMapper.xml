@@ -55,7 +55,7 @@
 
   <update id="deleteByRoomId" parameterType="java.lang.Long">
     update t_funtime_chatroom_mic set mic_user_id = null,state = 1,update_time = NOW()
-    where room_id = #{roomId} and user_role >1
+    where room_id = #{roomId}
   </update>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_chatroom_mic

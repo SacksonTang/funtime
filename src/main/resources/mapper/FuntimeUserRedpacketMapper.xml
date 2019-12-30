@@ -23,6 +23,8 @@
     <result column="gift_name"  property="giftName" />
     <result column="image_url"  property="imageUrl" />
     <result column="sex"  property="sex" />
+    <result column="selfGrab"  property="selfGrab" />
+
     <result column="portrait_address"  property="portraitAddress" />
   </resultMap>
   <sql id="Base_Column_List">
@@ -39,10 +41,12 @@
     select
     t.id, t.user_id, t.redpacket_num, t.amount, t.redpacket_desc, t.bestow_condition, t.gift_id, t.state,g.gift_name,
     g.animation_type,g.animation_url,g.image_url,u.nickname,u.portrait_address,u.sex
+
+    ,(select count(l.id) from t_funtime_user_redpacket_detail l where l.redpacket_id = t.id and l.grab_user_id = #{userId}) selfGrab
     from t_funtime_user_redpacket t left join t_funtime_gift g on t.gift_id = g.id
       inner join t_funtime_user u on t.user_id = u.id
-    where t.room_id = #{roomId} and t.state = 1 and t.invalid_time>=NOW()
-    and not exists (select t.id from t_funtime_user_redpacket_detail l where l.redpacket_id = t.id and l.grab_user_id = #{userId})
+    where t.room_id = #{roomId}
+     and t.state in (1,2)
     order by id desc
   </select>
 
@@ -59,6 +63,27 @@
     group by t.id
     order by t.id desc
   </select>
+  <select id="getRedpacketInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    t.id, t.user_id, t.redpacket_num, t.amount, t.redpacket_desc, t.bestow_condition, t.gift_id, t.state,
+    t.invalid_time, t.create_time,u.nickname,u.portrait_address,u.sex
+    ,ifnull(sum(l.amount),0) grabAmount,count(l.id) grabNum
+    from t_funtime_user_redpacket t left join t_funtime_user_redpacket_detail l on t.id = l.redpacket_id and l.grab_user_id is not null
+      inner join t_funtime_user u on t.user_id = u.id
+    where t.id = #{id}
+    group by t.id
+
+  </select>
+  <select id="getRedpacketListInvalid" resultMap="BaseResultMap">
+    select
+    t.id, t.user_id, t.redpacket_num, t.amount
+    ,sum(l.amount) grabAmount,count(l.id) grabNum
+    from t_funtime_user_redpacket t inner join t_funtime_user_redpacket_detail l on t.id = l.redpacket_id
+
+    where NOW()>t.invalid_time and  t.state = 1 and l.grab_user_id is null
+    group by t.id
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_redpacket
     where id = #{id,jdbcType=BIGINT}

@@ -1,13 +1,21 @@
 server:
   port: 8086
+  tomcat:
+    max-threads: 5000
+    max-connections: 20000
+    min-spare-threads: 30
+    accesslog:
+      enabled: true
+      directory: /var/local/logs/tomcatlogs
+    connection-timeout: 30000
 
 
 spring:
   datasource:
     druid:
-      url: jdbc:mysql://127.0.0.1:3306/funtime?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      url: jdbc:mysql://172.17.0.4:3306/funtime?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
       username: root
-      password: 123456
+      password: !XUNkv4uEps2%7Va%Td5nwT2AIqZUGm8
       driver-class-name: com.mysql.cj.jdbc.Driver
       initial-size: 5
       max-active: 100
@@ -25,30 +33,27 @@ spring:
 
       web-stat-filter:
         enabled: true
-        url-pattern: "/*"
+        url-pattern: /*
         exclusions: "/druid/*,*.js,*.gif,*.jpg,*.png,*.css,*.ico"
       stat-view-servlet:
         enabled: true
-        url-pattern: "/druid/*"
+        url-pattern: /druid/*
         reset-enable: false
         login-username: admin
-        login-password: admin
-        allow: 127.0.0.1
+        login-password: funtime@2019
       filter:
         stat:
           db-type: mysql
           log-slow-sql: true
           slow-sql-millis: 5000
-        wall:
-          enabled: true
-          db-type: mysql
-          config:
-            delete-allow: false
-            drop-table-allow: false
 mybatis:
-  type-aliases-package: com.rzyou.funtime.entity
   mapper-locations: classpath:mapper/*.xml
-
+  type-aliases-package: com.rzyou.funtime.entity
 logging:
   config: classpath:logback-spring.xml
+app:
+  pay:
+    notifyUrl: "http://122.51.172.209:8086/pay/notifyWxPay"
+    ip: "122.51.172.209"
+  logpath: /var/local/logs/funtimelogs
 

@@ -64,7 +64,7 @@ public interface FuntimeChatroomUserMapper {
 
     List<String> getRoomNoByRoomIdAll(Long roomId);
 
-    int deleteFlagById(Long id);
+    int updateUserRoleById(@Param("id") Long id,@Param("userRole") Integer userRole);
 
     int deleteRoomUser(String roomNo);
 

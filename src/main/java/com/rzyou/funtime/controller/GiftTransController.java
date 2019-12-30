@@ -3,6 +3,7 @@ package com.rzyou.funtime.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.GiveChannel;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.service.AccountService;
@@ -37,9 +38,11 @@ public class GiftTransController {
             String toUserIds = paramJson.getString("toUserIds");
             Integer giftId = paramJson.getInteger("giftId");
             Integer giftNum = paramJson.getInteger("giftNum");
-            Integer giveChannel = paramJson.getInteger("giveChannel");
+            Integer giveChannel = paramJson.getInteger("giveChannel");//1-房间2-单发
             Long roomId = paramJson.getLong("roomId");
-            if (userId == null || StringUtils.isBlank(toUserIds)||giftId == null || giftNum == null || giveChannel == null){
+            if (userId == null || StringUtils.isBlank(toUserIds)||giftId == null || giftNum == null || giveChannel == null
+                    ||(giveChannel.equals(GiveChannel.ROOM.getValue())&&roomId==null)
+                    ){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;

@@ -121,7 +121,7 @@
   </delete>
   <delete id="deleteByRoomId" parameterType="java.lang.Long">
     delete from t_funtime_chatroom_user
-    where room_id = #{roomId} and user_role>1
+    where room_id = #{roomId}
   </delete>
   <update id="updateRoomNoByRoomId" >
     update t_funtime_chatroom_user set roomNo = #{roomNo}
@@ -175,8 +175,8 @@
 
     </trim>
   </insert>
-  <update id="deleteFlagById">
-    update t_funtime_chatroom_user set flag = 1,is_sync = 1 where id = #{id}
+  <update id="updateUserRoleById">
+    update t_funtime_chatroom_user set user_role = #{userRole} where id = #{id}
   </update>
   <update id="updateSyncByRoomNo">
     update t_funtime_chatroom_user set is_sync = 1 where room_no = #{roomNo} and user_id = #{userId}

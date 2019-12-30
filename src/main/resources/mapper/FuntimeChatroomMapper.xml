@@ -100,7 +100,7 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <update id="deleteByRoomId" parameterType="java.lang.Long">
-    update t_funtime_chatroom set state = 2,online_num = 1
+    update t_funtime_chatroom set state = 2,online_num =0,is_lock = 2,password = null
     where id = #{id}
   </update>
   <insert id="insertUserRoomLog" parameterType="java.util.Map" >
