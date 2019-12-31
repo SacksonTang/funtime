@@ -902,7 +902,7 @@ public class RoomController {
                 List<String> members = new ArrayList<>();
                 members.add(userId);
                 for (int i =0 ;i<groups.size();i++){
-                    TencentUtil.deleteGroupMember(userSig,groups.getString(i),members);
+                    TencentUtil.deleteGroupMember(userSig,groups.getJSONObject(i).getString("GroupId"),members);
                 }
             }
 
