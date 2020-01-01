@@ -520,6 +520,7 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.ROOM_MIC_LOCATION_NOT_EXIST.getValue(),ErrorMsgEnum.ROOM_MIC_LOCATION_NOT_EXIST.getDesc());
         }
         if (chatroomMic.getMicUserId()!=null){
+            log.info("上麦接口 upperWheat 失败 ：{}",ErrorMsgEnum.ROOM_MIC_USER_EXIST.getDesc());
             throw new BusinessException(ErrorMsgEnum.ROOM_MIC_USER_EXIST.getValue(),ErrorMsgEnum.ROOM_MIC_USER_EXIST.getDesc());
         }
 
