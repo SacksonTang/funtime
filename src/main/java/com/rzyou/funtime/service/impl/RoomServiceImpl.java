@@ -61,7 +61,9 @@ public class RoomServiceImpl implements RoomService {
                 chatroom1.setState(1);
                 chatroom1.setId(chatroom.getId());
                 updateChatroom(chatroom1);
+
             }
+            roomJoin(userId,chatroom.getId(),null);
             return  chatroom.getId();
         }
         userService.updateCreateRoomPlus(userId);
