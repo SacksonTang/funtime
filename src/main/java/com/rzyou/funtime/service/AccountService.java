@@ -218,4 +218,26 @@ public interface AccountService {
      * @return
      */
     FuntimeUserRedpacket getRedpacketInfoById(Long id);
+
+    /**
+     * 红钻兑换蓝钻试算
+     * @param userId
+     * @param from
+     * @param to
+     * @param amount
+     * @param value
+     * @return
+     */
+    Integer diamondConvertTrial(Long userId, String from, String to, BigDecimal amount, int value);
+
+    /**
+     * 获取兑换比例
+     * @param userId
+     * @param from
+     * @param to
+     * @param amount
+     * @param value
+     * @return
+     */
+    BigDecimal getRatio(Long userId, String from, String to, BigDecimal amount, int value);
 }

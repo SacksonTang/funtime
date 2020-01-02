@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.cos.CosUtil;
+import com.rzyou.funtime.common.im.BankCardVerificationUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
@@ -369,6 +370,10 @@ public class UserServiceImpl implements UserService {
         if(userValid!=null){
             throw new BusinessException(ErrorMsgEnum.USERVALID_IS_EXISTS.getValue(),ErrorMsgEnum.USERVALID_IS_EXISTS.getDesc());
         }
+
+        BankCardVerificationUtil.bankCardVerification(depositCard,fullname,identityCard);
+
+
         userValid = new FuntimeUserValid();
         userValid.setAlipayNo(alipayNo);
         userValid.setDepositCard(depositCard);
@@ -516,17 +521,13 @@ public class UserServiceImpl implements UserService {
                 List<Map<String, Object>> tagNames = tagMapper.queryTagNamesByUserId(user.getId());
                 if (tagNames!=null&&!tagNames.isEmpty()){
                     for (Map<String, Object> map : tagNames){
-                        if (map.get("emotion")!=null){
-                            map.put("emotionColor", TagColorEnmu.getDescByValue(map.get("emotion").toString()));
+                        if (map.get("tagType").toString()!=null){
+                            map.put("tagColor", TagColorEnmu.getDescByValue(map.get("tagType").toString()));
                         }
-                        if (map.get("qualification")!=null){
-                            map.put("qualificationColor", TagColorEnmu.getDescByValue(map.get("qualification").toString()));
-                        }
-                        if (map.get("occupation")!=null){
-                            map.put("occupationColor", TagColorEnmu.getDescByValue(map.get("occupation").toString()));
-                        }
+
                     }
                 }
+                user.setTagNames(tagNames);
 
             }
 

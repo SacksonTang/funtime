@@ -396,6 +396,86 @@ public class UserController {
     }
 
     /**
+     * 试兑换
+     */
+    @PostMapping("diamondConvertTrial")
+    public ResultMsg<Object> diamondConvertTrial(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            String from = paramJson.getString("from");
+            String to = paramJson.getString("to");
+            BigDecimal amount = paramJson.getBigDecimal("amount");
+            List<String> convert = new ArrayList<>();
+            convert.add("rmb");
+            convert.add("blue");
+            convert.add("black");
+            if (StringUtils.isBlank(from)||StringUtils.isBlank(to)
+                    ||amount==null||!convert.contains(from)||!convert.contains(to)) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            Integer convertAmount = accountService.diamondConvertTrial(userId,from ,to ,amount, ConvertType.BLACK_BLUE.getValue());
+            result.setData(JsonUtil.getMap("convertAmount",convertAmount));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 返回兑换比例
+     */
+    @PostMapping("getRatio")
+    public ResultMsg<Object> getRatio(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            String from = paramJson.getString("from");
+            String to = paramJson.getString("to");
+            BigDecimal amount = paramJson.getBigDecimal("amount");
+            List<String> convert = new ArrayList<>();
+            convert.add("rmb");
+            convert.add("blue");
+            convert.add("black");
+            if (StringUtils.isBlank(from)||StringUtils.isBlank(to)
+                    ||amount==null||!convert.contains(from)||!convert.contains(to)) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            BigDecimal ratio = accountService.getRatio(userId,from ,to ,amount, ConvertType.BLACK_BLUE.getValue());
+            result.setData(JsonUtil.getMap("ratio",ratio));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 钻石兑换
      * @param request
      * @return
@@ -599,7 +679,7 @@ public class UserController {
             Long toUserId = paramJson.getLong("toUserId");
 
 
-            if (userId==null||toUserId==null) {
+            if (userId==null||toUserId==null||userId.equals(toUserId)) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -634,7 +714,7 @@ public class UserController {
             Long toUserId = paramJson.getLong("toUserId");
 
 
-            if (userId==null||toUserId==null) {
+            if (userId==null||toUserId==null||userId.equals(toUserId)) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());

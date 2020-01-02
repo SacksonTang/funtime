@@ -29,6 +29,12 @@
     from t_funtime_user_account_recharge_record
     where id = #{id,jdbcType=BIGINT}
   </select>
+  <select id="getRechargeRecordByUserId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select
+     count(id)
+    from t_funtime_user_account_recharge_record
+    where user_id = #{userId}
+  </select>
   <select id="getRechargeDetailForPage"  resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />

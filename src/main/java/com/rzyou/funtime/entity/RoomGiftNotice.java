@@ -50,5 +50,6 @@ public class RoomGiftNotice implements Serializable {
     public Integer toSex;
     public String giftName;
     public Integer userRole;
+    public Integer specialEffect;
 
 }

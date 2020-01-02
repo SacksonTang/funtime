@@ -40,6 +40,8 @@ public enum ErrorMsgEnum {
     USER_QQLOGIN_GETUSERINFO_ERROR("10031","QQ登录获取用户信息失败"),
     USER_QQLOGIN_GETTOKEN_ERROR("10032","QQ登录获取token失败"),
 
+    USER_BANKCARD_VALID_ERROR("10033","银行卡验证失败"),
+
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
     SMS_IS_EXPIRE("20002","验证码已过期"),

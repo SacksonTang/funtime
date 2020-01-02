@@ -73,6 +73,15 @@ public class AccountServiceImpl implements AccountService {
         return userAccountRechargeRecordMapper.selectByPrimaryKey(id);
     }
 
+    public boolean isFirstRecharge(Long userId){
+        Integer count = userAccountRechargeRecordMapper.getRechargeRecordByUserId(userId);
+        if (count>0){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
     @Override
     @Transactional
     public Map<String,Object> createRecharge(FuntimeUserAccountRechargeRecord record){
@@ -86,6 +95,9 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.RECHARGE_NUM_OUT.getValue(),ErrorMsgEnum.RECHARGE_NUM_OUT.getDesc());
         }
         //首充送三个
+        if (isFirstRecharge(record.getUserId())){
+            rechargeConf.setHornNum(rechargeConf.getHornNum()==null?0:rechargeConf.getHornNum()+3);
+        }
 
         record.setRmb(rechargeConf.getRechargeRmb());
         record.setHornNum(rechargeConf.getHornNum());
@@ -594,6 +606,7 @@ public class AccountServiceImpl implements AccountService {
 
                 RoomGiftNotice notice = new RoomGiftNotice();
                 notice.setCount(giftNum);
+                notice.setSpecialEffect(funtimeGift.getSpecialEffect());
                 notice.setGiftName(funtimeGift.getGiftName());
                 notice.setFromImg(user.getPortraitAddress());
                 notice.setFromName(user.getNickname());
@@ -688,6 +701,7 @@ public class AccountServiceImpl implements AccountService {
 
             RoomGiftNotice notice = new RoomGiftNotice();
             notice.setCount(giftNum);
+            notice.setSpecialEffect(funtimeGift.getSpecialEffect());
             notice.setGiftName(funtimeGift.getGiftName());
             notice.setFromImg(user.getPortraitAddress());
             notice.setFromName(user.getNickname());
@@ -792,6 +806,7 @@ public class AccountServiceImpl implements AccountService {
 
         RoomGiftNotice notice = new RoomGiftNotice();
         notice.setCount(giftNum);
+        notice.setSpecialEffect(funtimeGift.getSpecialEffect());
         notice.setGiftName(funtimeGift.getGiftName());
         notice.setFromImg(user.getPortraitAddress());
         notice.setFromName(user.getNickname());
@@ -837,6 +852,21 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Integer diamondConvertTrial(Long userId, String from, String to, BigDecimal amount, int value) {
+        BigDecimal val = convert(from,to);
+
+        BigDecimal toAmount = amount.multiply(val).setScale(2,RoundingMode.HALF_UP);
+
+
+        return toAmount.intValue();
+    }
+
+    @Override
+    public BigDecimal getRatio(Long userId, String from, String to, BigDecimal amount, int value) {
+        return convert(from,to);
+    }
+
+    @Override
     public void updateStateForInvalid() {
         List<FuntimeUserRedpacket> redpacketListInvalid = userRedpacketMapper.getRedpacketListInvalid();
         if (redpacketListInvalid!=null&&!redpacketListInvalid.isEmpty()) {
@@ -855,7 +885,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public void diamondConvert(Long userId, String from, String to, BigDecimal amount,Integer convertType) {
 
-        BigDecimal val = convert(from,to,amount);
+        BigDecimal val = convert(from,to);
 
         BigDecimal toAmount = amount.multiply(val).setScale(2,RoundingMode.HALF_UP);
 
@@ -951,7 +981,7 @@ public class AccountServiceImpl implements AccountService {
         String withdrawalCard = getWithdrawalCard(userId, withdrawalType);
 
         //黑对RMB比例
-        BigDecimal val = convert("black", "rmb", blackAmount);
+        BigDecimal val = convert("black", "rmb");
 
         BigDecimal rmbAmount = val.multiply(blackAmount).setScale(2,RoundingMode.HALF_UP);
 
@@ -1092,7 +1122,7 @@ public class AccountServiceImpl implements AccountService {
         return record.getId();
     }
 
-    public BigDecimal convert(String from, String to, BigDecimal amount){
+    public BigDecimal convert(String from, String to){
         StringBuffer key = new StringBuffer();
         key.append(from).append("_to_").append(to);
 
