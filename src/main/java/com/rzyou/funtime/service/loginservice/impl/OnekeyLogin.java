@@ -60,6 +60,8 @@ public class OnekeyLogin implements LoginStrategy {
             userService.updateUserInfo(funtimeUser.getId(),1,token,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
 
         }
-        return userService.getUserBasicInfoById(Long.parseLong(userId));
+        FuntimeUser info = userService.getUserBasicInfoById(Long.parseLong(userId));
+        info.setBlueAmount(userService.getUserAccountInfoById(Long.parseLong(userId)).getBlueDiamond().intValue());
+        return info;
     }
 }

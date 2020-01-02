@@ -15,7 +15,11 @@ public class FuntimeUserAccount implements Serializable {
 
     private BigDecimal blackDiamond;
 
+    private String blackDiamondShow;
+
     private BigDecimal blueDiamond;
+
+    private String blueDiamondShow;
 
     private Integer hornNumber;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")

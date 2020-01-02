@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.rzyou.funtime.common.BusinessException;
-import com.rzyou.funtime.common.Constant;
-import com.rzyou.funtime.common.ErrorMsgEnum;
-import com.rzyou.funtime.common.SmsType;
+import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.*;
@@ -120,6 +117,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
 
+        user.setBlueAmount(accountMapper.selectByUserId(id).getBlueDiamond().intValue());
 
         FuntimeChatroom chatroom = chatroomMapper.getRoomByUserId(id);
 
@@ -508,9 +506,28 @@ public class UserServiceImpl implements UserService {
             return new PageInfo<>();
         }else{
             for (FuntimeUser user:list){
+                if (user.getSex()!=null){
+                    user.setSexColor("#FF0096");
+                }
+                if (user.getHeight()!=null){
+                    user.setHeightColor("#FF9500");
+                }
 
-                List<Integer> tags = tagMapper.queryTagsByUserId(user.getId());
-                user.setTags(tags);
+                List<Map<String, Object>> tagNames = tagMapper.queryTagNamesByUserId(user.getId());
+                if (tagNames!=null&&!tagNames.isEmpty()){
+                    for (Map<String, Object> map : tagNames){
+                        if (map.get("emotion")!=null){
+                            map.put("emotionColor", TagColorEnmu.getDescByValue(map.get("emotion").toString()));
+                        }
+                        if (map.get("qualification")!=null){
+                            map.put("qualificationColor", TagColorEnmu.getDescByValue(map.get("qualification").toString()));
+                        }
+                        if (map.get("occupation")!=null){
+                            map.put("occupationColor", TagColorEnmu.getDescByValue(map.get("occupation").toString()));
+                        }
+                    }
+                }
+
             }
 
             return new PageInfo<>(list);

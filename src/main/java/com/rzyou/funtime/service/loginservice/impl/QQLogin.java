@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+
 @Slf4j
 @Service("qqLogin")
 public class QQLogin implements LoginStrategy {
@@ -68,6 +70,7 @@ public class QQLogin implements LoginStrategy {
             if (!flag) {
                 throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(), ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
             }
+            user.setBlueAmount(0);
             return user;
         } else {
             userId = userThird.getUserId().toString();
@@ -84,6 +87,7 @@ public class QQLogin implements LoginStrategy {
 
             userService.updateUserInfo(user);
             funtimeUser.setToken(token);
+            funtimeUser.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
             return funtimeUser;
 
         }

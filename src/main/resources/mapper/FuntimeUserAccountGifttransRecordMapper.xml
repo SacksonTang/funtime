@@ -56,7 +56,7 @@
     select
     d.id, d.amount, d.num, d.gift_id, d.gift_name,
     d.to_user_id, d.create_time,u.nickname,g.animation_type,
-    g.animation_url,g.image_url,
+    g.animation_url,g.image_url,d.user_id,
     (select count(c.id) from t_funtime_user_concern c where c.user_id = #{userId} and c.to_user_id = d.user_id) concerned
     from t_funtime_user_account_gifttrans_record d
     inner join t_funtime_user u on d.user_id = u.id

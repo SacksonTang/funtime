@@ -207,6 +207,8 @@ public class UserController {
             }
 
             FuntimeUserAccount userAccount = userService.getUserAccountInfoById(Long.parseLong(userId));
+            userAccount.setBlackDiamondShow(String.valueOf(userAccount.getBlackDiamond().intValue()));
+            userAccount.setBlueDiamondShow(String.valueOf(userAccount.getBlueDiamond().intValue()));
             result.setData(JsonUtil.getMap("userAccount",userAccount));
             return result;
         } catch (BusinessException be) {

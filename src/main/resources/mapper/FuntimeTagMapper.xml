@@ -27,6 +27,12 @@
     from t_funtime_user_tag ut inner join t_funtime_tag t on ut.tag_id = t.id
     where ut.user_id = #{userId}
   </select>
+  <select id="queryTagNamesByUserId"  resultType="java.util.Map" parameterType="java.lang.Long">
+    select
+      t.tag_type as tagType,t.tag_name as tagName
+    from t_funtime_user_tag ut inner join t_funtime_tag t on ut.tag_id = t.id
+    where ut.user_id = #{userId}
+  </select>
   <select id="queryTagsByType" parameterType="java.lang.String" resultType="java.util.Map">
     select
     id, tag_name tagName

@@ -58,7 +58,7 @@
       <if test="kickedUserId != null">
         #{kickedUserId,jdbcType=BIGINT},
       </if>
-      date_add(NOW(), interval 5 second ),
+      date_add(NOW(), interval ifnull((select parameter_value from t_funtime_parameter where parameter_key = 'room_kick_expire'),10) minute ),
     </trim>
   </insert>
 

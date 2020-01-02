@@ -10,6 +10,7 @@ import java.util.Map;
 @Mapper
 public interface FuntimeTagMapper {
 
+    List<Map<String,Object>> queryTagNamesByUserId(Long userId);
 
     List<Integer> queryTagsByUserId(Long userId);
 

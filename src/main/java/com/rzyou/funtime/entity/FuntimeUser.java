@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 @Data
 public class FuntimeUser implements Serializable {
     private static final long serialVersionUID = 8830346720854513695L;
@@ -29,9 +32,13 @@ public class FuntimeUser implements Serializable {
 
     private Integer sex;
 
+    private String sexColor;
+
     private Integer birthday;
 
     private Integer height;
+
+    private String heightColor;
 
     private String signText;
 
@@ -84,6 +91,8 @@ public class FuntimeUser implements Serializable {
 
     private List<Integer> tags;
 
+    private List<Map<String,Object>> tagNames;
+
     private Long roomId;
 
     private Integer guildId;
@@ -102,6 +111,7 @@ public class FuntimeUser implements Serializable {
 
     private String constellation;
 
+    private Integer blueAmount;
 
 
 }
