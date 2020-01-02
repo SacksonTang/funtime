@@ -147,6 +147,13 @@
 			<artifactId>cos_api</artifactId>
 			<version>5.6.8</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.tencentcloudapi/tencentcloud-sdk-java -->
+		<dependency>
+			<groupId>com.tencentcloudapi</groupId>
+			<artifactId>tencentcloud-sdk-java</artifactId>
+			<version>3.0.119</version>
+		</dependency>
+
 
 		<!-- https://mvnrepository.com/artifact/com.mob.sdk.push/mobpush-api-java-client -->
 		<dependency>
