@@ -169,11 +169,11 @@
   </select>
 
   <select id="queryUserInfoByOnline"  resultMap="BaseResultMap">
-          select
+    select
           u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text  ,u.birthday,
           u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
           m.id roomId,m.is_lock as isLock,m.is_block as isBlock
-          from t_funtime_user u left join t_funtime_chatroom m on u.id = m.user_id
+    from t_funtime_user u left join t_funtime_chatroom m on u.id = m.user_id
     where u.online_state = 1 and u.flag = 1
       <if test="sex!=null">
         and u.sex = #{sex}
@@ -597,7 +597,9 @@
 <update id="updateTokenById" >
   update t_funtime_user set token = #{token},update_time =now(),show_id = #{id}+666666 where id = #{id}
 </update>
-
+  <update id="updateRealnameAuthenticationFlagById" >
+  update t_funtime_user set realname_authentication_flag = 1,update_time =now() where id = #{id}
+</update>
   <insert id="saveHeart" parameterType="java.lang.Long">
     REPLACE INTO t_funtime_heart (user_id) VALUES(#{userId})
   </insert>

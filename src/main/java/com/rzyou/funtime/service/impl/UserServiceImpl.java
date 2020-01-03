@@ -56,6 +56,8 @@ public class UserServiceImpl implements UserService {
     FuntimeChatroomMapper chatroomMapper;
     @Autowired
     FuntimeAccusationMapper accusationMapper;
+    @Autowired
+    FuntimeWithdrawalConfMapper withdrawalConfMapper;
 
 
     @Override
@@ -385,6 +387,12 @@ public class UserServiceImpl implements UserService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+
+        k = userMapper.updateRealnameAuthenticationFlagById(userId);
+
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
     }
 
     @Override
@@ -511,6 +519,11 @@ public class UserServiceImpl implements UserService {
             return new PageInfo<>();
         }else{
             for (FuntimeUser user:list){
+                if (user.getBirthday()!=null) {
+                    Integer birthday = user.getBirthday();
+                    user.setAge(DateUtil.getAgeByBirthday(birthday));
+                    user.setConstellation(DateUtil.getConstellationByBirthday(birthday));
+                }
                 if (user.getSex()!=null){
                     user.setSexColor("#FF0096");
                 }
@@ -719,14 +732,32 @@ public class UserServiceImpl implements UserService {
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
-            for (FuntimeUser user : list){
-
+            for (FuntimeUser user:list){
                 if (user.getBirthday()!=null) {
                     Integer birthday = user.getBirthday();
                     user.setAge(DateUtil.getAgeByBirthday(birthday));
                     user.setConstellation(DateUtil.getConstellationByBirthday(birthday));
                 }
+                if (user.getSex()!=null){
+                    user.setSexColor("#FF0096");
+                }
+                if (user.getHeight()!=null){
+                    user.setHeightColor("#FF9500");
+                }
+
+                List<Map<String, Object>> tagNames = tagMapper.queryTagNamesByUserId(user.getId());
+                if (tagNames!=null&&!tagNames.isEmpty()){
+                    for (Map<String, Object> map : tagNames){
+                        if (map.get("tagType").toString()!=null){
+                            map.put("tagColor", TagColorEnmu.getDescByValue(map.get("tagType").toString()));
+                        }
+
+                    }
+                }
+                user.setTagNames(tagNames);
+
             }
+
             return new PageInfo<>(list);
         }
     }
@@ -734,6 +765,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Object> getCustomerService() {
         return userMapper.getCustomerService();
+    }
+
+    @Override
+    public Map<String, Object> getWithdralInfo(Long userId) {
+        Map<String,Object> result = new HashMap<>();
+        FuntimeUserValid userValid = userValidMapper.selectByUserId(userId);
+        result.put("userValid",userValid);
+        List<FuntimeWithdrawalConf> withdralConf = withdrawalConfMapper.getWithdralConf();
+        result.put("withdralConf",withdralConf);
+        String black_to_rmb = parameterService.getParameterValueByKey("black_to_rmb");
+        result.put("black_to_rmb",black_to_rmb);
+        result.put("agreementUrl","http://funtime-1300805214.cos.ap-shanghai.myqcloud.com/agreement/领赏协议.html");
+        return result;
     }
 
 

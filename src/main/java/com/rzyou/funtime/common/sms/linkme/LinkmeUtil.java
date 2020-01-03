@@ -65,9 +65,9 @@ public class LinkmeUtil {
 
         String requestJson = JSONObject.toJSONString(request);
 
-        log.info("before request string is: {}" , requestJson);
+        log.debug("before request string is: {}" , requestJson);
         String response = sendSmsByPost(getPhoneRequestServerUrl, requestJson);
-        log.info("response after request result is : {}" , response);
+        log.debug("response after request result is : {}" , response);
 
         JSONObject resultObj = JSONObject.parseObject(response);
         if (resultObj==null||resultObj.getJSONObject("header")==null||resultObj.getJSONObject("header").getInteger("code")!=200){

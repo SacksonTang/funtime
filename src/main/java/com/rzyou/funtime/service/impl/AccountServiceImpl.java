@@ -550,15 +550,10 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getDesc());
         }
 
-        FuntimeUser user = userService.queryUserById(userId);
+        FuntimeUser user = getUserById(userId);
 
-        if (user==null){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-        }
-        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
-        if (userAccount==null){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-        }
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+
         FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
         if (funtimeGift==null){
             throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
@@ -620,11 +615,13 @@ public class AccountServiceImpl implements AccountService {
                 notice.setFromSex(user.getSex());
                 notice.setToSex(toUser.getSex());
                 notice.setUserRole(userRole);
-                if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
-                    notice.setType(Constant.ROOM_GIFT_SEND_ALL);
+                int type = funtimeGift.getSpecialEffect();
+                if (type == SpecialEffectType.E_4.getValue()) {
+                    type = SpecialEffectType.E_3.getValue();
+                    notice.setType(Constant.ROOM_GIFT_SEND_ROOM_ALL);
                     //发送通知全服
-
-                    noticeService.notice9(notice);
+                    notice.setSpecialEffect(type);
+                    noticeService.notice21(notice);
 
                 }
                 List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
@@ -654,10 +651,8 @@ public class AccountServiceImpl implements AccountService {
         if (userId.equals(toUserId)){
             throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getDesc());
         }
-        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
-        if (userAccount==null){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-        }
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+
         FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
         if (funtimeGift==null){
             throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
@@ -715,11 +710,13 @@ public class AccountServiceImpl implements AccountService {
             notice.setFromSex(user.getSex());
             notice.setToSex(toUser.getSex());
             notice.setUserRole(userRole);
-            if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
-                notice.setType(Constant.ROOM_GIFT_SEND_ALL);
+            int type = funtimeGift.getSpecialEffect();
+            if (type == SpecialEffectType.E_4.getValue()) {
+                type = SpecialEffectType.E_3.getValue();
+                notice.setType(Constant.ROOM_GIFT_SEND_ROOM_ALL);
                 //发送通知全服
-
-                noticeService.notice9(notice);
+                notice.setSpecialEffect(type);
+                noticeService.notice21(notice);
 
             }
             List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
@@ -743,15 +740,10 @@ public class AccountServiceImpl implements AccountService {
 
         ResultMsg<Object> resultMsg = new ResultMsg<>();
 
-        FuntimeUser user = userService.queryUserById(userId);
+        FuntimeUser user = getUserById(userId);
 
-        if (user==null){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-        }
-        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
-        if (userAccount==null){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-        }
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+
         FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
         if (funtimeGift==null){
             throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
@@ -806,7 +798,7 @@ public class AccountServiceImpl implements AccountService {
 
         RoomGiftNotice notice = new RoomGiftNotice();
         notice.setCount(giftNum);
-        notice.setSpecialEffect(funtimeGift.getSpecialEffect());
+
         notice.setGiftName(funtimeGift.getGiftName());
         notice.setFromImg(user.getPortraitAddress());
         notice.setFromName(user.getNickname());
@@ -818,10 +810,12 @@ public class AccountServiceImpl implements AccountService {
         notice.setToName(chatroom.getName());
         notice.setFromSex(user.getSex());
         notice.setUserRole(userRole);
-        if (funtimeGift.getSpecialEffect() == SpecialEffectType.E_4.getValue()) {
+        int type = funtimeGift.getSpecialEffect();
+        if (type == SpecialEffectType.E_4.getValue()) {
+            type = SpecialEffectType.E_3.getValue();
             notice.setType(Constant.ROOM_GIFT_SEND_ROOM_ALL);
             //发送通知全服
-
+            notice.setSpecialEffect(type);
             noticeService.notice21(notice);
 
         }
@@ -837,6 +831,23 @@ public class AccountServiceImpl implements AccountService {
 
         return resultMsg;
 
+    }
+
+    public FuntimeUserAccount getUserAccountByUserId(Long userId){
+        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
+        if (userAccount==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        return userAccount;
+    }
+
+    public FuntimeUser getUserById(Long userId){
+        FuntimeUser user = userService.queryUserById(userId);
+
+        if (user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        return user;
     }
 
     @Override
@@ -987,7 +998,7 @@ public class AccountServiceImpl implements AccountService {
 
         BigDecimal channelAmount = getServiceAmount(blackAmount.intValue());
 
-        Long recordId = saveFuntimeUserAccountWithdrawalRecord(userId,withdrawalType,withdrawalCard,rmbAmount,blackAmount,val,channelAmount);
+        Long recordId = saveFuntimeUserAccountWithdrawalRecord(userId,withdrawalType,withdrawalCard,rmbAmount.subtract(channelAmount),blackAmount,val,channelAmount);
 
         //减去用户黑钻
         userService.updateUserAccountForSub(userId,blackAmount,null,null);

@@ -5,7 +5,10 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
+import com.rzyou.funtime.entity.FuntimeUser;
+import com.rzyou.funtime.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
@@ -15,9 +18,14 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
+
 @Slf4j
 @Component
 public class TokenAuthorFilter implements Filter {
+
+    @Autowired
+    UserService userService;
 
     @Override
     public void init(FilterConfig filterConfig)  {
@@ -64,8 +72,23 @@ public class TokenAuthorFilter implements Filter {
                 resultInfo.setMsg(ErrorMsgEnum.USER_TOKEN_EMPTY.getDesc());
             } else {
                 try {
-                    JwtHelper.validateLogin(token);
-                    isFilter = true;
+                    Map<String, Object> map = JwtHelper.validateLogin(token);
+                    if (map.get("userId")==null){
+                        resultInfo.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());
+                        resultInfo.setMsg(ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+                    }else {
+                        FuntimeUser user = userService.queryUserById(Long.parseLong(map.get("userId").toString()));
+                        if (user==null){
+                            resultInfo.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());
+                            resultInfo.setMsg(ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+                        }else {
+                            if (user.getState() == 2){
+                                resultInfo.setCode(ErrorMsgEnum.USER_IS_DELETE.getValue());
+                                resultInfo.setMsg(ErrorMsgEnum.USER_IS_DELETE.getDesc());
+                            }
+                            isFilter = true;
+                        }
+                    }
                 }catch (BusinessException e){
                     resultInfo.setCode(e.getCode());
                     resultInfo.setMsg(e.getMsg());

@@ -327,4 +327,11 @@ public interface UserService {
      * @return
      */
     Map<String, Object> getCustomerService();
+
+    /**
+     * 获取提现页面数据
+     * @param userId
+     * @return
+     */
+    Map<String, Object> getWithdralInfo(Long userId);
 }

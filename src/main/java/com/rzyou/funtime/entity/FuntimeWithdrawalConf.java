@@ -11,9 +11,9 @@ public class FuntimeWithdrawalConf implements Serializable {
     private static final long serialVersionUID = 5340681771704808017L;
     private Integer id;
 
-    private Integer from;
+    private Integer fromAmount;
 
-    private Integer to;
+    private Integer toAmount;
 
     private BigDecimal amount;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")

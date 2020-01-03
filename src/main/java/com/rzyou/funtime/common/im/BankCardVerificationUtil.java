@@ -10,7 +10,6 @@ import com.tencentcloudapi.common.profile.ClientProfile;
 import com.tencentcloudapi.faceid.v20180301.FaceidClient;
 import com.tencentcloudapi.faceid.v20180301.models.BankCardVerificationRequest;
 import com.tencentcloudapi.faceid.v20180301.models.BankCardVerificationResponse;
-import com.tencentcloudapi.tcaplusdb.v20190823.models.DescribeZonesRequest;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,13 +40,11 @@ public class BankCardVerificationUtil {
                 throw new BusinessException(ErrorMsgEnum.USER_BANKCARD_VALID_ERROR.getValue(),ErrorMsgEnum.USER_BANKCARD_VALID_ERROR.getDesc());
             }
 
-            if (!"1".equals(resp.getResult())){
+            if (!"0".equals(resp.getResult())){
+                log.info("银行卡三要素 error : {}",resp.getDescription());
                 throw new BusinessException(ErrorMsgEnum.USER_BANKCARD_VALID_ERROR.getValue(),resp.getDescription());
             }
         } catch (TencentCloudSDKException e) {
-            log.info("银行卡三要素 error : {}",e.toString());
-            throw new BusinessException(ErrorMsgEnum.USER_BANKCARD_VALID_ERROR.getValue(),ErrorMsgEnum.USER_BANKCARD_VALID_ERROR.getDesc());
-        }catch (Exception e){
             log.info("银行卡三要素 error : {}",e.toString());
             throw new BusinessException(ErrorMsgEnum.USER_BANKCARD_VALID_ERROR.getValue(),ErrorMsgEnum.USER_BANKCARD_VALID_ERROR.getDesc());
         }

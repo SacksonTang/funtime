@@ -3,13 +3,13 @@
 <mapper namespace="com.rzyou.funtime.mapper.FuntimeWithdrawalConfMapper">
   <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeWithdrawalConf">
     <id column="id" jdbcType="INTEGER" property="id" />
-    <result column="from" jdbcType="INTEGER" property="from" />
-    <result column="to" jdbcType="INTEGER" property="to" />
+    <result column="from_amount" jdbcType="INTEGER" property="fromAmount" />
+    <result column="to_amount" jdbcType="INTEGER" property="toAmount" />
     <result column="amount" jdbcType="DECIMAL" property="amount" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, from, to, amount, create_time
+    id, from_amount, to_amount, amount, create_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -17,64 +17,20 @@
     from t_funtime_withdrawal_conf
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="getWithdralConf"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_withdrawal_conf
+
+  </select>
   <select id="getServiceAmount" parameterType="java.lang.Integer" resultType="java.math.BigDecimal">
     select
     t.amount
     from t_funtime_withdrawal_conf t
-    where #{blackAmount}>=t.from and t.to>=#{blackAmount}
+    where #{blackAmount}>=t.from_amount and t.to_amount>=#{blackAmount}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from t_funtime_withdrawal_conf
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
 
 
-  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeWithdrawalConf">
-    insert into t_funtime_withdrawal_conf
-    <trim prefix="(" suffix=")" suffixOverrides=",">
 
-      <if test="from != null">
-        from,
-      </if>
-      <if test="to != null">
-        to,
-      </if>
-      <if test="amount != null">
-        amount,
-      </if>
-
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-
-      <if test="from != null">
-        #{from,jdbcType=INTEGER},
-      </if>
-      <if test="to != null">
-        #{to,jdbcType=INTEGER},
-      </if>
-      <if test="amount != null">
-        #{amount,jdbcType=DECIMAL},
-      </if>
-
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeWithdrawalConf">
-    update t_funtime_withdrawal_conf
-    <set>
-      <if test="from != null">
-        from = #{from,jdbcType=INTEGER},
-      </if>
-      <if test="to != null">
-        to = #{to,jdbcType=INTEGER},
-      </if>
-      <if test="amount != null">
-        amount = #{amount,jdbcType=DECIMAL},
-      </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
 
 </mapper>

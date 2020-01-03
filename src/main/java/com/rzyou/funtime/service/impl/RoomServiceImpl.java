@@ -715,12 +715,6 @@ public class RoomServiceImpl implements RoomService {
                 TencentUtil.destroyGroup(userSig, roomNo);
             }
         }
-        String roomNo = UUID.randomUUID().toString().replaceAll("-","");
-
-        chatroomUserMapper.updateRoomNoByRoomId(roomNo,userId);
-
-        createRoomForTencent(userId,roomNo);
-
 
         //发送通知
         for (String roomNo1 : roomNos) {

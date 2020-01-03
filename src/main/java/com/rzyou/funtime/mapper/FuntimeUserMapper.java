@@ -44,6 +44,13 @@ public interface FuntimeUserMapper {
     int updateCreateRoomPlus(Long id);
     int updateCreateRoomSub(Long id);
 
+    /**
+     * 修改实名认证状态
+     * @param id
+     * @return
+     */
+    int updateRealnameAuthenticationFlagById(Long id);
+
     int updateTokenById(@Param("id") Long id, @Param("token") String token);
 
     List<Map<String,Object>> queryAuthorityByRole(Integer userRole);

@@ -594,6 +594,41 @@ public class UserController {
     }
 
     /**
+     * 获取实名认证信息
+     */
+    @PostMapping("getWithdralInfo")
+    public ResultMsg<Object> getWithdralInfo(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+
+            if (userId==null) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            Map<String,Object> data = userService.getWithdralInfo(userId);
+
+            result.setData(data);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+
+    /**
      * 同意协议
      */
     @PostMapping("userAgreement")
