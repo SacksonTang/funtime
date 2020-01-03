@@ -85,8 +85,9 @@ public class TokenAuthorFilter implements Filter {
                             if (user.getState() == 2){
                                 resultInfo.setCode(ErrorMsgEnum.USER_IS_DELETE.getValue());
                                 resultInfo.setMsg(ErrorMsgEnum.USER_IS_DELETE.getDesc());
+                            }else {
+                                isFilter = true;
                             }
-                            isFilter = true;
                         }
                     }
                 }catch (BusinessException e){
