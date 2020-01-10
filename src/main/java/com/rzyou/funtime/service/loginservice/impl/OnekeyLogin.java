@@ -9,10 +9,13 @@ import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
+import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 @Service("onekeyLogin")
 public class OnekeyLogin implements LoginStrategy {
@@ -34,8 +37,14 @@ public class OnekeyLogin implements LoginStrategy {
             //新用户
             user.setOnlineState(1);
             user.setState(1);
+            if (user.getSex()==null){
+                user.setSex(1);
+            }
+            if (user.getBirthday()==null){
+                user.setBirthday(Integer.parseInt(DateUtil.getCurrentYearAdd(new Date(),-18)));
+            }
             user.setNickname("大侠");
-            user.setPortraitAddress("https://");
+
             user.setSignText("这个人很懒,什么都没有留下");
             user.setVersion(System.currentTimeMillis());
             user.setPhoneNumber(phoneNumber);
@@ -62,6 +71,7 @@ public class OnekeyLogin implements LoginStrategy {
         }
         FuntimeUser info = userService.getUserBasicInfoById(Long.parseLong(userId));
         info.setBlueAmount(userService.getUserAccountInfoById(Long.parseLong(userId)).getBlueDiamond().intValue());
+        info.setNewUser(false);
         return info;
     }
 }

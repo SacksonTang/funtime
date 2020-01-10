@@ -41,6 +41,7 @@ public enum ErrorMsgEnum {
     USER_QQLOGIN_GETTOKEN_ERROR("10032","QQ登录获取token失败"),
 
     USER_BANKCARD_VALID_ERROR("10033","银行卡验证失败"),
+    PHONE_NUMBER_IS_NOT_REGISTER("10034","手机号不存在"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -67,7 +68,7 @@ public enum ErrorMsgEnum {
     WITHDRAWAL_DAY_LIMIT("70001","提现超出每日金额限额"),
     WITHDRAWAL_MONTH_LIMIT("70002","提现超出每月次数限额"),
     WITHDRAWAL_MIN_LIMIT("70003","提现金额小于最低领赏金额"),
-    WITHDRAWAL_OPERATION_LIMIT("70004","客服小姐姐很忙,请等她处理完再提交"),
+    WITHDRAWAL_OPERATION_LIMIT("70004","上次领赏正在处理,请移步公众号查询进度"),
 
     ROOM_CREATE_ERROR("80001","房间创建失败"),
     ROOM_NOT_EXISTS("80002","房间不存在"),
@@ -92,7 +93,7 @@ public enum ErrorMsgEnum {
     ROOM_MIC_IS_MANAGE("80021","已经是主持"),
     ROOM_MIC_IS_NOT_MANAGE("80022","不是主持"),
     ROOM_JOIN_TENCENT_ERROR("80023","同步腾讯添加用户失败"),
-    ROOM_IS_CLOSE("80024","房间已解散"),
+    ROOM_IS_CLOSE("80024","房间已停播"),
     ROOM_MIC_IS_EXIST("80025","你已在麦上")
 
 

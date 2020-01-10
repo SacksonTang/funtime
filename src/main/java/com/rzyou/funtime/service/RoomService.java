@@ -235,4 +235,19 @@ public interface RoomService {
      * @return
      */
     Integer getUserRole(Long roomId,Long userId);
+
+    /**
+     * 获取用户房间
+     * @param userId
+     * @return
+     */
+    FuntimeChatroom getRoomByUserId(Long userId);
+
+    /**
+     * 用户是否在房间
+     * @param roomId
+     * @param userId
+     * @return
+     */
+    boolean checkUserIsExist(Long roomId,Long userId);
 }

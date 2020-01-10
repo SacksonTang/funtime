@@ -71,6 +71,7 @@ public class LinkmeUtil {
 
         JSONObject resultObj = JSONObject.parseObject(response);
         if (resultObj==null||resultObj.getJSONObject("header")==null||resultObj.getJSONObject("header").getInteger("code")!=200){
+            log.info("秒验失败:{}",response);
             throw new BusinessException(ErrorMsgEnum.USER_LOGIN_ONEKEY_ERROR.getValue(),ErrorMsgEnum.USER_LOGIN_ONEKEY_ERROR.getDesc());
         }
         String phoneStr = resultObj.getString("body");
@@ -184,7 +185,7 @@ public class LinkmeUtil {
     enum LinkmeSmsType{
         REGISTER(SmsType.REGISTER_LOGIN.getValue(),"110240"),
         UPDATE_PHONENUMBER(SmsType.UPDATE_PHONENUMBER.getValue(),"110240"),
-        WITHDRAWAL(SmsType.WITHDRAWAL.getValue(),"110240");
+        REAL_VALID(SmsType.REAL_VALID.getValue(),"110240");
         int value;
         String templateId;
 

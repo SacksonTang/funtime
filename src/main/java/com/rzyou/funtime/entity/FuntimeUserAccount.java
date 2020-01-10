@@ -28,4 +28,8 @@ public class FuntimeUserAccount implements Serializable {
     private Long version;
 
     private BigDecimal hornPrice;
+
+    private Integer level;
+
+    private Integer grabAmountTotal;
 }

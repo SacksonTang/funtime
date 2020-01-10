@@ -27,9 +27,10 @@ public interface AccountService {
     /**
      * 订单回调
      * @param orderId
+     * @param transaction_id
      * @return
      */
-    Map<String,String> paySuccess(Long orderId);
+    Map<String,String> paySuccess(Long orderId, String transaction_id);
 
     /**
      * 充值记录列表
@@ -165,8 +166,9 @@ public interface AccountService {
      * @param userId
      * @param withdrawalType
      * @param blackAmount
+     * @param code
      */
-    void applyWithdrawal(Long userId,Integer withdrawalType, BigDecimal blackAmount);
+    void applyWithdrawal(Long userId, Integer withdrawalType, BigDecimal blackAmount, String code);
 
     /**
      * 领赏记录列表
@@ -215,9 +217,10 @@ public interface AccountService {
     /**
      * 获取红包信息
      * @param id
+     * @param userId
      * @return
      */
-    FuntimeUserRedpacket getRedpacketInfoById(Long id);
+    FuntimeUserRedpacket getRedpacketInfoById(Long id, Long userId);
 
     /**
      * 红钻兑换蓝钻试算

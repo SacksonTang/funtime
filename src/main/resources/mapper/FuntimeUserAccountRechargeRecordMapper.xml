@@ -18,6 +18,8 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="version" jdbcType="BIGINT" property="version" />
     <result column="complete_time" jdbcType="TIMESTAMP" property="completeTime" />
+    <result column="tagName"  property="tagName" />
+
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, amount, rmb, recharge_card_id, recharge_channel_id, recharge_conf_id,
@@ -35,19 +37,38 @@
     from t_funtime_user_account_recharge_record
     where user_id = #{userId}
   </select>
+  <select id="getRechargeNumByUserId" parameterType="java.lang.Long" resultType="java.math.BigDecimal">
+    select
+     sum(rmb)
+    from t_funtime_user_account_recharge_record
+    where user_id = #{userId} and state = 3
+  </select>
+  <select id="getUserLevel" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+    select
+     ifnull(level,0)
+    from t_funtime_user_level_conf
+    where #{amount} >= total_recharge_amount
+     order by level desc
+     limit 1
+  </select>
   <select id="getRechargeDetailForPage"  resultMap="BaseResultMap">
     select
-    <include refid="Base_Column_List" />
-    from t_funtime_user_account_recharge_record
+    d.id, d.user_id, d.amount, d.rmb, d.recharge_card_id, d.recharge_channel_id,
+    d.horn_num,  d.state, d.create_time,
+
+    case when t.tag_name = 'WX' then '微信'
+         when t.tag_name = 'ALIPAY' then '支付宝'
+         else '银行卡' end tagName
+    from t_funtime_user_account_recharge_record d left join t_funtime_tag t on d.recharge_channel_id = t.id
     where  user_id = #{userId}
 
       <if test="state!=null">
-      and state = #{state}
+      and d.state = #{state}
       </if>
       <if test="startDate!=null and startDate!='' and endDate!=null and endDate!=''">
-         and create_time between #{startDate} and #{endDate}
+         and d.create_time between #{startDate} and #{endDate}
       </if>
-      order by id desc
+      order by d.id desc
 
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">

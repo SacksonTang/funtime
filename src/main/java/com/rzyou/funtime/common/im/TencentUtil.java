@@ -74,7 +74,7 @@ public class TencentUtil {
             log.info("腾讯新建组接口:create_group 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return false;
         }else{
-            log.info("*************腾讯新建组接口:create_group 调用成功************");
+            log.debug("*************腾讯新建组接口:create_group 调用成功************");
             return true;
         }
 
@@ -100,7 +100,7 @@ public class TencentUtil {
             log.info("腾讯解散组接口:destroy_group 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return false;
         }else{
-            log.info("*************腾讯解散组接口:destroy_group 调用成功************");
+            log.debug("*************腾讯解散组接口:destroy_group 调用成功************");
             return true;
         }
     }
@@ -128,7 +128,7 @@ public class TencentUtil {
             log.info("腾讯添加组用户接口:add_group_member 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return result.getJSONArray("MemberList");
         }else{
-            log.info("*********腾讯添加组用户接口:add_group_member 调用成功*************");
+            log.debug("*********腾讯添加组用户接口:add_group_member 调用成功*************");
             return result.getJSONArray("MemberList");
         }
     }
@@ -157,7 +157,7 @@ public class TencentUtil {
             log.info("腾讯删除组用户接口:delete_group_member 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return false;
         }else{
-            log.info("***************腾讯删除组用户接口:delete_group_member 调用成功************");
+            log.debug("***************腾讯删除组用户接口:delete_group_member 调用成功************");
             return true;
         }
     }
@@ -197,7 +197,7 @@ public class TencentUtil {
             log.info("腾讯发送普通消息接口:send_group_msg 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return false;
         }else{
-            log.info("************腾讯发送普通消息接口:send_group_msg 调用成功*******************");
+            log.debug("************腾讯发送普通消息接口:send_group_msg 调用成功*******************");
             return true;
         }
     }
@@ -238,7 +238,7 @@ public class TencentUtil {
             log.info("腾讯批量发单聊接口:batchsendmsg 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return result.getJSONArray("ErrorList");
         }else{
-            log.info("************腾讯批量发单聊接口:batchsendmsg 调用成功*******************");
+            log.debug("************腾讯批量发单聊接口:batchsendmsg 调用成功*******************");
             return null;
         }
     }
@@ -258,7 +258,7 @@ public class TencentUtil {
 
             return false;
         }else{
-            log.info("**************腾讯系统通知接口:send_group_system_notification 调用成功*****************");
+            log.debug("**************腾讯系统通知接口:send_group_system_notification 调用成功*****************");
             return true;
         }
     }
@@ -288,7 +288,6 @@ public class TencentUtil {
 
             return false;
         }else{
-            log.info("*************腾讯导入用户接口:account_import 调用成功******************");
             return true;
         }
     }
@@ -301,7 +300,7 @@ public class TencentUtil {
      * @param faceUrl
      * @return
      */
-    public static boolean portraitSet(String usersig,String userId,String nickname,String faceUrl){
+    public static boolean portraitSet(String usersig,String userId,String nickname,String faceUrl,String sex){
         String url = getPortraitUrl(Constant.TENCENT_YUN_PORTRAIT_SET,usersig);
 
         JSONObject paramMap = new JSONObject();
@@ -321,6 +320,17 @@ public class TencentUtil {
             profileItem.put("Value", faceUrl);
             profileItems.add(profileItem);
         }
+        if (StringUtils.isNotBlank(sex)) {
+
+            profileItem = new JSONObject();
+            profileItem.put("Tag", "Tag_Profile_IM_Gender");
+            if (sex.equals(1)) {
+                profileItem.put("Value", "Gender_Type_Male");
+            }else{
+                profileItem.put("Value", "Gender_Type_Female");
+            }
+            profileItems.add(profileItem);
+        }
 
         paramMap.put("ProfileItem",profileItems);
 
@@ -332,7 +342,6 @@ public class TencentUtil {
                     ,result.getString("ErrorInfo"),JSONObject.toJSONString(paramMap));
             return false;
         }else{
-            log.info("*************腾讯设置用户资料接口:portrait_set 调用成功******************");
             return true;
         }
     }

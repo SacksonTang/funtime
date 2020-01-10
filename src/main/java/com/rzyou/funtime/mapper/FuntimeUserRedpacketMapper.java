@@ -16,7 +16,7 @@ public interface FuntimeUserRedpacketMapper {
     List<FuntimeUserRedpacket> getRedpacketInfoByUserId(@Param("startDate") String startDate
             ,@Param("endDate") String endDate,@Param("userId") Long userId);
 
-    FuntimeUserRedpacket getRedpacketInfoById(Long id);
+    FuntimeUserRedpacket getRedpacketInfoById(@Param("id") Long id, @Param("userId") Long userId);
 
     int deleteByPrimaryKey(Long id);
 

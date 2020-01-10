@@ -23,6 +23,12 @@ public interface FuntimeChatroomMicMapper {
 
     Long getMicLocationId(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
+    /**
+     * 获取用户麦位
+     * @param roomId
+     * @param userId
+     * @return
+     */
     Integer getMicLocation(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
     FuntimeChatroomMic getMicLocationUser(@Param("roomId") Long roomId, @Param("micLocation") Integer micLocation);

@@ -124,9 +124,11 @@ public class PayController {
             try {
 
                 String attach = params.get("attach");
+                //微信支付订单号
+                String transaction_id = params.get("transaction_id");
                 Long orderId = Long.parseLong(attach);
 
-                return_data = accountService.paySuccess(orderId);
+                return_data = accountService.paySuccess(orderId,transaction_id);
                 return WXPayUtil.mapToXml(return_data);
             }catch (BusinessException e1){
                 e1.printStackTrace();

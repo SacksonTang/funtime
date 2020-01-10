@@ -12,6 +12,7 @@ import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserThird;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
+import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Slf4j
 @Service("qqLogin")
@@ -60,7 +62,10 @@ public class QQLogin implements LoginStrategy {
             user.setSex("男".equals(userJson.getString("gender"))?1:2);
             user.setVersion(System.currentTimeMillis());
             user.setSignText("这个人很懒,什么都没有留下");
-            userService.saveUser(user, "WX", openid, userJson.getString("unionid"), accessToken);
+            if (user.getBirthday()==null){
+                user.setBirthday(Integer.parseInt(DateUtil.getCurrentYearAdd(new Date(),-18)));
+            }
+            userService.saveUser(user, Constant.LOGIN_QQ, openid, userJson.getString("unionid"), accessToken);
             userId = user.getId().toString();
             String token = JwtHelper.generateJWT(userId, user.getPhoneImei());
             user.setToken(token);
@@ -71,6 +76,7 @@ public class QQLogin implements LoginStrategy {
                 throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(), ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
             }
             user.setBlueAmount(0);
+            user.setNewUser(true);
             return user;
         } else {
             userId = userThird.getUserId().toString();
@@ -88,6 +94,7 @@ public class QQLogin implements LoginStrategy {
             userService.updateUserInfo(user);
             funtimeUser.setToken(token);
             funtimeUser.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
+            funtimeUser.setNewUser(false);
             return funtimeUser;
 
         }

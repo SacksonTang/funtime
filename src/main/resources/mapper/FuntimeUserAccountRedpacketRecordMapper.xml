@@ -43,8 +43,9 @@
 
     from t_funtime_user_account_redpacket_record
     where  user_id = #{userId}
-      and create_time between #{startDate} and #{endDate}
-
+      <if test="startDate!=null and endDate !=null">
+        and create_time between #{startDate} and #{endDate}
+      </if>
 
   </select>
   <select id="getSumGrabTagsById"  resultType="java.util.Map">

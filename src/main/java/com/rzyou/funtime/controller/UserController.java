@@ -198,17 +198,19 @@ public class UserController {
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
-            String userId = paramJson.getString("userId");
-            if (StringUtils.isBlank(userId)) {
+            Long userId = paramJson.getLong("userId");
+            if (userId==null) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            FuntimeUserAccount userAccount = userService.getUserAccountInfoById(Long.parseLong(userId));
+            FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
             userAccount.setBlackDiamondShow(String.valueOf(userAccount.getBlackDiamond().intValue()));
             userAccount.setBlueDiamondShow(String.valueOf(userAccount.getBlueDiamond().intValue()));
+            BigDecimal sumGrabAmount = accountService.getSumGrabAmountById(userId, null);
+            userAccount.setGrabAmountTotal(sumGrabAmount==null?0:sumGrabAmount.intValue());
             result.setData(JsonUtil.getMap("userAccount",userAccount));
             return result;
         } catch (BusinessException be) {
@@ -259,6 +261,42 @@ public class UserController {
     }
 
     /**
+     * 老手机认证
+     * @param request
+     * @return
+     */
+    @PostMapping("validPhone")
+    public ResultMsg<Object> validPhone(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            String oldPhoneNumber = paramJson.getString("oldPhoneNumber");
+            String code = paramJson.getString("code");
+            if (userId==null||StringUtils.isBlank(oldPhoneNumber)||StringUtils.isBlank(code)) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            userService.validPhone(userId,code,oldPhoneNumber);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 修改手机号
      * @param request
      * @return
@@ -269,16 +307,17 @@ public class UserController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
+            String oldPhoneNumber = paramJson.getString("oldPhoneNumber");
             String newPhoneNumber = paramJson.getString("newPhoneNumber");
             String code = paramJson.getString("code");
-            if (userId==null||StringUtils.isBlank(newPhoneNumber)||StringUtils.isBlank(code)) {
+            if (userId==null||StringUtils.isBlank(oldPhoneNumber)||StringUtils.isBlank(newPhoneNumber)||StringUtils.isBlank(code)) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            userService.updatePhoneNumber(userId,newPhoneNumber,code);
+            userService.updatePhoneNumber(userId,newPhoneNumber,code,oldPhoneNumber);
 
             return result;
         } catch (BusinessException be) {
@@ -314,6 +353,38 @@ public class UserController {
             }
 
             userService.updateOnlineState(userId,onlineState);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 退出登录
+     */
+    @PostMapping("logout")
+    public ResultMsg<Object> logout(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            if (userId==null) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            userService.logout(userId);
 
             return result;
         } catch (BusinessException be) {
@@ -567,17 +638,18 @@ public class UserController {
             String depositCard = paramJson.getString("depositCard");
             String alipayNo = paramJson.getString("alipayNo");
             String wxNo = paramJson.getString("wxNo");
+            String code = paramJson.getString("code");
 
             if (StringUtils.isBlank(fullname)||StringUtils.isBlank(identityCard)
                     ||StringUtils.isBlank(depositCard)||StringUtils.isBlank(alipayNo)
-                    ||userId==null||StringUtils.isBlank(wxNo)) {
+                    ||userId==null||StringUtils.isBlank(wxNo)||StringUtils.isBlank(code)) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            userService.saveUserValid(userId,fullname,identityCard,depositCard,alipayNo,wxNo);
+            userService.saveUserValid(userId,fullname,identityCard,depositCard,alipayNo,wxNo,code);
 
             return result;
         } catch (BusinessException be) {

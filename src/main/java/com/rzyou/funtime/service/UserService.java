@@ -132,8 +132,9 @@ public interface UserService {
      * @param userId
      * @param newPhoneNumber
      * @param code
+     * @param oldPhoneNumber
      */
-    void updatePhoneNumber(Long userId, String newPhoneNumber, String code);
+    void updatePhoneNumber(Long userId, String newPhoneNumber, String code, String oldPhoneNumber);
 
     /**
      * 实名认证
@@ -143,8 +144,9 @@ public interface UserService {
      * @param depositCard
      * @param alipayNo
      * @param wxNo
+     * @param code
      */
-    void saveUserValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo);
+    void saveUserValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo, String code);
 
     /**
      * 查询实名认证信息
@@ -334,4 +336,18 @@ public interface UserService {
      * @return
      */
     Map<String, Object> getWithdralInfo(Long userId);
+
+    /**
+     * 退出登录
+     * @param userId
+     */
+    void logout(Long userId);
+
+    /**
+     * 认证手机号
+     * @param userId
+     * @param code
+     * @param oldPhoneNumber
+     */
+    void validPhone(Long userId, String code, String oldPhoneNumber);
 }

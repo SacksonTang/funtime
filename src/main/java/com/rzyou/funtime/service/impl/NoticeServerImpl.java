@@ -468,7 +468,7 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void notice10001(String content, Long userId, Long roomId) {
         FuntimeUserAccount userAccountInfo = userService.getUserAccountInfoById(userId);
         if (userAccountInfo==null){
@@ -489,6 +489,7 @@ public class NoticeServerImpl implements NoticeService {
         object.put("uid",userId);
         object.put("name",user.getNickname());
         object.put("msg",content);
+        object.put("sex",user.getSex());
         object.put("imgUrl", user.getPortraitAddress());
         String objectStr = JSONObject.toJSONString(object);
         String parameterHandler = StringEscapeUtils.unescapeJava(objectStr);

@@ -7,6 +7,7 @@
     <result column="fullname" jdbcType="VARCHAR" property="fullname" />
     <result column="identity_card" jdbcType="VARCHAR" property="identityCard" />
     <result column="deposit_card" jdbcType="VARCHAR" property="depositCard" />
+      <result column="deposit_card_real" jdbcType="VARCHAR" property="depositCardReal" />
     <result column="alipay_no" jdbcType="VARCHAR" property="alipayNo" />
     <result column="wx_no" jdbcType="VARCHAR" property="wxNo" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
@@ -15,7 +16,8 @@
     id, user_id, fullname, identity_card, deposit_card, alipay_no, wx_no, create_time
   </sql>
   <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select 
+    select
+    deposit_card as deposit_card_real,
     concat('收取赏金银行卡号: 尾号',RIGHT(deposit_card,4)) deposit_card,
     concat('收取赏金微信号: ',wx_no) wx_no,
     concat('收取赏金支付宝号: ',alipay_no) alipay_no

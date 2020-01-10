@@ -20,9 +20,9 @@
   </select>
   <select id="querySnedSumAmountByGrab" parameterType="java.lang.Long" resultType="java.math.BigDecimal">
     select
-      sum(d.amount)
-    from t_funtime_user_redpacket_detail d inner join t_funtime_user_redpacket t on d.redpacket_id = t.id
-    where t.user_id = #{userId} and d.grab_user_id is not null
+      sum(t.amount)
+    from  t_funtime_user_redpacket t
+    where t.user_id = #{userId}
     <if test="startDate!=null and endDate!=null">
       and t.create_time between #{startDate} and #{endDate}
     </if>

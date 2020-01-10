@@ -7,10 +7,18 @@ import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,15 +29,16 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 @Slf4j
-@Component
 public class TokenAuthorFilter implements Filter {
 
-    @Autowired
     UserService userService;
 
     @Override
     public void init(FilterConfig filterConfig)  {
 
+        ServletContext servletContext = filterConfig.getServletContext();
+        WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+        userService = wac.getBean(UserServiceImpl.class);
     }
 
     @Override
@@ -77,6 +86,7 @@ public class TokenAuthorFilter implements Filter {
                         resultInfo.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());
                         resultInfo.setMsg(ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
                     }else {
+
                         FuntimeUser user = userService.queryUserById(Long.parseLong(map.get("userId").toString()));
                         if (user==null){
                             resultInfo.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());

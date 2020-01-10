@@ -48,7 +48,7 @@ public class RoomServiceImpl implements RoomService {
     FuntimeTagMapper tagMapper;
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public Long roomCreate(Long userId) {
         FuntimeUser user = userService.queryUserById(userId);
         if (user==null){
@@ -119,6 +119,7 @@ public class RoomServiceImpl implements RoomService {
         FuntimeChatroom chatroom = new FuntimeChatroom();
         chatroom.setUserId(userId);
         chatroom.setName(nickname);
+        chatroom.setAvatarUrl(Constant.COS_URL_PREFIX+Constant.DEFAULT_ROOM_PORTRAIT);
         chatroom.setExamDesc("这个家伙很懒,什么都没有留下~");
         int k = chatroomMapper.insertSelective(chatroom);
         if(k!=1){
@@ -129,7 +130,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void roomUpdate(FuntimeChatroom chatroom) {
         Integer userRole = getUserRole(chatroom.getId(), chatroom.getUserId());
         if (userRole==null){
@@ -148,7 +149,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public boolean roomJoin(Long userId, Long roomId,String password) {
         //查询房间信息
         FuntimeChatroom chatroom = chatroomMapper.selectByPrimaryKey(roomId);
@@ -307,14 +308,17 @@ public class RoomServiceImpl implements RoomService {
         result.put("mic",micUser);
         result.put("isRedpacketShow",parameterService.getParameterValueByKey("is_redpacket_show"));
 
+        result.put("shareUrl",Constant.SHARE_URL);
+
         return result;
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void roomExit(Long userId, Long roomId) {
         //用户是否存在
-        if (!userService.checkUserExists(userId)){
+        FuntimeUser user = userService.queryUserById(userId);
+        if (user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
         //房间信息
@@ -337,9 +341,11 @@ public class RoomServiceImpl implements RoomService {
         //如果用户所在腾讯聊天室是最后一个用户,应该要同步删除腾讯聊天室
         Map<String, Object> roomNoMap = chatroomUserMapper.getRoomNoByRoomIdAndUser(roomId, userId);
 
+        boolean isLastOne = false;
         if (roomNoMap!=null&&!roomNoMap.isEmpty()){
             Integer count = Integer.parseInt(roomNoMap.get("roomNoCount").toString());
             if (count == 1){
+                isLastOne = true;
                 TencentUtil.destroyGroup(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),roomNoMap.get("roomNo").toString());
             }
             if (count>1){
@@ -348,18 +354,29 @@ public class RoomServiceImpl implements RoomService {
                 TencentUtil.deleteGroupMember(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),roomNoMap.get("roomNo").toString(),members);
             }
         }
+        List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
+        if (!isLastOne) {
+            if (mic != null) {
+                //下麦通知
+                for (String roomNo : roomNos) {
+                    noticeService.notice2(mic, roomId, userId, user.getNickname(), roomNo, 1);
+                }
+            }
+        }
         //删除用户
         deleteChatroomUser(roomId, userId);
 
-        //通知人数
-        List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
-        noticeService.notice20(roomId,roomNos,chatroom.getOnlineNum()-1);
+        if (!isLastOne) {
+            //通知人数
+            noticeService.notice20(roomId, roomNos, chatroom.getOnlineNum() - 1);
+        }
 
     }
 
     private void deleteChatroomUser(Long roomId, Long userId) {
         Long id = chatroomUserMapper.checkUserIsExist(roomId,userId);
         if (id==null){
+            log.info("deleteChatroomUser：{}",ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getDesc());
             throw new BusinessException(ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getDesc());
         }
         int k = chatroomUserMapper.deleteByPrimaryKey(id);
@@ -369,7 +386,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void roomKicked(Long kickIdUserId, Long userId, Long roomId) {
         //校验用户
         FuntimeUser user = userService.queryUserById(kickIdUserId);
@@ -460,7 +477,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void holdWheat(Long userId, Long roomId, Integer micLocation, Long micUserId) {
 
 
@@ -497,7 +514,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void upperWheat(Long userId, Long roomId, Integer micLocation, Long micUserId) {
 
         if (userId!=null){
@@ -548,7 +565,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void lowerWheat(Long userId, Long roomId, Long micUserId) {
 
         int isMe = 1;
@@ -591,7 +608,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void stopWheat(Long userId, Long roomId, Integer micLocation) {
         Integer userRole = getUserRole(roomId, userId);
         if (!userService.checkAuthorityForUserRole(userRole,UserRoleAuthority.A_5.getValue())){
@@ -617,7 +634,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void forbidWheat(Long roomId, Integer micLocation, Long userId){
         Integer userRole = getUserRole(roomId, userId);
         if (!userService.checkAuthorityForUserRole(userRole,UserRoleAuthority.A_6.getValue())){
@@ -642,7 +659,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void openWheat(Long userId, Long roomId, Integer micLocation) {
         Integer userRole = getUserRole(roomId, userId);
         if (!userService.checkAuthorityForUserRole(userRole,UserRoleAuthority.A_11.getValue())){
@@ -668,7 +685,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void releaseWheat(Long roomId, Integer micLocation, Long userId) {
         Integer userRole = getUserRole(roomId, userId);
         if (!userService.checkAuthorityForUserRole(userRole,UserRoleAuthority.A_12.getValue())){
@@ -694,7 +711,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void roomClose(Long userId, Long roomId) {
 
         Integer userRole = getUserRole(roomId, userId);
@@ -759,7 +776,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void roomManage(Long roomId,  Long userId, Long micUserId) {
 
         FuntimeUser user = userService.queryUserById(micUserId);
@@ -807,7 +824,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void roomManageCancel(Long roomId, Long userId, Long micUserId) {
         FuntimeUser user = userService.queryUserById(micUserId);
         if (user==null){
@@ -942,6 +959,20 @@ public class RoomServiceImpl implements RoomService {
 
     public Integer getUserRole(Long roomId,Long userId){
         return chatroomMicMapper.getMicLocationUserRole(roomId, userId);
+    }
+
+    @Override
+    public FuntimeChatroom getRoomByUserId(Long userId) {
+        return chatroomMapper.getRoomByUserId(userId);
+    }
+
+    @Override
+    public boolean checkUserIsExist(Long roomId, Long userId) {
+        Long id = chatroomUserMapper.checkUserIsExist(roomId, userId);
+        if (id == null){
+            return false;
+        }
+        return true;
     }
 
 

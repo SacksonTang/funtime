@@ -41,6 +41,8 @@
     <result column="roomId"  property="roomId" />
     <result column="isLock"  property="isLock" />
     <result column="isBlock"  property="isBlock" />
+    <result column="roomState"  property="roomState" />
+
   </resultMap>
   <sql id="Base_Column_List">
     id, username, fullname, nickname, password, phone_number,
@@ -170,9 +172,9 @@
 
   <select id="queryUserInfoByOnline"  resultMap="BaseResultMap">
     select
-          u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text  ,u.birthday,
+          u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text ,
           u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
-          m.id roomId,m.is_lock as isLock,m.is_block as isBlock
+          m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState
     from t_funtime_user u left join t_funtime_chatroom m on u.id = m.user_id
     where u.online_state = 1 and u.flag = 1
       <if test="sex!=null">
@@ -190,13 +192,13 @@
 
   <select id="queryUserInfoByIndex"  resultMap="BaseResultMap">
     select
-    u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text  ,u.birthday,
+    u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text  ,
     u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
     m.id roomId,m.is_lock as isLock,m.is_block as isBlock
     from t_funtime_user u left join t_funtime_chatroom m on u.id = m.user_id
     where  u.flag = 1
     <if test="content!=null and content!=''">
-      and u.show_id = #{content} or u.nickname like concat('%',#{content},'content') or m.name like concat('%',#{content},'content')
+      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%') or m.name like concat('%',#{content},'%'))
     </if>
     order by u.id desc
 
@@ -586,7 +588,7 @@
     update t_funtime_user set concerns = concerns-1,update_time =now() where id = #{id} and concerns>0
   </update>
   <update id="updateFansSub" parameterType="java.lang.Long">
-    update t_funtime_user set fans = fans+1,update_time =now() where id = #{id} and fans>0
+    update t_funtime_user set fans = fans-1,update_time =now() where id = #{id} and fans>0
   </update>
   <update id="updateCreateRoomPlus" parameterType="java.lang.Long">
     update t_funtime_user set create_room = create_room+1,update_time =now() where id = #{id}

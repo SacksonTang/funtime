@@ -7,11 +7,12 @@
     <result column="black_diamond" jdbcType="DECIMAL" property="blackDiamond" />
     <result column="blue_diamond" jdbcType="DECIMAL" property="blueDiamond" />
     <result column="horn_number" jdbcType="INTEGER" property="hornNumber" />
+    <result column="level" jdbcType="INTEGER" property="level" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="version" jdbcType="BIGINT" property="version" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, user_id, black_diamond, blue_diamond, horn_number, create_time, version
+    id, user_id, black_diamond, blue_diamond, horn_number, create_time, version,level
   </sql>
   <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -40,8 +41,9 @@
       <if test="hornNumber != null">
         horn_number,
       </if>
-
-        create_time,
+      <if test="level != null">
+        level,
+      </if>
 
       <if test="version != null">
         version,
@@ -61,9 +63,9 @@
       <if test="hornNumber != null">
         #{hornNumber,jdbcType=INTEGER},
       </if>
-
-        now(),
-
+      <if test="level != null">
+        #{level,jdbcType=INTEGER},
+      </if>
       <if test="version != null">
         #{version,jdbcType=BIGINT},
       </if>
@@ -81,6 +83,9 @@
       </if>
       <if test="hornNumber != null">
         horn_number = #{hornNumber,jdbcType=INTEGER},
+      </if>
+      <if test="level != null">
+        level = #{level,jdbcType=INTEGER},
       </if>
       <if test="version != null">
         version = #{version,jdbcType=BIGINT},
@@ -136,4 +141,21 @@
 
   </update>
 
+  <update id="updateUserAccountLevel" >
+    update t_funtime_user_account
+    <set>
+
+      <if test="blueDiamond != null">
+        blue_diamond = blue_diamond+#{blueDiamond,jdbcType=DECIMAL},
+      </if>
+      <if test="hornNumber != null">
+        horn_number = horn_number+#{hornNumber,jdbcType=INTEGER},
+      </if>
+      <if test="level != null">
+        level = #{level},
+      </if>
+
+    </set>
+    where user_id = #{id,jdbcType=BIGINT}
+  </update>
 </mapper>

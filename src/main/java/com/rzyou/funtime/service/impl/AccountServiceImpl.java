@@ -3,7 +3,6 @@ package com.rzyou.funtime.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
-import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
@@ -35,6 +34,8 @@ public class AccountServiceImpl implements AccountService {
     RoomService roomService;
     @Autowired
     NoticeService noticeService;
+    @Autowired
+    SmsService smsService;
 
     @Autowired
     FuntimeUserAccountWithdrawalRecordMapper userAccountWithdrawalRecordMapper;
@@ -83,7 +84,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public Map<String,Object> createRecharge(FuntimeUserAccountRechargeRecord record){
         FuntimeRechargeConf rechargeConf = rechargeConfMapper.selectByPrimaryKey(record.getRechargeConfId());
         if (rechargeConf==null){
@@ -96,15 +97,34 @@ public class AccountServiceImpl implements AccountService {
         }
         //首充送三个
         if (isFirstRecharge(record.getUserId())){
-            rechargeConf.setHornNum(rechargeConf.getHornNum()==null?0:rechargeConf.getHornNum()+3);
+            String first_recharge_horn = parameterService.getParameterValueByKey("first_recharge_horn");
+            rechargeConf.setHornNum(rechargeConf.getHornNum()==null?0:rechargeConf.getHornNum()
+                    +Integer.parseInt(first_recharge_horn==null?"3":first_recharge_horn));
+        }
+
+        List<Map<String, Object>> tags = userService.queryTagsByType("recharge_channel", null);
+        if (tags == null || tags.isEmpty()){
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        }
+
+        String channel = null;
+        for (Map<String, Object> map : tags){
+            if (record.getRechargeChannelId().toString().equals(map.get("id").toString())){
+                channel = map.get("tagName").toString();
+                break;
+            }
+        }
+        if (channel == null){
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
 
         record.setRmb(rechargeConf.getRechargeRmb());
         record.setHornNum(rechargeConf.getHornNum());
         record.setAmount(rechargeConf.getRechargeNum());
         String orderNo = "A"+StringUtil.createOrderId();
-        Long id = saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.PAIED.getValue(), orderNo);
-        userService.updateUserAccountForPlus(record.getUserId(),null,rechargeConf.getRechargeNum(),rechargeConf.getHornNum());
+        Long id = saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
+
+        rechargeSuccess(id, null);
         Map<String,Object> result = new HashMap<>();
         result.put("orderId",id);
         result.put("orderNo",orderNo);
@@ -112,26 +132,55 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
+
+
     @Override
-    @Transactional
-    public Map<String,String> paySuccess(Long orderId) {
+    @Transactional(rollbackFor = Throwable.class)
+    public Map<String,String> paySuccess(Long orderId, String transaction_id) {
         Map<String,String> result = new HashMap<>();
-        FuntimeUserAccountRechargeRecord record = userAccountRechargeRecordMapper.selectByPrimaryKey(orderId);
-        if(record==null){
+
+        try {
+            boolean flag = rechargeSuccess(orderId,transaction_id);
+            if (flag){
+                result.put("return_code", "SUCCESS");
+                result.put("return_msg", "OK");
+            }else{
+                result.put("return_code", "FAIL");
+                result.put("return_msg", ErrorMsgEnum.ORDER_NOT_EXISTS.getDesc());
+            }
+        }catch (Exception e){
             result.put("return_code", "FAIL");
             result.put("return_msg", ErrorMsgEnum.ORDER_NOT_EXISTS.getDesc());
-            return result;
+        }
+
+        return result;
+
+    }
+
+    public boolean rechargeSuccess(Long recordId, String transaction_id){
+        FuntimeUserAccountRechargeRecord record = userAccountRechargeRecordMapper.selectByPrimaryKey(recordId);
+        if(record==null){
+            return false;
         }
         if (PayState.PAIED.getValue().equals(record.getState())){
-            result.put("return_code", "SUCCESS");
-            result.put("return_msg", "OK");
-            return result;
+            return true;
         }else if (PayState.START.getValue().equals(record.getState())||PayState.FAIL.getValue().equals(record.getState())) {
-            //状态变更
-            updateState(orderId, PayState.PAIED.getValue());
 
-            //增加用户账户钻石和喇叭
-            userAccountMapper.updateUserAccountForPlus(orderId,null,record.getAmount(),record.getHornNum());
+            FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(record.getUserId());
+            if (userAccount==null){
+                return false;
+            }
+            //状态变更
+            updateState(recordId, PayState.PAIED.getValue(),transaction_id);
+
+            //用户总充值数
+            BigDecimal total = userAccountRechargeRecordMapper.getRechargeNumByUserId(record.getUserId());
+
+            //充值等级
+            Integer userLevel = userAccountRechargeRecordMapper.getUserLevel(total.intValue());
+            if (!userLevel.equals(userAccount.getLevel())){
+                userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),record.getHornNum());
+            }
 
             //记录日志
             saveUserAccountBlueLog(record.getUserId(),record.getAmount(),record.getId()
@@ -140,16 +189,12 @@ public class AccountServiceImpl implements AccountService {
                 saveUserAccountHornLog(record.getUserId(),record.getHornNum(),record.getId()
                         , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
             }
-            result.put("return_code", "SUCCESS");
-            result.put("return_msg", "OK");
-            return result;
+
+            return true;
         }else{
             log.info("订单号: {} 的订单已失效,请重新下单",record.getOrderNo());
-            result.put("return_code", "FAIL");
-            result.put("return_msg", ErrorMsgEnum.ORDER_IS_INVALID.getDesc());
-            return result;
+            return false;
         }
-
     }
 
     @Override
@@ -179,7 +224,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public Long createRedpacket(FuntimeUserRedpacket redpacket) {
         if (redpacket.getType() == 1) {
             FuntimeChatroom chatroom = roomService.getChatroomById(redpacket.getRoomId());
@@ -246,7 +291,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> grabRedpacket(Long userId, Long redpacketId){
 
         FuntimeUserRedpacket redpacket = userRedpacketMapper.selectByPrimaryKey(redpacketId);
@@ -526,9 +571,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public BigDecimal getSumGrabAmountById(Long userId, String queryDate) {
-        String startDate = queryDate+"-01 00:00:01";
-        String endDate = currentFinalDay(queryDate) ;
-        return userAccountRedpacketRecordMapper.getSumGrabAmountById(startDate,endDate,userId);
+        if (queryDate!=null) {
+            String startDate = queryDate + "-01 00:00:01";
+            String endDate = currentFinalDay(queryDate);
+            return userAccountRedpacketRecordMapper.getSumGrabAmountById(startDate, endDate, userId);
+        }else{
+            return userAccountRedpacketRecordMapper.getSumGrabAmountById(null, null, userId);
+        }
     }
 
     @Override
@@ -539,7 +588,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
 
         ResultMsg<Object> resultMsg = new ResultMsg<>();
@@ -568,7 +617,7 @@ public class AccountServiceImpl implements AccountService {
         if (userAccount.getBlueDiamond().intValue()<amount*toUserIdArray.length){
             resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
             resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
-            resultMsg.setData(JsonUtil.getMap("amount",amount*toUserIdArray.length - userAccount.getBlueDiamond().intValue()));
+            resultMsg.setData(JsonUtil.getMap("amount",amount*toUserIdArray.length));
             return resultMsg;
         }
 
@@ -628,6 +677,7 @@ public class AccountServiceImpl implements AccountService {
                 if (roomNos == null || roomNos.isEmpty()) {
                     throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
                 }
+                notice.setSpecialEffect(type);
                 notice.setType(Constant.ROOM_GIFT_SEND);
                 //发送通知
                 for (String roomNo : roomNos) {
@@ -663,7 +713,7 @@ public class AccountServiceImpl implements AccountService {
         if (userAccount.getBlueDiamond().intValue()<amount){
             resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
             resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
-            resultMsg.setData(JsonUtil.getMap("amount",amount - userAccount.getBlueDiamond().intValue()));
+            resultMsg.setData(JsonUtil.getMap("amount",amount));
             return resultMsg;
         }
 
@@ -723,6 +773,7 @@ public class AccountServiceImpl implements AccountService {
             if (roomNos == null || roomNos.isEmpty()) {
                 throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
             }
+            notice.setSpecialEffect(type);
             notice.setType(Constant.ROOM_GIFT_SEND);
             //发送通知
             for (String roomNo : roomNos) {
@@ -763,7 +814,7 @@ public class AccountServiceImpl implements AccountService {
         if (userAccount.getBlueDiamond().intValue()<amount*userNum){
             resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
             resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
-            resultMsg.setData(JsonUtil.getMap("amount",amount*userNum - userAccount.getBlueDiamond().intValue()));
+            resultMsg.setData(JsonUtil.getMap("amount",amount*userNum));
             return resultMsg;
         }
 
@@ -823,6 +874,7 @@ public class AccountServiceImpl implements AccountService {
         if (roomNos == null || roomNos.isEmpty()) {
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
+        notice.setSpecialEffect(type);
         notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
         //发送通知
         for (String roomNo : roomNos) {
@@ -856,8 +908,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public FuntimeUserRedpacket getRedpacketInfoById(Long id) {
-        FuntimeUserRedpacket redpacket = userRedpacketMapper.getRedpacketInfoById(id);
+    public FuntimeUserRedpacket getRedpacketInfoById(Long id, Long userId) {
+        FuntimeUserRedpacket redpacket = userRedpacketMapper.getRedpacketInfoById(id,userId);
 
         return redpacket;
     }
@@ -893,7 +945,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void diamondConvert(Long userId, String from, String to, BigDecimal amount,Integer convertType) {
 
         BigDecimal val = convert(from,to);
@@ -974,17 +1026,20 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
-    public void applyWithdrawal(Long userId,Integer withdrawalType, BigDecimal blackAmount) {
+    @Transactional(rollbackFor = Throwable.class)
+    public void applyWithdrawal(Long userId, Integer withdrawalType, BigDecimal blackAmount, String code) {
 
-        if(!userService.checkUserExists(userId)){
+        FuntimeUser user = userService.queryUserById(userId);
+        if(user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+
+        Long smsId = smsService.validateSms(SmsType.REAL_VALID.getValue(),user.getPhoneNumber(),code);
 
         //待处理的条数
         int count = userAccountWithdrawalRecordMapper.getWithdrawalRecordByUserId(userId);
         if(count>0){
-            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_OPERATION_LIMIT.getValue(),ErrorMsgEnum.WITHDRAWAL_OPERATION_LIMIT.getDesc());
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_OPERATION_LIMIT.getValue(),ErrorMsgEnum.WITHDRAWAL_OPERATION_LIMIT.getDesc()+",公众号:"+parameterService.getParameterValueByKey("wechat_subscription"));
         }
 
         checkWithdrawalConf(userId,blackAmount);
@@ -1006,6 +1061,7 @@ public class AccountServiceImpl implements AccountService {
         //用户日志
         saveUserAccountBlackLog(userId,blackAmount,recordId,OperationType.WITHDRAWAL.getAction(),OperationType.WITHDRAWAL.getOperationType());
 
+        smsService.updateSmsInfoById(smsId,1);
     }
 
     @Override
@@ -1107,7 +1163,7 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.USERVALID_IS_NOT_VALID.getValue(),ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
         }
         if (WithdrawalType.DESPOSIT_CARD.getValue()==withdrawalType.intValue()){
-            return userValid.getDepositCard();
+            return userValid.getDepositCardReal();
         }else if (WithdrawalType.WXPAY.getValue()==withdrawalType.intValue()){
             return userValid.getWxNo();
         }else if (WithdrawalType.ALIPAY.getValue()==withdrawalType.intValue()){
@@ -1266,10 +1322,11 @@ public class AccountServiceImpl implements AccountService {
         return rechargeRecord.getId();
     }
 
-    public void updateState(Long id,Integer state){
+    public void updateState(Long id, Integer state, String transaction_id){
         FuntimeUserAccountRechargeRecord record = new FuntimeUserAccountRechargeRecord();
         record.setId(id);
         record.setState(state);
+        record.setRechargeCardId(transaction_id);
         record.setCompleteTime(new Date());
         int k = userAccountRechargeRecordMapper.updateByPrimaryKeySelective(record);
         if(k!=1){

@@ -55,19 +55,20 @@
     t.id, t.user_id, t.redpacket_num, t.amount, t.redpacket_desc, t.bestow_condition, t.gift_id, t.state,
     t.invalid_time, t.create_time
     ,sum(l.amount) grabAmount,count(l.id) grabNum
-    from t_funtime_user_redpacket t inner join t_funtime_user_redpacket_detail l on t.id = l.redpacket_id
-    where t.user_id = #{userId} and l.grab_user_id is not null
+    from t_funtime_user_redpacket t left join t_funtime_user_redpacket_detail l on t.id = l.redpacket_id and l.grab_user_id is not null
+    where t.user_id = #{userId}
     <if test="startDate!=null and endDate!=null">
       and t.create_time between #{startDate} and #{endDate}
     </if>
     group by t.id
     order by t.id desc
   </select>
-  <select id="getRedpacketInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+  <select id="getRedpacketInfoById"  resultMap="BaseResultMap">
     select
     t.id, t.user_id, t.redpacket_num, t.amount, t.redpacket_desc, t.bestow_condition, t.gift_id, t.state,
     t.invalid_time, t.create_time,u.nickname,u.portrait_address,u.sex
-    ,ifnull(sum(l.amount),0) grabAmount,count(l.id) grabNum
+    ,ifnull((select dl.amount from t_funtime_user_redpacket_detail dl where dl.redpacket_id = t.id and dl.grab_user_id = #{userId} limit 1),0) grabAmount
+    ,count(l.id) grabNum
     from t_funtime_user_redpacket t left join t_funtime_user_redpacket_detail l on t.id = l.redpacket_id and l.grab_user_id is not null
       inner join t_funtime_user u on t.user_id = u.id
     where t.id = #{id}

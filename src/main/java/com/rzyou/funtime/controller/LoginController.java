@@ -92,6 +92,9 @@ public class LoginController {
             }
             FuntimeUser userInfo = strategy.login(user);
 
+            if (!userService.checkAgreementByuserId(userInfo.getId(),UserAgreementType.PRIVACY_AGREEMENT.getValue())){
+                userInfo.setAgreementUrl(Constant.COS_URL_PREFIX+Constant.AGREEMENT_PRIVACY);
+            }
             result.setData(JsonUtil.getMap("user",userInfo));
         } catch (BusinessException be) {
             be.printStackTrace();

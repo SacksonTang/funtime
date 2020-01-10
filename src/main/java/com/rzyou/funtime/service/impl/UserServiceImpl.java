@@ -11,6 +11,7 @@ import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.ParameterService;
+import com.rzyou.funtime.service.RoomService;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.DateUtil;
@@ -30,6 +31,8 @@ public class UserServiceImpl implements UserService {
     SmsService smsService;
     @Autowired
     ParameterService parameterService;
+    @Autowired
+    RoomService roomService;
     @Autowired
     FuntimeUserMapper userMapper;
     @Autowired
@@ -52,8 +55,7 @@ public class UserServiceImpl implements UserService {
     FuntimeGiftMapper giftMapper;
     @Autowired
     FuntimeUserPhotoAlbumMapper userPhotoAlbumMapper;
-    @Autowired
-    FuntimeChatroomMapper chatroomMapper;
+
     @Autowired
     FuntimeAccusationMapper accusationMapper;
     @Autowired
@@ -86,7 +88,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void updateUserInfo(Long id, Integer onlineState, String token, String imei, String ip,String nikename,String loginType,String deviceName){
         FuntimeUser user = new FuntimeUser();
         user.setToken(token);
@@ -101,7 +103,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void updateUserInfo(FuntimeUser user){
 
         updateByPrimaryKeySelective(user);
@@ -119,12 +121,47 @@ public class UserServiceImpl implements UserService {
         if(user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        if (user.getBirthday()!=null) {
+            Integer birthday = user.getBirthday();
+            user.setAge(DateUtil.getAgeByBirthday(birthday));
+            user.setConstellation(DateUtil.getConstellationByBirthday(birthday));
+        }
+        if (user.getSex()!=null){
+            if (user.getSex() == 1){
+                user.setSexColor("#0093FF");
+            }else {
+                user.setSexColor("#FF0096");
+            }
+        }
+        if (user.getHeight()!=null){
+            user.setHeightColor("#FF9500");
+        }
+
+        List<Map<String, Object>> tagNames = tagMapper.queryTagNamesByUserId(user.getId());
+        if (tagNames!=null&&!tagNames.isEmpty()){
+            for (Map<String, Object> map : tagNames){
+                if (map.get("tagType").toString()!=null){
+                    map.put("tagColor", TagColorEnmu.getDescByValue(map.get("tagType").toString()));
+                }
+
+            }
+        }
+        user.setTagNames(tagNames);
 
         user.setBlueAmount(accountMapper.selectByUserId(id).getBlueDiamond().intValue());
 
-        FuntimeChatroom chatroom = chatroomMapper.getRoomByUserId(id);
+        FuntimeChatroom chatroom = roomService.getRoomByUserId(id);
 
-        user.setRoomId(chatroom==null?null:chatroom.getId());
+        if (chatroom!=null) {
+
+            user.setRoomId(chatroom.getId());
+
+            user.setIsBlock(chatroom.getIsBlock());
+
+            user.setIsLock(chatroom.getIsLock());
+
+            user.setRoomState(chatroom.getState());
+        }
 
         List<Integer> tags = queryTagsByUserId(id);
         user.setTags(tags);
@@ -137,7 +174,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid,String accessToken) {
         insertSelective(user);
 
@@ -194,9 +231,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public Boolean updateUserBasicInfoById(FuntimeUser user) {
-        if(!checkUserExists(user.getId())){
+        FuntimeUser funtimeUser = queryUserById(user.getId());
+        if(funtimeUser == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
         List<Integer> tags = new ArrayList<>();
@@ -204,10 +242,14 @@ public class UserServiceImpl implements UserService {
             tags.addAll(user.getTags());
             updateTagsByUserId(tags,user.getId());
         }
+        if (user.getBirthday()==null&&funtimeUser.getBirthday()==null){
+            user.setBirthday(Integer.parseInt(DateUtil.getCurrentYearAdd(new Date(),-18)));
+        }
+
         updateByPrimaryKeySelective(user);
-        if (StringUtils.isNotBlank(user.getNickname())||StringUtils.isNotBlank(user.getPortraitAddress())){
+        if (StringUtils.isNotBlank(user.getNickname())||StringUtils.isNotBlank(user.getPortraitAddress())||user.getSex()!=null){
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
-            boolean flag = TencentUtil.portraitSet(userSig, user.getId().toString(), user.getNickname(), user.getPortraitAddress());
+            boolean flag = TencentUtil.portraitSet(userSig, user.getId().toString(), user.getNickname(), user.getPortraitAddress(),user.getSex()==null?null:user.getSex().toString());
             if (!flag){
                 throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(),ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
             }
@@ -228,7 +270,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public Boolean deleteUser(Long id) {
         FuntimeUser funtimeUser = userMapper.selectByPrimaryKey(id);
         if(funtimeUser==null){
@@ -245,7 +287,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public Boolean enableUser(Long id) {
         FuntimeUser funtimeUser = userMapper.selectByPrimaryKey(id);
         if(funtimeUser==null){
@@ -343,9 +385,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
-    public void updatePhoneNumber(Long userId, String newPhoneNumber, String code) {
-
+    @Transactional(rollbackFor = Throwable.class)
+    public void updatePhoneNumber(Long userId, String newPhoneNumber, String code, String oldPhoneNumber) {
         FuntimeUser user = userMapper.queryUserInfoByPhone(newPhoneNumber);
         if (user!=null){
             throw new BusinessException(ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getValue(),ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getDesc());
@@ -353,6 +394,10 @@ public class UserServiceImpl implements UserService {
         user = userMapper.selectByPrimaryKey(userId);
         if(user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+
+        if (!oldPhoneNumber.equals(user.getPhoneNumber())){
+            throw new BusinessException(ErrorMsgEnum.PHONE_NUMBER_IS_NOT_REGISTER.getValue(),ErrorMsgEnum.PHONE_NUMBER_IS_NOT_REGISTER.getDesc());
         }
 
         Long smsId = smsService.validateSms(SmsType.UPDATE_PHONENUMBER.getValue(),newPhoneNumber,code);
@@ -367,11 +412,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveUserValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo) {
+    public void saveUserValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo, String code) {
+        FuntimeUser user = queryUserById(userId);
+        if(user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
         FuntimeUserValid userValid = queryValidInfoByUserId(userId);
         if(userValid!=null){
             throw new BusinessException(ErrorMsgEnum.USERVALID_IS_EXISTS.getValue(),ErrorMsgEnum.USERVALID_IS_EXISTS.getDesc());
         }
+
+        smsService.validateSms(SmsType.REAL_VALID.getValue(),user.getPhoneNumber(),code);
 
         BankCardVerificationUtil.bankCardVerification(depositCard,fullname,identityCard);
 
@@ -421,6 +472,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
     public boolean checkAgreementByuserId(Long userId,Integer agreementType){
         FuntimeUserAgreement userAgreement = userAgreementMapper.selectByUserId(userId,agreementType);
         if (userAgreement==null){
@@ -431,7 +483,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void saveConcern(Long userId, Long toUserId) {
         Long id = userConcernMapper.checkRecordExist(userId,toUserId);
         if(id!=null){
@@ -449,7 +501,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void deleteConcern(Long userId, Long toUserId) {
         Long id = userConcernMapper.checkRecordExist(userId,toUserId);
         if(id==null){
@@ -525,7 +577,11 @@ public class UserServiceImpl implements UserService {
                     user.setConstellation(DateUtil.getConstellationByBirthday(birthday));
                 }
                 if (user.getSex()!=null){
-                    user.setSexColor("#FF0096");
+                    if (user.getSex() == 1){
+                        user.setSexColor("#0093FF");
+                    }else {
+                        user.setSexColor("#FF0096");
+                    }
                 }
                 if (user.getHeight()!=null){
                     user.setHeightColor("#FF9500");
@@ -665,22 +721,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updatePhotoByUserId(Long userId, JSONArray array) {
         if (userMapper.checkUserExists(userId)==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
         userPhotoAlbumMapper.deleteByUserId(userId);
-        JSONObject object;
-        FuntimeUserPhotoAlbum photoAlbum;
-        List<FuntimeUserPhotoAlbum> list = new ArrayList<>();
-        for (int i = 0;i<array.size();i++){
-            object = array.getJSONObject(i);
-            photoAlbum = JSONObject.toJavaObject(object,FuntimeUserPhotoAlbum.class);
+        if (array!=null&&array.size()>0) {
+            JSONObject object;
+            FuntimeUserPhotoAlbum photoAlbum;
+            List<FuntimeUserPhotoAlbum> list = new ArrayList<>();
+            for (int i = 0; i < array.size(); i++) {
+                object = array.getJSONObject(i);
+                photoAlbum = JSONObject.toJavaObject(object, FuntimeUserPhotoAlbum.class);
 
-            photoAlbum.setUserId(userId);
-            list.add(photoAlbum);
+                photoAlbum.setUserId(userId);
+                list.add(photoAlbum);
+            }
+            userPhotoAlbumMapper.insertBatch(list);
         }
-        userPhotoAlbumMapper.insertBatch(list);
     }
 
     @Override
@@ -739,7 +798,11 @@ public class UserServiceImpl implements UserService {
                     user.setConstellation(DateUtil.getConstellationByBirthday(birthday));
                 }
                 if (user.getSex()!=null){
-                    user.setSexColor("#FF0096");
+                    if (user.getSex() == 1){
+                        user.setSexColor("#0093FF");
+                    }else {
+                        user.setSexColor("#FF0096");
+                    }
                 }
                 if (user.getHeight()!=null){
                     user.setHeightColor("#FF9500");
@@ -770,14 +833,38 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Object> getWithdralInfo(Long userId) {
         Map<String,Object> result = new HashMap<>();
-        FuntimeUserValid userValid = userValidMapper.selectByUserId(userId);
+        FuntimeUserValid userValid = queryValidInfoByUserId(userId);
         result.put("userValid",userValid);
         List<FuntimeWithdrawalConf> withdralConf = withdrawalConfMapper.getWithdralConf();
         result.put("withdralConf",withdralConf);
         String black_to_rmb = parameterService.getParameterValueByKey("black_to_rmb");
         result.put("black_to_rmb",black_to_rmb);
-        result.put("agreementUrl","http://funtime-1300805214.cos.ap-shanghai.myqcloud.com/agreement/领赏协议.html");
+        result.put("agreementUrl",Constant.COS_URL_PREFIX+Constant.AGREEMENT_WITHDRAL);
+
         return result;
+    }
+
+    @Override
+    public void logout(Long userId) {
+        if (userMapper.checkUserExists(userId)==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        updateOnlineState(userId,2);
+        FuntimeChatroom room = roomService.getRoomByUserId(userId);
+        if (room == null){
+            return;
+        }
+        roomService.roomExit(userId,room.getId());
+
+    }
+
+    @Override
+    public void validPhone(Long userId, String code, String oldPhoneNumber) {
+        if (!checkUserExists(userId)){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        Long smsId = smsService.validateSms(SmsType.UPDATE_PHONENUMBER.getValue(),oldPhoneNumber,code);
+        smsService.updateSmsInfoById(smsId,1);
     }
 
 

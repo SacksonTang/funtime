@@ -3,6 +3,16 @@ package com.rzyou.funtime.common;
 
 public class Constant {
 
+    public final static String COS_URL_PREFIX = "http://funtime-1300805214.cos.ap-shanghai.myqcloud.com";
+    public final static String AGREEMENT_PRIVACY = "/agreement/隐私保护指引.html";
+    public final static String AGREEMENT_WITHDRAL = "/agreement/领赏协议.html";
+    public final static String DEFAULT_MALE_HEAD_PORTRAIT = "/default/head1.png";
+    public final static String DEFAULT_FEMALE_HEAD_PORTRAIT = "/default/head2.png";
+    public final static String DEFAULT_ROOM_PORTRAIT = "/default/room.png";
+    public final static String SHARE_URL = "https://www.baidu.com";
+
+    public final static String WXCHATTEMP = "提交领赏申请成功，客服将按照你提交的领取方式联系您请关注公司公众号#，最新领赏通知将通过公众号推送";
+
     public final static String BChATROOM = "funtimefadacai";
 
     public final static String RONGYUN_APPKEY="mgb7ka1nmdxbg";

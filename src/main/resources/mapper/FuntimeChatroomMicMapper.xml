@@ -10,6 +10,7 @@
     <result column="user_role"  property="userRole" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+
   </resultMap>
   <sql id="Base_Column_List">
     id, room_id, mic_location, mic_user_id, create_time, update_time,state,user_role
@@ -62,38 +63,38 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <update id="lowerWheat" >
-    update t_funtime_chatroom_mic set mic_user_id = null,state = 1
+    update t_funtime_chatroom_mic set mic_user_id = null,state = 1,update_time = NOW()
     <if test="micLocation != 10">
       ,user_role = 3
     </if>
     where id = #{id}
   </update>
   <update id="upperWheat" >
-    update t_funtime_chatroom_mic set mic_user_id = #{userId}
+    update t_funtime_chatroom_mic set mic_user_id = #{userId},update_time = NOW()
     where id = #{id}
   </update>
   <update id="stopWheat" >
-    update t_funtime_chatroom_mic set mic_user_id = null,state = 2
+    update t_funtime_chatroom_mic set mic_user_id = null,state = 2,update_time = NOW()
     where id = #{id}
   </update>
   <update id="openWheat" >
-    update t_funtime_chatroom_mic set state = 1
+    update t_funtime_chatroom_mic set state = 1,update_time = NOW()
     where id = #{id}
   </update>
   <update id="forbidWheat" >
-    update t_funtime_chatroom_mic set state = 3
+    update t_funtime_chatroom_mic set state = 3,update_time = NOW()
     where id = #{id}
   </update>
   <update id="releaseWheat" >
-    update t_funtime_chatroom_mic set state = 1
+    update t_funtime_chatroom_mic set state = 1,update_time = NOW()
     where id = #{id}
   </update>
   <update id="roomManage" >
-    update t_funtime_chatroom_mic set user_role = 2
+    update t_funtime_chatroom_mic set user_role = 2,update_time = NOW()
     where id = #{id}
   </update>
   <update id="roomManageCancel" >
-    update t_funtime_chatroom_mic set user_role = 3
+    update t_funtime_chatroom_mic set user_role = 3,update_time = NOW()
     where id = #{id}
   </update>
   <insert id="insertBatch" >

@@ -3,11 +3,13 @@ package com.rzyou.funtime.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.BusinessException;
+import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.entity.FuntimeUserAccountWithdrawalRecord;
 import com.rzyou.funtime.service.AccountService;
+import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.utils.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("withdrawal")
@@ -25,6 +28,8 @@ public class WithdrawalController {
 
     @Autowired
     AccountService accountService;
+    @Autowired
+    ParameterService parameterService;
 
     /**
      * 申请领赏
@@ -38,8 +43,13 @@ public class WithdrawalController {
             Integer withdrawalType = paramJson.getInteger("withdrawalType");
             BigDecimal blackAmount = paramJson.getBigDecimal("blackAmount");
             Long userId = paramJson.getLong("userId");
+            String code = paramJson.getString("code");
 
-            accountService.applyWithdrawal(userId,withdrawalType,blackAmount);
+            accountService.applyWithdrawal(userId,withdrawalType,blackAmount,code);
+            Map<String, Object> map = JsonUtil.getMap("weChatSubscriptionDesc", Constant.WXCHATTEMP.replaceAll("#", parameterService.getParameterValueByKey("wechat_subscription")));
+            map.put("weChatSubscription",parameterService.getParameterValueByKey("wechat_subscription"));
+
+            result.setData(map);
 
             return result;
         } catch (BusinessException be) {

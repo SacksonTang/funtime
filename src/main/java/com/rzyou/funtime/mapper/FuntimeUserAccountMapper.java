@@ -15,6 +15,7 @@ public interface FuntimeUserAccountMapper {
             , @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber
             , @Param("version") Long version,@Param("newVersion") Long newVersion);
 
+    int updateUserAccountLevel(@Param("id") Long id, @Param("level") Integer level, @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber);
 
     int deleteByPrimaryKey(Long id);
 

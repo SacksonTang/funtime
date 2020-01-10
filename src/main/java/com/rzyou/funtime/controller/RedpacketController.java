@@ -37,9 +37,10 @@ public class RedpacketController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long redpacketId = paramJson.getLong("redpacketId");
+            Long userId = paramJson.getLong("userId");
             Map<String,Object> resultMap = new HashMap<>();
             resultMap.put("records",accountService.getRecordListByRedId(redpacketId));
-            resultMap.put("redpacket",accountService.getRedpacketInfoById(redpacketId));
+            resultMap.put("redpacket",accountService.getRedpacketInfoById(redpacketId,userId));
             result.setData(resultMap);
             return result;
         } catch (BusinessException be) {
@@ -176,8 +177,10 @@ public class RedpacketController {
             Map<String,Object> resultMap = new HashMap<>();
             //发出
             if(type.intValue()==1){
-                resultMap.put("pageInfo",accountService.getRedpacketOfSendForPage(startPage, pageSize, queryDate, userId));
+                PageInfo<FuntimeUserRedpacket> pageInfo = accountService.getRedpacketOfSendForPage(startPage, pageSize, queryDate, userId);
+                resultMap.put("pageInfo",pageInfo);
                 resultMap.put("sendAmountTotal",accountService.querySnedSumAmountByGrab(userId,queryDate));
+                resultMap.put("sendNumTotal",pageInfo.getTotal());
 
             }else{
                 resultMap.put("pageInfo",accountService.getRedpacketOfRecieveForPage(startPage, pageSize, queryDate, userId));
