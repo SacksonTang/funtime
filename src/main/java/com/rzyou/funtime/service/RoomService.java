@@ -27,9 +27,10 @@ public interface RoomService {
      * @param userId
      * @param roomId
      * @param password
+     * @param type
      * @return
      */
-    boolean roomJoin(Long userId, Long roomId,String password);
+    boolean roomJoin(Long userId, Long roomId, String password, Integer type);
 
     /**
      * 获取房间信息

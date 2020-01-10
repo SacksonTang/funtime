@@ -58,6 +58,7 @@ public class QqLoginUtils {
         String result = HttpClientUtil.doGet(url);
         log.debug("getOpenId result : {}",result);
         if (result.indexOf("callback") == -1){
+            log.error("获取openid失败:{}",result);
             throw new BusinessException(ErrorMsgEnum.USER_QQLOGIN_GETOPENID_ERROR.getValue(),ErrorMsgEnum.USER_QQLOGIN_GETOPENID_ERROR.getDesc());
         }
         Pattern p = Pattern.compile("openid\":\"(\\w*)\"");

@@ -117,6 +117,10 @@ public class FuntimeUser implements Serializable {
 
     private Integer roomState;
 
-    private String agreementUrl;
+    private String privacyAgreementUrl;
+
+    private String userAgreementUrl;
+
+    private Boolean concerned;
 
 }

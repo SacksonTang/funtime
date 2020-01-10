@@ -164,15 +164,19 @@ public class UserController {
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
-            String userId = paramJson.getString("userId");
-            if (StringUtils.isBlank(userId)) {
+            Long userId = paramJson.getLong("userId");
+            Long byUserId = paramJson.getLong("byUserId");
+            if (userId==null) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            FuntimeUser user = userService.getUserBasicInfoById(Long.parseLong(userId));
+            FuntimeUser user = userService.getUserBasicInfoById(userId);
+            if (byUserId!=null) {
+                user.setConcerned(userService.checkRecordExist(byUserId, userId));
+            }
             result.setData(JsonUtil.getMap("user",user));
             return result;
         } catch (BusinessException be) {
@@ -709,17 +713,19 @@ public class UserController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
-            Integer agreementType = paramJson.getInteger("agreementType");
+            String agreementType = paramJson.getString("agreementType");
 
 
-            if (userId==null||agreementType==null) {
+            if (userId==null||StringUtils.isEmpty(agreementType)) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            userService.saveUserAgreement(userId,agreementType);
+
+            userService.saveUserAgreement(userId, agreementType);
+
 
             return result;
         } catch (BusinessException be) {

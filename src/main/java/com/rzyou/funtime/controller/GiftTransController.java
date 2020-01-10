@@ -109,7 +109,7 @@ public class GiftTransController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
             Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
-            Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             String queryDate = paramJson.getString("queryDate");
             Integer type = paramJson.getInteger("type");
             Long userId = paramJson.getLong("userId");
@@ -124,6 +124,43 @@ public class GiftTransController {
             }else{
                 result.setData(JsonUtil.getMap("pageInfo",accountService.getGiftOfRecieveForPage(startPage, pageSize, queryDate, userId)));
             }
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+
+    /**
+     * 礼物列表统计
+     * @param request
+     * @return
+     */
+    @PostMapping("getGiftsByUserId")
+    public ResultMsg<Object> getGiftsByUserId(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+
+            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
+            Long userId = paramJson.getLong("userId");
+            if(userId==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            result.setData(JsonUtil.getMap("pageInfo",accountService.getGiftsByUserId(startPage, pageSize, userId)));
 
             return result;
         } catch (BusinessException be) {

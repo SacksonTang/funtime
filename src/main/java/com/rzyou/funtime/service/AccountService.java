@@ -243,4 +243,13 @@ public interface AccountService {
      * @return
      */
     BigDecimal getRatio(Long userId, String from, String to, BigDecimal amount, int value);
+
+    /**
+     * 获取用户收到的礼物统计
+     * @param startPage
+     * @param pageSize
+     * @param userId
+     * @return
+     */
+    PageInfo<Map<String,Object>> getGiftsByUserId(Integer startPage, Integer pageSize, Long userId);
 }

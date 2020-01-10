@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
-import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
@@ -63,7 +62,7 @@ public class RoomServiceImpl implements RoomService {
                 updateChatroom(chatroom1);
 
             }
-            roomJoin(userId,chatroom.getId(),null);
+            roomJoin(userId,chatroom.getId(),null, null);
             return  chatroom.getId();
         }
         userService.updateCreateRoomPlus(userId);
@@ -150,7 +149,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public boolean roomJoin(Long userId, Long roomId,String password) {
+    public boolean roomJoin(Long userId, Long roomId, String password, Integer type) {
         //查询房间信息
         FuntimeChatroom chatroom = chatroomMapper.selectByPrimaryKey(roomId);
         if (chatroom==null){
@@ -178,17 +177,19 @@ public class RoomServiceImpl implements RoomService {
                 log.info("roomJoin==========> {}",ErrorMsgEnum.ROOM_IS_CLOSE.getDesc());
                 throw new BusinessException(ErrorMsgEnum.ROOM_IS_CLOSE.getValue(),ErrorMsgEnum.ROOM_IS_CLOSE.getDesc());
             }
-            //上锁的房间
-            if (chatroom.getIsLock().intValue()==1){
-                //不是房主
-                //校验密码
-                if (StringUtils.isEmpty(password) || StringUtils.isEmpty(chatroom.getPassword())) {
-                    log.info("roomJoin==========> {}",ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
-                    throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
-                }
-                if (!password.equals(chatroom.getPassword())) {
-                    log.info("roomJoin==========> {}",ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
-                    throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
+            if (type == null||type !=1) {
+                //上锁的房间
+                if (chatroom.getIsLock().intValue() == 1) {
+                    //不是房主
+                    //校验密码
+                    if (StringUtils.isEmpty(password) || StringUtils.isEmpty(chatroom.getPassword())) {
+                        log.info("roomJoin==========> {}", ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
+                        throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
+                    }
+                    if (!password.equals(chatroom.getPassword())) {
+                        log.info("roomJoin==========> {}", ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
+                        throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
+                    }
                 }
             }
             //校验是否在踢出房间范围

@@ -442,7 +442,7 @@ public class AccountServiceImpl implements AccountService {
     private void tagSetup(Long redpacketId) {
 
         List<FuntimeUserAccountRedpacketRecord> records = userAccountRedpacketRecordMapper.getRedpacketRecordByredId(redpacketId);
-        if(records==null||records.isEmpty()||records.size()<=5){
+        if(records==null||records.isEmpty()||records.size()<=4){
             throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
         }
 
@@ -927,6 +927,19 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public BigDecimal getRatio(Long userId, String from, String to, BigDecimal amount, int value) {
         return convert(from,to);
+    }
+
+    @Override
+    public PageInfo<Map<String,Object>> getGiftsByUserId(Integer startPage, Integer pageSize, Long userId) {
+        PageHelper.startPage(startPage,pageSize);
+
+        List<Map<String,Object>> list = userAccountGifttransRecordMapper.getGiftsByUserId(userId);
+        if(list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }else{
+
+            return new PageInfo<>(list);
+        }
     }
 
     @Override

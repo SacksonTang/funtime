@@ -31,6 +31,7 @@ public class WeixinLoginUtils {
         JSONObject resultObj = JSONObject.parseObject(returnJson);
         log.debug("getAccessToken result : {}",returnJson);
         if (resultObj.getString("errcode")!=null){
+            log.error("获取token失败：{}",returnJson);
             throw new BusinessException(ErrorMsgEnum.USER_WXLOGIN_TOKEN_ERROR.getValue(),ErrorMsgEnum.USER_WXLOGIN_TOKEN_ERROR.getDesc());
         }
         if (StringUtils.isBlank(resultObj.getString("access_token"))||StringUtils.isBlank(resultObj.getString("openid"))){

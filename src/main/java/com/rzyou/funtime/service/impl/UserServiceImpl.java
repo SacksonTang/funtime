@@ -455,20 +455,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveUserAgreement(Long userId, Integer agreementType) {
+    public void saveUserAgreement(Long userId, String agreementTypes) {
 
-        FuntimeUserAgreement userAgreement = userAgreementMapper.selectByUserId(userId,agreementType);
-        if(userAgreement!=null){
-            throw new BusinessException(ErrorMsgEnum.USERAGREEMENT_IS_EXISTS.getValue(),ErrorMsgEnum.USERAGREEMENT_IS_EXISTS.getDesc());
-        }
-        userAgreement = new FuntimeUserAgreement();
-        userAgreement.setType(agreementType);
-        userAgreement.setUserId(userId);
-        userAgreement.setAgreement(1);
-        userAgreement.setCreateTime(new Date());
-        int k = userAgreementMapper.insertSelective(userAgreement);
-        if(k!=1){
-            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        String[] split = agreementTypes.split(",");
+        for (String agreementType : split) {
+
+            Integer agreement = Integer.parseInt(agreementType);
+
+            FuntimeUserAgreement userAgreement = userAgreementMapper.selectByUserId(userId, agreement);
+            if (userAgreement != null) {
+                throw new BusinessException(ErrorMsgEnum.USERAGREEMENT_IS_EXISTS.getValue(), ErrorMsgEnum.USERAGREEMENT_IS_EXISTS.getDesc());
+            }
+            userAgreement = new FuntimeUserAgreement();
+            userAgreement.setType(agreement);
+            userAgreement.setUserId(userId);
+            userAgreement.setAgreement(1);
+            userAgreement.setCreateTime(new Date());
+            int k = userAgreementMapper.insertSelective(userAgreement);
+            if (k != 1) {
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(), ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
         }
     }
 
@@ -633,6 +639,19 @@ public class UserServiceImpl implements UserService {
             result.put("age",DateUtil.getAgeByBirthday(birthday));
 
             result.put("constellation",DateUtil.getConstellationByBirthday(birthday));
+
+            if (result.get("sex")!=null){
+                Integer sex = Integer.parseInt(result.get("sex").toString());
+                if (sex == 1){
+                    result.put("sexColor","#0093FF");
+                }else {
+                    result.put("sexColor","#FF0096");
+                }
+            }
+            if (result.get("height")!=null){
+                result.put("height","#FF9500");
+            }
+
         }
         return result;
     }
@@ -865,6 +884,14 @@ public class UserServiceImpl implements UserService {
         }
         Long smsId = smsService.validateSms(SmsType.UPDATE_PHONENUMBER.getValue(),oldPhoneNumber,code);
         smsService.updateSmsInfoById(smsId,1);
+    }
+
+    @Override
+    public boolean checkRecordExist(Long userId, Long toUserId) {
+        if (userConcernMapper.checkRecordExist(userId,toUserId)==null){
+            return false;
+        }
+        return true;
     }
 
 

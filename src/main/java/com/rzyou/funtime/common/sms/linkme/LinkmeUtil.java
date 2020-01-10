@@ -71,7 +71,7 @@ public class LinkmeUtil {
 
         JSONObject resultObj = JSONObject.parseObject(response);
         if (resultObj==null||resultObj.getJSONObject("header")==null||resultObj.getJSONObject("header").getInteger("code")!=200){
-            log.info("秒验失败:{}",response);
+            log.error("秒验失败:{}",response);
             throw new BusinessException(ErrorMsgEnum.USER_LOGIN_ONEKEY_ERROR.getValue(),ErrorMsgEnum.USER_LOGIN_ONEKEY_ERROR.getDesc());
         }
         String phoneStr = resultObj.getString("body");

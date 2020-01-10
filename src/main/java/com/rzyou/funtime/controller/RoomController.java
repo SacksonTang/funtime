@@ -288,7 +288,7 @@ public class RoomController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-
+            Integer type = paramJson.getInteger("type");//1-被邀请进房
             Long userId = paramJson.getLong("userId");
             Long roomId = paramJson.getLong("roomId");
             String password = paramJson.getString("password");
@@ -299,7 +299,7 @@ public class RoomController {
                 return result;
             }
 
-            boolean isOwner = roomService.roomJoin(userId,roomId,password);
+            boolean isOwner = roomService.roomJoin(userId,roomId,password,type);
 
             result.setData(JsonUtil.getMap("isOwer",isOwner));
 

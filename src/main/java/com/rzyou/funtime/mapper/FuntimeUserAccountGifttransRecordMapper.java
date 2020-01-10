@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface FuntimeUserAccountGifttransRecordMapper {
@@ -21,4 +22,6 @@ public interface FuntimeUserAccountGifttransRecordMapper {
 
     List<FuntimeUserAccountGifttransRecord> getGiftOfRecieveForPage(@Param("startDate") String startDate
             , @Param("endDate") String endDate,@Param("userId") Long userId);
+
+    List<Map<String,Object>> getGiftsByUserId(Long userId);
 }

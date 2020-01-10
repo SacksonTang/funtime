@@ -158,9 +158,9 @@ public interface UserService {
     /**
      * 同意协议
      * @param userId
-     * @param agreementType
+     * @param agreementTypes
      */
-    void saveUserAgreement(Long userId, Integer agreementType);
+    void saveUserAgreement(Long userId, String agreementTypes);
 
     /**
      * 检查是否同意协议
@@ -350,4 +350,12 @@ public interface UserService {
      * @param oldPhoneNumber
      */
     void validPhone(Long userId, String code, String oldPhoneNumber);
+
+    /**
+     * 是否被关注
+     * @param userId
+     * @param toUserId
+     * @return
+     */
+    boolean checkRecordExist(Long userId,Long toUserId);
 }

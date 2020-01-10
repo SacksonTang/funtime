@@ -70,7 +70,7 @@ public class TencentUtil {
         String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
-            log.debug("groupId:{}",groupId);
+            log.error("groupId:{}",groupId);
             log.info("腾讯新建组接口:create_group 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return false;
         }else{
@@ -96,7 +96,7 @@ public class TencentUtil {
         String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
-            log.debug("groupId:{}",groupId);
+            log.error("groupId:{}",groupId);
             log.info("腾讯解散组接口:destroy_group 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return false;
         }else{
@@ -125,7 +125,7 @@ public class TencentUtil {
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
             log.debug("groupId:{}",groupId);
-            log.info("腾讯添加组用户接口:add_group_member 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+            log.error("腾讯添加组用户接口:add_group_member 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return result.getJSONArray("MemberList");
         }else{
             log.debug("*********腾讯添加组用户接口:add_group_member 调用成功*************");
@@ -154,7 +154,7 @@ public class TencentUtil {
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
 
             log.debug("groupId:{}",groupId);
-            log.info("腾讯删除组用户接口:delete_group_member 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+            log.error("腾讯删除组用户接口:delete_group_member 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return false;
         }else{
             log.debug("***************腾讯删除组用户接口:delete_group_member 调用成功************");
@@ -194,7 +194,7 @@ public class TencentUtil {
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
 
-            log.info("腾讯发送普通消息接口:send_group_msg 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+            log.error("腾讯发送普通消息接口:send_group_msg 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return false;
         }else{
             log.debug("************腾讯发送普通消息接口:send_group_msg 调用成功*******************");
@@ -235,7 +235,7 @@ public class TencentUtil {
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
 
-            log.info("腾讯批量发单聊接口:batchsendmsg 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+            log.error("腾讯批量发单聊接口:batchsendmsg 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
             return result.getJSONArray("ErrorList");
         }else{
             log.debug("************腾讯批量发单聊接口:batchsendmsg 调用成功*******************");
@@ -254,7 +254,7 @@ public class TencentUtil {
         String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
-            log.info("腾讯系统通知接口:send_group_system_notification 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+            log.error("腾讯系统通知接口:send_group_system_notification 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
 
             return false;
         }else{

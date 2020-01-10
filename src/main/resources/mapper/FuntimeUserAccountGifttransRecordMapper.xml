@@ -53,20 +53,34 @@
     order by d.id desc
   </select>
   <select id="getGiftOfRecieveForPage"  resultMap="BaseResultMap">
+  select
+  d.id, d.amount, d.num, d.gift_id, d.gift_name,
+  d.to_user_id, d.create_time,u.nickname,g.animation_type,
+  g.animation_url,g.image_url,d.user_id,
+  (select count(c.id) from t_funtime_user_concern c where c.user_id = #{userId} and c.to_user_id = d.user_id) concerned
+  from t_funtime_user_account_gifttrans_record d
+  inner join t_funtime_user u on d.user_id = u.id
+  inner join t_funtime_gift g on d.gift_id = g.id
+  where d.to_user_id = #{userId}
+
+  <if test="startDate!=null and endDate!=null">
+    and d.create_time between #{startDate} and #{endDate}
+  </if>
+  order by d.id desc
+</select>
+  <select id="getGiftsByUserId"  resultType="java.util.Map">
     select
-    d.id, d.amount, d.num, d.gift_id, d.gift_name,
-    d.to_user_id, d.create_time,u.nickname,g.animation_type,
-    g.animation_url,g.image_url,d.user_id,
-    (select count(c.id) from t_funtime_user_concern c where c.user_id = #{userId} and c.to_user_id = d.user_id) concerned
+    d.gift_id as giftId,sum(d.amount) totalAmount , sum(d.num) numtotal,
+    g.animation_type as animationType,g.original_price AS originalPrice,g.gift_name AS giftName,
+    g.animation_url AS animationUrl,g.image_url AS imageUrl
+
     from t_funtime_user_account_gifttrans_record d
-    inner join t_funtime_user u on d.user_id = u.id
+
     inner join t_funtime_gift g on d.gift_id = g.id
     where d.to_user_id = #{userId}
+    group by d.gift_id
 
-    <if test="startDate!=null and endDate!=null">
-      and d.create_time between #{startDate} and #{endDate}
-    </if>
-    order by d.id desc
+    order by g.original_price  desc
   </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
