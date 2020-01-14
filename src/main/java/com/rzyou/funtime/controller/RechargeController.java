@@ -2,10 +2,7 @@ package com.rzyou.funtime.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
-import com.rzyou.funtime.common.BusinessException;
-import com.rzyou.funtime.common.ErrorMsgEnum;
-import com.rzyou.funtime.common.PayState;
-import com.rzyou.funtime.common.ResultMsg;
+import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
 import com.rzyou.funtime.service.AccountService;
@@ -108,7 +105,10 @@ public class RechargeController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            result.setData(JsonUtil.getMap("conf",accountService.getRechargeConf()));
+            Map<String, Object> conf = JsonUtil.getMap("conf", accountService.getRechargeConf());
+            conf.put("rechargeAgreementUrl", Constant.COS_URL_PREFIX+Constant.AGREEMENT_RECHARGE);
+
+            result.setData(conf);
 
             return result;
         } catch (BusinessException be) {

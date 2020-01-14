@@ -31,14 +31,12 @@ import java.util.Map;
 @Slf4j
 public class TokenAuthorFilter implements Filter {
 
+    @Autowired
     UserService userService;
 
     @Override
     public void init(FilterConfig filterConfig)  {
 
-        ServletContext servletContext = filterConfig.getServletContext();
-        WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(servletContext);
-        userService = wac.getBean(UserServiceImpl.class);
     }
 
     @Override
@@ -60,7 +58,8 @@ public class TokenAuthorFilter implements Filter {
         response.setContentType("application/json; charset=utf-8");
 
         String uri = req.getRequestURI();
-        if (uri.startsWith("/login")||uri.startsWith("/druid")){
+        log.info("访问URI!===========uri=========> {}",uri);
+        if (uri.startsWith("/login")||uri.startsWith("/druid")||uri.startsWith("/callback")){
             filterChain.doFilter(request, response);
             return;
         }
@@ -139,7 +138,7 @@ public class TokenAuthorFilter implements Filter {
             }
 
             if (isFilter) {
-                log.info("token filter过滤ok!===========uri=========> {}",uri);
+
                 filterChain.doFilter(request, response);
             }
         }

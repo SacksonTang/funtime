@@ -96,6 +96,7 @@ public class UserServiceImpl implements UserService {
         user.setOnlineState(onlineState);
         user.setId(id);
         user.setIp(ip);
+        user.setLastLoginTime(new Date());
         updateByPrimaryKeySelective(user);
 
         //足迹
@@ -105,7 +106,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void updateUserInfo(FuntimeUser user){
-
+        user.setLastLoginTime(new Date());
         updateByPrimaryKeySelective(user);
 
         //足迹
@@ -244,6 +245,17 @@ public class UserServiceImpl implements UserService {
         }
         if (user.getBirthday()==null&&funtimeUser.getBirthday()==null){
             user.setBirthday(Integer.parseInt(DateUtil.getCurrentYearAdd(new Date(),-18)));
+        }
+
+        if (user.getPortraitAddress()==null&&funtimeUser.getPortraitAddress()==null){
+            if (user.getSex()!=null) {
+                if (user.getSex() == 1) {
+                    user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
+                }
+                if (user.getSex() == 2) {
+                    user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_FEMALE_HEAD_PORTRAIT);
+                }
+            }
         }
 
         updateByPrimaryKeySelective(user);
@@ -670,9 +682,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageInfo<Map<String, Object>> getConcernUserList(Integer startPage, Integer pageSize, Long userId) {
+    public PageInfo<Map<String, Object>> getConcernUserList(Integer startPage, Integer pageSize, Long userId, Integer onlineState) {
         PageHelper.startPage(startPage,pageSize);
-        List<Map<String, Object>> list = userMapper.getConcernUserList(userId);
+        List<Map<String, Object>> list = userMapper.getConcernUserList(userId,onlineState);
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }
@@ -869,11 +881,11 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
         updateOnlineState(userId,2);
-        FuntimeChatroom room = roomService.getRoomByUserId(userId);
-        if (room == null){
+        Long roomId = roomService.checkUserIsInRoom(userId);
+        if (roomId==null){
             return;
         }
-        roomService.roomExit(userId,room.getId());
+        roomService.roomExit(userId,roomId);
 
     }
 

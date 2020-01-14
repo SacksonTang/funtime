@@ -23,7 +23,7 @@ public enum ErrorMsgEnum {
     USER_ACCOUNT_HORN_NOT_EN("10015","账户喇叭不足,请及时充值"),
     PHONE_NUMBER_IS_REGISTER("10016","手机号已被注册"),
     USERAGREEMENT_IS_EXISTS("10017","用户已经同意该协议"),
-    USERVALID_IS_EXISTS("10018","用户已经同意该协议"),
+    USERVALID_IS_EXISTS("10018","用户已认证"),
     USERVALID_IS_NOT_VALID("10019","用户未认证"),
     USERAGREEMENT_IS_NOT_EXISTS("10020","用户未同意协议"),
     USERCONCERN_IS_EXISTS("10021","已关注该用户"),

@@ -137,9 +137,13 @@
   <select id="getConcernUserList" resultType="java.util.Map">
     select
      u.id,u.nickname,u.portrait_address as portraitAddress,u.sign_text as  signText,u.sex,u.birthday,u.show_id as showId
+     ,u.online_state onlineState
     from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.to_user_id
     where c.user_id = #{userId}
-    order by c.id desc
+    <if test="onlineState!=null and onlineState!=''">
+      and u.online_state = #{onlineState}
+    </if>
+    order by u.online_state desc,c.id desc
   </select>
   <select id="getFansList" resultType="java.util.Map">
     select

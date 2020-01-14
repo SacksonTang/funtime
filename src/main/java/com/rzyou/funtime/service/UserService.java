@@ -261,9 +261,10 @@ public interface UserService {
      * @param startPage
      * @param pageSize
      * @param userId
+     * @param onlineState
      * @return
      */
-    PageInfo<Map<String,Object>> getConcernUserList(Integer startPage, Integer pageSize, Long userId);
+    PageInfo<Map<String,Object>> getConcernUserList(Integer startPage, Integer pageSize, Long userId, Integer onlineState);
 
     /**
      * 粉丝列表

@@ -251,4 +251,11 @@ public interface RoomService {
      * @return
      */
     boolean checkUserIsExist(Long roomId,Long userId);
+
+    /**
+     *
+     * @param userId
+     * @return
+     */
+    Long checkUserIsInRoom(Long userId);
 }

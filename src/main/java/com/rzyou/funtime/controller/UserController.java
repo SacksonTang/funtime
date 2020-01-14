@@ -861,6 +861,7 @@ public class UserController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
+            Integer onlineState = paramJson.getInteger("onlineState");
             Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
             if (userId==null) {
@@ -869,7 +870,7 @@ public class UserController {
                 return result;
             }
 
-            result.setData(JsonUtil.getMap("concernUserList",userService.getConcernUserList(startPage,pageSize,userId)));
+            result.setData(JsonUtil.getMap("concernUserList",userService.getConcernUserList(startPage,pageSize,userId,onlineState)));
 
             return result;
         } catch (BusinessException be) {

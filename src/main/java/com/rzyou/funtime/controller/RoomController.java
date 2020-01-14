@@ -887,6 +887,36 @@ public class RoomController {
         return result;
     }
 
+    /**
+     * 获取用户状态
+     * @param request
+     * @return
+     */
+    @PostMapping("queryState")
+    public ResultMsg<Object> queryState(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String userIds = paramJson.getString("userIds");
+            String[] toAccounts = userIds.split(",");
+
+            result.setData(TencentUtil.querystate(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),toAccounts));
+
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
+
 
     @PostMapping("destory")
     public ResultMsg<Object> destory(HttpServletRequest request){

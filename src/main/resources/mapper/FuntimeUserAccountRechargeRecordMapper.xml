@@ -39,7 +39,7 @@
   </select>
   <select id="getRechargeNumByUserId" parameterType="java.lang.Long" resultType="java.math.BigDecimal">
     select
-     sum(rmb)
+     ifnull(sum(rmb),0)
     from t_funtime_user_account_recharge_record
     where user_id = #{userId} and state = 3
   </select>

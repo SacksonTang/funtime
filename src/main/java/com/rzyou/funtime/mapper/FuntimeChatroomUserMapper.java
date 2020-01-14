@@ -49,7 +49,7 @@ public interface FuntimeChatroomUserMapper {
     List<String> getAllRoomUser();
 
     /**
-     * 获取用户已在的房间
+     * 获取用户已有的房间
      * @param userId
      * @return
      */

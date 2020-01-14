@@ -46,6 +46,14 @@ spring:
           db-type: mysql
           log-slow-sql: true
           slow-sql-millis: 5000
+  redis:
+    host: 106.52.93.16
+    port: 6379
+    password: redisredis
+
+
+
+
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.rzyou.funtime.entity
@@ -53,7 +61,8 @@ logging:
   config: classpath:logback-spring.xml
 app:
   pay:
-    notifyUrl: "http://106.52.93.16:8086/pay/notifyWxPay"
+    notifyUrl: "http://106.52.93.16:8086/callback/notifyWxPay"
     ip: "106.52.93.16"
   logpath: /opt/log/pro_log
+
 

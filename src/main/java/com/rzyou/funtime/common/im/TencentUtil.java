@@ -243,6 +243,31 @@ public class TencentUtil {
         }
     }
 
+    /**
+     * 查询用户状态
+     * @param usersig
+     * @param toAccounts
+     * @return
+     */
+    public static JSONArray querystate(String usersig,String[] toAccounts){
+        String url = getOpenimUrl(Constant.TENCENT_YUN_QUERYSTATE,usersig);
+
+        JSONObject paramMap = new JSONObject();
+
+        paramMap.put("To_Account",toAccounts);
+
+        String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
+        JSONObject result = JSONObject.parseObject(postStr);
+        if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
+
+            log.error("腾讯批量发单聊接口:querystate 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+        }else{
+            log.debug("************腾讯批量发单聊接口:querystate 调用成功*******************");
+            return result.getJSONArray("QueryResult");
+        }
+        return null;
+    }
+
 
     /**
      * 系统通知
@@ -324,7 +349,7 @@ public class TencentUtil {
 
             profileItem = new JSONObject();
             profileItem.put("Tag", "Tag_Profile_IM_Gender");
-            if (sex.equals(1)) {
+            if (sex.equals("1")) {
                 profileItem.put("Value", "Gender_Type_Male");
             }else{
                 profileItem.put("Value", "Gender_Type_Female");

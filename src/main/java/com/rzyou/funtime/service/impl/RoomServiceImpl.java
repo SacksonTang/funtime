@@ -976,6 +976,15 @@ public class RoomServiceImpl implements RoomService {
         return true;
     }
 
+    @Override
+    public Long checkUserIsInRoom(Long userId) {
+        List<Long> list = chatroomUserMapper.getRoomByUserId(userId);
+        if (list!=null&&list.size()>0){
+            return list.get(0);
+        }
+        return null;
+    }
+
 
     public void saveChatroomKickedRecord(Long kickIdUserId, Long userId, Long roomId){
         FuntimeChatroomKickedRecord record = new FuntimeChatroomKickedRecord();

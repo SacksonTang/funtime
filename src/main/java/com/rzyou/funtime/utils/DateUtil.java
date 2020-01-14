@@ -165,7 +165,7 @@ public class DateUtil {
 
     public static void main(String[] args) throws Exception{
 
-        System.out.println(getCurrentWeekStart()+"======"+getCurrentWeekEnd()+"=========="+getCurrentMonthStart()+"========="+getCurrentMonthEnd());
+        System.out.println(getCurrentYearAdd(new Date(),-90));
     }
 
 }

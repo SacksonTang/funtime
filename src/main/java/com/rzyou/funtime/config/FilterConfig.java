@@ -14,14 +14,18 @@ public class FilterConfig {
     @Bean
     public FilterRegistrationBean filterRegistrationBean() {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-        TokenAuthorFilter tokenAuthorFilter = new TokenAuthorFilter();
-        registrationBean.setFilter(tokenAuthorFilter);
+        registrationBean.setFilter(securityFilter());
         List<String> urlPatterns = new ArrayList<>();
         String patten = "/*";
         urlPatterns.add(patten);
         registrationBean.setUrlPatterns(urlPatterns);
         registrationBean.setOrder(1);
         return registrationBean;
+    }
+
+    @Bean
+    public TokenAuthorFilter securityFilter() {
+        return new TokenAuthorFilter();
     }
 
 

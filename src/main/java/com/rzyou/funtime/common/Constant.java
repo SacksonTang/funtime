@@ -6,6 +6,7 @@ public class Constant {
     public final static String COS_URL_PREFIX = "http://funtime-1300805214.cos.ap-shanghai.myqcloud.com";
     public final static String AGREEMENT_PRIVACY = "/agreement/隐私保护指引.html";
     public final static String AGREEMENT_WITHDRAL = "/agreement/领赏协议.html";
+    public final static String AGREEMENT_RECHARGE = "/agreement/充值协议.html";
     public final static String AGREEMENT_USER = "/agreement/用户协议.html";
     public final static String DEFAULT_MALE_HEAD_PORTRAIT = "/default/head1.png";
     public final static String DEFAULT_FEMALE_HEAD_PORTRAIT = "/default/head2.png";
@@ -80,6 +81,8 @@ public class Constant {
 
     public final static String TENCENT_YUN_PORTRAIT_SET = "portrait_set";
     public final static String TENCENT_YUN_BATCHSENDMSG = "batchsendmsg";
+
+    public final static String TENCENT_YUN_QUERYSTATE = "querystate";
 
     public final static String TENCENT_YUN_COS_SECRETID = "AKID5Zom24pOefwypStiSu6l9G7i25qKETjm";
     public final static String TENCENT_YUN_COS_SECRETKEY = "x71qQHsFNFUS9cpcAbnjRyCF8qfLrDNQ";

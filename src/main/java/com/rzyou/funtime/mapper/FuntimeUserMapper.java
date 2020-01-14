@@ -57,13 +57,13 @@ public interface FuntimeUserMapper {
 
     Integer checkAuthorityForUserRole(@Param("userRole") Integer userRole,@Param("authority") Integer authority);
 
-    List<Map<String, Object>> getConcernUserList(Long userId);
+    List<Map<String, Object>> getConcernUserList(@Param("userId") Long userId, @Param("onlineState") Integer onlineState);
 
     List<Map<String, Object>> getFansList(Long userId);
 
-    List<Map<String, Object>> getContributionList(String startDate, String endDate);
+    List<Map<String, Object>> getContributionList(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
-    List<Map<String, Object>> getCharmList(String startDate, String endDate);
+    List<Map<String, Object>> getCharmList(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
     int saveHeart(Long userId);
 
