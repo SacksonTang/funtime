@@ -147,6 +147,7 @@ public class LoginController {
             String resend = paramJson.getString("resend");
             int smsType = paramJson.getInteger("smsType");
             String ip = HttpHelper.getClientIpAddr(request);
+
             smsService.sendSms(phone,resend,ip,smsType);
         }catch (BusinessException be){
             be.printStackTrace();

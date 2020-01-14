@@ -6,6 +6,7 @@ import com.rzyou.funtime.common.sms.linkme.LinkmeUtil;
 import com.rzyou.funtime.common.sms.ouyi.OuyiSmsUtil;
 import com.rzyou.funtime.entity.FuntimeSms;
 import com.rzyou.funtime.mapper.FuntimeSmsMapper;
+import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.utils.StringUtil;
 import org.apache.commons.lang3.time.DateUtils;
@@ -19,18 +20,23 @@ public class SmsServiceImpl implements SmsService {
 
     @Autowired
     FuntimeSmsMapper funtimeSmsMapper;
+    @Autowired
+    ParameterService parameterService;
 
     @Override
     public void sendSms(String phone, String resend,String ip,int smsType) {
 
         String code = StringUtil.createRandom(true,6);
-        if ("1".equals(resend)){
-            OuyiSmsUtil.sengSindleSMS(phone,smsType,code);
-        }else{
-            LinkmeUtil.sendSms(phone,code,smsType);
+        String isSend = parameterService.getParameterValueByKey("is_send");
+        if (isSend!=null&&isSend.equals("1")) {
+            if ("1".equals(resend)) {
+                OuyiSmsUtil.sengSindleSMS(phone, smsType, code);
+            } else {
+                LinkmeUtil.sendSms(phone, code, smsType);
+            }
         }
 
-        saveSms(phone,code,null,ip,smsType);
+        saveSms(phone, code, null, ip, smsType);
 
     }
 

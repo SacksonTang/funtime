@@ -125,6 +125,9 @@
       <if test="examUrl != null">
         exam_url,
       </if>
+      <if test="avatarUrl != null">
+        avatar_url,
+      </if>
 
       <if test="password != null">
         password,
@@ -165,6 +168,9 @@
       </if>
       <if test="examUrl != null">
         #{examUrl},
+      </if>
+      <if test="avatarUrl != null">
+        #{avatarUrl},
       </if>
       <if test="password != null">
         #{password},

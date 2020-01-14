@@ -67,7 +67,7 @@ public class RoomServiceImpl implements RoomService {
         }
         userService.updateCreateRoomPlus(userId);
 
-        Long roomId = saveChatroom(userId,user.getNickname());
+        Long roomId = saveChatroom(userId,user.getNickname(),user.getSex());
 
         saveMic(roomId,10,userId);
 
@@ -113,12 +113,17 @@ public class RoomServiceImpl implements RoomService {
 
     }
 
-    private Long saveChatroom(Long userId, String nickname) {
+    private Long saveChatroom(Long userId, String nickname, Integer sex) {
 
         FuntimeChatroom chatroom = new FuntimeChatroom();
         chatroom.setUserId(userId);
         chatroom.setName(nickname);
-        chatroom.setAvatarUrl(Constant.COS_URL_PREFIX+Constant.DEFAULT_ROOM_PORTRAIT);
+        if (sex!=null&&sex==1){
+            chatroom.setAvatarUrl(Constant.COS_URL_PREFIX+Constant.DEFAULT_MALE_ROOM_AVATAR);
+        }else{
+            chatroom.setAvatarUrl(Constant.COS_URL_PREFIX+Constant.DEFAULT_FEMALE_ROOM_AVATAR);
+        }
+
         chatroom.setExamDesc("这个家伙很懒,什么都没有留下~");
         int k = chatroomMapper.insertSelective(chatroom);
         if(k!=1){

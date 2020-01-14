@@ -178,8 +178,11 @@ public class AccountServiceImpl implements AccountService {
 
             //充值等级
             Integer userLevel = userAccountRechargeRecordMapper.getUserLevel(total.intValue());
+            userLevel = userLevel == null ? 0:userLevel;
             if (!userLevel.equals(userAccount.getLevel())){
                 userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),record.getHornNum());
+            }else{
+                userAccountMapper.updateUserAccountForPlus(record.getUserId(),null,record.getAmount(),record.getHornNum());
             }
 
             //记录日志
