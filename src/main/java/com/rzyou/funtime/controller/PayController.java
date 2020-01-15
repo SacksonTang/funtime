@@ -9,6 +9,7 @@ import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
 import com.rzyou.funtime.service.AccountService;
+import com.rzyou.funtime.service.PayService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,14 +32,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("pay")
 public class PayController {
-
-
-    @Value("app.pay.notifyUrl")
-    private String notifyUrl ;
-    @Value("app.pay.ip")
-    private String ip ;
     @Autowired
-    AccountService accountService;
+    PayService payService;
 
 
     /**
@@ -59,15 +54,9 @@ public class PayController {
                 return result;
             }
 
+            String ip = HttpHelper.getClientIpAddr(request);
 
-            FuntimeUserAccountRechargeRecord record = accountService.getRechargeRecordById(Long.parseLong(orderId));
-            if (record==null){
-                result.setCode(ErrorMsgEnum.ORDER_NOT_EXISTS.getValue());
-                result.setMsg(ErrorMsgEnum.ORDER_NOT_EXISTS.getDesc());
-                return result;
-            }
-
-            Map<String, String> resultMap = MyWxPay.unifiedOrder(record.getRmb().toString(), ip, record.getOrderNo(), imei, notifyUrl, orderId);
+            Map<String, String> resultMap = payService.unifiedOrder(ip,imei,orderId);
             if("SUCCESS".equals(resultMap.get("return_code"))){
                 return result;
             }else{

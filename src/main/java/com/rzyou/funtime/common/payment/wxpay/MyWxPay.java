@@ -4,10 +4,11 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.payment.wxpay.sdk.MyWxPayConfig;
 import com.rzyou.funtime.common.payment.wxpay.sdk.WXPay;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
-
+@Slf4j
 public class MyWxPay {
 
 
@@ -23,7 +24,7 @@ public class MyWxPay {
             WXPay wxpay = new WXPay(config);
 
             Map<String, String> data = new HashMap<>();
-            data.put("body", "FUNTIME语音直播-充值");
+            data.put("body", "FUNTIME-RECHARGE");
             data.put("out_trade_no", orderNo);
             data.put("device_info", imei);
             data.put("fee_type", "CNY");
@@ -32,13 +33,38 @@ public class MyWxPay {
             data.put("notify_url", notifyUrl);
             data.put("trade_type", "APP");  //
             data.put("attach", orderId);
-
-
             Map<String, String> resp = wxpay.unifiedOrder(data);
             return resp;
         } catch (Exception e) {
             throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
 
+        }
+    }
+
+    /**
+     * 支付订单查询
+     * @param transaction_id
+     * @param out_trade_no
+     * @return
+     */
+    public static Map<String, String> orderQuery(String transaction_id,String out_trade_no){
+        try {
+            MyWxPayConfig config = new MyWxPayConfig();
+            WXPay wxpay = new WXPay(config);
+
+            Map<String, String> data = new HashMap<>();
+            if (transaction_id != null) {
+                data.put("transaction_id", transaction_id);
+            }
+            if (out_trade_no != null) {
+                data.put("out_trade_no", out_trade_no);
+            }
+            log.info("支付订单查询 orderQuery 入参: {}",data);
+            Map<String, String> resp = wxpay.orderQuery(data);
+            log.info("支付订单查询 orderQuery 返回: {}",resp);
+            return resp;
+        }catch (Exception e){
+            throw new BusinessException(ErrorMsgEnum.ORDERQUERY_ERROR.getValue(),ErrorMsgEnum.ORDERQUERY_ERROR.getDesc());
         }
     }
 

@@ -103,7 +103,6 @@ public class WXPayRequest {
         httpPost.addHeader("Content-Type", "text/xml");
         httpPost.addHeader("User-Agent", WXPayConstants.USER_AGENT + " " + config.getMchID());
         httpPost.setEntity(postEntity);
-
         HttpResponse httpResponse = httpClient.execute(httpPost);
         HttpEntity httpEntity = httpResponse.getEntity();
         return EntityUtils.toString(httpEntity, "UTF-8");

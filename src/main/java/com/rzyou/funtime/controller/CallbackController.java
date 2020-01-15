@@ -118,11 +118,12 @@ public class CallbackController {
             try {
 
                 String attach = params.get("attach");
+                String total_fee = params.get("total_fee");
                 //微信支付订单号
                 String transaction_id = params.get("transaction_id");
                 Long orderId = Long.parseLong(attach);
 
-                return_data = accountService.paySuccess(orderId,transaction_id);
+                return_data = accountService.paySuccess(orderId,transaction_id,total_fee);
                 return WXPayUtil.mapToXml(return_data);
             }catch (BusinessException e1){
                 e1.printStackTrace();

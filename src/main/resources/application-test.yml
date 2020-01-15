@@ -61,8 +61,7 @@ logging:
   config: classpath:logback-spring.xml
 app:
   pay:
-    notifyUrl: "http://106.52.93.16:8086/callback/notifyWxPay"
-    ip: "106.52.93.16"
+    notifyUrl: http://106.52.93.16:8086/callback/notifyWxPay
   logpath: /opt/log/pro_log
 
 

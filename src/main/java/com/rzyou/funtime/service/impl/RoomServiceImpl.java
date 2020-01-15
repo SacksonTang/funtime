@@ -239,8 +239,10 @@ public class RoomServiceImpl implements RoomService {
         //获取腾讯聊天室房间编号信息
         List<Map<String, Object>> roomMaps = chatroomUserMapper.getRoomNoByRoomId(roomId);
         String roomNo = null;
+
         if (roomMaps==null||roomMaps.isEmpty()){
             //房间空无一人
+            log.debug("房间无人,ID :{}",roomId);
         }else if (roomMaps.size()==1){
             //小于200人
             if (Integer.parseInt(roomMaps.get(0).get("roomNoCount").toString())<200){
@@ -252,6 +254,7 @@ public class RoomServiceImpl implements RoomService {
             for (Map<String,Object> map : roomMaps){
                 if (Integer.parseInt(map.get("roomNoCount").toString())<200){
                     roomNo = map.get("roomNo").toString();
+                    break;
                 }
             }
         }
@@ -260,10 +263,9 @@ public class RoomServiceImpl implements RoomService {
         if (roomNo == null){
             roomNo = UUID.randomUUID().toString().replaceAll("-","");
             newRoom = true;
-
         }
         //进入房间记录
-        saveChatroomUserForRoomJoin(userId,roomId,userRole,roomNo,1);
+        saveChatroomUser(userId,roomId,userRole,roomNo,1);
 
         //房间人数+1
         updateOnlineNumPlus(roomId);
@@ -1046,18 +1048,7 @@ public class RoomServiceImpl implements RoomService {
         }
     }
 
-    public void saveChatroomUserForRoomJoin(long userId,long roomId,int userRole,String roomNo,Integer isSync){
-        FuntimeChatroomUser chatroomUser = new FuntimeChatroomUser();
-        chatroomUser.setUserId(userId);
-        chatroomUser.setRoomId(roomId);
-        chatroomUser.setUserRole(userRole);
-        chatroomUser.setRoomNo(roomNo);
-        chatroomUser.setIsSync(isSync);
-        int k = chatroomUserMapper.insertForRoomJoin(chatroomUser);
-        if(k==0){
-            throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_BUSY.getValue(),ErrorMsgEnum.ROOM_JOIN_BUSY.getDesc());
-        }
-    }
+
 
     public void updateChatroom(FuntimeChatroom chatroom){
 

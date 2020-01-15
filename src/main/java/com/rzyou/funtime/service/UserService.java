@@ -359,4 +359,15 @@ public interface UserService {
      * @return
      */
     boolean checkRecordExist(Long userId,Long toUserId);
+
+
+    /**
+     * 邀请用户列表
+     * @param startPage
+     * @param pageSize
+     * @param userId
+     * @param roomId
+     * @return
+     */
+    PageInfo<Map<String,Object>> getInvitationUserList(Integer startPage, Integer pageSize, Long userId, Long roomId);
 }

@@ -78,4 +78,12 @@ public interface FuntimeUserMapper {
      * @return
      */
     Map<String, Object> getCustomerService();
+
+    /**
+     * 邀请用户列表
+     * @param userId
+     * @param roomId
+     * @return
+     */
+    List<Map<String, Object>> getInvitationUserList(@Param("userId") Long userId, @Param("roomId") Long roomId);
 }

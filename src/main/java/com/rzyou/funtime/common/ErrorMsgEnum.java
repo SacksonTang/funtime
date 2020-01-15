@@ -50,6 +50,7 @@ public enum ErrorMsgEnum {
     UNIFIELDORDER_ERROR("30001","微信支付统一下单接口调用失败"),
     VALID_SIGN_ERROR("30002","微信支付支付回调校验签名失败"),
     TOTAL_FEE_ERROR("30003","totalFee参数必须大于0"),
+    ORDERQUERY_ERROR("30004","微信支付订单查询失败"),
 
     ORDER_NOT_EXISTS("40001","充值订单记录不存在"),
     ORDER_IS_INVALID("40002","订单记录已失效"),

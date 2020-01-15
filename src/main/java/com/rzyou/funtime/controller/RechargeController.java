@@ -44,8 +44,9 @@ public class RechargeController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
+            String ip = HttpHelper.getClientIpAddr(request);
 
-            result.setData(accountService.createRecharge(record));
+            result.setData(accountService.createRecharge(record,ip));
 
             return result;
         } catch (BusinessException be) {
@@ -103,7 +104,6 @@ public class RechargeController {
     public ResultMsg<Object> getRechargeConf(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
 
             Map<String, Object> conf = JsonUtil.getMap("conf", accountService.getRechargeConf());
             conf.put("rechargeAgreementUrl", Constant.COS_URL_PREFIX+Constant.AGREEMENT_RECHARGE);

@@ -143,14 +143,26 @@
     <if test="onlineState!=null and onlineState!=''">
       and u.online_state = #{onlineState}
     </if>
-    order by u.online_state desc,c.id desc
+    order by u.online_state asc,c.id desc
   </select>
+  <select id="getInvitationUserList" resultType="java.util.Map">
+    select
+    u.id,u.nickname,u.portrait_address as portraitAddress,u.sex,u.show_id as showId
+    from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.to_user_id
+    where c.user_id = #{userId} and u.online_state = 1
+    and not exists (select t.id from t_funtime_chatroom_user t where t.user_id = c.to_user_id and t.room_id = #{roomId})
+
+    order by c.id desc
+  </select>
+
+
   <select id="getFansList" resultType="java.util.Map">
     select
      u.id,u.nickname,u.portrait_address as portraitAddress,u.sign_text as  signText,u.sex,u.birthday,u.show_id as showId
+     ,u.online_state onlineState
     from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.user_id
     where c.to_user_id = #{userId}
-    order by c.id desc
+    order by u.online_state asc,c.id desc
   </select>
 
 

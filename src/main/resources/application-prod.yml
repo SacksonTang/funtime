@@ -46,6 +46,11 @@ spring:
           db-type: mysql
           log-slow-sql: true
           slow-sql-millis: 5000
+  redis:
+    host: 172.17.0.9
+    port: 6379
+    password: redisredis
+
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.rzyou.funtime.entity
@@ -54,6 +59,5 @@ logging:
 app:
   pay:
     notifyUrl: "http://122.51.172.209:8086/pay/notifyWxPay"
-    ip: "122.51.172.209"
   logpath: /var/local/logs/funtimelogs
 

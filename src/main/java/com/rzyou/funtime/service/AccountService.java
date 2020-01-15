@@ -20,17 +20,19 @@ public interface AccountService {
     /**
      * 生成充值记录
      * @param record
+     * @param ip
      * @return
      */
-    Map<String,Object> createRecharge(FuntimeUserAccountRechargeRecord record);
+    Map<String,String> createRecharge(FuntimeUserAccountRechargeRecord record, String ip);
 
     /**
      * 订单回调
      * @param orderId
      * @param transaction_id
+     * @param total_fee
      * @return
      */
-    Map<String,String> paySuccess(Long orderId, String transaction_id);
+    Map<String,String> paySuccess(Long orderId, String transaction_id, String total_fee);
 
     /**
      * 充值记录列表
@@ -252,4 +254,11 @@ public interface AccountService {
      * @return
      */
     PageInfo<Map<String,Object>> getGiftsByUserId(Integer startPage, Integer pageSize, Long userId);
+
+    /**
+     * 修改订单状态
+     * @param id
+     * @param state
+     */
+    void updateRechargeRecordState(Long id,Integer state);
 }

@@ -9,7 +9,8 @@ public class MyWxPayConfig extends WXPayConfig {
     private byte[] certData;
 
     public MyWxPayConfig() throws Exception {
-        String certPath = "/path/to/apiclient_cert.p12";
+        //String certPath = "C:/Users/Funtime02/Desktop/1574424871_20200115_cert/apiclient_cert.p12";
+        String certPath = "/usr/cert/apiclient_cert.p12";
         File file = new File(certPath);
         InputStream certStream = new FileInputStream(file);
         this.certData = new byte[(int) file.length()];
@@ -18,15 +19,15 @@ public class MyWxPayConfig extends WXPayConfig {
     }
 
     public String getAppID() {
-        return "wx8888888888888888";
+        return "wx9c163a6bccdb1cd1";
     }
 
     public String getMchID() {
-        return "12888888";
+        return "1574424871";
     }
 
     public String getKey() {
-        return "88888888888888888888888888888888";
+        return "1b9181d333b84c6c799851ae18049bb2";
     }
 
     public InputStream getCertStream() {

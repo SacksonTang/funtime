@@ -3,6 +3,7 @@ package com.rzyou.funtime.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
+import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,10 @@ import java.util.*;
 @Slf4j
 @Service
 public class AccountServiceImpl implements AccountService {
+
+
+    @Value("${app.pay.notifyUrl}")
+    public String notifyUrl ;
 
     @Autowired
     UserService userService;
@@ -85,7 +91,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Map<String,Object> createRecharge(FuntimeUserAccountRechargeRecord record){
+    public Map<String,String> createRecharge(FuntimeUserAccountRechargeRecord record, String ip){
         FuntimeRechargeConf rechargeConf = rechargeConfMapper.selectByPrimaryKey(record.getRechargeConfId());
         if (rechargeConf==null){
             throw new BusinessException(ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getValue(),ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getDesc());
@@ -124,23 +130,32 @@ public class AccountServiceImpl implements AccountService {
         String orderNo = "A"+StringUtil.createOrderId();
         Long id = saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
 
-        rechargeSuccess(id, null);
-        Map<String,Object> result = new HashMap<>();
-        result.put("orderId",id);
-        result.put("orderNo",orderNo);
-        return result;
+        Map<String, String> orderMap = unifiedOrder(ip, "WEB", id.toString()
+                , rechargeConf.getRechargeRmb().multiply(new BigDecimal(100)).toString(), orderNo);
 
+        return orderMap;
+
+    }
+
+    public Map<String, String> unifiedOrder(String ip,String imei, String orderId,String totalFee,String orderNo) {
+
+        Map<String, String> resultMap = MyWxPay.unifiedOrder("1", ip, orderNo, imei, notifyUrl, orderId);
+        if(!"SUCCESS".equals(resultMap.get("return_code"))){
+            log.error("预支付接口:unifiedOrder失败:{}",resultMap);
+           throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
+        }
+        return resultMap;
     }
 
 
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Map<String,String> paySuccess(Long orderId, String transaction_id) {
+    public Map<String,String> paySuccess(Long orderId, String transaction_id, String total_fee) {
         Map<String,String> result = new HashMap<>();
 
         try {
-            boolean flag = rechargeSuccess(orderId,transaction_id);
+            boolean flag = rechargeSuccess(orderId,transaction_id,total_fee);
             if (flag){
                 result.put("return_code", "SUCCESS");
                 result.put("return_msg", "OK");
@@ -157,7 +172,7 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    public boolean rechargeSuccess(Long recordId, String transaction_id){
+    public boolean rechargeSuccess(Long recordId, String transaction_id, String total_fee){
         FuntimeUserAccountRechargeRecord record = userAccountRechargeRecordMapper.selectByPrimaryKey(recordId);
         if(record==null){
             return false;
@@ -170,6 +185,12 @@ public class AccountServiceImpl implements AccountService {
             if (userAccount==null){
                 return false;
             }
+
+            if (!total_fee.equals(record.getRmb().multiply(new BigDecimal(100)).toString())){
+                log.info("支付回调中金额与系统订单金额不一致,微信订单金额:{},系统订单金额:{}",total_fee,record.getRmb().multiply(new BigDecimal(100)).toString());
+                return false;
+            }
+
             //状态变更
             updateState(recordId, PayState.PAIED.getValue(),transaction_id);
 
@@ -1344,6 +1365,16 @@ public class AccountServiceImpl implements AccountService {
         record.setState(state);
         record.setRechargeCardId(transaction_id);
         record.setCompleteTime(new Date());
+        int k = userAccountRechargeRecordMapper.updateByPrimaryKeySelective(record);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+    @Override
+    public void updateRechargeRecordState(Long id,Integer state){
+        FuntimeUserAccountRechargeRecord record = new FuntimeUserAccountRechargeRecord();
+        record.setId(id);
+        record.setState(state);
         int k = userAccountRechargeRecordMapper.updateByPrimaryKeySelective(record);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());

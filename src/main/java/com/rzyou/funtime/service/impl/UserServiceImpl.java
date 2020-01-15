@@ -906,6 +906,17 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
+    @Override
+    public PageInfo<Map<String, Object>> getInvitationUserList(Integer startPage, Integer pageSize, Long userId, Long roomId) {
+        PageHelper.startPage(startPage,pageSize);
+        List<Map<String, Object>> list = userMapper.getInvitationUserList(userId,roomId);
+        if (list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }
+
+        return new PageInfo<>(list);
+    }
+
 
     public Boolean updateByPrimaryKeySelective(FuntimeUser user){
         if(userMapper.updateByPrimaryKeySelective(user)!=1){

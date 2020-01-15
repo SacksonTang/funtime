@@ -921,6 +921,43 @@ public class UserController {
         }
     }
 
+
+    /**
+     * 邀请列表
+     * @param request
+     * @return
+     */
+    @PostMapping("getInvitationUserList")
+    public ResultMsg<Object> getInvitationUserList(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            Long roomId = paramJson.getLong("roomId");
+            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
+            if (userId==null||roomId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            result.setData(JsonUtil.getMap("invitationUserList",userService.getInvitationUserList(startPage,pageSize,userId,roomId)));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
     /**
      * 用户礼物列表
      * @param request
