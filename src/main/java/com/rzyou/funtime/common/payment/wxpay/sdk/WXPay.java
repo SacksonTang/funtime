@@ -96,6 +96,16 @@ public class WXPay {
         return reqData;
     }
 
+    public Map<String, String> fillRequestDataReturn(Map<String, String> reqData) throws Exception {
+        reqData.put("appid", config.getAppID());
+        reqData.put("partnerid", config.getMchID());
+        reqData.put("noncestr", WXPayUtil.generateNonceStr());
+        reqData.put("timestamp",String.valueOf(System.currentTimeMillis()/1000));
+        reqData.put("package","Sign=WXPay");
+        reqData.put("sign", WXPayUtil.generateSignature(reqData, config.getKey(), this.signType));
+        return reqData;
+    }
+
     /**
      * 判断xml数据的sign是否有效，必须包含sign字段，否则返回false。
      *
@@ -119,7 +129,7 @@ public class WXPay {
         String signTypeInData = reqData.get(WXPayConstants.FIELD_SIGN_TYPE);
         SignType signType;
         if (signTypeInData == null) {
-            signType = SignType.MD5;
+            signType = this.signType;
         }
         else {
             signTypeInData = signTypeInData.trim();

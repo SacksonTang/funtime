@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
+import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
@@ -139,11 +140,11 @@ public class AccountServiceImpl implements AccountService {
 
     public Map<String, String> unifiedOrder(String ip,String imei, String orderId,String totalFee,String orderNo) {
 
+
         Map<String, String> resultMap = MyWxPay.unifiedOrder("1", ip, orderNo, imei, notifyUrl, orderId);
-        if(!"SUCCESS".equals(resultMap.get("return_code"))){
-            log.error("预支付接口:unifiedOrder失败:{}",resultMap);
-           throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
-        }
+
+
+
         return resultMap;
     }
 
@@ -186,10 +187,12 @@ public class AccountServiceImpl implements AccountService {
                 return false;
             }
 
+            //上线打开
+            /**
             if (!total_fee.equals(record.getRmb().multiply(new BigDecimal(100)).toString())){
                 log.info("支付回调中金额与系统订单金额不一致,微信订单金额:{},系统订单金额:{}",total_fee,record.getRmb().multiply(new BigDecimal(100)).toString());
                 return false;
-            }
+            }*/
 
             //状态变更
             updateState(recordId, PayState.PAIED.getValue(),transaction_id);

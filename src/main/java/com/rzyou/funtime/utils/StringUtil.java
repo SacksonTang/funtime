@@ -55,21 +55,7 @@ public class StringUtil {
     }
 
     public static void main(String[] args) {
-        List<Integer> list = new ArrayList<>();
-       for (int i = 0;i<501;i++){
-           list.add(i);
-       }
-        System.out.println(list.size());
-        int size = list.size();
-        int fromIndex = 0;
-        int toIndex = 500;
-        int k = size%toIndex == 0?size/toIndex:size/toIndex+1;
-        for (int j = 1;j<k+1;j++){
-            List<Integer> spList = list.subList(fromIndex,toIndex);
-            System.out.println(spList.size());
-            fromIndex = toIndex;
-            toIndex =  (j+1)*toIndex > size ? size : (j+1)*toIndex;
-        }
+        System.out.println(System.currentTimeMillis()/1000);
     }
 
 }

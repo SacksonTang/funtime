@@ -24,7 +24,7 @@ public class Constant {
 
 
     public final static String WX_APPID = "wx9c163a6bccdb1cd1";
-    public final static String WX_APPSECRET = "2d38bf9d71ca18e6de538faaf0b68e68";
+    public final static String WX_APPSECRET = "1b9181d333b84c6c799851ae18049bb2";
 
 
     public final static String WX_GET_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token"; //获取微信TOKEN

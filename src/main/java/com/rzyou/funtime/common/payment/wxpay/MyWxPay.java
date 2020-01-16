@@ -4,13 +4,16 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.payment.wxpay.sdk.MyWxPayConfig;
 import com.rzyou.funtime.common.payment.wxpay.sdk.WXPay;
+import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 @Slf4j
+@Component
 public class MyWxPay {
-
 
 
     /**
@@ -34,7 +37,21 @@ public class MyWxPay {
             data.put("trade_type", "APP");  //
             data.put("attach", orderId);
             Map<String, String> resp = wxpay.unifiedOrder(data);
-            return resp;
+            if(!"SUCCESS".equals(resp.get("return_code"))||!"SUCCESS".equals(resp.get("result_code"))){
+                log.error("预支付接口:unifiedOrder失败:{}",resp);
+                throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
+            }
+            if (resp.get("prepay_id")!=null) {
+                Map<String, String> signMap = new HashMap<>();
+
+                signMap.put("prepayid", resp.get("prepay_id"));
+
+                Map<String, String> signData = wxpay.fillRequestDataReturn(signMap);
+                log.info("unifiedOrder result : {}", signData);
+                return signData;
+            }else{
+                throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
+            }
         } catch (Exception e) {
             throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
 
@@ -72,6 +89,7 @@ public class MyWxPay {
         try {
             MyWxPayConfig config = new MyWxPayConfig();
             WXPay wxpay = new WXPay(config);
+
             return wxpay.isPayResultNotifySignatureValid(map);
         }catch (Exception e){
             throw new BusinessException(ErrorMsgEnum.VALID_SIGN_ERROR.getValue(),ErrorMsgEnum.VALID_SIGN_ERROR.getDesc());

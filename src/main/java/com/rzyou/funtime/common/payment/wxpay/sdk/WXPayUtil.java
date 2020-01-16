@@ -146,7 +146,7 @@ public class WXPayUtil {
     }
 
     /**
-     * 判断签名是否正确，必须包含sign字段，否则返回false。使用MD5签名。
+     * 判断签名是否正确，必须包含sign字段，否则返回false。使用HMACSHA256签名。
      *
      * @param data Map类型数据
      * @param key API密钥
@@ -154,7 +154,7 @@ public class WXPayUtil {
      * @throws Exception
      */
     public static boolean isSignatureValid(Map<String, String> data, String key) throws Exception {
-        return isSignatureValid(data, key, SignType.MD5);
+        return isSignatureValid(data, key, SignType.HMACSHA256);
     }
 
     /**
@@ -171,7 +171,9 @@ public class WXPayUtil {
             return false;
         }
         String sign = data.get(WXPayConstants.FIELD_SIGN);
-        return generateSignature(data, key, signType).equals(sign);
+        String newSign = generateSignature(data, key, signType);
+
+        return newSign.equals(sign);
     }
 
     /**
@@ -182,7 +184,7 @@ public class WXPayUtil {
      * @return 签名
      */
     public static String generateSignature(final Map<String, String> data, String key) throws Exception {
-        return generateSignature(data, key, SignType.MD5);
+        return generateSignature(data, key, SignType.HMACSHA256);
     }
 
     /**
@@ -206,6 +208,7 @@ public class WXPayUtil {
                 sb.append(k).append("=").append(data.get(k).trim()).append("&");
         }
         sb.append("key=").append(key);
+        getLogger().info("签名字符串：{}",sb.toString());
         if (SignType.MD5.equals(signType)) {
             return MD5(sb.toString()).toUpperCase();
         }

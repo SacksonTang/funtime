@@ -87,7 +87,6 @@ public class CallbackController {
      */
     @RequestMapping(value = "notifyWxPay", produces = MediaType.APPLICATION_JSON_VALUE)
     public String notifyWxPay(HttpServletRequest request) throws Exception {
-        log.info("微信支付回调");
         InputStream inStream = request.getInputStream();
         ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
@@ -96,10 +95,13 @@ public class CallbackController {
             outSteam.write(buffer, 0, len);
         }
         String resultxml = new String(outSteam.toByteArray(), "utf-8");
+        log.info("微信支付回调参数: {}",resultxml);
+        boolean bool = WXPayUtil.isSignatureValid(resultxml, "VaEoQrkdDP2uYKPAMjvCDY0Kxax89jgW");
+        log.info("resultXml bool :{}",bool);
         Map<String, String> params = WXPayUtil.xmlToMap(resultxml);
         outSteam.close();
         inStream.close();
-
+        log.info("微信支付回调参数: {}",params);
 
         Map<String,String> return_data = new HashMap<>();
         if (!MyWxPay.isPayResultNotifySignatureValid(params)) {
@@ -114,6 +116,11 @@ public class CallbackController {
             // ------------------------------
             // 此处处理订单状态，结合自己的订单数据完成订单状态的更新
             // ------------------------------
+            if (!"SUCCESS".equals(params.get("result_code"))||!"SUCCESS".equals(params.get("return_code"))){
+                return_data.put("return_code", "FAIL");
+                return_data.put("return_msg", "支付失败");
+                return WXPayUtil.mapToXml(return_data);
+            }
 
             try {
 
@@ -122,7 +129,6 @@ public class CallbackController {
                 //微信支付订单号
                 String transaction_id = params.get("transaction_id");
                 Long orderId = Long.parseLong(attach);
-
                 return_data = accountService.paySuccess(orderId,transaction_id,total_fee);
                 return WXPayUtil.mapToXml(return_data);
             }catch (BusinessException e1){
