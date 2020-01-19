@@ -56,14 +56,14 @@ public class CallbackController {
                     ||params.getInfo().getAction().equals("TimeOut")
                     ||params.getInfo().getAction().equals("Disconnect")){
                 log.warn("**************用户：{} 已下线******************REASON:{}",params.getInfo().getTo_Account(),params.getInfo().getReason());
-                userService.updateOnlineState(Long.parseLong(params.getInfo().getTo_Account()),2);
+                //userService.updateOnlineState(Long.parseLong(params.getInfo().getTo_Account()),2);
                 result.put("ActionStatus","OK");
                 result.put("ErrorCode",0);
                 result.put("ErrorInfo","");
                 return result;
             }else{
                 log.warn("**************用户：{} 已上线******************REASON:{}",params.getInfo().getTo_Account(),params.getInfo().getReason());
-                userService.updateOnlineState(Long.parseLong(params.getInfo().getTo_Account()),1);
+                //userService.updateOnlineState(Long.parseLong(params.getInfo().getTo_Account()),1);
                 result.put("ActionStatus","OK");
                 result.put("ErrorCode",0);
                 result.put("ErrorInfo","");

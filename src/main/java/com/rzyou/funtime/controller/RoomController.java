@@ -139,7 +139,7 @@ public class RoomController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
-            Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             Long roomId = paramJson.getLong("roomId");
 
             String nickname = paramJson.getString("nickname");
@@ -150,6 +150,42 @@ public class RoomController {
             }
 
             result.setData(JsonUtil.getMap("userList",roomService.getRoomUserById(startPage,pageSize,roomId,nickname)));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 获取房间所有用户
+     * @param request
+     * @return
+     */
+    @PostMapping("getRoomUserByIdAll")
+    public ResultMsg<Object> getRoomUserByIdAll(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
+            Long roomId = paramJson.getLong("roomId");
+
+            String nickname = paramJson.getString("nickname");
+            if (roomId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            result.setData(JsonUtil.getMap("userList",roomService.getRoomUserByIdAll(startPage,pageSize,roomId,nickname)));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

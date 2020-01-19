@@ -58,6 +58,6 @@ logging:
   config: classpath:logback-spring.xml
 app:
   pay:
-    notifyUrl: "http://122.51.172.209:8086/pay/notifyWxPay"
+    notifyUrl: http://122.51.172.209:8086/pay/notifyWxPay
   logpath: /var/local/logs/funtimelogs
 

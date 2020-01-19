@@ -774,6 +774,18 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    public PageInfo<Map<String, Object>> getRoomUserByIdAll(Integer startPage,Integer pageSize,Long roomId,String nickname) {
+        PageHelper.startPage(startPage,pageSize);
+        List<Map<String, Object>> list = chatroomUserMapper.getRoomUserByIdAll(roomId, nickname);
+        if (list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }else {
+
+            return new PageInfo<>(list);
+        }
+    }
+
+    @Override
     public List<String> getRoomNoByRoomIdAll(Long roomId) {
         return chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
     }

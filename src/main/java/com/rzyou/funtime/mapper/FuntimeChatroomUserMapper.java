@@ -76,6 +76,8 @@ public interface FuntimeChatroomUserMapper {
 
     List<Map<String, Object>> getRoomUserById(@Param("roomId") Long roomId,@Param("nickname") String nickname);
 
+    List<Map<String, Object>> getRoomUserByIdAll(@Param("roomId") Long roomId,@Param("nickname") String nickname);
+
     /**
      * 查询房间用户
      * @param roomId

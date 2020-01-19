@@ -145,6 +145,15 @@ public interface RoomService {
      * @return
      */
     PageInfo<Map<String, Object>> getRoomUserById(Integer startPage,Integer pageSize,Long roomId,String nickname);
+    /**
+     * 获取聊天室用户信息
+     * @param startPage
+     * @param pageSize
+     * @param roomId
+     * @param nickname
+     * @return
+     */
+    PageInfo<Map<String, Object>> getRoomUserByIdAll(Integer startPage,Integer pageSize,Long roomId,String nickname);
 
     /**
      * 获取聊天室对应腾讯聊天室的编号
