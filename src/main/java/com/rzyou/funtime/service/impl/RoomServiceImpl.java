@@ -734,18 +734,17 @@ public class RoomServiceImpl implements RoomService {
         chatroomMapper.deleteByRoomId(roomId);
         chatroomMicMapper.deleteByRoomId(roomId);
         chatroomUserMapper.deleteByRoomId(roomId);
+
         if (roomNos!=null&&roomNos.size()>0) {
+            //发送通知
+            for (String roomNo1 : roomNos) {
+                noticeService.notice7(roomId,roomNo1);
+            }
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             for (String roomNo:roomNos) {
                 TencentUtil.destroyGroup(userSig, roomNo);
             }
         }
-
-        //发送通知
-        for (String roomNo1 : roomNos) {
-            noticeService.notice7(roomId,roomNo1);
-        }
-
 
     }
 

@@ -26,17 +26,17 @@
     from t_funtime_chatroom_user m inner join t_funtime_user u on m.user_id = u.id
     where m.room_id = #{roomId}  and m.flag = 1 and m.user_role = 4
     <if test="nickname!=null and nickname!=''">
-      and u.nickname = #{nickname}
+      and BINARY u.nickname like concat('%',#{nickname},'%')
     </if>
      order by m.create_time desc
   </select>
   <select id="getRoomUserByIdAll"  resultType="java.util.Map">
     select
-    u.id id,u.nickname,u.portrait_address portraitAddress,u.sign_text signText,u.sex,u.show_id showId
+    u.id id,u.nickname,u.portrait_address portraitAddress,u.sign_text signText,u.sex,u.show_id showId,u.user_role userRole
     from t_funtime_chatroom_user m inner join t_funtime_user u on m.user_id = u.id
     where m.room_id = #{roomId}  and m.flag = 1
     <if test="nickname!=null and nickname!=''">
-      and u.nickname = #{nickname}
+      and BINARY u.nickname like concat('%',#{nickname},'%')
     </if>
     order by m.user_role asc, m.create_time desc
   </select>
