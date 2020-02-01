@@ -58,8 +58,8 @@ public class Constant {
 
 
 
-    public final static long TENCENT_YUN_SDK_APPID = 1400291463;
-    public final static String TENCENT_YUN_SDK_APPSECRET = "c147d2655e3f472d9d9cddc0644497c992d22fc23d3c5f47d40c632f5b42d2cb";
+    public final static long TENCENT_YUN_SDK_APPID = 1400307596;
+    public final static String TENCENT_YUN_SDK_APPSECRET = "fecc0728f01c41ab9ea2e294e38551061dc8d3b38680614ee78652f0f256bfaf";
     public final static String TENCENT_YUN_SDK_VER = "v4";
     public final static String TENCENT_YUN_SDK_HOST = "console.tim.qq.com";
     public final static String TENCENT_YUN_IDENTIFIER = "testapp";
