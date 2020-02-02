@@ -53,6 +53,17 @@ public class RoomServiceImpl implements RoomService {
         if (user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        //用户所在的房间
+        List<Long> roomIds = chatroomUserMapper.getRoomByUserId(userId);
+        //用户已有房间
+        if (roomIds!=null&&!roomIds.isEmpty()){
+            for (Long room : roomIds){
+                log.info("************进入房间前已在别的房间,现在先退出别的房间*******************");
+                //退房
+                roomExit(userId,room);
+            }
+
+        }
         FuntimeChatroom chatroom = chatroomMapper.getRoomByUserId(userId);
         if (chatroom!= null){
             if (chatroom.getState() == 2){
@@ -65,6 +76,7 @@ public class RoomServiceImpl implements RoomService {
             roomJoin(userId,chatroom.getId(),null, null);
             return  chatroom.getId();
         }
+
         userService.updateCreateRoomPlus(userId);
 
         Long roomId = saveChatroom(userId,user.getNickname(),user.getSex());

@@ -32,7 +32,8 @@
   </select>
   <select id="getRoomUserByIdAll"  resultType="java.util.Map">
     select
-    u.id id,u.nickname,u.portrait_address portraitAddress,u.sign_text signText,u.sex,u.show_id showId,m.user_role userRole
+    u.id id,u.nickname,u.portrait_address portraitAddress
+    ,u.sign_text signText,u.sex,u.show_id showId,m.user_role userRole
     from t_funtime_chatroom_user m inner join t_funtime_user u on m.user_id = u.id
     where m.room_id = #{roomId}  and m.flag = 1
     <if test="nickname!=null and nickname!=''">
