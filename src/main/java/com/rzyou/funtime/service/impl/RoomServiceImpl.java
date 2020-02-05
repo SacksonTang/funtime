@@ -1017,6 +1017,16 @@ public class RoomServiceImpl implements RoomService {
         return null;
     }
 
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void roomExitTask(Long userId) {
+        Long roomId = checkUserIsInRoom(userId);
+        if (roomId!=null){
+            roomExit(userId,roomId);
+            userService.updateOnlineState(userId,2);
+        }
+    }
+
 
     public void saveChatroomKickedRecord(Long kickIdUserId, Long userId, Long roomId){
         FuntimeChatroomKickedRecord record = new FuntimeChatroomKickedRecord();

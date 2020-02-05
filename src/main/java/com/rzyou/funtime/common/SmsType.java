@@ -4,6 +4,7 @@ public enum SmsType {
     REGISTER_LOGIN(1,"注册登录")
     ,UPDATE_PHONENUMBER(2,"修改手机号")
     ,REAL_VALID(3,"实名认证")
+    ,BIND_PHONENUMBER(4,"实名认证")
     ;
     private int value;
     private String desc;

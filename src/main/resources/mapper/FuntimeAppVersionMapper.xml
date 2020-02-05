@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeAppVersionMapper">
+
+  <select id="getVersionInfoByVerAndPlatform"  resultType="java.util.Map">
+    select id,state
+    from t_funtime_app_version
+    where platform = #{platform} and app_version = #{appVersion}
+  </select>
+
+  <select id="checkVersion"  resultType="java.lang.Integer">
+    select count(id)
+    from t_funtime_app_version
+    where id > #{cId} and platform = #{platform} and state = 2
+  </select>
+
+  <select id="getNewVersionInfoByPlatform"  resultType="java.util.Map">
+    select app_version as appVersion,version_desc as versionDesc,download_url as downloadUrl
+    from t_funtime_app_version
+    where platform = #{platform} and state = 1
+  </select>
+
+</mapper>

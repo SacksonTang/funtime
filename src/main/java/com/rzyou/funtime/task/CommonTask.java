@@ -5,6 +5,7 @@ import com.rzyou.funtime.entity.FuntimeNotice;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.NoticeService;
 import com.rzyou.funtime.service.RoomService;
+import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -24,10 +25,25 @@ public class CommonTask {
     RoomService roomService;
     @Autowired
     NoticeService noticeService;
+    @Autowired
+    UserService userService;
 
     Integer[] sendGroupType = {1,2,3,4,5,6,7,8,10,11,12,13,14,17,18};
     Integer[] sendSingleType = {15,16};
     Integer[] snedAllApp = {9};
+
+    /**
+     * 房内离线用户退房
+     */
+    @Scheduled(fixedRate = 1000*5)
+    public void offlineUserTask(){
+        List<Long> users = userService.getOfflineUser();
+        if (users!=null&&!users.isEmpty()){
+            for (Long userId : users){
+                roomService.roomExitTask(userId);
+            }
+        }
+    }
 
     /**
      * 红包失效

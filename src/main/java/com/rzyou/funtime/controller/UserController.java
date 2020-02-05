@@ -7,6 +7,7 @@ import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.cos.CosStsUtil;
 import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
+import com.rzyou.funtime.common.sms.linkme.LinkmeUtil;
 import com.rzyou.funtime.entity.FuntimeAccusation;
 import com.rzyou.funtime.entity.FuntimeTag;
 import com.rzyou.funtime.entity.FuntimeUser;
@@ -323,6 +324,67 @@ public class UserController {
 
             userService.updatePhoneNumber(userId,newPhoneNumber,code,oldPhoneNumber);
 
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 绑定手机号
+     * @param request
+     * @return
+     */
+    @PostMapping("bindPhoneNumber")
+    public ResultMsg<Object> bindPhoneNumber(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer bindType = paramJson.getInteger("bindType");
+            String token = paramJson.getString("token");
+            Integer channel = paramJson.getInteger("channel");
+            Integer platform = paramJson.getInteger("platform");
+            Long userId = paramJson.getLong("userId");
+            String phoneNumber = paramJson.getString("phoneNumber");
+            String code = paramJson.getString("code");
+            if (bindType==null||userId==null) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            //秒验
+            if (bindType == 1){
+                if (StringUtils.isBlank(token)||channel==null||platform==null){
+                    result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                    result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                    return result;
+                }
+            }
+            //短信
+            if (bindType == 2){
+                if (StringUtils.isBlank(phoneNumber)||StringUtils.isBlank(code)){
+                    result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                    result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                    return result;
+                }
+            }
+
+            if (bindType == 1) {
+                phoneNumber = LinkmeUtil.getPhone(token, channel, platform, code);
+                userService.bindPhoneNumber(userId,phoneNumber);
+            }
+            if (bindType == 2){
+                userService.bindPhoneNumber(userId,phoneNumber,code);
+            }
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

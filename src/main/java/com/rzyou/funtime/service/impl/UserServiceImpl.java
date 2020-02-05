@@ -60,6 +60,8 @@ public class UserServiceImpl implements UserService {
     FuntimeAccusationMapper accusationMapper;
     @Autowired
     FuntimeWithdrawalConfMapper withdrawalConfMapper;
+    @Autowired
+    FuntimeAppVersionMapper appVersionMapper;
 
 
     @Override
@@ -752,7 +754,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void updatePhotoByUserId(Long userId, JSONArray array) {
         if (userMapper.checkUserExists(userId)==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
@@ -799,6 +801,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public void saveHeart(Long userId) {
         userMapper.saveHeart(userId);
+    }
+
+    @Override
+    public void saveImHeart(Long userId,Integer userState,String action,String reason) {
+        userMapper.saveImHeart(userId,userState,action,reason);
+    }
+
+    @Override
+    public List<Long> getOfflineUser() {
+        return userMapper.getOfflineUser();
     }
 
     @Override
@@ -915,6 +927,96 @@ public class UserServiceImpl implements UserService {
         }
 
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public Map<String, Object> checkVersion(String platform, String appVersion) {
+
+        Map<String, Object> result = new HashMap<>();
+        //当前版本
+        Map<String, String> curVer = appVersionMapper.getVersionInfoByVerAndPlatform(platform, appVersion);
+        //当前版本信息缺失,直接更新最新版本
+        if (curVer==null){
+            result.put("state",2);
+            result.put("versionInfo",appVersionMapper.getNewVersionInfoByPlatform(platform));
+            return result;
+        }
+        String curState = curVer.get("state");
+        //最新版本
+        if (curState.equals("1")){
+            result.put("state",1);
+            return result;
+        }
+        //强制更新
+        else if (curState.equals("2")){
+            result.put("state",2);
+            result.put("versionInfo",appVersionMapper.getNewVersionInfoByPlatform(platform));
+            return result;
+        }
+        //其他更新,需要检测后续版本有没有强制更新的
+        else{
+            String id = curVer.get("id");
+            Integer count = appVersionMapper.checkVersion(Integer.parseInt(id));
+            if (count!=null&&count>0){
+                //后续有强制更新
+                result.put("state",2);
+                result.put("versionInfo",appVersionMapper.getNewVersionInfoByPlatform(platform));
+                return result;
+            }else{
+                //后续无强制更新
+                result.put("state",curState);
+                result.put("versionInfo",appVersionMapper.getNewVersionInfoByPlatform(platform));
+                return result;
+            }
+        }
+
+    }
+
+    @Override
+    public void bindPhoneNumber(Long userId, String phoneNumber) {
+        FuntimeUser user = userMapper.queryUserInfoByPhone(phoneNumber);
+        if (user!=null){
+            throw new BusinessException(ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getValue(),ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getDesc());
+        }
+        user = userMapper.selectByPrimaryKey(userId);
+        if(user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+
+        if (user.getPhoneNumber()!=null){
+            throw new BusinessException(ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getValue(),ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getDesc());
+        }
+
+        int k = userMapper.updatePhoneNumberById(userId,user.getVersion(),System.currentTimeMillis(),phoneNumber);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void bindPhoneNumber(Long userId, String phoneNumber, String code) {
+        FuntimeUser user = userMapper.queryUserInfoByPhone(phoneNumber);
+        if (user!=null){
+            throw new BusinessException(ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getValue(),ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getDesc());
+        }
+        user = userMapper.selectByPrimaryKey(userId);
+        if(user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+
+        if (user.getPhoneNumber()!=null){
+            throw new BusinessException(ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getValue(),ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getDesc());
+        }
+
+        Long smsId = smsService.validateSms(SmsType.BIND_PHONENUMBER.getValue(),phoneNumber,code);
+
+        int k = userMapper.updatePhoneNumberById(userId,user.getVersion(),System.currentTimeMillis(),phoneNumber);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+
+        smsService.updateSmsInfoById(smsId,1);
     }
 
 

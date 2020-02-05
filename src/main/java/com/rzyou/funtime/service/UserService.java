@@ -305,6 +305,21 @@ public interface UserService {
     void saveHeart(Long userId);
 
     /**
+     * 保存在线状态变更回调
+     * @param userId
+     * @param userState
+     * @param action
+     * @param reason
+     */
+    void saveImHeart(Long userId,Integer userState,String action,String reason);
+
+    /**
+     * 房内离线用户
+     * @return
+     */
+    List<Long> getOfflineUser();
+
+    /**
      * 获取表情
      * @return
      */
@@ -370,4 +385,27 @@ public interface UserService {
      * @return
      */
     PageInfo<Map<String,Object>> getInvitationUserList(Integer startPage, Integer pageSize, Long userId, Long roomId);
+
+    /**
+     * 版本管理
+     * @param platform
+     * @param appVersion
+     * @return
+     */
+    Map<String,Object> checkVersion(String platform,String appVersion);
+
+    /**
+     * 秒验绑定
+     * @param userId
+     * @param phoneNumber
+     */
+    void bindPhoneNumber(Long userId, String phoneNumber);
+
+    /**
+     * 验证码绑定
+     * @param userId
+     * @param phoneNumber
+     * @param code
+     */
+    void bindPhoneNumber(Long userId, String phoneNumber, String code);
 }

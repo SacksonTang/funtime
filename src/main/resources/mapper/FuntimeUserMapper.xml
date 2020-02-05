@@ -623,4 +623,14 @@
     REPLACE INTO t_funtime_heart (user_id) VALUES(#{userId})
   </insert>
 
+  <insert id="saveImHeart" >
+    REPLACE INTO t_funtime_im_heart (user_id,user_state,action,reason)
+    VALUES(#{userId},#{userState},#{action},#{reason})
+  </insert>
+  <select id="getOfflineUser" resultType="java.lang.Long">
+    select t.user_id from t_funtime_im_heart t
+    where t.user_state = 2 and DATE_SUB(NOW(),INTERVAL 30 MINUTE)>t.operation_time
+    and EXISTS (select m.user_id from t_funtime_chatroom_user m where m.user_id = t.user_id)
+  </select>
+
 </mapper>

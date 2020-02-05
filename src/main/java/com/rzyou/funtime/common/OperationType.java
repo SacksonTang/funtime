@@ -7,6 +7,7 @@ public enum OperationType {
     ,RECEIVEGIFT("IN","RECEIVEGIFT","收礼物")
     ,GAMEIN("IN","GAMEIN","游戏收入")
     ,BLACK_BLUE_IN("IN","BLACK_BLUE_IN","黑钻兑换蓝钻")
+    ,WITHDRAWAL_RETURN("IN","WITHDRAWAL_RETURN","体现退回")
 
     ,WITHDRAWAL("OUT","WITHDRAWAL","提现")
     ,GIVEREDPACKET("OUT","GIVEREDPACKET","发红包")

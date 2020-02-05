@@ -267,4 +267,10 @@ public interface RoomService {
      * @return
      */
     Long checkUserIsInRoom(Long userId);
+
+    /**
+     * 退出房间(定时任务)
+     * @param userId
+     */
+    void roomExitTask(Long userId);
 }

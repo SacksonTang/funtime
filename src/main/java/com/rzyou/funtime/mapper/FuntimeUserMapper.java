@@ -11,6 +11,9 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserMapper {
 
+    int saveImHeart(@Param("userId") Long userId,@Param("userState") Integer userState
+               ,@Param("action") String action,@Param("reason") String reason);
+
     List<String> getAllUserId();
 
     Map<String, Object> queryUserByChatUser(@Param("userId") Long userId,@Param("byUserId") Long byUserId);
@@ -72,6 +75,12 @@ public interface FuntimeUserMapper {
     List<Map<String, Object>> getBanners();
 
     List<FuntimeUser> queryUserInfoByIndex(String content);
+
+    /**
+     * 在房间的离线用户
+     * @return
+     */
+    List<Long> getOfflineUser();
 
     /**
      * 客服

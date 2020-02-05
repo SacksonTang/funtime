@@ -185,7 +185,8 @@ public class LinkmeUtil {
     enum LinkmeSmsType{
         REGISTER(SmsType.REGISTER_LOGIN.getValue(),"110240"),
         UPDATE_PHONENUMBER(SmsType.UPDATE_PHONENUMBER.getValue(),"110240"),
-        REAL_VALID(SmsType.REAL_VALID.getValue(),"110240");
+        REAL_VALID(SmsType.REAL_VALID.getValue(),"110240"),
+        BIND_PHONENUMBER(SmsType.BIND_PHONENUMBER.getValue(),"110240");
         int value;
         String templateId;
 

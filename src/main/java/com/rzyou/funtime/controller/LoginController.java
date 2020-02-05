@@ -61,6 +61,37 @@ public class LoginController {
         return new ResultMsg<>();
     }
 
+    /**
+     * 检测版本
+     * @param request
+     * @return
+     */
+    @PostMapping("checkVersion")
+    public ResultMsg<Object> checkVersion(HttpServletRequest request) {
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String platform = paramJson.getString("platform");
+            String appVersion = paramJson.getString("appVersion");
+            if (StringUtils.isBlank(appVersion)||StringUtils.isBlank(platform)) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            result.setData(userService.checkVersion(platform,appVersion));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
 
 
 

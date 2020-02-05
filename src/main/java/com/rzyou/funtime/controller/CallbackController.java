@@ -43,37 +43,46 @@ public class CallbackController {
     public JSONObject userStateOffline(@RequestBody UserStateOfflineParam params, SdkParam sdkParam){
         JSONObject result = new JSONObject();
 
-        if (StringUtils.isBlank(sdkParam.getCallbackCommand())||StringUtils.isBlank(sdkParam.getSdkAppid())
-                ||!sdkParam.getSdkAppid().equals(String.valueOf(Constant.TENCENT_YUN_SDK_APPID))){
-            log.error("**************用户：{} 已下线参数有问题******************",params.getInfo().getTo_Account());
-            result.put("ActionStatus","FAIL");
-            result.put("ErrorCode",-1);
-            result.put("ErrorInfo","error");
-            return result;
-        }
-        if (sdkParam.getCallbackCommand().equals("State.StateChange")){
-            if (params.getInfo().getAction().equals("Logout")
-                    ||params.getInfo().getAction().equals("TimeOut")
-                    ||params.getInfo().getAction().equals("Disconnect")){
-                log.warn("**************用户：{} 已下线******************REASON:{}",params.getInfo().getTo_Account(),params.getInfo().getReason());
-                //userService.updateOnlineState(Long.parseLong(params.getInfo().getTo_Account()),2);
-                result.put("ActionStatus","OK");
-                result.put("ErrorCode",0);
-                result.put("ErrorInfo","");
-                return result;
-            }else{
-                log.warn("**************用户：{} 已上线******************REASON:{}",params.getInfo().getTo_Account(),params.getInfo().getReason());
-                //userService.updateOnlineState(Long.parseLong(params.getInfo().getTo_Account()),1);
-                result.put("ActionStatus","OK");
-                result.put("ErrorCode",0);
-                result.put("ErrorInfo","");
+        try {
+
+            if (StringUtils.isBlank(sdkParam.getCallbackCommand()) || StringUtils.isBlank(sdkParam.getSdkAppid())
+                    || !sdkParam.getSdkAppid().equals(String.valueOf(Constant.TENCENT_YUN_SDK_APPID))) {
+                log.error("**************用户：{} 已下线参数有问题******************", params.getInfo().getTo_Account());
+                result.put("ActionStatus", "FAIL");
+                result.put("ErrorCode", -1);
+                result.put("ErrorInfo", "error");
                 return result;
             }
+            if (sdkParam.getCallbackCommand().equals("State.StateChange")) {
+                if (params.getInfo().getAction().equals("Logout")
+                        || params.getInfo().getAction().equals("TimeOut")
+                        || params.getInfo().getAction().equals("Disconnect")) {
+                    log.warn("**************用户：{} 已下线******************REASON:{}", params.getInfo().getTo_Account(), params.getInfo().getReason());
+                    userService.saveImHeart(Long.parseLong(params.getInfo().getTo_Account()), 2, params.getInfo().getAction(), params.getInfo().getReason());
+                    result.put("ActionStatus", "OK");
+                    result.put("ErrorCode", 0);
+                    result.put("ErrorInfo", "");
+                    return result;
+                } else {
+                    log.warn("**************用户：{} 已上线******************REASON:{}", params.getInfo().getTo_Account(), params.getInfo().getReason());
+                    userService.saveImHeart(Long.parseLong(params.getInfo().getTo_Account()), 1, params.getInfo().getAction(), params.getInfo().getReason());
+                    result.put("ActionStatus", "OK");
+                    result.put("ErrorCode", 0);
+                    result.put("ErrorInfo", "");
+                    return result;
+                }
+            }
+            result.put("ActionStatus", "OK");
+            result.put("ErrorCode", 0);
+            result.put("ErrorInfo", "");
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.put("ActionStatus", "FAIL");
+            result.put("ErrorCode", -1);
+            result.put("ErrorInfo", "error");
+            return result;
         }
-        result.put("ActionStatus","OK");
-        result.put("ErrorCode",0);
-        result.put("ErrorInfo","");
-        return result;
 
     }
 
