@@ -183,6 +183,31 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.ROOM_IS_BLOCK.getValue(),ErrorMsgEnum.ROOM_IS_BLOCK.getDesc());
         }
 
+        //用户所在的房间
+        List<Long> roomIds = chatroomUserMapper.getRoomByUserId(userId);
+        boolean flag = false;
+        //用户已有房间
+        if (roomIds!=null&&!roomIds.isEmpty()){
+            for (Long room : roomIds){
+                //本房间
+                if (room.equals(roomId)){
+                    flag = true;
+                    continue;
+                }
+                //非本房间
+                if (!room.equals(roomId)){
+                    log.info("************进入房间前已在别的房间,现在先退出别的房间*******************");
+                    //退房
+                    roomExit(userId,room);
+                }
+
+            }
+            //本房间直接返回
+            if (flag){
+                return true;
+            }
+        }
+
         //房主进房
         if (userId.equals(chatroom.getUserId())){
             //直接上10号麦
@@ -218,30 +243,7 @@ public class RoomServiceImpl implements RoomService {
             }
         }
 
-        //用户所在的房间
-        List<Long> roomIds = chatroomUserMapper.getRoomByUserId(userId);
-        boolean flag = false;
-        //用户已有房间
-        if (roomIds!=null&&!roomIds.isEmpty()){
-            for (Long room : roomIds){
-                //本房间
-                if (room.equals(roomId)){
-                    flag = true;
-                    continue;
-                }
-                //非本房间
-                if (!room.equals(roomId)){
-                    log.info("************进入房间前已在别的房间,现在先退出别的房间*******************");
-                    //退房
-                    roomExit(userId,room);
-                }
-            }
 
-            //本房间直接返回
-            if (flag){
-                return true;
-            }
-        }
 
         //用户角色
         int userRole = UserRole.ROOM_NORMAL.getValue();
