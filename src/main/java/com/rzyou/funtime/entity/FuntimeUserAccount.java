@@ -32,4 +32,7 @@ public class FuntimeUserAccount implements Serializable {
     private Integer level;
 
     private Integer grabAmountTotal;
+
+    private String levelUrl;
+
 }

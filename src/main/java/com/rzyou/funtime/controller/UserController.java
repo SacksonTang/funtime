@@ -1075,36 +1075,8 @@ public class UserController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            PageInfo<Map<String, Object>> list = userService.getRankingList(startPage, pageSize, dateType, type);
-            Map<String,Object> resultMap = JsonUtil.getMap("rankingList", list);
-            resultMap.put("is_ranklist_show",parameterService.getParameterValueByKey("is_ranklist_show"));
-            if (list.getList()!=null) {
-                JSONArray array;
-                JSONObject object;
-                Map<String, Object> map;
-                for (int j = 0; j < list.getList().size(); j++) {
-                    map = list.getList().get(j);
-                    String groupStr = map.get("groupStr").toString();
-                    array = JSONArray.parseArray("[" + groupStr + "]");
+            Map<String,Object> resultMap = userService.getRankingList(startPage, pageSize, dateType, type,userId);
 
-                    boolean flag = false;
-                    for (int i = 0; i < array.size(); i++) {
-                        object = array.getJSONObject(i);
-                        String id = object.getString("userId");
-
-                        if (id.equals(userId)) {
-                            resultMap.put("mySort", j);
-                            resultMap.put("myAmount", map.get("amountSum"));
-                            flag = true;
-                            break;
-                        }
-                    }
-                    map.put("groupStr", array);
-                    if (flag) {
-                        break;
-                    }
-                }
-            }
             result.setData(resultMap);
 
             return result;

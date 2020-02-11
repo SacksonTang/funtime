@@ -123,4 +123,10 @@ public class FuntimeUser implements Serializable {
 
     private Boolean concerned;
 
+    private Integer level;
+
+    private String levelUrl;
+
+    private Long imSdkaAppId;
+
 }

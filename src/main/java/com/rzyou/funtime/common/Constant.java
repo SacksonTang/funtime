@@ -115,5 +115,6 @@ public class Constant {
     public static final int ROOM_USER_COUNT = 20;
     public static final int ROOM_GIFT_SEND_ROOM_ALL = 21;
     public static final int ROOM_REDPACKET_EXIST = 22;
+    public static final int ROOM_MIC_USER_LEVEL_UPDATE = 25;
     public static final int SERVICE_MSG = 10001;
 }

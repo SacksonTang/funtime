@@ -9,6 +9,8 @@ import java.util.Map;
 
 @Mapper
 public interface FuntimeChatroomMicMapper {
+    Long checkUserIsInMic(Long userId);
+
     int deleteByPrimaryKey(Long id);
 
     int lowerWheat(@Param("id") Long id, @Param("micLocation") int micLocation);

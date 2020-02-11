@@ -578,9 +578,10 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
         List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
+        FuntimeUserAccount userAccount = userService.getUserAccountInfoById(micUserId);
         //发送通知
         for (String roomNo : roomNos) {
-            noticeService.notice1(micLocation, roomId, micUserId, user.getNickname(), user.getPortraitAddress(), roomNo,user.getSex());
+            noticeService.notice1(micLocation, roomId, micUserId, user.getNickname(), user.getPortraitAddress(), roomNo,user.getSex(),userAccount.getLevelUrl());
         }
 
 
@@ -1015,6 +1016,11 @@ public class RoomServiceImpl implements RoomService {
             return list.get(0);
         }
         return null;
+    }
+
+    @Override
+    public Long checkUserIsInMic(Long userId) {
+        return chatroomMicMapper.checkUserIsInMic(userId);
     }
 
     @Override

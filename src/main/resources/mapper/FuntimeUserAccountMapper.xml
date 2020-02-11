@@ -10,15 +10,17 @@
     <result column="level" jdbcType="INTEGER" property="level" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="version" jdbcType="BIGINT" property="version" />
+    <result column="level_url"  property="levelUrl" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, black_diamond, blue_diamond, horn_number, create_time, version,level
   </sql>
   <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
-    <include refid="Base_Column_List" />
-    from t_funtime_user_account
-    where user_id = #{userId} limit 1
+    t.user_id, t.black_diamond, t.blue_diamond, t.horn_number, t.level
+    ,l.level,l.level_url
+    from t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level
+    where t.user_id = #{userId} limit 1
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_account

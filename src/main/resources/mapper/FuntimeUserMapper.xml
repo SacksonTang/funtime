@@ -75,7 +75,9 @@
     select
      u.nickname,u.portrait_address portraitAddress,u.sign_text as  signText,u.birthday,u.sex,u.show_id showId
      ,(select count(c.id) from t_funtime_user_concern c where c.user_id = #{userId} and c.to_user_id = u.id) isConcern
+     ,l.level,l.level_url as levelUrl
     from t_funtime_user u
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     where u.id = #{byUserId} and flag = 1
   </select>
 
@@ -83,7 +85,7 @@
       SELECT
           t.amountSum,
           GROUP_CONCAT(
-          json_object ( 'userId', t.user_id, 'nickname', u.nickname, 'portraitAddress', u.portrait_address, 'signText', u.sign_text, 'sex', u.sex ,'showId',u.show_id)
+          t.user_id
           ) groupStr
       FROM
           (
@@ -99,7 +101,7 @@
       ORDER BY
           d.user_id DESC
           ) t
-          INNER JOIN t_funtime_user u ON t.user_id = u.id
+
       GROUP BY
           t.amountSum
       ORDER BY
@@ -111,8 +113,8 @@
     SELECT
           t.amountSum,
           GROUP_CONCAT(
-          json_object ( 'userId', t.to_user_id, 'nickname', u.nickname, 'portraitAddress', u.portrait_address, 'signText', u.sign_text , 'sex', u.sex ,'showId',u.show_id)
-          ) groupStr
+          t.to_user_id
+          ) groupIdStr
       FROM
           (
       SELECT
@@ -127,7 +129,7 @@
       ORDER BY
           d.to_user_id DESC
           ) t
-          INNER JOIN t_funtime_user u ON t.to_user_id = u.id
+
       GROUP BY
           t.amountSum
       ORDER BY
@@ -148,8 +150,9 @@
   <select id="getInvitationUserList" resultType="java.util.Map">
     select
     u.id,u.nickname,u.portrait_address as portraitAddress,u.sex,u.show_id as showId,u.sign_text as  signText
-    ,u.online_state onlineState
+    ,u.online_state onlineState,l.level,l.level_url as levelUrl
     from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.to_user_id
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     where c.user_id = #{userId}
     and not exists (select t.id from t_funtime_chatroom_user t where t.user_id = c.to_user_id and t.room_id = #{roomId})
 
@@ -191,8 +194,11 @@
     select
           u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text ,
           u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
-          m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState
+          m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState,
+          l.level,l.level_url as levelUrl
     from t_funtime_user u left join t_funtime_chatroom m on u.id = m.user_id
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+
     where u.online_state = 1 and u.flag = 1
       <if test="sex!=null">
         and u.sex = #{sex}
@@ -211,8 +217,11 @@
     select
     u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text  ,
     u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
-    m.id roomId,m.is_lock as isLock,m.is_block as isBlock
+    m.id roomId,m.is_lock as isLock,m.is_block as isBlock,
+    l.level,l.level_url as levelUrl
     from t_funtime_user u left join t_funtime_chatroom m on u.id = m.user_id
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+
     where  u.flag = 1
     <if test="content!=null and content!=''">
       and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%') or m.name like concat('%',#{content},'%'))

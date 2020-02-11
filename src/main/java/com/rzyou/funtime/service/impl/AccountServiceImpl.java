@@ -3,15 +3,12 @@ package com.rzyou.funtime.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
+import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
-import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
-import com.rzyou.funtime.utils.DateUtil;
-import com.rzyou.funtime.utils.JsonUtil;
-import com.rzyou.funtime.utils.RedPacketUtil;
-import com.rzyou.funtime.utils.StringUtil;
+import com.rzyou.funtime.utils.*;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -188,7 +185,7 @@ public class AccountServiceImpl implements AccountService {
             }
 
             //上线打开
-            /**
+            /*
             if (!total_fee.equals(record.getRmb().multiply(new BigDecimal(100)).toString())){
                 log.info("支付回调中金额与系统订单金额不一致,微信订单金额:{},系统订单金额:{}",total_fee,record.getRmb().multiply(new BigDecimal(100)).toString());
                 return false;
@@ -201,10 +198,28 @@ public class AccountServiceImpl implements AccountService {
             BigDecimal total = userAccountRechargeRecordMapper.getRechargeNumByUserId(record.getUserId());
 
             //充值等级
-            Integer userLevel = userAccountRechargeRecordMapper.getUserLevel(total.intValue());
-            userLevel = userLevel == null ? 0:userLevel;
+            Map<String,Object> userLevelMap = userAccountRechargeRecordMapper.getUserLevel(total.intValue());
+
+            if (userLevelMap==null){
+                return false;
+            }
+            Integer userLevel = userLevelMap.get("level")==null?0:Integer.parseInt(userLevelMap.get("level").toString());
+            String levelUrl = userLevelMap.get("levelUrl")==null?"":userLevelMap.get("levelUrl").toString();
+
             if (!userLevel.equals(userAccount.getLevel())){
                 userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),record.getHornNum());
+                String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+                boolean flag = TencentUtil.portraitSet(userSig, record.getUserId().toString(),userLevel.toString(),levelUrl);
+                if (!flag){
+                    throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(),ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
+                }
+                Long roomId = roomService.checkUserIsInMic(record.getUserId());
+                if (roomId!=null){
+                    List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+                    if (roomNos!=null&&!roomNos.isEmpty()) {
+                        noticeService.notice25(record.getUserId(),roomId,levelUrl, null, null, roomNos);
+                    }
+                }
             }else{
                 userAccountMapper.updateUserAccountForPlus(record.getUserId(),null,record.getAmount(),record.getHornNum());
             }

@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface FuntimeUserAccountRechargeRecordMapper {
@@ -16,7 +17,7 @@ public interface FuntimeUserAccountRechargeRecordMapper {
 
     BigDecimal getRechargeNumByUserId(Long userId);
 
-    Integer getUserLevel(Integer amount);
+    Map<String,Object> getUserLevel(Integer amount);
 
     int deleteByPrimaryKey(Long id);
 

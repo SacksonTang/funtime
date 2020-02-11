@@ -59,8 +59,9 @@ public interface NoticeService {
      * @param portraitAddress
      * @param roomNo
      * @param sex
+     * @param levelUrl
      */
-    void notice1(Integer micLocation, Long roomId, Long micUserId, String nickname, String portraitAddress, String roomNo, Integer sex);
+    void notice1(Integer micLocation, Long roomId, Long micUserId, String nickname, String portraitAddress, String roomNo, Integer sex, String levelUrl);
 
     /**
      * 下麦通知
@@ -221,4 +222,15 @@ public interface NoticeService {
      * @param roomId
      */
     void notice10001(String content, Long userId, Long roomId);
+
+    /**
+     * 用户等级变更
+     * @param userId
+     * @param roomId
+     * @param levelUrl
+     * @param nickname
+     * @param portraitAddress
+     * @param roomNos
+     */
+    void notice25(Long userId, Long roomId, String levelUrl, String nickname, String portraitAddress, List<String> roomNos);
 }

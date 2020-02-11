@@ -262,11 +262,18 @@ public interface RoomService {
     boolean checkUserIsExist(Long roomId,Long userId);
 
     /**
-     *
+     * 用户是否在房间
      * @param userId
      * @return
      */
     Long checkUserIsInRoom(Long userId);
+
+    /**
+     * 用户是否在麦上
+     * @param userId
+     * @return
+     */
+    Long checkUserIsInMic(Long userId);
 
     /**
      * 退出房间(定时任务)

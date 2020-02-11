@@ -34,7 +34,10 @@
     select
     u.id id,u.nickname,u.portrait_address portraitAddress
     ,u.sign_text signText,u.sex,u.show_id showId,m.user_role userRole
+    ,l.level,l.level_url as levelUrl
     from t_funtime_chatroom_user m inner join t_funtime_user u on m.user_id = u.id
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+
     where m.room_id = #{roomId}  and m.flag = 1
     <if test="nickname!=null and nickname!=''">
       and BINARY u.nickname like concat('%',#{nickname},'%')

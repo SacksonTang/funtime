@@ -281,9 +281,10 @@ public interface UserService {
      * @param pageSize
      * @param dateType
      * @param type
+     * @param curUserId
      * @return
      */
-    PageInfo<Map<String,Object>> getRankingList(Integer startPage, Integer pageSize, Integer dateType,Integer type);
+    Map<String,Object> getRankingList(Integer startPage, Integer pageSize, Integer dateType, Integer type, String curUserId);
 
     /**
      * 更新相册

@@ -10,10 +10,7 @@ import com.rzyou.funtime.common.im.BankCardVerificationUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
-import com.rzyou.funtime.service.ParameterService;
-import com.rzyou.funtime.service.RoomService;
-import com.rzyou.funtime.service.SmsService;
-import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.service.*;
 import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +30,8 @@ public class UserServiceImpl implements UserService {
     ParameterService parameterService;
     @Autowired
     RoomService roomService;
+    @Autowired
+    NoticeService noticeService;
     @Autowired
     FuntimeUserMapper userMapper;
     @Autowired
@@ -150,9 +149,10 @@ public class UserServiceImpl implements UserService {
             }
         }
         user.setTagNames(tagNames);
-
-        user.setBlueAmount(accountMapper.selectByUserId(id).getBlueDiamond().intValue());
-
+        FuntimeUserAccount userAccount = accountMapper.selectByUserId(id);
+        user.setBlueAmount(userAccount.getBlueDiamond().intValue());
+        user.setLevel(userAccount.getLevel());
+        user.setLevelUrl(userAccount.getLevelUrl());
         FuntimeChatroom chatroom = roomService.getRoomByUserId(id);
 
         if (chatroom!=null) {
@@ -266,6 +266,13 @@ public class UserServiceImpl implements UserService {
             boolean flag = TencentUtil.portraitSet(userSig, user.getId().toString(), user.getNickname(), user.getPortraitAddress(),user.getSex()==null?null:user.getSex().toString());
             if (!flag){
                 throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(),ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
+            }
+            Long roomId = roomService.checkUserIsInMic(user.getId());
+            if (roomId!=null){
+                List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+                if (roomNos!=null&&!roomNos.isEmpty()) {
+                    noticeService.notice25(user.getId(),roomId,null,user.getNickname(), user.getPortraitAddress(), roomNos);
+                }
             }
         }
 
@@ -538,6 +545,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateOnlineState(Long userId, Integer onlineState) {
+        FuntimeUser user = queryUserById(userId);
+        if(user == null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if(user.getOnlineState().equals(onlineState)){
+            return;
+        }
         if(userMapper.updateOnlineState(userId, onlineState)!=1){
 
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
@@ -721,10 +735,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageInfo<Map<String, Object>> getRankingList(Integer startPage, Integer pageSize, Integer dateType,Integer type) {
+    public Map<String, Object> getRankingList(Integer startPage, Integer pageSize, Integer dateType, Integer type, String curUserId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("is_ranklist_show",parameterService.getParameterValueByKey("is_ranklist_show"));
+
         PageHelper.startPage(startPage,pageSize);
         String startDate;
         String endDate;
+
+
         if (dateType == 1){
             startDate = DateUtil.getCurrentDayStart();
             endDate = DateUtil.getCurrentDayEnd();
@@ -735,7 +754,8 @@ public class UserServiceImpl implements UserService {
             startDate = DateUtil.getCurrentMonthStart();
             endDate = DateUtil.getCurrentMonthEnd();
         }else{
-            return new PageInfo<>();
+            resultMap.put("rankingList",new PageInfo<>());
+            return resultMap;
         }
         List<Map<String, Object>> list;
         if (type == 1){
@@ -745,12 +765,42 @@ public class UserServiceImpl implements UserService {
         }
 
         if (list==null||list.isEmpty()){
-            return new PageInfo<>();
+            resultMap.put("rankingList",new PageInfo<>());
+            return resultMap;
         }
+        FuntimeUser user;
+        FuntimeUserAccount userAccount;
+        Map<String, Object> userInfoMap ;
+        for (int i =0;i<list.size();i++){
+            Map<String, Object> map = list.get(i);
+            String userIds = map.get("groupStr").toString();
+            String[] userIdArray = userIds.split(",");
+            List<Map<String, Object>> groupStr = new ArrayList<>();
+            for (String userId : userIdArray){
+                if (userId.equals(curUserId)){
+                    resultMap.put("mySort", i);
+                    resultMap.put("myAmount", map.get("amountSum"));
+                }
+                userInfoMap = new HashMap<>();
+                user = userMapper.selectByPrimaryKey(Long.parseLong(userId));
+                userAccount = accountMapper.selectByUserId(Long.parseLong(userId));
+                userInfoMap.put("userId",user.getId());
+                userInfoMap.put("nickname",user.getNickname());
+                userInfoMap.put("portraitAddress",user.getPortraitAddress());
+                userInfoMap.put("signText",user.getSignText());
+                userInfoMap.put("showId",user.getShowId());
+                userInfoMap.put("sex",user.getSex());
 
+                userInfoMap.put("level",userAccount.getLevel());
+                userInfoMap.put("levelUrl",userAccount.getLevelUrl());
+                groupStr.add(userInfoMap);
 
+            }
+            map.put("groupStr",groupStr);
+        }
+        resultMap.put("rankingList",new PageInfo<>(list));
+        return resultMap;
 
-        return new PageInfo<>(list);
     }
 
     @Override
@@ -804,8 +854,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void saveImHeart(Long userId,Integer userState,String action,String reason) {
         userMapper.saveImHeart(userId,userState,action,reason);
+        if (userState == 1){
+            updateOnlineState(userId,1);
+        }
     }
 
     @Override

@@ -204,7 +204,7 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    public void notice1(Integer micLocation, Long roomId, Long micUserId, String nickname, String portraitAddress, String roomNo, Integer sex) {
+    public void notice1(Integer micLocation, Long roomId, Long micUserId, String nickname, String portraitAddress, String roomNo, Integer sex, String levelUrl) {
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         JSONObject object = new JSONObject();
         object.put("pos",micLocation);
@@ -213,6 +213,7 @@ public class NoticeServerImpl implements NoticeService {
         object.put("name",nickname);
         object.put("sex",sex);
         object.put("imgUrl",portraitAddress);
+        object.put("levelUrl",levelUrl);
         object.put("type",Constant.ROOM_MIC_UPPER);
         String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
         if (!TencentUtil.sendGroupMsg(userSig,parameterHandler)) {
@@ -494,6 +495,25 @@ public class NoticeServerImpl implements NoticeService {
         String objectStr = JSONObject.toJSONString(object);
         String parameterHandler = StringEscapeUtils.unescapeJava(objectStr);
         saveNotice(Constant.SERVICE_MSG, parameterHandler,0);
+    }
+
+    @Override
+    public void notice25(Long userId, Long roomId, String levelUrl, String nickname, String portraitAddress, List<String> roomNos) {
+        JSONObject object = new JSONObject();
+        object.put("rid",roomId);
+        object.put("uid",userId);
+        object.put("name",nickname);
+        object.put("imgUrl", portraitAddress);
+        object.put("levelUrl",levelUrl);
+        object.put("type",Constant.ROOM_MIC_USER_LEVEL_UPDATE);
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        for (String roomNo : roomNos) {
+            String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
+
+            if (!TencentUtil.sendGroupMsg(userSig, parameterHandler)) {
+                saveNotice(Constant.ROOM_MIC_USER_LEVEL_UPDATE, parameterHandler, 2);
+            }
+        }
     }
 
 

@@ -129,6 +129,7 @@ public class LoginController {
                 userInfo.setPrivacyAgreementUrl(Constant.COS_URL_PREFIX+Constant.AGREEMENT_PRIVACY);
                 userInfo.setUserAgreementUrl(Constant.COS_URL_PREFIX+Constant.AGREEMENT_USER);
             }
+            userInfo.setImSdkaAppId(Constant.TENCENT_YUN_SDK_APPID);
             result.setData(JsonUtil.getMap("user",userInfo));
         } catch (BusinessException be) {
             be.printStackTrace();

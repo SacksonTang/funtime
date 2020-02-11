@@ -43,9 +43,9 @@
     from t_funtime_user_account_recharge_record
     where user_id = #{userId} and state = 3
   </select>
-  <select id="getUserLevel" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  <select id="getUserLevel" parameterType="java.lang.Integer" resultType="java.util.Map">
     select
-     ifnull(level,0)
+     level,level_url as levelUrl
     from t_funtime_user_level_conf
     where #{amount} >= total_recharge_amount
      order by level desc

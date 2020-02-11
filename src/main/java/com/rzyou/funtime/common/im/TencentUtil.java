@@ -371,6 +371,46 @@ public class TencentUtil {
         }
     }
 
+    /**
+     * 设置等级URL
+     * @param usersig
+     * @param userId
+     * @param levelUrl
+     * @return
+     */
+    public static boolean portraitSet(String usersig,String userId,String level,String levelUrl){
+        String url = getPortraitUrl(Constant.TENCENT_YUN_PORTRAIT_SET,usersig);
+
+        JSONObject paramMap = new JSONObject();
+
+        paramMap.put("From_Account",userId);
+
+        List<Map<String,Object>> profileItems = new ArrayList<>();
+        JSONObject profileItem = new JSONObject();
+        if (StringUtils.isNotBlank(levelUrl)) {
+            profileItem.put("Tag", "Tag_Profile_IM_SelfSignature");
+            profileItem.put("Value", levelUrl);
+            profileItems.add(profileItem);
+        }
+        if (StringUtils.isNotBlank(level)) {
+            profileItem.put("Tag", "Tag_Profile_IM_Level");
+            profileItem.put("Value", level);
+            profileItems.add(profileItem);
+        }
+        paramMap.put("ProfileItem",profileItems);
+
+        String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
+        JSONObject result = JSONObject.parseObject(postStr);
+        if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
+
+            log.info("腾讯设置用户资料接口:portrait_set 调用出错,ErrorCode：{},ErrorInfo:{},paramMap:{}",result.getString("ErrorCode")
+                    ,result.getString("ErrorInfo"),JSONObject.toJSONString(paramMap));
+            return false;
+        }else{
+            return true;
+        }
+    }
+
 
     public static String getOpenimUrl(String command,String usersig){
 
