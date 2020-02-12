@@ -3,7 +3,7 @@ package com.rzyou.funtime.common;
 
 public class Constant {
 
-    public final static String COS_URL_PREFIX = "http://funtime-1300805214.cos.ap-shanghai.myqcloud.com";
+    public final static String COS_URL_PREFIX = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com";
     public final static String AGREEMENT_PRIVACY = "/agreement/privacy_protocol.html";
     public final static String AGREEMENT_WITHDRAL = "/agreement/withdral_protocol.html";
     public final static String AGREEMENT_RECHARGE = "/agreement/recharge_protocol.html";

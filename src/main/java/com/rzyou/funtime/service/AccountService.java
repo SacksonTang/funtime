@@ -35,6 +35,13 @@ public interface AccountService {
     Map<String,String> paySuccess(Long orderId, String transaction_id, String total_fee);
 
     /**
+     * 订单回调
+     * @param orderId
+     * @param transaction_id
+     * @return
+     */
+    void payFail(Long orderId, String transaction_id);
+    /**
      * 充值记录列表
      * @param startPage
      * @param pageSize
@@ -261,4 +268,9 @@ public interface AccountService {
      * @param state
      */
     void updateRechargeRecordState(Long id,Integer state);
+
+    /**
+     * 订单查询定时任务
+     */
+    void orderQueryTask();
 }

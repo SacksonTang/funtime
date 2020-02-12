@@ -46,4 +46,8 @@ public class FuntimeChatroom implements Serializable {
     private Integer sex;
 
     private Long showId;
+
+    private Integer level;
+
+    private String levelUrl;
 }

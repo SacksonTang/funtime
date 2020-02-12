@@ -87,6 +87,35 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    public void orderQueryTask(){
+        List<FuntimeUserAccountRechargeRecord> records = userAccountRechargeRecordMapper.getRechargeRecordByTask();
+        if (records!=null&&!records.isEmpty()){
+            Map<String, String> resultMap;
+            for (FuntimeUserAccountRechargeRecord record : records){
+                if (record.getPollTimes()>10){
+                    closeOrder(record.getId(),record.getOrderNo());
+                    continue;
+                }
+                String out_trade_no = record.getOrderNo();
+                resultMap = MyWxPay.orderQuery(null, out_trade_no);
+                if (resultMap!=null&&"SUCCESS".equals(resultMap.get("return_code"))
+                           &&"SUCCESS".equals(resultMap.get("result_code"))){
+                    String trade_state = resultMap.get("trade_state");
+                    if ("SUCCESS".equals(trade_state)){
+                        rechargeSuccess(record.getId(),resultMap.get("transaction_id"),resultMap.get("total_fee"));
+                    }else{
+                        updatePollTimes(record.getId(),1);
+                    }
+                }
+            }
+        }
+    }
+    @Transactional
+    public void closeOrder(Long orderId,String orderNo){
+        MyWxPay.closeOrder(orderNo);
+        updateState(orderId,PayState.INVALID.getValue(),null);
+    }
+
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Map<String,String> createRecharge(FuntimeUserAccountRechargeRecord record, String ip){
@@ -137,10 +166,7 @@ public class AccountServiceImpl implements AccountService {
 
     public Map<String, String> unifiedOrder(String ip,String imei, String orderId,String totalFee,String orderNo) {
 
-
         Map<String, String> resultMap = MyWxPay.unifiedOrder("1", ip, orderNo, imei, notifyUrl, orderId);
-
-
 
         return resultMap;
     }
@@ -153,42 +179,54 @@ public class AccountServiceImpl implements AccountService {
         Map<String,String> result = new HashMap<>();
 
         try {
-            boolean flag = rechargeSuccess(orderId,transaction_id,total_fee);
-            if (flag){
-                result.put("return_code", "SUCCESS");
-                result.put("return_msg", "OK");
-            }else{
-                result.put("return_code", "FAIL");
-                result.put("return_msg", ErrorMsgEnum.ORDER_NOT_EXISTS.getDesc());
-            }
+            rechargeSuccess(orderId,transaction_id,total_fee);
+
         }catch (Exception e){
             result.put("return_code", "FAIL");
             result.put("return_msg", ErrorMsgEnum.ORDER_NOT_EXISTS.getDesc());
         }
-
+        result.put("return_code", "SUCCESS");
+        result.put("return_msg", "OK");
         return result;
 
     }
-
-    public boolean rechargeSuccess(Long recordId, String transaction_id, String total_fee){
-        FuntimeUserAccountRechargeRecord record = userAccountRechargeRecordMapper.selectByPrimaryKey(recordId);
+    @Override
+    @Transactional
+    public void payFail(Long orderId, String transaction_id){
+        FuntimeUserAccountRechargeRecord record = userAccountRechargeRecordMapper.selectByPrimaryKey(orderId);
         if(record==null){
-            return false;
+            return;
         }
         if (PayState.PAIED.getValue().equals(record.getState())){
-            return true;
-        }else if (PayState.START.getValue().equals(record.getState())||PayState.FAIL.getValue().equals(record.getState())) {
+            return;
+        }else if (PayState.START.getValue().equals(record.getState())||PayState.PAYING.getValue().equals(record.getState())) {
+            //状态变更
+            updateState(orderId, PayState.FAIL.getValue(),transaction_id);
+        }else{
+            return;
+        }
+    }
+
+    public void rechargeSuccess(Long recordId, String transaction_id, String total_fee){
+        FuntimeUserAccountRechargeRecord record = userAccountRechargeRecordMapper.selectByPrimaryKey(recordId);
+        if(record==null){
+            return;
+        }
+        if (PayState.PAIED.getValue().equals(record.getState())){
+            return;
+        }else if (PayState.START.getValue().equals(record.getState())||PayState.FAIL.getValue().equals(record.getState())
+                ||PayState.PAYING.getValue().equals(record.getState())) {
 
             FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(record.getUserId());
             if (userAccount==null){
-                return false;
+                return;
             }
 
             //上线打开
             /*
             if (!total_fee.equals(record.getRmb().multiply(new BigDecimal(100)).toString())){
                 log.info("支付回调中金额与系统订单金额不一致,微信订单金额:{},系统订单金额:{}",total_fee,record.getRmb().multiply(new BigDecimal(100)).toString());
-                return false;
+                return;
             }*/
 
             //状态变更
@@ -201,7 +239,7 @@ public class AccountServiceImpl implements AccountService {
             Map<String,Object> userLevelMap = userAccountRechargeRecordMapper.getUserLevel(total.intValue());
 
             if (userLevelMap==null){
-                return false;
+                return;
             }
             Integer userLevel = userLevelMap.get("level")==null?0:Integer.parseInt(userLevelMap.get("level").toString());
             String levelUrl = userLevelMap.get("levelUrl")==null?"":userLevelMap.get("levelUrl").toString();
@@ -232,10 +270,10 @@ public class AccountServiceImpl implements AccountService {
                         , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
             }
 
-            return true;
+            return;
         }else{
             log.info("订单号: {} 的订单已失效,请重新下单",record.getOrderNo());
-            return false;
+            return;
         }
     }
 
@@ -1383,6 +1421,16 @@ public class AccountServiceImpl implements AccountService {
         record.setState(state);
         record.setRechargeCardId(transaction_id);
         record.setCompleteTime(new Date());
+        int k = userAccountRechargeRecordMapper.updateByPrimaryKeySelective(record);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    public void updatePollTimes(Long id, Integer pollTimes){
+        FuntimeUserAccountRechargeRecord record = new FuntimeUserAccountRechargeRecord();
+        record.setId(id);
+        record.setPollTimes(pollTimes);
         int k = userAccountRechargeRecordMapper.updateByPrimaryKeySelective(record);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());

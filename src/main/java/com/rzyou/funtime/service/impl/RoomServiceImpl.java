@@ -1029,8 +1029,8 @@ public class RoomServiceImpl implements RoomService {
         Long roomId = checkUserIsInRoom(userId);
         if (roomId!=null){
             roomExit(userId,roomId);
-            userService.updateOnlineState(userId,2);
         }
+        userService.updateOnlineState(userId,2);
     }
 
 

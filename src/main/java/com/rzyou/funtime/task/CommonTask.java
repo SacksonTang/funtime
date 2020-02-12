@@ -46,6 +46,18 @@ public class CommonTask {
     }
 
     /**
+     * 订单查询
+     */
+    @Scheduled(fixedRate = 1000*30)
+    public void orderQueryTask(){
+        try {
+            accountService.orderQueryTask();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 红包失效
      */
     @Scheduled(fixedRate = 1000*60)

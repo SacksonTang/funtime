@@ -19,14 +19,23 @@
     <result column="version" jdbcType="BIGINT" property="version" />
     <result column="complete_time" jdbcType="TIMESTAMP" property="completeTime" />
     <result column="tagName"  property="tagName" />
-
+    <result column="poll_times"  property="pollTimes" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, amount, rmb, recharge_card_id, recharge_channel_id, recharge_conf_id,
     horn_num, os, phone_type, imei, state, create_time, version, complete_time,order_no
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+
+  <select id="getRechargeRecordByTask"  resultMap="BaseResultMap">
     select 
+    d.id,d.recharge_card_id,d.order_no,d.poll_times
+    from t_funtime_user_account_recharge_record d
+       inner join t_funtime_tag t on d.recharge_channel_id = t.id
+    where t.tag_name = 'WX' and d.state in (1,2)
+     and d.create_time >= DATE_SUB(NOW(),INTERVAL 10 MINUTE)
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
     <include refid="Base_Column_List" />
     from t_funtime_user_account_recharge_record
     where id = #{id,jdbcType=BIGINT}
@@ -212,6 +221,9 @@
       <if test="state != null">
         state = #{state,jdbcType=INTEGER},
       </if>
+      <if test="pollTimes != null">
+        poll_times = poll_times+1,
+      </if>
 
       <if test="version != null">
         version = #{version,jdbcType=BIGINT},
@@ -222,5 +234,6 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
 
 </mapper>

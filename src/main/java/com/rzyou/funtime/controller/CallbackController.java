@@ -125,19 +125,24 @@ public class CallbackController {
             // ------------------------------
             // 此处处理订单状态，结合自己的订单数据完成订单状态的更新
             // ------------------------------
-            if (!"SUCCESS".equals(params.get("result_code"))||!"SUCCESS".equals(params.get("return_code"))){
+            if (!"SUCCESS".equals(params.get("return_code"))){
                 return_data.put("return_code", "FAIL");
                 return_data.put("return_msg", "支付失败");
                 return WXPayUtil.mapToXml(return_data);
             }
-
             try {
-
                 String attach = params.get("attach");
                 String total_fee = params.get("total_fee");
                 //微信支付订单号
                 String transaction_id = params.get("transaction_id");
                 Long orderId = Long.parseLong(attach);
+                if (!"SUCCESS".equals(params.get("result_code"))){
+
+                    accountService.payFail(orderId,transaction_id);
+                    return_data.put("return_code", "SUCCESS");
+                    return_data.put("return_msg", "SUCCESS");
+                    return WXPayUtil.mapToXml(return_data);
+                }
                 return_data = accountService.paySuccess(orderId,transaction_id,total_fee);
                 return WXPayUtil.mapToXml(return_data);
             }catch (BusinessException e1){

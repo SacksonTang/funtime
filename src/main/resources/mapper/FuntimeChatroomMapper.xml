@@ -21,6 +21,8 @@
     <result column="nickname"  property="nickname" />
     <result column="sex"  property="sex" />
     <result column="show_id"  property="showId" />
+    <result column="level"  property="level" />
+    <result column="level_url"  property="levelUrl" />
   </resultMap>
   <sql id="Base_Column_List">
     id, name, tags, exam_desc, is_block, is_lock, hot, online_num, state, create_time,
@@ -40,8 +42,12 @@
   </select>
   <select id="getRoomInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
-     m.* ,u.portrait_address,u.nickname,u.sex,u.show_id
-    from t_funtime_chatroom m inner join t_funtime_user u on m.user_id = u.id
+     m.* ,u.portrait_address,u.nickname,u.sex,u.show_id,l.level_url,l.level
+    from t_funtime_chatroom m inner join
+        (t_funtime_user u
+        inner join t_funtime_user_account t on u.id = t.user_id
+        inner join t_funtime_user_level_conf l on t.level = l.level)
+    on m.user_id = u.id
     where m.id = #{id,jdbcType=BIGINT}
   </select>
   <select id="getRoomByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">

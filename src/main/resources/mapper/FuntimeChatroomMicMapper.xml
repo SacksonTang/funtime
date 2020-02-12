@@ -41,7 +41,7 @@
   </select>
   <select id="checkUserIsInMic"  resultType="java.lang.Long">
     select
-    roomId
+    room_id
     from t_funtime_chatroom_mic
     where  mic_user_id = #{userId}  limit 1
   </select>

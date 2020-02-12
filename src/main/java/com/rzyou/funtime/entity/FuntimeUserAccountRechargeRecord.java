@@ -42,4 +42,6 @@ public class FuntimeUserAccountRechargeRecord implements Serializable {
     private String orderNo;
 
     private String tagName;
+
+    private Integer pollTimes;
 }
