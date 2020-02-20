@@ -23,7 +23,7 @@ public class WeixinLoginUtils {
         String url = Constant.WX_GET_TOKEN_URL+"?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code";
 
         url = url.replaceAll("APPID",Constant.WX_APPID)
-                .replaceAll("SECRET",Constant.WX_APPSECRET)
+                .replaceAll("SECRET",Constant.WX_OPEN_APPSECRET)
                 .replaceAll("CODE",code);
 
         //调用httpclient处理请求得到返回json数据

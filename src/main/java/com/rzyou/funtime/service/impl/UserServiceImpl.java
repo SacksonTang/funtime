@@ -188,19 +188,20 @@ public class UserServiceImpl implements UserService {
 
         if (openType!=null) {
 
-            saveUserThird(user.getId(), openType, openid, unionid, accessToken);
+            saveUserThird(user.getId(), openType, openid, unionid, accessToken,user.getNickname());
         }
 
         return true;
     }
 
-    private void saveUserThird(Long userId, String openType, String openid, String unionid, String accessToken){
+    private void saveUserThird(Long userId, String openType, String openid, String unionid, String accessToken,String nickname){
         FuntimeUserThird userThird = new FuntimeUserThird();
         userThird.setUserId(userId);
         userThird.setThirdType(openType);
         userThird.setOpenid(openid);
         userThird.setUnionid(unionid);
         userThird.setToken(accessToken);
+        userThird.setNickname(nickname);
         userThirdMapper.insertSelective(userThird);
 
     }
@@ -327,6 +328,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Integer> queryTagsByUserId(Long userId) {
         return tagMapper.queryTagsByUserId(userId);
+    }
+
+    @Override
+    public Integer queryTagsByTypeAndName(String tagType, String tagName) {
+        return tagMapper.queryTagsByTypeAndName(tagType,tagName);
     }
 
     @Override
@@ -1071,6 +1077,11 @@ public class UserServiceImpl implements UserService {
         }
 
         smsService.updateSmsInfoById(smsId,1);
+    }
+
+    @Override
+    public FuntimeUser getUserInfoByShowId(String showId) {
+        return userMapper.getUserInfoByShowId(Long.parseLong(showId));
     }
 
 

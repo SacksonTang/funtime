@@ -63,6 +63,12 @@
     from t_funtime_user
     where id = #{id,jdbcType=BIGINT} and flag = 1
   </select>
+  <select id="getUserInfoByShowId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user
+    where show_id = #{showId} and flag = 1
+  </select>
 
   <select id="checkUserExists" parameterType="java.lang.Long" resultType="java.lang.Long">
     select
@@ -639,7 +645,6 @@
   <select id="getOfflineUser" resultType="java.lang.Long">
     select t.user_id from t_funtime_im_heart t
     where t.user_state = 2 and DATE_SUB(NOW(),INTERVAL 30 MINUTE)>t.operation_time
-    and EXISTS (select m.user_id from t_funtime_chatroom_user m where m.user_id = t.user_id)
   </select>
 
 </mapper>

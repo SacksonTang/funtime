@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -45,8 +44,10 @@ public class RechargeController {
                 return result;
             }
             String ip = HttpHelper.getClientIpAddr(request);
-
-            result.setData(accountService.createRecharge(record,ip));
+            if (record.getPayType()==null) {
+                record.setPayType(1);
+            }
+            result.setData(accountService.createRecharge(record,ip, "APP"));
 
             return result;
         } catch (BusinessException be) {
@@ -104,8 +105,14 @@ public class RechargeController {
     public ResultMsg<Object> getRechargeConf(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-
-            Map<String, Object> conf = JsonUtil.getMap("conf", accountService.getRechargeConf());
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer platform = paramJson.getInteger("platform");
+            if(platform==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String, Object> conf = JsonUtil.getMap("conf", accountService.getRechargeConf(platform));
             conf.put("rechargeAgreementUrl", Constant.COS_URL_PREFIX+Constant.AGREEMENT_RECHARGE);
 
             result.setData(conf);

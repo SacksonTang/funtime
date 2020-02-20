@@ -39,6 +39,12 @@
     from t_funtime_tag
     where tag_type = #{tagType} order by sort asc
   </select>
+  <select id="queryTagsByTypeAndName"  resultType="java.lang.Integer">
+    select
+    id
+    from t_funtime_tag
+    where tag_type = #{tagType} and tag_name = #{tagName}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from t_funtime_tag
     where id = #{id,jdbcType=INTEGER}

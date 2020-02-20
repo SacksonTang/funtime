@@ -123,8 +123,9 @@ public class JwtHelper {
     }
 
     public static void main(String[] args) {
-       String jsonWebKey = generateJWT("123","11");
-       System.out.println(jsonWebKey);
+       String jsonWebKey = generateJWT("123","111");
+        String jsonWebKey1 = generateJWT("123","11");
+       System.out.println(jsonWebKey.equals(jsonWebKey1));
        Claims claims =  parseJWT(jsonWebKey);
        if(claims!=null) {
            System.out.println(claims.getNotBefore() + "---" + claims.getExpiration());

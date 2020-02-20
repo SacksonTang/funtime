@@ -19,12 +19,13 @@ public enum NoticeType {
     ,ROOM_MIC_HOLDING(Constant.ROOM_MIC_HOLDING,"抱麦","")
     ,ROOM_KICKED(Constant.ROOM_KICKED,"踢人","")
     ,ROOM_MANAGE(Constant.ROOM_MANAGE,"设为主持","")
-    ,ROOM_MANAGE_CANCEL(Constant.ROOM_MANAGE_CANCEL,"设为主持","")
+    ,ROOM_MANAGE_CANCEL(Constant.ROOM_MANAGE_CANCEL,"取消主持","")
     ,ROOM_GIFT_SEND_ROOM(Constant.ROOM_GIFT_SEND_ROOM,"全房送礼","")
     ,ROOM_USER_COUNT(Constant.ROOM_USER_COUNT,"房间人数","")
+    ,ROOM_GIFT_SEND_ROOM_ALL(Constant.ROOM_GIFT_SEND_ROOM_ALL,"全房送超级大礼","")
     ,ROOM_REDPACKET_EXIST(Constant.ROOM_REDPACKET_EXIST,"是否有待抢红包","")
     ,ROOM_MIC_USER_LEVEL_UPDATE(Constant.ROOM_MIC_USER_LEVEL_UPDATE,"麦上用户等级变更","")
-    ,ROOM_GIFT_SEND_ROOM_ALL(Constant.ROOM_GIFT_SEND_ROOM_ALL,"全房送超级大礼","")
+
     ,SERVICE_MSG(Constant.SERVICE_MSG,"全服大喇叭","")
     ;
     private int value;

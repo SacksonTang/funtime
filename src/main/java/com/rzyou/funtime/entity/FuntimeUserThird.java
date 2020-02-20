@@ -20,4 +20,6 @@ public class FuntimeUserThird implements Serializable {
     private Date createTime;
 
     private String token;
+
+    private String nickname;
 }

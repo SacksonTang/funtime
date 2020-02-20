@@ -93,11 +93,11 @@ public class AccountServiceImpl implements AccountService {
             Map<String, String> resultMap;
             for (FuntimeUserAccountRechargeRecord record : records){
                 if (record.getPollTimes()>10){
-                    closeOrder(record.getId(),record.getOrderNo());
+                    closeOrder(record.getId(),record.getOrderNo(),record.getPayType());
                     continue;
                 }
                 String out_trade_no = record.getOrderNo();
-                resultMap = MyWxPay.orderQuery(null, out_trade_no);
+                resultMap = MyWxPay.orderQuery(null, out_trade_no,record.getPayType());
                 if (resultMap!=null&&"SUCCESS".equals(resultMap.get("return_code"))
                            &&"SUCCESS".equals(resultMap.get("result_code"))){
                     String trade_state = resultMap.get("trade_state");
@@ -111,14 +111,14 @@ public class AccountServiceImpl implements AccountService {
         }
     }
     @Transactional
-    public void closeOrder(Long orderId,String orderNo){
-        MyWxPay.closeOrder(orderNo);
-        updateState(orderId,PayState.INVALID.getValue(),null);
+    public void closeOrder(Long orderId, String orderNo, Integer payType){
+        MyWxPay.closeOrder(orderNo,payType);
+        updateState(orderId,PayState.INVALID.getValue(),null, null);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Map<String,String> createRecharge(FuntimeUserAccountRechargeRecord record, String ip){
+    public Map<String,String> createRecharge(FuntimeUserAccountRechargeRecord record, String ip, String trade_type){
         FuntimeRechargeConf rechargeConf = rechargeConfMapper.selectByPrimaryKey(record.getRechargeConfId());
         if (rechargeConf==null){
             throw new BusinessException(ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getValue(),ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getDesc());
@@ -127,12 +127,6 @@ public class AccountServiceImpl implements AccountService {
         BigDecimal maxRecharge = max_recharge == null?new BigDecimal(100000):new BigDecimal(max_recharge);
         if (rechargeConf.getRechargeRmb().subtract(maxRecharge).doubleValue()>0){
             throw new BusinessException(ErrorMsgEnum.RECHARGE_NUM_OUT.getValue(),ErrorMsgEnum.RECHARGE_NUM_OUT.getDesc());
-        }
-        //首充送三个
-        if (isFirstRecharge(record.getUserId())){
-            String first_recharge_horn = parameterService.getParameterValueByKey("first_recharge_horn");
-            rechargeConf.setHornNum(rechargeConf.getHornNum()==null?0:rechargeConf.getHornNum()
-                    +Integer.parseInt(first_recharge_horn==null?"3":first_recharge_horn));
         }
 
         List<Map<String, Object>> tags = userService.queryTagsByType("recharge_channel", null);
@@ -158,17 +152,27 @@ public class AccountServiceImpl implements AccountService {
         Long id = saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
 
         Map<String, String> orderMap = unifiedOrder(ip, "WEB", id.toString()
-                , rechargeConf.getRechargeRmb().multiply(new BigDecimal(100)).toString(), orderNo);
+                , rechargeConf.getRechargeRmb().multiply(new BigDecimal(100)).toString(), orderNo,trade_type,record.getOpenid(),record.getPayType());
 
         return orderMap;
 
     }
 
-    public Map<String, String> unifiedOrder(String ip,String imei, String orderId,String totalFee,String orderNo) {
+    public Map<String, String> unifiedOrder(String ip, String imei, String orderId, String totalFee, String orderNo, String trade_type, String openid, Integer payType) {
 
-        Map<String, String> resultMap = MyWxPay.unifiedOrder("1", ip, orderNo, imei, notifyUrl, orderId);
+        /*
+        上线需去掉
+         */
+        totalFee = String.valueOf(new BigDecimal(totalFee).divide(new BigDecimal(100)).intValue());
+        if (TradeType.APP.getValue().equals(trade_type)) {
+            return MyWxPay.unifiedOrder(totalFee, ip, orderNo, imei, notifyUrl, orderId, trade_type,payType);
+        }
+        else if (TradeType.JSAPI.getValue().equals(trade_type)) {
+            return MyWxPay.unifiedOrder(totalFee, ip, orderNo, imei, notifyUrl, orderId, trade_type,openid,payType);
+        }else{
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        }
 
-        return resultMap;
     }
 
 
@@ -201,7 +205,7 @@ public class AccountServiceImpl implements AccountService {
             return;
         }else if (PayState.START.getValue().equals(record.getState())||PayState.PAYING.getValue().equals(record.getState())) {
             //状态变更
-            updateState(orderId, PayState.FAIL.getValue(),transaction_id);
+            updateState(orderId, PayState.FAIL.getValue(),transaction_id, null);
         }else{
             return;
         }
@@ -229,8 +233,16 @@ public class AccountServiceImpl implements AccountService {
                 return;
             }*/
 
+            Integer hornNum = null;
+
+            //首充送三个
+            if (isFirstRecharge(record.getUserId())){
+                String first_recharge_horn = parameterService.getParameterValueByKey("first_recharge_horn");
+                hornNum = record.getHornNum()==null?0:record.getHornNum()
+                        + Integer.parseInt(first_recharge_horn==null?"3":first_recharge_horn);
+            }
             //状态变更
-            updateState(recordId, PayState.PAIED.getValue(),transaction_id);
+            updateState(recordId, PayState.PAIED.getValue(),transaction_id,hornNum);
 
             //用户总充值数
             BigDecimal total = userAccountRechargeRecordMapper.getRechargeNumByUserId(record.getUserId());
@@ -882,10 +894,14 @@ public class AccountServiceImpl implements AccountService {
 
         List<Long> toUserIdArray = roomService.getRoomUserByRoomId(roomId);
         if (toUserIdArray==null||toUserIdArray.isEmpty()){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+            throw new BusinessException(ErrorMsgEnum.ROOM_USER_IS_EMPTY.getValue(),ErrorMsgEnum.ROOM_USER_IS_EMPTY.getDesc());
         }
 
         toUserIdArray.remove(userId);
+
+        if (toUserIdArray.isEmpty()){
+            throw new BusinessException(ErrorMsgEnum.ROOM_USER_IS_EMPTY.getValue(),ErrorMsgEnum.ROOM_USER_IS_EMPTY.getDesc());
+        }
 
         int userNum = toUserIdArray.size();
 
@@ -983,8 +999,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<FuntimeRechargeConf> getRechargeConf() {
-        return rechargeConfMapper.getRechargeConf();
+    public List<FuntimeRechargeConf> getRechargeConf(Integer platform) {
+        return rechargeConfMapper.getRechargeConf(platform);
     }
 
     @Override
@@ -1415,10 +1431,11 @@ public class AccountServiceImpl implements AccountService {
         return rechargeRecord.getId();
     }
 
-    public void updateState(Long id, Integer state, String transaction_id){
+    public void updateState(Long id, Integer state, String transaction_id, Integer hornNum){
         FuntimeUserAccountRechargeRecord record = new FuntimeUserAccountRechargeRecord();
         record.setId(id);
         record.setState(state);
+        record.setHornNum(hornNum);
         record.setRechargeCardId(transaction_id);
         record.setCompleteTime(new Date());
         int k = userAccountRechargeRecordMapper.updateByPrimaryKeySelective(record);

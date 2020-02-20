@@ -2,11 +2,8 @@ package com.rzyou.funtime.common.payment.wxpay;
 
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
-import com.rzyou.funtime.common.payment.wxpay.sdk.MyWxPayConfig;
-import com.rzyou.funtime.common.payment.wxpay.sdk.WXPay;
-import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
+import com.rzyou.funtime.common.payment.wxpay.sdk.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -15,15 +12,14 @@ import java.util.Map;
 @Component
 public class MyWxPay {
 
-
     /**
-     * 统一下单
+     * 统一下单（小程序支付）
      *
      * @return
      */
-    public static Map<String, String> unifiedOrder(String totalFee,String ip,String orderNo,String imei,String notifyUrl,String orderId) {
+    public static Map<String, String> unifiedOrder(String totalFee, String ip, String orderNo, String imei, String notifyUrl, String orderId, String trade_type,String openid,Integer payType) {
         try {
-            MyWxPayConfig config = new MyWxPayConfig();
+            MyWxPayConfig config = new MyWxPayConfig(payType);
             WXPay wxpay = new WXPay(config);
 
             Map<String, String> data = new HashMap<>();
@@ -34,7 +30,8 @@ public class MyWxPay {
             data.put("total_fee", totalFee);
             data.put("spbill_create_ip", ip);
             data.put("notify_url", notifyUrl);
-            data.put("trade_type", "APP");  //
+            data.put("trade_type", trade_type);  //
+            data.put("openid",openid);
             data.put("attach", orderId);
             Map<String, String> resp = wxpay.unifiedOrder(data);
             if(!"SUCCESS".equals(resp.get("return_code"))||!"SUCCESS".equals(resp.get("result_code"))){
@@ -58,15 +55,60 @@ public class MyWxPay {
         }
     }
 
+
+    /**
+     * 统一下单（APP支付）
+     *
+     * @return
+     */
+    public static Map<String, String> unifiedOrder(String totalFee, String ip, String orderNo, String imei, String notifyUrl, String orderId, String trade_type,Integer payType) {
+        try {
+            MyWxPayConfig config = new MyWxPayConfig(payType);
+            WXPay wxpay = new WXPay(config);
+
+            Map<String, String> data = new HashMap<>();
+            data.put("body", "FUNTIME-RECHARGE");
+            data.put("out_trade_no", orderNo);
+            data.put("device_info", imei);
+            data.put("fee_type", "CNY");
+            data.put("total_fee", totalFee);
+            data.put("spbill_create_ip", ip);
+            data.put("notify_url", notifyUrl);
+            data.put("trade_type", trade_type);  //
+            data.put("attach", orderId);
+            Map<String, String> resp = wxpay.unifiedOrder(data);
+            if(!"SUCCESS".equals(resp.get("return_code"))||!"SUCCESS".equals(resp.get("result_code"))){
+                log.error("预支付接口:unifiedOrder失败:{}",resp);
+                throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
+            }
+            if (resp.get("prepay_id")!=null) {
+                Map<String, String> signMap = new HashMap<>();
+
+                signMap.put("prepayid", resp.get("prepay_id"));
+
+                Map<String, String> signData = wxpay.fillRequestDataReturn(signMap);
+                log.info("unifiedOrder result : {}", signData);
+                return signData;
+            }else{
+                throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
+            }
+        } catch (Exception e) {
+            throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
+
+        }
+    }
+
+
+
     /**
      * 支付订单查询
      * @param transaction_id
      * @param out_trade_no
      * @return
      */
-    public static Map<String, String> orderQuery(String transaction_id,String out_trade_no){
+    public static Map<String, String> orderQuery(String transaction_id,String out_trade_no,Integer payType){
         try {
-            MyWxPayConfig config = new MyWxPayConfig();
+            MyWxPayConfig config = new MyWxPayConfig(payType);
             WXPay wxpay = new WXPay(config);
 
             Map<String, String> data = new HashMap<>();
@@ -90,9 +132,9 @@ public class MyWxPay {
      * @param out_trade_no
      * @return
      */
-    public static Map<String, String> closeOrder(String out_trade_no){
+    public static Map<String, String> closeOrder(String out_trade_no,Integer payType){
         try {
-            MyWxPayConfig config = new MyWxPayConfig();
+            MyWxPayConfig config = new MyWxPayConfig(payType);
             WXPay wxpay = new WXPay(config);
 
             Map<String, String> data = new HashMap<>();
@@ -111,7 +153,7 @@ public class MyWxPay {
 
     public static boolean isPayResultNotifySignatureValid(Map<String,String> map){
         try {
-            MyWxPayConfig config = new MyWxPayConfig();
+            MyWxPayConfig config = new MyWxPayConfig(1);
             WXPay wxpay = new WXPay(config);
 
             return wxpay.isPayResultNotifySignatureValid(map);

@@ -5,6 +5,8 @@ import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
+import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
+import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
@@ -29,6 +31,8 @@ public class LoginController {
     UserService userService;
     @Autowired
     SmsService smsService;
+    @Autowired
+    AccountService accountService;
     @Autowired
     LoginStrategy telLogin;
     @Autowired
@@ -129,7 +133,7 @@ public class LoginController {
                 userInfo.setPrivacyAgreementUrl(Constant.COS_URL_PREFIX+Constant.AGREEMENT_PRIVACY);
                 userInfo.setUserAgreementUrl(Constant.COS_URL_PREFIX+Constant.AGREEMENT_USER);
             }
-            userInfo.setImSdkaAppId(Constant.TENCENT_YUN_SDK_APPID);
+            userInfo.setImSdkAppId(Constant.TENCENT_YUN_SDK_APPID);
             result.setData(JsonUtil.getMap("user",userInfo));
         } catch (BusinessException be) {
             be.printStackTrace();
@@ -192,6 +196,104 @@ public class LoginController {
         }
         return result;
 
+    }
+
+    /**
+     * 根据showId获取用户信息
+     * @return
+     */
+    @GetMapping("getUserInfoByShowId")
+    public ResultMsg<Object> getUserInfoByShowId(String showId){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            if (StringUtils.isBlank(showId)) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            FuntimeUser user = userService.getUserInfoByShowId(showId);
+            if (user==null){
+                result.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());
+                result.setMsg(ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+                return result;
+            }
+            result.setData(JsonUtil.getMap("user",user));
+        }catch (BusinessException be){
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return result;
+
+    }
+
+    /**
+     * 获取充值配置
+     * @param request
+     * @return
+     */
+    @GetMapping("getRechargeConf")
+    public ResultMsg<Object> getRechargeConf(HttpServletRequest request) {
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+
+            Map<String, Object> conf = JsonUtil.getMap("conf", accountService.getRechargeConf(1));
+            conf.put("rechargeAgreementUrl", Constant.COS_URL_PREFIX + Constant.AGREEMENT_RECHARGE);
+
+            result.setData(conf);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 充值生成待支付记录
+     */
+    @PostMapping("startRecharge")
+    public ResultMsg<Object> startRecharge(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            FuntimeUserAccountRechargeRecord record = JSONObject.toJavaObject(paramJson, FuntimeUserAccountRechargeRecord.class);
+            Integer id = userService.queryTagsByTypeAndName("recharge_channel","WX");
+
+            if (record==null||record.getUserId()==null||id == null||record.getPayType()==null) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            String ip = HttpHelper.getClientIpAddr(request);
+
+            record.setRechargeChannelId(id);
+            result.setData(accountService.createRecharge(record,ip,"JSAPI"));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
     }
 
 

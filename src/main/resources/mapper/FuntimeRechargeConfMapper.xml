@@ -10,9 +10,10 @@
     <result column="tag_name" jdbcType="VARCHAR" property="tagName" />
     <result column="horn_num" jdbcType="INTEGER" property="hornNum" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="platform" jdbcType="INTEGER" property="platform" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, recharge_rmb, recharge_num, convertible_ratio, tag_colour, tag_name, horn_num, create_time
+    id, recharge_rmb, recharge_num, convertible_ratio, tag_colour, tag_name, horn_num, create_time,platform
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -24,6 +25,7 @@
     select
     id, recharge_rmb, recharge_num, tag_name, horn_num,tag_colour
     from t_funtime_recharge_conf
+    where platform = #{platform}
     order by id
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">

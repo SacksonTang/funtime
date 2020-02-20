@@ -20,15 +20,16 @@
     <result column="complete_time" jdbcType="TIMESTAMP" property="completeTime" />
     <result column="tagName"  property="tagName" />
     <result column="poll_times"  property="pollTimes" />
+    <result column="pay_type" property="payType" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, amount, rmb, recharge_card_id, recharge_channel_id, recharge_conf_id,
-    horn_num, os, phone_type, imei, state, create_time, version, complete_time,order_no
+    horn_num, os, phone_type, imei, state, create_time, version, complete_time,order_no,pay_type
   </sql>
 
   <select id="getRechargeRecordByTask"  resultMap="BaseResultMap">
     select 
-    d.id,d.recharge_card_id,d.order_no,d.poll_times
+    d.id,d.recharge_card_id,d.order_no,d.poll_times,d.pay_type
     from t_funtime_user_account_recharge_record d
        inner join t_funtime_tag t on d.recharge_channel_id = t.id
     where t.tag_name = 'WX' and d.state in (1,2)
@@ -44,7 +45,7 @@
     select
      count(id)
     from t_funtime_user_account_recharge_record
-    where user_id = #{userId}
+    where user_id = #{userId} and state = 3
   </select>
   <select id="getRechargeNumByUserId" parameterType="java.lang.Long" resultType="java.math.BigDecimal">
     select
@@ -91,6 +92,9 @@
 
       <if test="userId != null">
         user_id,
+      </if>
+      <if test="payType != null">
+        pay_type,
       </if>
       <if test="orderNo != null">
         order_no,
@@ -140,7 +144,9 @@
       <if test="userId != null">
         #{userId,jdbcType=BIGINT},
       </if>
-
+      <if test="payType != null">
+        #{payType},
+      </if>
       <if test="orderNo != null">
         #{orderNo},
       </if>

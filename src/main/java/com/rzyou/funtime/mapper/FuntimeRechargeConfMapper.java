@@ -15,7 +15,7 @@ public interface FuntimeRechargeConfMapper {
 
     FuntimeRechargeConf selectByPrimaryKey(Integer id);
 
-    List<FuntimeRechargeConf> getRechargeConf();
+    List<FuntimeRechargeConf> getRechargeConf(Integer platform);
 
     int updateByPrimaryKeySelective(FuntimeRechargeConf record);
 

@@ -22,9 +22,19 @@ public class Constant {
     public final static String RONGYUN_APPKEY="mgb7ka1nmdxbg";
     public final static String RONGYUN_APPSECRET="fXnloGxdUB8aN";
 
-
+    public final static String WX_MCHID = "1574424871";
+    //APP的ID
     public final static String WX_APPID = "wx9c163a6bccdb1cd1";
-    public final static String WX_APPSECRET = "1b9181d333b84c6c799851ae18049bb2";
+    //微信登录(开放平台)
+    public final static String WX_OPEN_APPSECRET = "1b9181d333b84c6c799851ae18049bb2";
+    //微信支付(商户平台)
+    public final static String WX_PAY_APPSECRET = "VaEoQrkdDP2uYKPAMjvCDY0Kxax89jgW";
+    //小程序ID
+    public final static String WX_SMALL_PROGRAM_APPID = "wx0574b7eea24837c4";
+    //小程序key
+    public final static String WX_SMALL_PROGRAM_APPSECRET = "30e9eaa1cc1484350569808fd4c34d18";
+    //公众号
+    public final static String WX_PUBLIC_APPID = "wx23202a8a9d72e3ef";
 
 
     public final static String WX_GET_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token"; //获取微信TOKEN
@@ -58,8 +68,8 @@ public class Constant {
 
 
 
-    public final static long TENCENT_YUN_SDK_APPID = 1400307596;
-    public final static String TENCENT_YUN_SDK_APPSECRET = "fecc0728f01c41ab9ea2e294e38551061dc8d3b38680614ee78652f0f256bfaf";
+    public final static long TENCENT_YUN_SDK_APPID = 1400317941;
+    public final static String TENCENT_YUN_SDK_APPSECRET = "f252f3e1faa559ef0f87505ade7c63ea6a04ea14fd8771869dd1d6f6a04aeb72";
     public final static String TENCENT_YUN_SDK_VER = "v4";
     public final static String TENCENT_YUN_SDK_HOST = "console.tim.qq.com";
     public final static String TENCENT_YUN_IDENTIFIER = "testapp";

@@ -13,7 +13,9 @@ public interface FuntimeChatroomMicMapper {
 
     int deleteByPrimaryKey(Long id);
 
-    int lowerWheat(@Param("id") Long id, @Param("micLocation") int micLocation);
+    int lowerWheat(Long id);
+
+    int lowerWheatWithRole(Long id);
 
     int upperWheat(@Param("id") Long id,@Param("userId") Long userId);
 

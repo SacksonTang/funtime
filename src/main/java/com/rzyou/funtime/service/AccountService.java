@@ -21,9 +21,10 @@ public interface AccountService {
      * 生成充值记录
      * @param record
      * @param ip
+     * @param trade_type
      * @return
      */
-    Map<String,String> createRecharge(FuntimeUserAccountRechargeRecord record, String ip);
+    Map<String,String> createRecharge(FuntimeUserAccountRechargeRecord record, String ip, String trade_type);
 
     /**
      * 订单回调
@@ -220,8 +221,9 @@ public interface AccountService {
     /**
      * 获取充值配置
      * @return
+     * @param platform
      */
-    List<FuntimeRechargeConf> getRechargeConf();
+    List<FuntimeRechargeConf> getRechargeConf(Integer platform);
 
     /**
      * 获取红包信息

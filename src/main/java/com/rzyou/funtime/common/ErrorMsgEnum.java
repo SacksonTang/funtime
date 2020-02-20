@@ -95,7 +95,8 @@ public enum ErrorMsgEnum {
     ROOM_MIC_IS_NOT_MANAGE("80022","不是主持"),
     ROOM_JOIN_TENCENT_ERROR("80023","同步腾讯添加用户失败"),
     ROOM_IS_CLOSE("80024","房间已停播"),
-    ROOM_MIC_IS_EXIST("80025","你已在麦上")
+    ROOM_MIC_IS_EXIST("80025","你已在麦上"),
+    ROOM_USER_IS_EMPTY("80026","房间没有其他人")
 
 
     ;

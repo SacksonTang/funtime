@@ -8,7 +8,6 @@ public abstract class WXPayConfig {
 
     /**
      * 获取 App ID
-     *
      * @return App ID
      */
     abstract String getAppID();

@@ -95,4 +95,6 @@ public interface FuntimeUserMapper {
      * @return
      */
     List<Map<String, Object>> getInvitationUserList(@Param("userId") Long userId, @Param("roomId") Long roomId);
+
+    FuntimeUser getUserInfoByShowId(Long showId);
 }

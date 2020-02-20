@@ -27,7 +27,7 @@ public class PayServiceImpl implements PayService {
             throw new BusinessException(ErrorMsgEnum.ORDER_NOT_EXISTS.getValue(),ErrorMsgEnum.ORDER_NOT_EXISTS.getDesc());
         }
 
-        Map<String, String> resultMap = MyWxPay.unifiedOrder(record.getRmb().toString(), ip, record.getOrderNo(), imei, notifyUrl, orderId);
+        Map<String, String> resultMap = MyWxPay.unifiedOrder(record.getRmb().toString(), ip, record.getOrderNo(), imei, notifyUrl, orderId, "",1);
         if("SUCCESS".equals(resultMap.get("return_code"))){
             accountService.updateRechargeRecordState(record.getId(), PayState.PAYING.getValue());
         }else{

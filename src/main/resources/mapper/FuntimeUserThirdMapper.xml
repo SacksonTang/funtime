@@ -8,10 +8,11 @@
     <result column="openid" jdbcType="VARCHAR" property="openid" />
     <result column="token" jdbcType="VARCHAR" property="token" />
     <result column="unionid" jdbcType="VARCHAR" property="unionid" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, user_id, third_type, openid, unionid, create_time,token
+    id, user_id, third_type, openid, unionid, create_time,token,nickname
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -48,7 +49,10 @@
         unionid,
       </if>
       <if test="token != null">
-        token,
+         token,
+      </if>
+      <if test="nickname != null">
+        nickname,
       </if>
 
     </trim>
@@ -68,6 +72,9 @@
       </if>
       <if test="token != null">
         #{token},
+      </if>
+      <if test="nickname != null">
+        #{nickname},
       </if>
     </trim>
   </insert>

@@ -11,6 +11,8 @@ public class FuntimeUserAccountRechargeRecord implements Serializable {
     private static final long serialVersionUID = 4544338349394994130L;
     private Long id;
 
+    private Integer payType;
+
     private Long userId;
 
     private BigDecimal amount;
@@ -44,4 +46,6 @@ public class FuntimeUserAccountRechargeRecord implements Serializable {
     private String tagName;
 
     private Integer pollTimes;
+
+    private String openid;
 }

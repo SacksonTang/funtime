@@ -53,6 +53,13 @@ public class RoomServiceImpl implements RoomService {
         if (user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        FuntimeChatroom chatroom = chatroomMapper.getRoomByUserId(userId);
+        Long roomId ;
+        if (chatroom!=null&&chatroom.getId()!=null){
+            roomId = chatroom.getId();
+            roomJoin(userId,chatroom.getId(),null, null);
+            return roomId;
+        }
         //用户所在的房间
         List<Long> roomIds = chatroomUserMapper.getRoomByUserId(userId);
         //用户已有房间
@@ -60,26 +67,12 @@ public class RoomServiceImpl implements RoomService {
             for (Long room : roomIds){
                 log.info("************进入房间前已在别的房间,现在先退出别的房间*******************");
                 //退房
-                roomExit(userId,room);
+                roomExit(userId, room);
             }
-
         }
-        FuntimeChatroom chatroom = chatroomMapper.getRoomByUserId(userId);
-        if (chatroom!= null){
-            if (chatroom.getState() == 2){
-                FuntimeChatroom chatroom1 = new FuntimeChatroom();
-                chatroom1.setState(1);
-                chatroom1.setId(chatroom.getId());
-                updateChatroom(chatroom1);
-
-            }
-            roomJoin(userId,chatroom.getId(),null, null);
-            return  chatroom.getId();
-        }
-
         userService.updateCreateRoomPlus(userId);
 
-        Long roomId = saveChatroom(userId,user.getNickname(),user.getSex());
+        roomId = saveChatroom(userId,user.getNickname(),user.getSex());
 
         saveMic(roomId,10,userId);
 
@@ -213,6 +206,12 @@ public class RoomServiceImpl implements RoomService {
             //直接上10号麦
             FuntimeChatroomMic chatroomMic = chatroomMicMapper.getMicLocationUser(roomId,10);
             chatroomMicMapper.upperWheat(chatroomMic.getId(),userId);
+            if (chatroom.getState() == 2){
+                FuntimeChatroom chatroom1 = new FuntimeChatroom();
+                chatroom1.setState(1);
+                chatroom1.setId(chatroom.getId());
+                updateChatroom(chatroom1);
+            }
         }else{
             //房间已停播
             if (chatroom.getState() == 2){
@@ -565,7 +564,11 @@ public class RoomServiceImpl implements RoomService {
 
         Long micLocationId = chatroomMicMapper.getMicLocationId(roomId, micUserId);
         if (micLocationId!=null){
-            chatroomMicMapper.lowerWheat(micLocationId, micLocation);
+            if (micLocation == 10){
+                chatroomMicMapper.lowerWheat(micLocationId);
+            }else {
+                chatroomMicMapper.lowerWheatWithRole(micLocationId);
+            }
         }
 
         int k = chatroomMicMapper.upperWheat(chatroomMic.getId(),micUserId);
@@ -1054,8 +1057,12 @@ public class RoomServiceImpl implements RoomService {
         if (micLocationUser.getMicUserId()==null||!micLocationUser.getMicUserId().equals(userId)){
             throw new BusinessException(ErrorMsgEnum.ROOM_MIC_USER_NOT_EXIST.getValue(),ErrorMsgEnum.ROOM_MIC_USER_NOT_EXIST.getDesc());
         }
-
-        int k = chatroomMicMapper.lowerWheat(micLocationUser.getId(),micLocation);
+        int k;
+        if (micLocation ==10) {
+            k = chatroomMicMapper.lowerWheat(micLocationUser.getId());
+        }else{
+            k = chatroomMicMapper.lowerWheatWithRole(micLocationUser.getId());
+        }
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }

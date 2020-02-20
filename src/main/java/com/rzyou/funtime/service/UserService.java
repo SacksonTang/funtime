@@ -96,6 +96,8 @@ public interface UserService {
 
     List<Integer> queryTagsByUserId(Long userId);
 
+    Integer queryTagsByTypeAndName(String tagType, String tagName);
+
     /**
      * 根据类型获取标签
      * @param tagType
@@ -409,4 +411,11 @@ public interface UserService {
      * @param code
      */
     void bindPhoneNumber(Long userId, String phoneNumber, String code);
+
+    /**
+     * 根据showId获取用户信息
+     * @param showId
+     * @return
+     */
+    FuntimeUser getUserInfoByShowId(String showId);
 }

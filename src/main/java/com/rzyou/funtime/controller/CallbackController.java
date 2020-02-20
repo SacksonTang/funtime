@@ -105,7 +105,7 @@ public class CallbackController {
         }
         String resultxml = new String(outSteam.toByteArray(), "utf-8");
         log.info("微信支付回调参数: {}",resultxml);
-        boolean bool = WXPayUtil.isSignatureValid(resultxml, "VaEoQrkdDP2uYKPAMjvCDY0Kxax89jgW");
+        boolean bool = WXPayUtil.isSignatureValid(resultxml, Constant.WX_PAY_APPSECRET);
         log.info("resultXml bool :{}",bool);
         Map<String, String> params = WXPayUtil.xmlToMap(resultxml);
         outSteam.close();

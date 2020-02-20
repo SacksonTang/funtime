@@ -1,15 +1,20 @@
 package com.rzyou.funtime.common.payment.wxpay.sdk;
 
+import com.rzyou.funtime.common.Constant;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class MyWxPayConfig extends WXPayConfig {
-    private byte[] certData;
 
-    public MyWxPayConfig() throws Exception {
+    private byte[] certData;
+    private int payType;
+
+    public MyWxPayConfig(int payType) throws Exception {
         //String certPath = "C:/Users/Funtime02/Desktop/1574424871_20200115_cert/apiclient_cert.p12";
+        this.payType = payType;
         String certPath = "/usr/cert/apiclient_cert.p12";
         File file = new File(certPath);
         InputStream certStream = new FileInputStream(file);
@@ -18,22 +23,32 @@ public class MyWxPayConfig extends WXPayConfig {
         certStream.close();
     }
 
-    public String getAppID() {
-        return "wx9c163a6bccdb1cd1";
-    }
-
-    public String getMchID() {
-        return "1574424871";
-    }
-
-    public String getKey() {
-        return "VaEoQrkdDP2uYKPAMjvCDY0Kxax89jgW";
-    }
-
     public InputStream getCertStream() {
         ByteArrayInputStream certBis = new ByteArrayInputStream(this.certData);
         return certBis;
     }
+
+    String getAppID() {
+        if (payType == 1) {
+            return Constant.WX_APPID;
+        }else if (payType == 2){
+            return Constant.WX_SMALL_PROGRAM_APPID;
+        }else if (payType == 3){
+            return Constant.WX_PUBLIC_APPID;
+        }else{
+            return null;
+        }
+    }
+
+    public String getMchID() {
+        return Constant.WX_MCHID;
+    }
+
+    public String getKey() {
+        return Constant.WX_PAY_APPSECRET;
+    }
+
+
 
     public int getHttpConnectTimeoutMs() {
         return 8000;
