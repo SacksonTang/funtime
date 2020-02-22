@@ -81,7 +81,8 @@ public interface FuntimeChatroomUserMapper {
     /**
      * 查询房间用户
      * @param roomId
+     * @param userId
      * @return
      */
-    List<Long> getRoomUserByRoomId(Long roomId);
+    List<Long> getRoomUserByRoomId(@Param("roomId") Long roomId, @Param("userId") Long userId);
 }

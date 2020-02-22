@@ -35,7 +35,11 @@ public class Constant {
     public final static String WX_SMALL_PROGRAM_APPSECRET = "30e9eaa1cc1484350569808fd4c34d18";
     //公众号
     public final static String WX_PUBLIC_APPID = "wx23202a8a9d72e3ef";
+    public final static String WX_PUBLIC_APPSECRET = "715ee399dfd59272d488c0e6c40c049f";
 
+
+    //小程序获取openid
+    public final static String WX_JSCODE2SESSION_URL = "https://api.weixin.qq.com/sns/jscode2session";
 
     public final static String WX_GET_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token"; //获取微信TOKEN
     public final static String WX_REFRESH_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/refresh_token";//刷新TOKEN

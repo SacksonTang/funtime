@@ -583,20 +583,19 @@ public class UserController {
             Long userId = paramJson.getLong("userId");
             String from = paramJson.getString("from");
             String to = paramJson.getString("to");
-            BigDecimal amount = paramJson.getBigDecimal("amount");
             List<String> convert = new ArrayList<>();
             convert.add("rmb");
             convert.add("blue");
             convert.add("black");
             if (StringUtils.isBlank(from)||StringUtils.isBlank(to)
-                    ||amount==null||!convert.contains(from)||!convert.contains(to)) {
+                    ||!convert.contains(from)||!convert.contains(to)) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            BigDecimal ratio = accountService.getRatio(userId,from ,to ,amount, ConvertType.BLACK_BLUE.getValue());
+            BigDecimal ratio = accountService.getRatio(userId,from ,to);
             result.setData(JsonUtil.getMap("ratio",ratio));
             return result;
         } catch (BusinessException be) {
@@ -749,6 +748,8 @@ public class UserController {
             }
 
             Map<String,Object> data = userService.getWithdralInfo(userId);
+
+            data.put("isFirst",accountService.checkWithdrawalRecordIsFirst(userId));
 
             result.setData(data);
             return result;

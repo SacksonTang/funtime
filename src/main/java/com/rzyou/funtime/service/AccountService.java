@@ -11,6 +11,13 @@ import java.util.Map;
 public interface AccountService {
 
     /**
+     * 是否首次充值
+     * @param userId
+     * @return
+     */
+    boolean checkWithdrawalRecordIsFirst(Long userId);
+
+    /**
      * 查询充值记录
      * @param id
      * @return
@@ -176,9 +183,12 @@ public interface AccountService {
      * @param userId
      * @param withdrawalType
      * @param blackAmount
+     * @param preRmbAmount
+     * @param preChannelAmount
+     * @param amount
      * @param code
      */
-    void applyWithdrawal(Long userId, Integer withdrawalType, BigDecimal blackAmount, String code);
+    void applyWithdrawal(Long userId, Integer withdrawalType, BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal preChannelAmount, BigDecimal amount, String ip);
 
     /**
      * 领赏记录列表
@@ -216,7 +226,19 @@ public interface AccountService {
      * @param giveChannel
      * @param roomId
      */
-    ResultMsg<Object> createGiftTrans(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
+    ResultMsg<Object> sendGiftForRoom(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
+
+    /**
+     * 全麦送礼物
+     * @param userId
+     * @param giftId
+     * @param giftNum
+     * @param operationDesc
+     * @param giveChannel
+     * @param roomId
+     * @return
+     */
+    ResultMsg<Object> sendGiftForMic(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
 
     /**
      * 获取充值配置
@@ -249,11 +271,9 @@ public interface AccountService {
      * @param userId
      * @param from
      * @param to
-     * @param amount
-     * @param value
      * @return
      */
-    BigDecimal getRatio(Long userId, String from, String to, BigDecimal amount, int value);
+    BigDecimal getRatio(Long userId, String from, String to);
 
     /**
      * 获取用户收到的礼物统计

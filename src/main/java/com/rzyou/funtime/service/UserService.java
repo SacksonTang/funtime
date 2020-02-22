@@ -72,6 +72,14 @@ public interface UserService {
     FuntimeUserThird queryUserInfoByOpenid(String openid,String thirdType);
 
     /**
+     * 查询用户openid
+     * @param userId
+     * @param thirdType
+     * @return
+     */
+    String queryUserOpenidByType(Long userId,String thirdType);
+
+    /**
      * 保存用户
      * @param user
      * @param openType

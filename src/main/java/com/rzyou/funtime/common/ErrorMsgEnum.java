@@ -43,6 +43,9 @@ public enum ErrorMsgEnum {
     USER_BANKCARD_VALID_ERROR("10033","银行卡验证失败"),
     PHONE_NUMBER_IS_NOT_REGISTER("10034","手机号不存在"),
 
+    USER_GETOPENID_ERROR("10035","获取openid失败"),
+    USER_NOT_REALNAME_VALID("10036","用户未实名认证"),
+
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
     SMS_IS_EXPIRE("20002","验证码已过期"),
@@ -51,6 +54,7 @@ public enum ErrorMsgEnum {
     VALID_SIGN_ERROR("30002","微信支付支付回调校验签名失败"),
     TOTAL_FEE_ERROR("30003","totalFee参数必须大于0"),
     ORDERQUERY_ERROR("30004","微信支付订单查询失败"),
+    MMPAYMKTTRANSFER_ERROR("30005","企业付款调用失败"),
 
     ORDER_NOT_EXISTS("40001","充值订单记录不存在"),
     ORDER_IS_INVALID("40002","订单记录已失效"),
@@ -70,6 +74,11 @@ public enum ErrorMsgEnum {
     WITHDRAWAL_MONTH_LIMIT("70002","提现超出每月次数限额"),
     WITHDRAWAL_MIN_LIMIT("70003","提现金额小于最低领赏金额"),
     WITHDRAWAL_OPERATION_LIMIT("70004","上次领赏正在处理,请移步公众号查询进度"),
+    WITHDRAWAL_CHANNELAMOUNT_ERROR("70005","渠道费用不符,请重试"),
+    WITHDRAWAL_PRERMBAMOUNT_ERROR("70006","试算金额不符,请重重试"),
+    WITHDRAWAL_RMBAMOUNT_ERROR("70007","实际提现金额不符,请重重试"),
+    WITHDRAWAL_WX_NOT_BIND("70008","微信没有绑定"),
+    WITHDRAWAL_PRERMBAMOUNT_100_ERROR("70009","非首次提现试算金额必须为100的倍数"),
 
     ROOM_CREATE_ERROR("80001","房间创建失败"),
     ROOM_NOT_EXISTS("80002","房间不存在"),
@@ -96,7 +105,8 @@ public enum ErrorMsgEnum {
     ROOM_JOIN_TENCENT_ERROR("80023","同步腾讯添加用户失败"),
     ROOM_IS_CLOSE("80024","房间已停播"),
     ROOM_MIC_IS_EXIST("80025","你已在麦上"),
-    ROOM_USER_IS_EMPTY("80026","房间没有其他人")
+    ROOM_USER_IS_EMPTY("80026","房间没有其他人"),
+    ROOM_MICUSER_IS_EMPTY("80026","房间麦上没有其他人")
 
 
     ;

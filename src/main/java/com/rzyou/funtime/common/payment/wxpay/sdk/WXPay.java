@@ -96,13 +96,63 @@ public class WXPay {
         return reqData;
     }
 
-    public Map<String, String> fillRequestDataReturn(Map<String, String> reqData) throws Exception {
+    /**
+     * 向 Map 中添加 mch_appid、mchid、nonce_str、sign <br>
+     * 该函数适用于商户适用于企业付款接口
+     *
+     * @param reqData
+     * @return
+     * @throws Exception
+     */
+    public Map<String, String> fillRequestMmpayData(Map<String, String> reqData) throws Exception {
+        reqData.put("mch_appid", config.getAppID());
+        reqData.put("mchid", config.getMchID());
+        reqData.put("nonce_str", WXPayUtil.generateNonceStr());
+        reqData.put("sign", WXPayUtil.generateSignature(reqData, config.getKey(), this.signType));
+        return reqData;
+    }
+
+    /**
+     * APP预支付返回封装
+     * @param prepay_id
+     * @return
+     * @throws Exception
+     */
+    public Map<String, String> fillRequestDataReturn(String prepay_id) throws Exception {
+        Map<String, String> reqData = new HashMap<>();
+        reqData.put("prepayid",prepay_id);
         reqData.put("appid", config.getAppID());
         reqData.put("partnerid", config.getMchID());
         reqData.put("noncestr", WXPayUtil.generateNonceStr());
         reqData.put("timestamp",String.valueOf(System.currentTimeMillis()/1000));
         reqData.put("package","Sign=WXPay");
         reqData.put("sign", WXPayUtil.generateSignature(reqData, config.getKey(), this.signType));
+        return reqData;
+    }
+
+    /**
+     * 小程序预支付返回封装
+     * @param prepay_id
+     * @return
+     * @throws Exception
+     */
+    public Map<String, String> fillRequestDataSmallProgram(String prepay_id) throws Exception {
+        Map<String, String> reqData = new HashMap<>();
+        reqData.put("appId", config.getAppID());
+        reqData.put("nonceStr", WXPayUtil.generateNonceStr());
+        reqData.put("timeStamp",String.valueOf(System.currentTimeMillis()/1000));
+        reqData.put("package","prepay_id="+prepay_id);
+        if (SignType.MD5.equals(this.signType)) {
+            reqData.put("signType",WXPayConstants.MD5);
+        }
+        else if (SignType.HMACSHA256.equals(this.signType)) {
+            reqData.put("signType",WXPayConstants.HMACSHA256);
+        }
+        else {
+            throw new Exception(String.format("Invalid sign_type: %s", signType));
+        }
+
+        reqData.put("paySign", WXPayUtil.generateSignature(reqData, config.getKey(), this.signType));
         return reqData;
     }
 
@@ -336,7 +386,29 @@ public class WXPay {
         }
     }
 
+    /**
+     * 企业付款到零钱
+     * @param reqData
+     * @return
+     * @throws Exception
+     */
+    public Map<String, String> mmpaymkttransfers(Map<String, String> reqData) throws Exception {
+        return this.mmpaymkttransfers(reqData, config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
+    }
 
+    /**
+     * 企业付款到零钱
+     * @param reqData
+     * @param connectTimeoutMs
+     * @param readTimeoutMs
+     * @return
+     * @throws Exception
+     */
+    public Map<String, String> mmpaymkttransfers(Map<String, String> reqData,  int connectTimeoutMs, int readTimeoutMs) throws Exception {
+        String url = WXPayConstants.MMPAYMKTTRANSFERS_URL_SUFFIX;
+        String respXml = this.requestWithCert(url, this.fillRequestMmpayData(reqData), connectTimeoutMs, readTimeoutMs);
+        return this.processResponseXml(respXml);
+    }
 
     /**
      * 作用：统一下单<br>

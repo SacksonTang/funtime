@@ -27,6 +27,13 @@
     where openid = #{openid} and third_type = #{thirdType}
     limit 1
   </select>
+  <select id="queryUserOpenidByType"  resultType="java.lang.String">
+    select
+      openid
+    from t_funtime_user_third
+    where user_id = #{userId} and third_type = #{thirdType}
+    limit 1
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_third
     where id = #{id,jdbcType=BIGINT}

@@ -63,6 +63,41 @@ public class GiftTransController {
     }
 
     /**
+     * 全麦送礼物
+     * @param request
+     * @return
+     */
+    @PostMapping("sendGiftForMic")
+    public ResultMsg<Object> sendGiftForMic(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            Integer giftId = paramJson.getInteger("giftId");
+            Integer giftNum = paramJson.getInteger("giftNum");
+            Long roomId = paramJson.getLong("roomId");
+            if (userId == null || giftId == null || giftNum == null || roomId == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            return accountService.sendGiftForMic(userId,giftId,giftNum,"送礼物",1,roomId);
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 全房送礼物
      * @param request
      * @return
@@ -82,7 +117,7 @@ public class GiftTransController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            return accountService.createGiftTrans(userId,giftId,giftNum,"送礼物",1,roomId);
+            return accountService.sendGiftForRoom(userId,giftId,giftNum,"送礼物",1,roomId);
 
         } catch (BusinessException be) {
             be.printStackTrace();

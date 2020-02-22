@@ -42,10 +42,20 @@ public class WithdrawalController {
 
             Integer withdrawalType = paramJson.getInteger("withdrawalType");
             BigDecimal blackAmount = paramJson.getBigDecimal("blackAmount");
+            BigDecimal preRmbAmount = paramJson.getBigDecimal("preRmbAmount");
+            BigDecimal preChannelAmount = paramJson.getBigDecimal("preChannelAmount");
+            BigDecimal amount = paramJson.getBigDecimal("amount");
             Long userId = paramJson.getLong("userId");
-            String code = paramJson.getString("code");
+            String ip = HttpHelper.getClientIpAddr(request);
+            ip = ip == null?"127.0.0.1":ip;
+            if (withdrawalType==null||blackAmount==null||preChannelAmount==null||preRmbAmount==null
+                    ||amount==null||userId==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
 
-            accountService.applyWithdrawal(userId,withdrawalType,blackAmount,code);
+            accountService.applyWithdrawal(userId,withdrawalType,blackAmount,preRmbAmount,preChannelAmount,amount,ip);
             Map<String, Object> map = JsonUtil.getMap("weChatSubscriptionDesc", Constant.WXCHATTEMP.replaceAll("#", parameterService.getParameterValueByKey("wechat_subscription")));
             map.put("weChatSubscription",parameterService.getParameterValueByKey("wechat_subscription"));
 

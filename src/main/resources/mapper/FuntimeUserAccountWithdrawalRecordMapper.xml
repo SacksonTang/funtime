@@ -5,23 +5,29 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="order_no" jdbcType="VARCHAR" property="orderNo" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="trial_ype"  property="trialType" />
     <result column="withdrawal_type" jdbcType="INTEGER" property="withdrawalType" />
     <result column="card_number" jdbcType="VARCHAR" property="cardNumber" />
     <result column="third_order_number" jdbcType="VARCHAR" property="thirdOrderNumber" />
     <result column="amount" jdbcType="DECIMAL" property="amount" />
     <result column="black_diamond" jdbcType="DECIMAL" property="blackDiamond" />
     <result column="black_rmb_ratio" jdbcType="DECIMAL" property="blackRmbRatio" />
+    <result column="pre_rmb_amount" jdbcType="DECIMAL" property="preRmbAmount" />
     <result column="channel_amount" jdbcType="DECIMAL" property="channelAmount" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="complete_time" jdbcType="TIMESTAMP" property="completeTime" />
+    <result column="first_trial_time" jdbcType="TIMESTAMP" property="firstTrialTime" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="flag" jdbcType="INTEGER" property="flag" />
     <result column="version" jdbcType="BIGINT" property="version" />
+    <result column="reason" property="reason" />
+    <result column="first_trial_id" property="firstTrialId" />
+    <result column="retrial_id" property="retrialId" />
+    <result column="retrial_time" jdbcType="TIMESTAMP" property="retrialTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, order_no, user_id, withdrawal_type, card_number, third_order_number, amount,
-    black_diamond, black_rmb_ratio, channel_amount, create_time, complete_time, state,
-    flag, version
+    id, order_no, user_id, trial_ype,withdrawal_type, card_number, third_order_number, amount,
+    black_diamond, black_rmb_ratio, channel_amount, create_time, first_trial_time, state,
+    flag, version,pre_rmb_amount,reason,first_trial_id,retrial_id,retrial_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -33,20 +39,26 @@
     select
       count(id)
     from t_funtime_user_account_withdrawal_record
-    where user_id = #{userId} and state = 1
+    where user_id = #{userId} and state in (1,2)
+  </select>
+  <select id="getWithdrawalRecordCountBySucc" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select
+      count(id)
+    from t_funtime_user_account_withdrawal_record
+    where user_id = #{userId} and state = 3
   </select>
   <select id="getSumAmountForDay"  resultType="java.math.BigDecimal">
     select
       sum(amount) amount
     from t_funtime_user_account_withdrawal_record
-    where user_id = #{userId} and state in (1,2)
+    where user_id = #{userId} and state = 3
        and create_time between #{startDate} and #{endDate}
   </select>
   <select id="getCountForMonth"  resultType="java.lang.Integer">
     select
       count(id)
     from t_funtime_user_account_withdrawal_record
-    where user_id = #{userId} and state = 2
+    where user_id = #{userId} and state = 3
        and create_time between #{startDate} and #{endDate}
   </select>
   <select id="getWithdrawalForPage"  resultMap="BaseResultMap">
@@ -76,6 +88,9 @@
       <if test="userId != null">
         user_id,
       </if>
+      <if test="trialType != null">
+        trial_type,
+      </if>
       <if test="withdrawalType != null">
         withdrawal_type,
       </if>
@@ -94,12 +109,12 @@
       <if test="blackRmbRatio != null">
         black_rmb_ratio,
       </if>
-      <if test="channelAmount != null">
-        channel_amount,
+      <if test="preRmbAmount != null">
+        pre_rmb_amount,
       </if>
 
-      <if test="completeTime != null">
-        complete_time,
+      <if test="channelAmount != null">
+        channel_amount,
       </if>
       <if test="state != null">
         state,
@@ -119,6 +134,9 @@
       <if test="userId != null">
         #{userId,jdbcType=BIGINT},
       </if>
+      <if test="trialType != null">
+        #{trialType},
+      </if>
       <if test="withdrawalType != null">
         #{withdrawalType,jdbcType=INTEGER},
       </if>
@@ -137,12 +155,11 @@
       <if test="blackRmbRatio != null">
         #{blackRmbRatio,jdbcType=DECIMAL},
       </if>
+      <if test="preRmbAmount != null">
+        #{preRmbAmount},
+      </if>
       <if test="channelAmount != null">
         #{channelAmount,jdbcType=DECIMAL},
-      </if>
-
-      <if test="completeTime != null">
-        #{completeTime,jdbcType=TIMESTAMP},
       </if>
       <if test="state != null">
         #{state,jdbcType=INTEGER},
@@ -163,6 +180,9 @@
       </if>
       <if test="userId != null">
         user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="trialType != null">
+        trial_type = #{trialType},
       </if>
       <if test="withdrawalType != null">
         withdrawal_type = #{withdrawalType,jdbcType=INTEGER},
@@ -185,12 +205,7 @@
       <if test="channelAmount != null">
         channel_amount = #{channelAmount,jdbcType=DECIMAL},
       </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="completeTime != null">
-        complete_time = #{completeTime,jdbcType=TIMESTAMP},
-      </if>
+
       <if test="state != null">
         state = #{state,jdbcType=INTEGER},
       </if>

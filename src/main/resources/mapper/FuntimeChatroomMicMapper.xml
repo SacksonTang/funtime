@@ -51,6 +51,12 @@
     from t_funtime_chatroom_mic
     where room_id = #{roomId} and mic_user_id = #{userId}  limit 1
   </select>
+  <select id="getMicUserIdByRoomId"  resultType="java.lang.Long" >
+    select
+    mic_user_id
+    from t_funtime_chatroom_mic
+    where room_id = #{roomId} and mic_user_id !=#{userId} and mic_user_id is not null
+  </select>
     <select id="getMicUserByRoomId" parameterType="java.lang.Long" resultType="java.util.Map">
         select
         m.mic_location micLocation,m.mic_user_id micUserId,m.user_role userRole,m.state,u.nickname

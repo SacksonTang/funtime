@@ -13,6 +13,45 @@ import java.util.Map;
 public class MyWxPay {
 
     /**
+     * 企业付款到零钱
+     * @param payType
+     * @param partner_trade_no
+     * @param ip
+     * @param openid
+     * @param re_user_name
+     * @param amount
+     * @return
+     */
+    public static Map<String,String> mmpaymkttransfers(Integer payType,String partner_trade_no,String ip,
+                                                       String openid,String re_user_name,String amount){
+        try {
+            MyWxPayConfig config = new MyWxPayConfig(payType);
+            WXPay wxpay = new WXPay(config);
+            Map<String, String> data = new HashMap<>();
+            data.put("partner_trade_no", partner_trade_no);
+            data.put("check_name", "FORCE_CHECK");
+            data.put("re_user_name", re_user_name);
+            data.put("amount", amount);
+            data.put("spbill_create_ip", ip);
+            data.put("desc", "触娱提现");  //
+            data.put("openid",openid);
+            Map<String, String> resp = wxpay.mmpaymkttransfers(data);
+            log.info("企业付款接口返回:resp===> {}",resp);
+            if(!"SUCCESS".equals(resp.get("return_code"))||!"SUCCESS".equals(resp.get("result_code"))){
+                log.error("企业付款到零钱接口:mmpaymkttransfers 失败:{}",resp);
+                throw new BusinessException(ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getValue(),ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getDesc());
+            }
+            else{
+                return resp;
+            }
+        }catch (Exception e) {
+            throw new BusinessException(ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getValue(),ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getDesc());
+
+        }
+
+    }
+
+    /**
      * 统一下单（小程序支付）
      *
      * @return
@@ -39,11 +78,7 @@ public class MyWxPay {
                 throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
             }
             if (resp.get("prepay_id")!=null) {
-                Map<String, String> signMap = new HashMap<>();
-
-                signMap.put("prepayid", resp.get("prepay_id"));
-
-                Map<String, String> signData = wxpay.fillRequestDataReturn(signMap);
+                Map<String, String> signData = wxpay.fillRequestDataSmallProgram(resp.get("prepay_id"));
                 log.info("unifiedOrder result : {}", signData);
                 return signData;
             }else{
@@ -82,11 +117,8 @@ public class MyWxPay {
                 throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
             }
             if (resp.get("prepay_id")!=null) {
-                Map<String, String> signMap = new HashMap<>();
 
-                signMap.put("prepayid", resp.get("prepay_id"));
-
-                Map<String, String> signData = wxpay.fillRequestDataReturn(signMap);
+                Map<String, String> signData = wxpay.fillRequestDataReturn(resp.get("prepay_id"));
                 log.info("unifiedOrder result : {}", signData);
                 return signData;
             }else{

@@ -177,6 +177,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public String queryUserOpenidByType(Long userId, String thirdType) {
+        return userThirdMapper.queryUserOpenidByType(userId,thirdType);
+    }
+
+
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid,String accessToken) {
         insertSelective(user);

@@ -208,7 +208,7 @@ public class WXPayUtil {
                 sb.append(k).append("=").append(data.get(k).trim()).append("&");
         }
         sb.append("key=").append(key);
-        getLogger().debug("签名字符串：{}",sb.toString());
+        getLogger().info("签名字符串：{},signType:{}",sb.toString(),signType);
         if (SignType.MD5.equals(signType)) {
             return MD5(sb.toString()).toUpperCase();
         }

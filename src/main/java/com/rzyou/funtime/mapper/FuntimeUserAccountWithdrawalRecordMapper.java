@@ -11,6 +11,8 @@ import java.util.List;
 @Mapper
 public interface FuntimeUserAccountWithdrawalRecordMapper {
 
+    int getWithdrawalRecordCountBySucc(Long userId);
+
     int getWithdrawalRecordByUserId(Long userId);
 
     BigDecimal getSumAmountForDay(@Param("startDate") String startDate,@Param("endDate") String endDate, @Param("userId") Long userId);

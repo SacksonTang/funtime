@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
+import com.rzyou.funtime.common.payment.wxpay.sdk.WXPay;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
@@ -119,6 +120,9 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Map<String,String> createRecharge(FuntimeUserAccountRechargeRecord record, String ip, String trade_type){
+        if (!userService.checkUserExists(record.getUserId())){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
         FuntimeRechargeConf rechargeConf = rechargeConfMapper.selectByPrimaryKey(record.getRechargeConfId());
         if (rechargeConf==null){
             throw new BusinessException(ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getValue(),ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getDesc());
@@ -879,7 +883,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ResultMsg<Object> createGiftTrans(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
+    public ResultMsg<Object> sendGiftForRoom(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
 
         ResultMsg<Object> resultMsg = new ResultMsg<>();
 
@@ -892,15 +896,18 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
         }
 
-        List<Long> toUserIdArray = roomService.getRoomUserByRoomId(roomId);
-        if (toUserIdArray==null||toUserIdArray.isEmpty()){
-            throw new BusinessException(ErrorMsgEnum.ROOM_USER_IS_EMPTY.getValue(),ErrorMsgEnum.ROOM_USER_IS_EMPTY.getDesc());
+        FuntimeChatroom chatroom = roomService.getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
-
-        toUserIdArray.remove(userId);
-
-        if (toUserIdArray.isEmpty()){
-            throw new BusinessException(ErrorMsgEnum.ROOM_USER_IS_EMPTY.getValue(),ErrorMsgEnum.ROOM_USER_IS_EMPTY.getDesc());
+        List<Long> toUserIdArray = roomService.getRoomUserByRoomId(roomId,userId);
+        if (toUserIdArray==null||toUserIdArray.isEmpty()){
+            if (userId.equals(chatroom.getUserId())) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_USER_IS_EMPTY.getValue(), ErrorMsgEnum.ROOM_USER_IS_EMPTY.getDesc());
+            }else{
+                toUserIdArray = new ArrayList<>(1);
+                toUserIdArray.add(chatroom.getUserId());
+            }
         }
 
         int userNum = toUserIdArray.size();
@@ -941,7 +948,7 @@ public class AccountServiceImpl implements AccountService {
 
         }
 
-        FuntimeChatroom chatroom = roomService.getChatroomById(roomId);
+
 
         RoomGiftNotice notice = new RoomGiftNotice();
         notice.setCount(giftNum);
@@ -979,6 +986,106 @@ public class AccountServiceImpl implements AccountService {
 
         return resultMsg;
 
+    }
+
+    @Override
+    public ResultMsg<Object> sendGiftForMic(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+
+        FuntimeUser user = getUserById(userId);
+
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+
+        FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
+        if (funtimeGift==null){
+            throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
+        }
+        FuntimeChatroom chatroom = roomService.getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        List<Long> toUserIdArray = roomService.getMicUserIdByRoomId(roomId,userId);
+        if (toUserIdArray==null||toUserIdArray.isEmpty()){
+            if (userId.equals(chatroom.getUserId())) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_MICUSER_IS_EMPTY.getValue(), ErrorMsgEnum.ROOM_MICUSER_IS_EMPTY.getDesc());
+            }else{
+                toUserIdArray = new ArrayList<>(1);
+                toUserIdArray.add(chatroom.getUserId());
+            }
+        }
+
+        int userNum = toUserIdArray.size();
+
+        Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
+        //账户余额不足
+        if (userAccount.getBlueDiamond().intValue()<amount*userNum){
+            resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            resultMsg.setData(JsonUtil.getMap("amount",amount*userNum));
+            return resultMsg;
+        }
+
+        Integer userRole = roomService.getUserRole(roomId,userId);
+
+        userRole = userRole == null?4:userRole;
+
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.HALF_UP);
+        for (Long toUserId : toUserIdArray) {
+
+            Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel);
+
+            //用户送减去蓝钻
+            userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
+
+            //用户收加上黑钻
+            userService.updateUserAccountForPlus(toUserId, black, null, null);
+
+            //用户送的日志
+            saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+                    , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType());
+
+            //用户收的日志
+            saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFT.getAction()
+                    , OperationType.RECEIVEGIFT.getOperationType());
+
+        }
+
+        RoomGiftNotice notice = new RoomGiftNotice();
+        notice.setCount(giftNum);
+
+        notice.setGiftName(funtimeGift.getGiftName());
+        notice.setFromImg(user.getPortraitAddress());
+        notice.setFromName(user.getNickname());
+        notice.setFromUid(String.valueOf(userId));
+        notice.setGid(String.valueOf(giftId));
+        notice.setGiftImg(funtimeGift.getAnimationUrl());
+        notice.setRid(String.valueOf(roomId));
+        notice.setToImg(chatroom.getAvatarUrl());
+        notice.setToName(chatroom.getName());
+        notice.setFromSex(user.getSex());
+        notice.setUserRole(userRole);
+        int type = funtimeGift.getSpecialEffect();
+        if (type == SpecialEffectType.E_4.getValue()) {
+            type = SpecialEffectType.E_3.getValue();
+            notice.setType(Constant.ROOM_GIFT_SEND_ROOM_ALL);
+            //发送通知全服
+            notice.setSpecialEffect(type);
+            noticeService.notice21(notice);
+
+        }
+        List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+        if (roomNos == null || roomNos.isEmpty()) {
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        notice.setSpecialEffect(type);
+        notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
+        //发送通知
+        for (String roomNo : roomNos) {
+            noticeService.notice19(notice, roomNo);
+        }
+        return resultMsg;
     }
 
     public FuntimeUserAccount getUserAccountByUserId(Long userId){
@@ -1021,7 +1128,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public BigDecimal getRatio(Long userId, String from, String to, BigDecimal amount, int value) {
+    public BigDecimal getRatio(Long userId, String from, String to) {
         return convert(from,to);
     }
 
@@ -1136,41 +1243,120 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void applyWithdrawal(Long userId, Integer withdrawalType, BigDecimal blackAmount, String code) {
+    public void applyWithdrawal(Long userId, Integer withdrawalType, BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal preChannelAmount, BigDecimal amount, String ip) {
 
         FuntimeUser user = userService.queryUserById(userId);
         if(user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
-
-        Long smsId = smsService.validateSms(SmsType.REAL_VALID.getValue(),user.getPhoneNumber(),code);
-
-        //待处理的条数
-        int count = userAccountWithdrawalRecordMapper.getWithdrawalRecordByUserId(userId);
-        if(count>0){
-            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_OPERATION_LIMIT.getValue(),ErrorMsgEnum.WITHDRAWAL_OPERATION_LIMIT.getDesc()+",公众号:"+parameterService.getParameterValueByKey("wechat_subscription"));
+        //用户已封禁
+        if (user.getState()==2){
+            throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
+        }
+        //用户未实名
+        if (user.getRealnameAuthenticationFlag()==2){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_REALNAME_VALID.getValue(),ErrorMsgEnum.USER_NOT_REALNAME_VALID.getDesc());
+        }
+        //是否绑定微信
+        String openid = userService.queryUserOpenidByType(userId, "WX");
+        if (StringUtils.isBlank(openid)){
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_WX_NOT_BIND.getValue(),ErrorMsgEnum.WITHDRAWAL_WX_NOT_BIND.getDesc());
+        }
+        //是否实名认证
+        FuntimeUserValid userValid = userService.queryValidInfoByUserId(userId);
+        if (userValid==null){
+            throw new BusinessException(ErrorMsgEnum.USERVALID_IS_NOT_VALID.getValue(),ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
         }
 
-        checkWithdrawalConf(userId,blackAmount);
+        //Long smsId = smsService.validateSms(SmsType.REAL_VALID.getValue(),user.getPhoneNumber(),code);
 
-        String withdrawalCard = getWithdrawalCard(userId, withdrawalType);
-
-        //黑对RMB比例
-        BigDecimal val = convert("black", "rmb");
-
-        BigDecimal rmbAmount = val.multiply(blackAmount).setScale(2,RoundingMode.HALF_UP);
-
+        //获取配置表中渠道费
         BigDecimal channelAmount = getServiceAmount(blackAmount.intValue());
 
-        Long recordId = saveFuntimeUserAccountWithdrawalRecord(userId,withdrawalType,withdrawalCard,rmbAmount.subtract(channelAmount),blackAmount,val,channelAmount);
+        //检查前端渠道费
+        if (channelAmount.subtract(preChannelAmount).intValue()!=0){
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_CHANNELAMOUNT_ERROR.getValue(),ErrorMsgEnum.WITHDRAWAL_CHANNELAMOUNT_ERROR.getDesc());
+        }
+
+        //检查待处理的条数
+        checkWithdrawalRecordPendingTrial(userId);
+
+        //是否首次提现
+        boolean firstTime = checkWithdrawalRecordIsFirst(userId);
+
+        if (!firstTime){
+            //非首次试算金额必须未100倍数
+            if(preRmbAmount.subtract(new BigDecimal(100)).doubleValue()<0
+                    ||preRmbAmount.intValue()%100>0){
+                throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_PRERMBAMOUNT_100_ERROR.getValue(),ErrorMsgEnum.WITHDRAWAL_PRERMBAMOUNT_100_ERROR.getDesc());
+            }
+        }
+
+        //黑对RMB比例
+        BigDecimal ratio = convert("black", "rmb");
+        //检查前端传过来的数字
+        checkAppAmount(blackAmount,preRmbAmount,channelAmount,amount,ratio);
+
+        //检查实际提现金额限制
+        checkWithdrawalConf(userId,amount);
+
+        //获取提现号码
+        String withdrawalCard = getWithdrawalCard(userId, withdrawalType,openid,userValid.getDepositCardReal());
+
+        //获取审核类型
+        int trialType = getTrialType(preRmbAmount);
+
+        String orderNo = "D"+StringUtil.createOrderId();
+
+        Long recordId = saveFuntimeUserAccountWithdrawalRecord(userId,withdrawalType
+                ,withdrawalCard,amount,blackAmount,ratio,channelAmount,preRmbAmount,trialType,orderNo);
 
         //减去用户黑钻
         userService.updateUserAccountForSub(userId,blackAmount,null,null);
 
         //用户日志
         saveUserAccountBlackLog(userId,blackAmount,recordId,OperationType.WITHDRAWAL.getAction(),OperationType.WITHDRAWAL.getOperationType());
+        //自动转账
+        if (trialType == 1){
+            try {
+                Map<String, String> resp = MyWxPay.mmpaymkttransfers(1, orderNo, ip, openid, userValid.getFullname(), String.valueOf(amount.multiply(new BigDecimal(100)).intValue()));
+                String payment_no = resp.get("payment_no");
+                //转账成功更新状态和第三方订单
+                updateFuntimeUserAccountWithdrawalRecord(recordId,3,null,payment_no);
+            }catch (Exception e){
+                //失败改为手动审核
+                updateFuntimeUserAccountWithdrawalRecord(recordId,null,2,null);
+            }
+        }
 
-        smsService.updateSmsInfoById(smsId,1);
+        //smsService.updateSmsInfoById(smsId,1);
+    }
+
+    private void checkAppAmount(BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal channelAmount, BigDecimal amount,BigDecimal ratio){
+
+        if (blackAmount.multiply(ratio).doubleValue()!=preRmbAmount.doubleValue()){
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_PRERMBAMOUNT_ERROR.getValue(),ErrorMsgEnum.WITHDRAWAL_PRERMBAMOUNT_ERROR.getDesc());
+        }
+        if (amount.doubleValue()!=preRmbAmount.subtract(channelAmount).doubleValue()){
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_RMBAMOUNT_ERROR.getValue(),ErrorMsgEnum.WITHDRAWAL_RMBAMOUNT_ERROR.getDesc());
+        }
+    }
+
+    private void checkWithdrawalRecordPendingTrial(Long userId){
+        int count = userAccountWithdrawalRecordMapper.getWithdrawalRecordByUserId(userId);
+        if(count>0){
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_OPERATION_LIMIT.getValue(),ErrorMsgEnum.WITHDRAWAL_OPERATION_LIMIT.getDesc()+",公众号:"+parameterService.getParameterValueByKey("wechat_subscription"));
+        }
+    }
+
+    @Override
+    public boolean checkWithdrawalRecordIsFirst(Long userId){
+        int count = userAccountWithdrawalRecordMapper.getWithdrawalRecordCountBySucc(userId);
+        if(count>0){
+            return false;
+        }else{
+            return true;
+        }
     }
 
     @Override
@@ -1211,10 +1397,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-    private void checkWithdrawalConf(Long userId,BigDecimal black){
+    private void checkWithdrawalConf(Long userId,BigDecimal rmbAmount){
         //每次的最小值
         String withdrawal_min_once = parameterService.getParameterValueByKey("withdrawal_min_once");
-        if (black.doubleValue()<new BigDecimal(withdrawal_min_once).doubleValue()){
+        if (rmbAmount.doubleValue()<new BigDecimal(withdrawal_min_once).doubleValue()){
             throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_MIN_LIMIT.getValue(),ErrorMsgEnum.WITHDRAWAL_MIN_LIMIT.getDesc());
         }
         //每日最大限额
@@ -1223,7 +1409,7 @@ public class AccountServiceImpl implements AccountService {
         BigDecimal dayAmount = userAccountWithdrawalRecordMapper.getSumAmountForDay(startDate,endDate,userId);
         dayAmount = dayAmount ==null?new BigDecimal(0):dayAmount;
         String withdrawal_max_day = parameterService.getParameterValueByKey("withdrawal_max_day");
-        if (new BigDecimal(withdrawal_max_day).subtract(dayAmount).doubleValue()<0){
+        if (new BigDecimal(withdrawal_max_day).subtract(dayAmount.add(rmbAmount)).doubleValue()<0){
             throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_DAY_LIMIT.getValue(),ErrorMsgEnum.WITHDRAWAL_DAY_LIMIT.getDesc());
         }
         //每月最大次数
@@ -1235,15 +1421,31 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    private Long saveFuntimeUserAccountWithdrawalRecord(Long userId, Integer withdrawalType, String withdrawalCard, BigDecimal rmbAmount, BigDecimal blackAmount, BigDecimal val, BigDecimal channelAmount) {
-        FuntimeUserAccountWithdrawalRecord record = new FuntimeUserAccountWithdrawalRecord();
+    private int getTrialType(BigDecimal preRmbAmount){
+        //自动转账的最高限额
+        String withdrawal_auto_amount = parameterService.getParameterValueByKey("withdrawal_auto_amount");
+        //一级审核最高限额
+        String withdrawal_first_trial_amount = parameterService.getParameterValueByKey("withdrawal_first_trial_amount");
 
+        if (preRmbAmount.subtract(new BigDecimal(withdrawal_auto_amount)).doubleValue()<0){
+            return 1;
+        }else if (preRmbAmount.subtract(new BigDecimal(withdrawal_first_trial_amount)).doubleValue()<0){
+            return 2;
+        }else{
+            return 3;
+        }
+    }
+
+    private Long saveFuntimeUserAccountWithdrawalRecord(Long userId, Integer withdrawalType, String withdrawalCard, BigDecimal rmbAmount, BigDecimal blackAmount, BigDecimal ratio, BigDecimal channelAmount, BigDecimal preRmbAmount, int trialType, String orderNo) {
+        FuntimeUserAccountWithdrawalRecord record = new FuntimeUserAccountWithdrawalRecord();
+        record.setTrialType(trialType);
         record.setAmount(rmbAmount);
         record.setBlackDiamond(blackAmount);
-        record.setBlackRmbRatio(val);
+        record.setBlackRmbRatio(ratio);
+        record.setPreRmbAmount(preRmbAmount);
         record.setCardNumber(withdrawalCard);
         record.setChannelAmount(channelAmount);
-        record.setOrderNo("D"+StringUtil.createOrderId());
+        record.setOrderNo(orderNo);
         record.setUserId(userId);
         record.setWithdrawalType(withdrawalType);
         record.setVersion(System.currentTimeMillis());
@@ -1253,9 +1455,24 @@ public class AccountServiceImpl implements AccountService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
         }
+
         return record.getId();
 
     }
+
+    private void updateFuntimeUserAccountWithdrawalRecord(Long id, Integer state, Integer trialType, String payment_no){
+        FuntimeUserAccountWithdrawalRecord record = new FuntimeUserAccountWithdrawalRecord();
+        record.setId(id);
+        record.setState(state);
+        record.setTrialType(trialType);
+        record.setThirdOrderNumber(payment_no);
+        int k = userAccountWithdrawalRecordMapper.updateByPrimaryKeySelective(record);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+    }
+
 
     private BigDecimal getServiceAmount(int black) {
         BigDecimal channelAmount = withdrawalConfMapper.getServiceAmount(black);
@@ -1266,17 +1483,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-    public String getWithdrawalCard(Long userId,Integer withdrawalType){
-        FuntimeUserValid userValid = userService.queryValidInfoByUserId(userId);
-        if (userValid==null){
-            throw new BusinessException(ErrorMsgEnum.USERVALID_IS_NOT_VALID.getValue(),ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
-        }
+    public String getWithdrawalCard(Long userId, Integer withdrawalType, String openid, String depositCard){
+
         if (WithdrawalType.DESPOSIT_CARD.getValue()==withdrawalType.intValue()){
-            return userValid.getDepositCardReal();
+            return depositCard;
         }else if (WithdrawalType.WXPAY.getValue()==withdrawalType.intValue()){
-            return userValid.getWxNo();
-        }else if (WithdrawalType.ALIPAY.getValue()==withdrawalType.intValue()){
-            return userValid.getAlipayNo();
+
+            return openid;
         }else{
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }

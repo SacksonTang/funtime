@@ -228,9 +228,10 @@ public interface RoomService {
     /**
      * 查询房间用户
      * @param roomId
+     * @param userId
      * @return
      */
-    List<Long> getRoomUserByRoomId(Long roomId);
+    List<Long> getRoomUserByRoomId(Long roomId, Long userId);
 
     /**
      * 获取全部腾讯聊天室用户
@@ -274,6 +275,14 @@ public interface RoomService {
      * @return
      */
     Long checkUserIsInMic(Long userId);
+
+    /**
+     * 房内麦上用户ID
+     * @param roomId
+     * @param userId
+     * @return
+     */
+    List<Long> getMicUserIdByRoomId(Long roomId, Long userId);
 
     /**
      * 退出房间(定时任务)

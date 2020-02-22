@@ -985,8 +985,8 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public List<Long> getRoomUserByRoomId(Long roomId) {
-        return chatroomUserMapper.getRoomUserByRoomId(roomId);
+    public List<Long> getRoomUserByRoomId(Long roomId, Long userId) {
+        return chatroomUserMapper.getRoomUserByRoomId(roomId,userId);
     }
 
     @Override
@@ -1024,6 +1024,11 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Long checkUserIsInMic(Long userId) {
         return chatroomMicMapper.checkUserIsInMic(userId);
+    }
+
+    @Override
+    public List<Long> getMicUserIdByRoomId(Long roomId, Long userId) {
+        return chatroomMicMapper.getMicUserIdByRoomId(roomId,userId);
     }
 
     @Override

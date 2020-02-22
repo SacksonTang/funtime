@@ -3,6 +3,7 @@ package com.rzyou.funtime.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.request.HttpHelper;
+import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
@@ -261,6 +262,41 @@ public class LoginController {
     }
 
     /**
+     * 获取openid
+     * @param request
+     * @return
+     */
+    @GetMapping("getOpenid")
+    public ResultMsg<Object> getOpenid(HttpServletRequest request) {
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String code = paramJson.getString("code");
+            if (StringUtils.isBlank(code)){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            JSONObject tokenForPub = WeixinLoginUtils.getAccessTokenForPub(code);
+            String openid = tokenForPub.getString("openid");
+            Map<String, Object> data = new HashMap<>();
+            data.put("openid", openid);
+            result.setData(data);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 充值生成待支付记录
      */
     @PostMapping("startRecharge")
@@ -271,14 +307,14 @@ public class LoginController {
             FuntimeUserAccountRechargeRecord record = JSONObject.toJavaObject(paramJson, FuntimeUserAccountRechargeRecord.class);
             Integer id = userService.queryTagsByTypeAndName("recharge_channel","WX");
 
-            if (record==null||record.getUserId()==null||id == null||record.getPayType()==null) {
+            if (record==null||record.getUserId()==null||id == null||record.getPayType()==null||StringUtils.isBlank(record.getOpenid())) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            String ip = HttpHelper.getClientIpAddr(request);
 
+            String ip = HttpHelper.getClientIpAddr(request);
             record.setRechargeChannelId(id);
             result.setData(accountService.createRecharge(record,ip,"JSAPI"));
 

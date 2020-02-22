@@ -14,6 +14,61 @@ import org.apache.commons.lang3.StringUtils;
  **/
 @Slf4j
 public class WeixinLoginUtils {
+
+    /**
+     * 小程序获取openid
+     * @param code
+     * @return
+     */
+    public static JSONObject jscode2session(String code){
+        //构建请求数据
+        String url = Constant.WX_JSCODE2SESSION_URL+"?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code";
+
+        url = url.replaceAll("APPID",Constant.WX_SMALL_PROGRAM_APPID)
+                .replaceAll("SECRET",Constant.WX_SMALL_PROGRAM_APPSECRET)
+                .replaceAll("JSCODE",code);
+
+        //调用httpclient处理请求得到返回json数据
+        String returnJson = HttpClientUtil.doGet(url);
+        JSONObject resultObj = JSONObject.parseObject(returnJson);
+        log.info("jscode2session result : {}",returnJson);
+
+        if (resultObj.getInteger("errcode")!=null&&resultObj.getInteger("errcode")!=0){
+            log.error("获取openid失败：{}",returnJson);
+            throw new BusinessException(ErrorMsgEnum.USER_GETOPENID_ERROR.getValue(),ErrorMsgEnum.USER_GETOPENID_ERROR.getDesc());
+        }
+        if (StringUtils.isBlank(resultObj.getString("openid"))){
+            throw new BusinessException(ErrorMsgEnum.USER_GETOPENID_ERROR.getValue(),ErrorMsgEnum.USER_GETOPENID_ERROR.getDesc());
+        }
+        return resultObj;
+    }
+
+    /**
+     * 通过code获取token(公众号)
+     * @return
+     */
+    public static JSONObject getAccessTokenForPub(String code){
+        //构建请求数据
+        String url = Constant.WX_GET_TOKEN_URL+"?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code";
+
+        url = url.replaceAll("APPID",Constant.WX_PUBLIC_APPID)
+                .replaceAll("SECRET",Constant.WX_PUBLIC_APPSECRET)
+                .replaceAll("CODE",code);
+
+        //调用httpclient处理请求得到返回json数据
+        String returnJson = HttpClientUtil.doGet(url);
+        JSONObject resultObj = JSONObject.parseObject(returnJson);
+        log.debug("getAccessTokenForPub result : {}",returnJson);
+        if (resultObj.getString("errcode")!=null){
+            log.error("获取token失败：{}",returnJson);
+            throw new BusinessException(ErrorMsgEnum.USER_WXLOGIN_TOKEN_ERROR.getValue(),ErrorMsgEnum.USER_WXLOGIN_TOKEN_ERROR.getDesc());
+        }
+        if (StringUtils.isBlank(resultObj.getString("access_token"))||StringUtils.isBlank(resultObj.getString("openid"))){
+            throw new BusinessException(ErrorMsgEnum.USER_WXLOGIN_TOKEN_ERROR.getValue(),ErrorMsgEnum.USER_WXLOGIN_TOKEN_ERROR.getDesc());
+        }
+        return resultObj;
+    }
+
     /**
      * 通过code获取token
      * @return
