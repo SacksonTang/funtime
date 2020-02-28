@@ -263,15 +263,12 @@ public class LoginController {
 
     /**
      * 获取openid
-     * @param request
      * @return
      */
     @GetMapping("getOpenid")
-    public ResultMsg<Object> getOpenid(HttpServletRequest request) {
+    public ResultMsg<Object> getOpenid(String code) {
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            String code = paramJson.getString("code");
             if (StringUtils.isBlank(code)){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());

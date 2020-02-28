@@ -68,8 +68,17 @@
      create_time, complete_time, state
 
     from t_funtime_user_account_withdrawal_record
-    where user_id = #{userId} and state = #{state}
-       and create_time between #{startDate} and #{endDate}
+    where user_id = #{userId}
+    <if test="state == 1">
+      and state in (1,2)
+    </if>
+    <if test="state == 2">
+      and state =3
+    </if>
+    <if test="state == 3">
+      and state =4
+    </if>
+      and create_time between #{startDate} and #{endDate}
     order by id desc
   </select>
 

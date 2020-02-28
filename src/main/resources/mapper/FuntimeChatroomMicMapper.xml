@@ -82,12 +82,7 @@
     update t_funtime_chatroom_mic set mic_user_id = null,state = 1,update_time = NOW()
     where id = #{id}
   </update>
-  <update id="lowerWheatWithRole" >
-    update t_funtime_chatroom_mic set mic_user_id = null
-      ,state = 1,update_time = NOW()
-      ,user_role = 3
-    where id = #{id}
-  </update>
+
   <update id="upperWheat" >
     update t_funtime_chatroom_mic set mic_user_id = #{userId},update_time = NOW()
     where id = #{id}

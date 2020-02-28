@@ -19,6 +19,8 @@ public class FuntimeUserAccount implements Serializable {
 
     private BigDecimal blueDiamond;
 
+    private Integer receivedGiftNum;
+
     private String blueDiamondShow;
 
     private Integer hornNumber;
@@ -34,5 +36,7 @@ public class FuntimeUserAccount implements Serializable {
     private Integer grabAmountTotal;
 
     private String levelUrl;
+
+    private BigDecimal goldCoin;
 
 }

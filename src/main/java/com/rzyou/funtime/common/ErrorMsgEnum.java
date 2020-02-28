@@ -18,7 +18,7 @@ public enum ErrorMsgEnum {
     USER_GETTOKEN_FAIL("10010","获取token失败"),
     USER_SMS_FAIL("10011","短信发送失败"),
     USER_LOGINTYPE_ERROR("10012","登录类型LOGINTYPE错误"),
-    USER_ACCOUNT_BLACK_NOT_EN("10013","账户黑钻不足,请及时充值"),
+    USER_ACCOUNT_BLACK_NOT_EN("10013","账户红钻不足"),
     USER_ACCOUNT_BLUE_NOT_EN("10014","账户蓝钻不足,请及时充值"),
     USER_ACCOUNT_HORN_NOT_EN("10015","账户喇叭不足,请及时充值"),
     PHONE_NUMBER_IS_REGISTER("10016","手机号已被注册"),
@@ -45,6 +45,7 @@ public enum ErrorMsgEnum {
 
     USER_GETOPENID_ERROR("10035","获取openid失败"),
     USER_NOT_REALNAME_VALID("10036","用户未实名认证"),
+    USER_ACCOUNT_GOLD_NOT_EN("10037","账户金币不足"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -106,7 +107,9 @@ public enum ErrorMsgEnum {
     ROOM_IS_CLOSE("80024","房间已停播"),
     ROOM_MIC_IS_EXIST("80025","你已在麦上"),
     ROOM_USER_IS_EMPTY("80026","房间没有其他人"),
-    ROOM_MICUSER_IS_EMPTY("80026","房间麦上没有其他人")
+    ROOM_MICUSER_IS_EMPTY("80027","房间麦上没有其他人"),
+
+    DRAW_POOL_NOT_EN("90001","奖池余额不足")
 
 
     ;

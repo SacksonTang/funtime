@@ -6,15 +6,15 @@ server:
     min-spare-threads: 30
     accesslog:
       enabled: true
-      directory: C:\tomcat_log
+      directory: E:\tomcat_log
     connection-timeout: 30000
 
 spring:
   datasource:
     druid:
-      url: jdbc:mysql://127.0.0.1:3306/funtime?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      url: jdbc:mysql://106.52.93.16:3306/funtime?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
       username: root
-      password: 123456
+      password: funtime2019
       driver-class-name: com.mysql.cj.jdbc.Driver
       initial-size: 5
       max-active: 100
@@ -39,13 +39,20 @@ spring:
         url-pattern: /druid/*
         reset-enable: false
         login-username: admin
-        login-password: admin
-        allow: 127.0.0.1
+        login-password: funtime@2019
       filter:
         stat:
           db-type: mysql
           log-slow-sql: true
           slow-sql-millis: 5000
+  redis:
+    host: 106.52.93.16
+    port: 6379
+    password: redisredis
+
+
+
+
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.rzyou.funtime.entity
@@ -53,7 +60,7 @@ logging:
   config: classpath:logback-spring.xml
 app:
   pay:
-    notifyUrl: "http://127.0.0.1:8086/pay/notifyWxPay"
+    notifyUrl: https://test.rzyou.com/callback/notifyWxPay
     ip: "127.0.0.1"
-  logpath: C:\log
+  logpath: E:\log
 

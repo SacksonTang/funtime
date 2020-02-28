@@ -129,4 +129,6 @@ public class FuntimeUser implements Serializable {
 
     private Long imSdkAppId;
 
+    private Integer receivedGiftNum;
+
 }

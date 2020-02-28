@@ -151,6 +151,7 @@ public class UserServiceImpl implements UserService {
         user.setTagNames(tagNames);
         FuntimeUserAccount userAccount = accountMapper.selectByUserId(id);
         user.setBlueAmount(userAccount.getBlueDiamond().intValue());
+        user.setReceivedGiftNum(userAccount.getReceivedGiftNum());
         user.setLevel(userAccount.getLevel());
         user.setLevelUrl(userAccount.getLevelUrl());
         FuntimeChatroom chatroom = roomService.getRoomByUserId(id);
@@ -376,9 +377,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUserAccountForPlus(Long userId,BigDecimal blackDiamond, BigDecimal blueDiamond, Integer hornNumber) {
-
-
         int k = accountMapper.updateUserAccountForPlus(userId,blackDiamond,blueDiamond,hornNumber);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public void updateUserAccountForPlusGift(Long userId,BigDecimal blackDiamond, Integer receivedGiftNum) {
+        int k = accountMapper.updateUserAccountForPlusGift(userId,blackDiamond,receivedGiftNum);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
@@ -414,7 +421,21 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
 
+    }
 
+    @Override
+    public void updateUserAccountGoldCoinPlus(Long userId, Integer goldCoin) {
+        int k = accountMapper.updateUserAccountGoldCoinPlus(userId,goldCoin);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+    @Override
+    public void updateUserAccountGoldCoinSub(Long userId, Integer goldCoin) {
+        int k = accountMapper.updateUserAccountGoldCoinSub(userId,goldCoin);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
     }
 
     @Override

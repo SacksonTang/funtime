@@ -17,6 +17,7 @@
   </sql>
   <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
+    fullname,
     deposit_card as deposit_card_real,
     concat('收取赏金银行卡号: 尾号',RIGHT(deposit_card,4)) deposit_card,
     concat('收取赏金微信号: ',wx_no) wx_no,

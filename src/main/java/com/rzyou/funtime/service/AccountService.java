@@ -186,7 +186,6 @@ public interface AccountService {
      * @param preRmbAmount
      * @param preChannelAmount
      * @param amount
-     * @param code
      */
     void applyWithdrawal(Long userId, Integer withdrawalType, BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal preChannelAmount, BigDecimal amount, String ip);
 

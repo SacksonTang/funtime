@@ -13,7 +13,7 @@ public class MyWxPayConfig extends WXPayConfig {
     private int payType;
 
     public MyWxPayConfig(int payType) throws Exception {
-        //String certPath = "C:/Users/Funtime02/Desktop/1574424871_20200115_cert/apiclient_cert.p12";
+        //String certPath = "E:/cert/apiclient_cert.p12";
         this.payType = payType;
         String certPath = "/usr/cert/apiclient_cert.p12";
         File file = new File(certPath);

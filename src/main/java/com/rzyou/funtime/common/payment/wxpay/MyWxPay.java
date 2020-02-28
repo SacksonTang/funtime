@@ -26,7 +26,8 @@ public class MyWxPay {
                                                        String openid,String re_user_name,String amount){
         try {
             MyWxPayConfig config = new MyWxPayConfig(payType);
-            WXPay wxpay = new WXPay(config);
+            WXPay wxpay = new WXPay(config, WXPayConstants.SignType.MD5);
+
             Map<String, String> data = new HashMap<>();
             data.put("partner_trade_no", partner_trade_no);
             data.put("check_name", "FORCE_CHECK");
@@ -45,6 +46,7 @@ public class MyWxPay {
                 return resp;
             }
         }catch (Exception e) {
+            e.printStackTrace();
             throw new BusinessException(ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getValue(),ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getDesc());
 
         }

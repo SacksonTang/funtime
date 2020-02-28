@@ -732,7 +732,7 @@ public class AccountServiceImpl implements AccountService {
             userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
 
             //用户收加上黑钻
-            userService.updateUserAccountForPlus(toUserId, black, null, null);
+            userService.updateUserAccountForPlusGift(toUserId, black, giftNum);
 
             //用户送的日志
             saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
@@ -828,7 +828,7 @@ public class AccountServiceImpl implements AccountService {
         userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
 
         //用户收加上黑钻
-        userService.updateUserAccountForPlus(toUserId, black, null, null);
+        userService.updateUserAccountForPlusGift(toUserId, black, giftNum);
 
         //用户送的日志
         saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
@@ -936,7 +936,7 @@ public class AccountServiceImpl implements AccountService {
             userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
 
             //用户收加上黑钻
-            userService.updateUserAccountForPlus(toUserId, black, null, null);
+            userService.updateUserAccountForPlusGift(toUserId, black, giftNum);
 
             //用户送的日志
             saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
@@ -1040,7 +1040,7 @@ public class AccountServiceImpl implements AccountService {
             userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
 
             //用户收加上黑钻
-            userService.updateUserAccountForPlus(toUserId, black, null, null);
+            userService.updateUserAccountForPlusGift(toUserId, black, giftNum);
 
             //用户送的日志
             saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
@@ -1256,6 +1256,13 @@ public class AccountServiceImpl implements AccountService {
         //用户未实名
         if (user.getRealnameAuthenticationFlag()==2){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_REALNAME_VALID.getValue(),ErrorMsgEnum.USER_NOT_REALNAME_VALID.getDesc());
+        }
+        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
+        if (userAccount==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if (userAccount.getBlackDiamond().subtract(blackAmount).doubleValue()<0){
+            throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLACK_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLACK_NOT_EN.getDesc());
         }
         //是否绑定微信
         String openid = userService.queryUserOpenidByType(userId, "WX");

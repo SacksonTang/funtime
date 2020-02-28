@@ -16,6 +16,9 @@ public class WXPay {
     public WXPay(final WXPayConfig config) throws Exception {
         this(config, null, true, false);
     }
+    public WXPay(final WXPayConfig config,SignType signType) throws Exception {
+        this(config, null, true, false,signType);
+    }
 
     public WXPay(final WXPayConfig config, final boolean autoReport) throws Exception {
         this(config, null, autoReport, false);
@@ -45,6 +48,16 @@ public class WXPay {
         else {
             this.signType = SignType.HMACSHA256;
         }
+        this.wxPayRequest = new WXPayRequest(config);
+    }
+    public WXPay(final WXPayConfig config, final String notifyUrl, final boolean autoReport, final boolean useSandbox,final SignType signType) throws Exception {
+        this.config = config;
+        this.notifyUrl = notifyUrl;
+        this.autoReport = autoReport;
+        this.useSandbox = useSandbox;
+
+        this.signType = signType;
+
         this.wxPayRequest = new WXPayRequest(config);
     }
 
@@ -108,7 +121,7 @@ public class WXPay {
         reqData.put("mch_appid", config.getAppID());
         reqData.put("mchid", config.getMchID());
         reqData.put("nonce_str", WXPayUtil.generateNonceStr());
-        reqData.put("sign", WXPayUtil.generateSignature(reqData, config.getKey(), this.signType));
+        reqData.put("sign", WXPayUtil.generateSignature(reqData, config.getKey(), SignType.MD5));
         return reqData;
     }
 
@@ -270,6 +283,7 @@ public class WXPay {
         }
     }
 
+
     /**
      * 作用：提交刷卡支付<br>
      * 场景：刷卡支付
@@ -407,7 +421,7 @@ public class WXPay {
     public Map<String, String> mmpaymkttransfers(Map<String, String> reqData,  int connectTimeoutMs, int readTimeoutMs) throws Exception {
         String url = WXPayConstants.MMPAYMKTTRANSFERS_URL_SUFFIX;
         String respXml = this.requestWithCert(url, this.fillRequestMmpayData(reqData), connectTimeoutMs, readTimeoutMs);
-        return this.processResponseXml(respXml);
+        return WXPayUtil.xmlToMap(respXml);
     }
 
     /**

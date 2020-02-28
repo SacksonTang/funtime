@@ -686,7 +686,7 @@ public class RoomController {
      * @param request
      * @return
      */
-    @PostMapping("roomManage")
+    //@PostMapping("roomManage")
     public ResultMsg<Object> roomManage(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
@@ -722,7 +722,7 @@ public class RoomController {
      * @param request
      * @return
      */
-    @PostMapping("roomManageCancel")
+    //@PostMapping("roomManageCancel")
     public ResultMsg<Object> roomManageCancel(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {

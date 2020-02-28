@@ -130,6 +130,13 @@ public interface UserService {
     void updateUserAccountForPlus(Long userId,BigDecimal blackDiamond,BigDecimal blueDiamond,Integer hornNumber);
 
     /**
+     * 账户增加
+     * @param userId
+     * @param blackDiamond
+     * @param receivedGiftNum
+     */
+    void updateUserAccountForPlusGift(Long userId,BigDecimal blackDiamond, Integer receivedGiftNum);
+    /**
      * 账户减少
      * @param blackDiamond
      * @param blueDiamond
@@ -137,6 +144,19 @@ public interface UserService {
      */
     void updateUserAccountForSub(Long userId,BigDecimal blackDiamond,BigDecimal blueDiamond,Integer hornNumber);
 
+    /**
+     * 金币修改（增加）
+     * @param userId
+     * @param goldCoin
+     */
+    void updateUserAccountGoldCoinPlus(Long userId, Integer goldCoin);
+
+    /**
+     * 金币减少
+     * @param userId
+     * @param goldCoin
+     */
+    void updateUserAccountGoldCoinSub(Long userId, Integer goldCoin);
     /**
      * 修改手机号码
      * @param userId

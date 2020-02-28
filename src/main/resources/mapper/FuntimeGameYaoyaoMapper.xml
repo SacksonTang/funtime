@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeGameYaoyaoMapper">
+  
+  <select id="getYaoyaoConf" resultType="com.rzyou.funtime.entity.FuntimeGameYaoyaoConf">
+    select
+    number1,number2,number3,draw_type as drawType,draw_val as drawVal
+    ,probability,broadcast
+    from
+    t_funtime_game_yaoyao_conf
+  </select>
+  <select id="getYaoyaoPool" resultType="com.rzyou.funtime.entity.FuntimeGameYaoyaoPool">
+    select
+    id,quota,actual_pool as actualPool
+    from
+    t_funtime_game_yaoyao_pool
+    where type = #{type}
+  </select>
+  <select id="getPoolInfoById" resultType="com.rzyou.funtime.entity.FuntimeGameYaoyaoPool">
+    select
+    type,quota,init_pool as initPool,actual_pool as actualPool
+    from
+    t_funtime_game_yaoyao_pool
+    where id = #{id}
+  </select>
+  <update id="updateActualPoolForPlus">
+    update  t_funtime_game_yaoyao_pool
+    set actual_pool = actual_pool+#{amount}
+    where id = #{id}
+  </update>
+  <update id="updateActualPoolForSub">
+    update  t_funtime_game_yaoyao_pool
+    set actual_pool = actual_pool-#{amount}
+    where id = #{id} and actual_pool-#{amount}>=0
+  </update>
+
+</mapper>

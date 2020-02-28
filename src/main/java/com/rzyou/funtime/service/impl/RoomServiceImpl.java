@@ -564,11 +564,7 @@ public class RoomServiceImpl implements RoomService {
 
         Long micLocationId = chatroomMicMapper.getMicLocationId(roomId, micUserId);
         if (micLocationId!=null){
-            if (micLocation == 10){
-                chatroomMicMapper.lowerWheat(micLocationId);
-            }else {
-                chatroomMicMapper.lowerWheatWithRole(micLocationId);
-            }
+            chatroomMicMapper.lowerWheat(micLocationId);
         }
 
         int k = chatroomMicMapper.upperWheat(chatroomMic.getId(),micUserId);
@@ -1062,12 +1058,8 @@ public class RoomServiceImpl implements RoomService {
         if (micLocationUser.getMicUserId()==null||!micLocationUser.getMicUserId().equals(userId)){
             throw new BusinessException(ErrorMsgEnum.ROOM_MIC_USER_NOT_EXIST.getValue(),ErrorMsgEnum.ROOM_MIC_USER_NOT_EXIST.getDesc());
         }
-        int k;
-        if (micLocation ==10) {
-            k = chatroomMicMapper.lowerWheat(micLocationUser.getId());
-        }else{
-            k = chatroomMicMapper.lowerWheatWithRole(micLocationUser.getId());
-        }
+        int k = chatroomMicMapper.lowerWheat(micLocationUser.getId());
+
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }

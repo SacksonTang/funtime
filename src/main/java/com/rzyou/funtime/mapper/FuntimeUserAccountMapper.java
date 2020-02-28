@@ -9,7 +9,13 @@ import java.math.BigDecimal;
 @Mapper
 public interface FuntimeUserAccountMapper {
 
+    int updateUserAccountGoldCoinPlus(@Param("id") Long id,@Param("goldCoin") Integer goldCoin);
+
+    int updateUserAccountGoldCoinSub(@Param("id") Long id,@Param("goldCoin") Integer goldCoin);
+
     int updateUserAccountForPlus(@Param("id") Long id, @Param("blackDiamond") BigDecimal blackDiamond, @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber);
+
+    int updateUserAccountForPlusGift(@Param("id") Long id, @Param("blackDiamond") BigDecimal blackDiamond, @Param("receivedGiftNum") Integer receivedGiftNum);
 
     int updateUserAccountForSub(@Param("id") Long id, @Param("blackDiamond") BigDecimal blackDiamond
             , @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber
