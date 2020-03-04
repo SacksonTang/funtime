@@ -46,6 +46,7 @@ public enum ErrorMsgEnum {
     USER_GETOPENID_ERROR("10035","获取openid失败"),
     USER_NOT_REALNAME_VALID("10036","用户未实名认证"),
     USER_ACCOUNT_GOLD_NOT_EN("10037","账户金币不足"),
+    USER_WX_EXISTS("10038","微信已绑定"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -56,12 +57,19 @@ public enum ErrorMsgEnum {
     TOTAL_FEE_ERROR("30003","totalFee参数必须大于0"),
     ORDERQUERY_ERROR("30004","微信支付订单查询失败"),
     MMPAYMKTTRANSFER_ERROR("30005","企业付款调用失败"),
+    IOSPAY_VALID_ERROR("30006","苹果验证失败，返回数据为空"),
+    IOSPAY_NOT_THIS("30007","当前交易不在交易列表中"),
+    IOSPAY_TRANSFERS_EMPTY("30008","未能获取获取到交易列表"),
+    IOSPAY_ERROR("30009","支付失败，错误码："),
 
     ORDER_NOT_EXISTS("40001","充值订单记录不存在"),
     ORDER_IS_INVALID("40002","订单记录已失效"),
     ORDER_DATE_ERROR("40003","日期格式有误"),
     RECHARGE_CONF_NOT_EXISTS("40004","充值配置不存在"),
     RECHARGE_NUM_OUT("40005","充值超出最大值"),
+    RECHARGE_RMB_NOT_SAME("40006","金额不一致"),
+    RECHARGE_LEVEL_NOT_EXISTS("40007","充值等级配置不存在"),
+    RECHARGE_TRANSACTIONID_EXISTS("40008","transactionId已存在"),
 
     REDPACKET_IS_OVER("50001","红包已经抢完"),
     REDPACKET_IS_GRABED("50002","亲,您已经抢过,请点其他红包,谢谢"),
@@ -80,6 +88,7 @@ public enum ErrorMsgEnum {
     WITHDRAWAL_RMBAMOUNT_ERROR("70007","实际提现金额不符,请重重试"),
     WITHDRAWAL_WX_NOT_BIND("70008","微信没有绑定"),
     WITHDRAWAL_PRERMBAMOUNT_100_ERROR("70009","非首次提现试算金额必须为100的倍数"),
+    WITHDRAWAL_PHONE_NOT_BIND("70010","手机没有绑定"),
 
     ROOM_CREATE_ERROR("80001","房间创建失败"),
     ROOM_NOT_EXISTS("80002","房间不存在"),

@@ -189,7 +189,7 @@ public class TencentUtil {
         msgBody.add(elem);
         paramMap.put("MsgBody",msgBody);*/
 
-        log.info("paramMap:{}",paramMap);
+        log.debug("paramMap:{}",paramMap);
         String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
@@ -230,7 +230,7 @@ public class TencentUtil {
         msgBody.add(elem);
         paramMap.put("MsgBody",msgBody);
 
-        log.info(JSONObject.toJSONString(paramMap));
+        log.debug(JSONObject.toJSONString(paramMap));
         String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
         JSONObject result = JSONObject.parseObject(postStr);
         if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
@@ -378,7 +378,7 @@ public class TencentUtil {
      * @param levelUrl
      * @return
      */
-    public static boolean portraitSet(String usersig,String userId,String level,String levelUrl){
+    public static boolean portraitSet(String usersig,String userId,Integer level,String levelUrl){
         String url = getPortraitUrl(Constant.TENCENT_YUN_PORTRAIT_SET,usersig);
 
         JSONObject paramMap = new JSONObject();
@@ -392,7 +392,8 @@ public class TencentUtil {
             profileItem.put("Value", levelUrl);
             profileItems.add(profileItem);
         }
-        if (StringUtils.isNotBlank(level)) {
+        if (level!=null) {
+            profileItem = new JSONObject();
             profileItem.put("Tag", "Tag_Profile_IM_Level");
             profileItem.put("Value", level);
             profileItems.add(profileItem);

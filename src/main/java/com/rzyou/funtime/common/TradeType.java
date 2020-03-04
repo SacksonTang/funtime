@@ -9,6 +9,7 @@ public enum  TradeType {
     ,NATIVE("NATIVE","Native支付")
     ,APP("APP","app支付")
     ,MWEB("MWEB","H5支付")
+    ,APPLE("APPLE","苹果内购")
             ;
     private String value;
     private String desc;

@@ -15,6 +15,11 @@ public class Constant {
     public final static String DEFAULT_ROOM_PORTRAIT = "/default/room.png";
     public final static String SHARE_URL = "https://www.baidu.com";
 
+
+    public static final String APPLE_URL_SANDBOX = "https://sandbox.itunes.apple.com/verifyReceipt";
+    public static final String APPLE_URL_VERIFY = "https://buy.itunes.apple.com/verifyReceipt";
+
+
     public final static String WXCHATTEMP = "提交领赏申请成功，客服将按照你提交的领取方式联系您请关注公司公众号#，最新领赏通知将通过公众号推送";
 
     public final static String BChATROOM = "funtimefadacai";
@@ -72,8 +77,8 @@ public class Constant {
 
 
 
-    public final static long TENCENT_YUN_SDK_APPID = 1400317941;
-    public final static String TENCENT_YUN_SDK_APPSECRET = "f252f3e1faa559ef0f87505ade7c63ea6a04ea14fd8771869dd1d6f6a04aeb72";
+    public final static long TENCENT_YUN_SDK_APPID = 1400323798;
+    public final static String TENCENT_YUN_SDK_APPSECRET = "fe86b9de3bc8f83e011c39286c2977250e4dc7a793e77938a39f0817733109b1";
     public final static String TENCENT_YUN_SDK_VER = "v4";
     public final static String TENCENT_YUN_SDK_HOST = "console.tim.qq.com";
     public final static String TENCENT_YUN_IDENTIFIER = "testapp";
@@ -100,12 +105,14 @@ public class Constant {
 
     public final static String TENCENT_YUN_QUERYSTATE = "querystate";
 
-    public final static String TENCENT_YUN_COS_SECRETID = "AKID5Zom24pOefwypStiSu6l9G7i25qKETjm";
-    public final static String TENCENT_YUN_COS_SECRETKEY = "x71qQHsFNFUS9cpcAbnjRyCF8qfLrDNQ";
+    public final static String TENCENT_YUN_SECRETID = "AKID5Zom24pOefwypStiSu6l9G7i25qKETjm";
+    public final static String TENCENT_YUN_SECRETKEY = "x71qQHsFNFUS9cpcAbnjRyCF8qfLrDNQ";
+
     public final static String TENCENT_YUN_COS_APPID = "1300805214";
     public final static String TENCENT_YUN_COS_REGION = "ap-shanghai";
     public final static String TENCENT_YUN_COS_BUCKET = "funtime-1300805214";
 
+    public final static String TENCENT_YUN_MUSIC_URL = "music.rzyou.com";
 
     public final static int ROOM_MIC_UPPER = 1;
     public final static int ROOM_MIC_LOWER = 2;

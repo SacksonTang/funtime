@@ -645,6 +645,13 @@ public class RoomServiceImpl implements RoomService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        if (micLocationUser.getMicUserId()!=null){
+            Long id = chatroomUserMapper.checkUserIsExist(roomId, micLocationUser.getMicUserId());
+            k = chatroomUserMapper.updateUserRoleById(id,UserRole.ROOM_NORMAL.getValue());
+            if(k!=1){
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+        }
         List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
 
         //发送通知

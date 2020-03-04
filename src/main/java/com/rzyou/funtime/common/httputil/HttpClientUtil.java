@@ -7,6 +7,7 @@ import java.util.Map;
 
 
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.http.HttpEntity;
 
 import org.apache.http.client.ClientProtocolException;
@@ -14,6 +15,9 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.params.CookiePolicy;
+import org.apache.http.client.protocol.ResponseProcessCookies;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -81,11 +85,14 @@ public class HttpClientUtil {
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(10000)// 设置连接主机服务超时时间
                 .setConnectionRequestTimeout(10000)// 设置连接请求超时时间
                 .setSocketTimeout(20000)// 设置读取数据连接超时时间
-                .build();
+                .build()
+                ;
+
         // 为httpPost实例设置配置
         httpPost.setConfig(requestConfig);
         // 设置请求头
         httpPost.addHeader("Content-Type", contentType);
+
         // 封装post请求参数
         if (null != paramMap && paramMap.size() > 0) {
 

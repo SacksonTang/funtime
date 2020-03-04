@@ -8,6 +8,7 @@ import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.im.BankCardVerificationUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
+import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -1109,6 +1111,50 @@ public class UserServiceImpl implements UserService {
     @Override
     public FuntimeUser getUserInfoByShowId(String showId) {
         return userMapper.getUserInfoByShowId(Long.parseLong(showId));
+    }
+
+    @Override
+    public void bindWeixin(Long userId, String code, Integer type) {
+        JSONObject tokenJson = WeixinLoginUtils.getAccessToken(code);
+        String openid = tokenJson.getString("openid");
+        String access_token = tokenJson.getString("access_token");
+        JSONObject userJson = WeixinLoginUtils.getUserInfo(access_token,openid);
+        String nickName ;
+        try {
+            nickName = new String(userJson.getString("nickname").getBytes("ISO-8859-1"), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            nickName = "大侠";
+        }
+        FuntimeUserThird userThird = queryUserInfoByOpenid(openid,Constant.LOGIN_WX);
+        if (type==1){
+            if (userThird!=null){
+                throw new BusinessException(ErrorMsgEnum.USER_WX_EXISTS.getValue(),ErrorMsgEnum.USER_WX_EXISTS.getDesc());
+            }
+
+            saveUserThird(userId,Constant.LOGIN_WX,openid,userJson.getString("unionid"),access_token,nickName);
+
+        }else if (type == 2){
+            if (userThird==null){
+                throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_WX_NOT_BIND.getValue(),ErrorMsgEnum.WITHDRAWAL_WX_NOT_BIND.getDesc());
+            }
+            updateUserThird(userThird.getId(),userJson.getString("unionid"),access_token,openid,nickName);
+
+        }else{
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        }
+
+    }
+
+    public void updateUserThird(Long id,String unionId,String token,String openid,String nickname){
+        FuntimeUserThird userThird = new FuntimeUserThird();
+        userThird.setId(id);
+        userThird.setUnionid(unionId);
+        userThird.setToken(token);
+        userThird.setOpenid(openid);
+        userThird.setNickname(nickname);
+        if(userThirdMapper.updateByPrimaryKeySelective(userThird)!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
     }
 
 

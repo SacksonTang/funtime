@@ -47,6 +47,12 @@
     from t_funtime_user_account_recharge_record
     where user_id = #{userId} and state = 3
   </select>
+  <select id="checkTransactionIdExist" parameterType="java.lang.String" resultType="java.lang.Integer">
+    select
+     count(id)
+    from t_funtime_user_account_recharge_record
+    where recharge_card_id = #{transactionId}
+  </select>
   <select id="getRechargeNumByUserId" parameterType="java.lang.Long" resultType="java.math.BigDecimal">
     select
      ifnull(sum(rmb),0)
@@ -63,11 +69,14 @@
   </select>
   <select id="getRechargeDetailForPage"  resultMap="BaseResultMap">
     select
-    d.id, d.user_id, d.amount, d.rmb, d.recharge_card_id, d.recharge_channel_id,
+    d.id, d.user_id, d.pay_type,d.amount, d.rmb, d.recharge_card_id, d.recharge_channel_id,
     d.horn_num,  d.state, d.create_time,
 
-    case when t.tag_name = 'WX' then '微信'
-         when t.tag_name = 'ALIPAY' then '支付宝'
+    case when d.pay_type = 1 and t.tag_name = 'WX' then '微信'
+         when d.pay_type = 1 and t.tag_name = 'ALIPAY' then '支付宝'
+         when d.pay_type = 2 then '小程序支付'
+         when d.pay_type = 3 then '公众号支付'
+         when d.pay_type = 4 then '苹果内购'
          else '银行卡' end tagName
     from t_funtime_user_account_recharge_record d left join t_funtime_tag t on d.recharge_channel_id = t.id
     where  user_id = #{userId}

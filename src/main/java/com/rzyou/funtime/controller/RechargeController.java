@@ -28,6 +28,44 @@ public class RechargeController {
 
 
     /**
+     * 苹果内购
+     * @param request
+     * @return
+     */
+    @PostMapping("iosRecharge")
+    public ResultMsg<Object> iosRecharge(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String transactionId = paramJson.getString("transactionId");
+            String payload = paramJson.getString("payload");
+            Long userId = paramJson.getLong("userId");
+            String productId = paramJson.getString("productId");
+
+            if (userId==null||StringUtils.isBlank(transactionId)||StringUtils.isBlank(payload)
+                       ||StringUtils.isBlank(productId)) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            accountService.iosRecharge(userId,transactionId,payload,productId);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 充值生成待支付记录
      */
     @PostMapping("startRecharge")
@@ -130,5 +168,7 @@ public class RechargeController {
             return result;
         }
     }
+
+
 
 }

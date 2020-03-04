@@ -19,7 +19,7 @@ public class BankCardVerificationUtil {
     public static void bankCardVerification(String bankCard,String name,String idCard){
         try{
             // 实例化一个认证对象，入参需要传入腾讯云账户secretId，secretKey
-            Credential cred = new Credential(Constant.TENCENT_YUN_COS_SECRETID, Constant.TENCENT_YUN_COS_SECRETKEY);
+            Credential cred = new Credential(Constant.TENCENT_YUN_SECRETID, Constant.TENCENT_YUN_SECRETKEY);
 
             // 实例化要请求产品(以cvm为例)的client对象
             ClientProfile clientProfile = new ClientProfile();

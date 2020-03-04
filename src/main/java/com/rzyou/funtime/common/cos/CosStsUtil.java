@@ -20,9 +20,9 @@ public class CosStsUtil {
         TreeMap<String, Object> config = new TreeMap<>();
         try {
             // 云 api 密钥 SecretId
-            config.put("secretId", Constant.TENCENT_YUN_COS_SECRETID);
+            config.put("secretId", Constant.TENCENT_YUN_SECRETID);
             // 云 api 密钥 SecretKey
-            config.put("secretKey", Constant.TENCENT_YUN_COS_SECRETKEY);
+            config.put("secretKey", Constant.TENCENT_YUN_SECRETKEY);
             // 临时密钥有效时长，单位是秒
             config.put("durationSeconds", 60*60*2);
 

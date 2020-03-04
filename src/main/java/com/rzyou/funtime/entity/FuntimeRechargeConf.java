@@ -27,5 +27,7 @@ public class FuntimeRechargeConf implements Serializable {
 
     private Integer platform;
 
+    private String productId;
+
 
 }

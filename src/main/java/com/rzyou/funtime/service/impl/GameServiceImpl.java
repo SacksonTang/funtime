@@ -120,9 +120,7 @@ public class GameServiceImpl implements GameService {
         if (conf.getDrawVal().doubleValue()<=0){
             //不中奖
             //奖池增加
-            if (poolInfo.getActualPool()-subActualPool.intValue()<0){
-                throw new BusinessException(ErrorMsgEnum.DRAW_POOL_NOT_EN.getValue(),ErrorMsgEnum.DRAW_POOL_NOT_EN.getDesc());
-            }
+
             updateActualPoolForPlus(id,subActualPool.intValue());
 
             if (type == 1) {
@@ -134,19 +132,22 @@ public class GameServiceImpl implements GameService {
             } else {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
             }
-            result.put("actualPool",poolInfo.getActualPool()-subActualPool.intValue());
+            result.put("actualPool",poolInfo.getActualPool()+subActualPool.intValue());
             return result;
         }
 
         BigDecimal drawAmount = conf.getDrawType()==1?new BigDecimal(poolInfo.getActualPool()).multiply(conf.getDrawVal()).setScale(0,BigDecimal.ROUND_HALF_UP)
                 :new BigDecimal(poolInfo.getQuota()).multiply(conf.getDrawVal()).setScale(0,BigDecimal.ROUND_HALF_UP);
+        result.put("drawAmount",drawAmount.intValue());
+        //中奖减去奖池增加的就是奖池需要减去的
         BigDecimal actualAmount = drawAmount.subtract(subActualPool);
         if (poolInfo.getActualPool()-actualAmount.intValue()<0){
-            throw new BusinessException(ErrorMsgEnum.DRAW_POOL_NOT_EN.getValue(),ErrorMsgEnum.DRAW_POOL_NOT_EN.getDesc());
+            actualAmount = new BigDecimal(poolInfo.getActualPool());
+            drawAmount = new BigDecimal(poolInfo.getActualPool());
+            //throw new BusinessException(ErrorMsgEnum.DRAW_POOL_NOT_EN.getValue(),ErrorMsgEnum.DRAW_POOL_NOT_EN.getDesc());
         }
         updateActualPoolForSub(id,actualAmount.intValue());
 
-        result.put("drawAmount",drawAmount.intValue());
         result.put("actualPool",poolInfo.getActualPool()-actualAmount.intValue());
 
         if (drawAmount.intValue()-poolInfo.getQuota()<0) {

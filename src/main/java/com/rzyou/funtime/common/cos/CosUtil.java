@@ -45,7 +45,7 @@ public class CosUtil {
 
     public static COSClient initCosClient(){
         // 1 初始化用户身份信息（secretId, secretKey）。
-        COSCredentials cred = new BasicCOSCredentials(Constant.TENCENT_YUN_COS_SECRETID, Constant.TENCENT_YUN_COS_SECRETKEY);
+        COSCredentials cred = new BasicCOSCredentials(Constant.TENCENT_YUN_SECRETID, Constant.TENCENT_YUN_SECRETKEY);
         // 2 设置 bucket 的区域, COS 地域的简称请参照 https://cloud.tencent.com/document/product/436/6224
         // clientConfig 中包含了设置 region, https(默认 http), 超时, 代理等 set 方法, 使用可参见源码或者常见问题 Java SDK 部分。
         Region region = new Region(Constant.TENCENT_YUN_COS_REGION);

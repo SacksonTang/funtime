@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,37 @@ public class UserController {
     AccountService accountService;
     @Autowired
     ParameterService parameterService;
+
+    @PostMapping("getGlobalConfig")
+    public ResultMsg<Object> getGlobalConfig(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Map<String,Object> data = new HashMap<>();
+            //IM
+            data.put("imSdkAppId",Constant.TENCENT_YUN_SDK_APPID);
+            data.put("imAdmin",Constant.TENCENT_YUN_IDENTIFIER);
+
+            //是否显示红包
+            data.put("isRedpacketShow",parameterService.getParameterValueByKey("is_redpacket_show"));
+            //cos信息
+            data.put("cosBucket",Constant.TENCENT_YUN_COS_BUCKET);
+            data.put("cosRegion",Constant.TENCENT_YUN_COS_REGION);
+            //音乐url
+            data.put("musicUrl",Constant.TENCENT_YUN_MUSIC_URL);
+            result.setData(data);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
     /**
      * 根据类型获取标签
@@ -385,6 +417,40 @@ public class UserController {
             if (bindType == 2){
                 userService.bindPhoneNumber(userId,phoneNumber,code);
             }
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 绑定weixin
+     * @param request
+     * @return
+     */
+    @PostMapping("bindWeixin")
+    public ResultMsg<Object> bindWeixin(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            String code = paramJson.getString("code");
+            Integer type = paramJson.getInteger("type");//1-绑定2-换绑
+            if (StringUtils.isBlank(code)||userId==null||type==null) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            userService.bindWeixin(userId,code,type);
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

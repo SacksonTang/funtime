@@ -8,12 +8,13 @@
     <result column="convertible_ratio" jdbcType="DECIMAL" property="convertibleRatio" />
     <result column="tag_colour" jdbcType="VARCHAR" property="tagColour" />
     <result column="tag_name" jdbcType="VARCHAR" property="tagName" />
+    <result column="product_id" jdbcType="VARCHAR" property="productId" />
     <result column="horn_num" jdbcType="INTEGER" property="hornNum" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="platform" jdbcType="INTEGER" property="platform" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, recharge_rmb, recharge_num, convertible_ratio, tag_colour, tag_name, horn_num, create_time,platform
+    id, recharge_rmb, recharge_num, convertible_ratio, tag_colour, tag_name, horn_num, create_time,platform,product_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -21,9 +22,15 @@
     from t_funtime_recharge_conf
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="getRechargeConfByProductId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_recharge_conf
+    where product_id=#{productId} limit 1
+  </select>
   <select id="getRechargeConf"  resultMap="BaseResultMap">
     select
-    id, recharge_rmb, recharge_num, tag_name, horn_num,tag_colour
+    id, recharge_rmb, recharge_num, tag_name, horn_num,tag_colour,product_id
     from t_funtime_recharge_conf
     where platform = #{platform}
     order by id

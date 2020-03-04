@@ -446,4 +446,12 @@ public interface UserService {
      * @return
      */
     FuntimeUser getUserInfoByShowId(String showId);
+
+    /**
+     * 绑定微信
+     * @param userId
+     * @param code
+     * @param type
+     */
+    void bindWeixin(Long userId, String code, Integer type);
 }

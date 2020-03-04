@@ -4,8 +4,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.im.TencentUtil;
+import com.rzyou.funtime.common.payment.iospay.IosPayUtil;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
-import com.rzyou.funtime.common.payment.wxpay.sdk.WXPay;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
@@ -111,10 +111,97 @@ public class AccountServiceImpl implements AccountService {
             }
         }
     }
-    @Transactional
+
+
+    @Transactional(rollbackFor = Throwable.class)
     public void closeOrder(Long orderId, String orderNo, Integer payType){
         MyWxPay.closeOrder(orderNo,payType);
         updateState(orderId,PayState.INVALID.getValue(),null, null);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void iosRecharge(Long userId, String transactionId, String payload, String productId){
+        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
+        if (userAccount==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        FuntimeRechargeConf rechargeConf = rechargeConfMapper.getRechargeConfByProductId(productId);
+        if (rechargeConf==null){
+            throw new BusinessException(ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getValue(),ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getDesc());
+        }
+        if (userAccountRechargeRecordMapper.checkTransactionIdExist(transactionId)>0){
+            throw new BusinessException(ErrorMsgEnum.RECHARGE_TRANSACTIONID_EXISTS.getValue(),ErrorMsgEnum.RECHARGE_TRANSACTIONID_EXISTS.getDesc());
+        }
+
+        IosPayUtil.iosPay(transactionId, payload);
+
+        String max_recharge = parameterService.getParameterValueByKey("max_recharge");
+        BigDecimal maxRecharge = max_recharge == null?new BigDecimal(100000):new BigDecimal(max_recharge);
+        if (rechargeConf.getRechargeRmb().subtract(maxRecharge).doubleValue()>0){
+            throw new BusinessException(ErrorMsgEnum.RECHARGE_NUM_OUT.getValue(),ErrorMsgEnum.RECHARGE_NUM_OUT.getDesc());
+        }
+        Integer hornNum = rechargeConf.getHornNum();
+
+        //首充送三个
+        if (isFirstRecharge(userId)){
+            String first_recharge_horn = parameterService.getParameterValueByKey("first_recharge_horn");
+            hornNum +=  Integer.parseInt(first_recharge_horn==null?"3":first_recharge_horn);
+        }
+        FuntimeUserAccountRechargeRecord record = new FuntimeUserAccountRechargeRecord();
+        record.setUserId(userId);
+        record.setPayType(4);
+        record.setCompleteTime(new Date());
+        record.setRechargeConfId(rechargeConf.getId());
+        record.setRmb(rechargeConf.getRechargeRmb());
+        record.setRechargeCardId(transactionId);
+        record.setHornNum(hornNum);
+        record.setAmount(rechargeConf.getRechargeNum());
+        String orderNo = "A"+StringUtil.createOrderId();
+        saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.PAIED.getValue(), orderNo);
+
+        //用户总充值数
+        BigDecimal total = userAccountRechargeRecordMapper.getRechargeNumByUserId(record.getUserId());
+
+        //充值等级
+        Map<String,Object> userLevelMap = userAccountRechargeRecordMapper.getUserLevel(total.intValue());
+
+        if (userLevelMap==null){
+            throw new BusinessException(ErrorMsgEnum.RECHARGE_LEVEL_NOT_EXISTS.getValue(),ErrorMsgEnum.RECHARGE_LEVEL_NOT_EXISTS.getDesc());
+        }
+        Integer userLevel = userLevelMap.get("level")==null?0:Integer.parseInt(userLevelMap.get("level").toString());
+        String levelUrl = userLevelMap.get("levelUrl")==null?"":userLevelMap.get("levelUrl").toString();
+
+        if (!userLevel.equals(userAccount.getLevel())){
+            userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),record.getHornNum());
+            updateLevelExtr(userId,userLevel,levelUrl);
+        }else{
+            userAccountMapper.updateUserAccountForPlus(record.getUserId(),null,record.getAmount(),record.getHornNum());
+        }
+
+        //记录日志
+        saveUserAccountBlueLog(record.getUserId(),record.getAmount(),record.getId()
+                , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
+        if(record.getHornNum()!=null&&record.getHornNum()>0){
+            saveUserAccountHornLog(record.getUserId(),record.getHornNum(),record.getId()
+                    , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
+        }
+
+    }
+
+    private void updateLevelExtr(Long userId,Integer userLevel,String levelUrl){
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        boolean flag = TencentUtil.portraitSet(userSig, userId.toString(),userLevel,levelUrl);
+        if (!flag){
+            throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(),ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
+        }
+        Long roomId = roomService.checkUserIsInMic(userId);
+        if (roomId!=null){
+            List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+            if (roomNos!=null&&!roomNos.isEmpty()) {
+                noticeService.notice25(userId,roomId,levelUrl, null, null, roomNos);
+            }
+        }
     }
 
     @Override
@@ -156,7 +243,7 @@ public class AccountServiceImpl implements AccountService {
         Long id = saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
 
         Map<String, String> orderMap = unifiedOrder(ip, "WEB", id.toString()
-                , rechargeConf.getRechargeRmb().multiply(new BigDecimal(100)).toString(), orderNo,trade_type,record.getOpenid(),record.getPayType());
+                , rechargeConf.getRechargeRmb().multiply(new BigDecimal(100)).setScale(0,BigDecimal.ROUND_HALF_UP).toString(), orderNo,trade_type,record.getOpenid(),record.getPayType());
 
         return orderMap;
 
@@ -164,10 +251,6 @@ public class AccountServiceImpl implements AccountService {
 
     public Map<String, String> unifiedOrder(String ip, String imei, String orderId, String totalFee, String orderNo, String trade_type, String openid, Integer payType) {
 
-        /*
-        上线需去掉
-         */
-        totalFee = String.valueOf(new BigDecimal(totalFee).divide(new BigDecimal(100)).intValue());
         if (TradeType.APP.getValue().equals(trade_type)) {
             return MyWxPay.unifiedOrder(totalFee, ip, orderNo, imei, notifyUrl, orderId, trade_type,payType);
         }
@@ -230,12 +313,11 @@ public class AccountServiceImpl implements AccountService {
                 return;
             }
 
-            //上线打开
-            /*
-            if (!total_fee.equals(record.getRmb().multiply(new BigDecimal(100)).toString())){
+
+            if (new BigDecimal(total_fee).intValue()!=record.getRmb().multiply(new BigDecimal(100)).intValue()){
                 log.info("支付回调中金额与系统订单金额不一致,微信订单金额:{},系统订单金额:{}",total_fee,record.getRmb().multiply(new BigDecimal(100)).toString());
                 return;
-            }*/
+            }
 
             Integer hornNum = null;
 
@@ -262,18 +344,7 @@ public class AccountServiceImpl implements AccountService {
 
             if (!userLevel.equals(userAccount.getLevel())){
                 userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),record.getHornNum());
-                String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
-                boolean flag = TencentUtil.portraitSet(userSig, record.getUserId().toString(),userLevel.toString(),levelUrl);
-                if (!flag){
-                    throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(),ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
-                }
-                Long roomId = roomService.checkUserIsInMic(record.getUserId());
-                if (roomId!=null){
-                    List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
-                    if (roomNos!=null&&!roomNos.isEmpty()) {
-                        noticeService.notice25(record.getUserId(),roomId,levelUrl, null, null, roomNos);
-                    }
-                }
+                updateLevelExtr(record.getUserId(),userLevel,levelUrl);
             }else{
                 userAccountMapper.updateUserAccountForPlus(record.getUserId(),null,record.getAmount(),record.getHornNum());
             }
@@ -1256,6 +1327,10 @@ public class AccountServiceImpl implements AccountService {
         //用户未实名
         if (user.getRealnameAuthenticationFlag()==2){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_REALNAME_VALID.getValue(),ErrorMsgEnum.USER_NOT_REALNAME_VALID.getDesc());
+        }
+        //未绑定手机
+        if (StringUtils.isBlank(user.getPhoneNumber())){
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_PHONE_NOT_BIND.getValue(),ErrorMsgEnum.WITHDRAWAL_PHONE_NOT_BIND.getDesc());
         }
         FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
         if (userAccount==null){

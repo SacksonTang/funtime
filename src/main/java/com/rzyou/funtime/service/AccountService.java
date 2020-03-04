@@ -294,4 +294,13 @@ public interface AccountService {
      * 订单查询定时任务
      */
     void orderQueryTask();
+
+    /**
+     * 苹果内购
+     * @param userId
+     * @param transactionId
+     * @param payload
+     * @param productId
+     */
+    void iosRecharge(Long userId, String transactionId, String payload, String productId);
 }
