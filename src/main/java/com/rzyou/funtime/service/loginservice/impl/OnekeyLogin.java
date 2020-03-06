@@ -10,6 +10,7 @@ import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.DateUtil;
+import com.rzyou.funtime.utils.StringUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,9 @@ public class OnekeyLogin implements LoginStrategy {
         }
 
         String phoneNumber = LinkmeUtil.getPhone(user.getToken(),user.getChannel(),user.getPlatform(),user.getCode());
-
+        String uuid = StringUtil.createNonceStr();
         String userId ;
+        String token;
         FuntimeUser funtimeUser = userService.queryUserInfoByPhone(phoneNumber);
         if(funtimeUser==null){
             //新用户
@@ -50,9 +52,9 @@ public class OnekeyLogin implements LoginStrategy {
             user.setPhoneNumber(phoneNumber);
             userService.saveUser(user, null, null, null,null);
             userId = user.getId().toString();
-            String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
-            user.setToken(token);
-            userService.updateTokenById(user.getId(),token);
+
+            token = JwtHelper.generateJWT(userId,uuid);
+            userService.updateTokenById(user.getId(),uuid);
 
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
@@ -65,13 +67,14 @@ public class OnekeyLogin implements LoginStrategy {
             if(funtimeUser.getState().intValue()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
-            String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
-            userService.updateUserInfo(funtimeUser.getId(),1,token,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
+            token = JwtHelper.generateJWT(userId,uuid);
+            userService.updateUserInfo(funtimeUser.getId(),1,uuid,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
 
         }
         FuntimeUser info = userService.getUserBasicInfoById(Long.parseLong(userId));
         info.setBlueAmount(userService.getUserAccountInfoById(Long.parseLong(userId)).getBlueDiamond().intValue());
         info.setNewUser(false);
+        info.setToken(token);
         return info;
     }
 }

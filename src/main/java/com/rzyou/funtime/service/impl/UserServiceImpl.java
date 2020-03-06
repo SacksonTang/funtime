@@ -184,11 +184,20 @@ public class UserServiceImpl implements UserService {
         return userThirdMapper.queryUserOpenidByType(userId,thirdType);
     }
 
+    @Override
+    public FuntimeUserThird queryUserThirdIdByType(Long userId, String thirdType) {
+        return userThirdMapper.queryUserThirdIdByType(userId,thirdType);
+    }
+
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid,String accessToken) {
         insertSelective(user);
+
+        if (StringUtils.isNotBlank(user.getPhoneNumber())){
+            userMapper.saveUserInfoChangeLog(user.getId(),"phone_number",user.getPhoneNumber());
+        }
 
         //足迹
         saveRecode(user.getId(),user.getPhoneImei(),user.getIp(),1, null, user.getLoginType(), user.getDeviceName());
@@ -196,8 +205,8 @@ public class UserServiceImpl implements UserService {
         saveUserAccount(user.getId());
 
         if (openType!=null) {
-
             saveUserThird(user.getId(), openType, openid, unionid, accessToken,user.getNickname());
+            userMapper.saveUserInfoChangeLog(user.getId(),"openid",openType+"/"+openid);
         }
 
         return true;
@@ -456,19 +465,20 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorMsgEnum.PHONE_NUMBER_IS_NOT_REGISTER.getValue(),ErrorMsgEnum.PHONE_NUMBER_IS_NOT_REGISTER.getDesc());
         }
 
-        Long smsId = smsService.validateSms(SmsType.UPDATE_PHONENUMBER.getValue(),newPhoneNumber,code);
+        String isSend = parameterService.getParameterValueByKey("is_send");
+        if (isSend!=null&&isSend.equals("1")) {
+            smsService.validateSms(SmsType.UPDATE_PHONENUMBER.getValue(),newPhoneNumber,code);
+        }
 
         int k = userMapper.updatePhoneNumberById(userId,user.getVersion(),System.currentTimeMillis(),newPhoneNumber);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
 
-        smsService.updateSmsInfoById(smsId,1);
-
     }
 
     @Override
-    public void saveUserValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo, String code) {
+    public void saveUserValid(Long userId, String fullname, String identityCard, String depositCard, String code) {
         FuntimeUser user = queryUserById(userId);
         if(user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
@@ -477,18 +487,18 @@ public class UserServiceImpl implements UserService {
         if(userValid!=null){
             throw new BusinessException(ErrorMsgEnum.USERVALID_IS_EXISTS.getValue(),ErrorMsgEnum.USERVALID_IS_EXISTS.getDesc());
         }
-
-        smsService.validateSms(SmsType.REAL_VALID.getValue(),user.getPhoneNumber(),code);
+        String isSend = parameterService.getParameterValueByKey("is_send");
+        if (isSend!=null&&isSend.equals("1")) {
+            smsService.validateSms(SmsType.REAL_VALID.getValue(),user.getPhoneNumber(),code);
+        }
 
         BankCardVerificationUtil.bankCardVerification(depositCard,fullname,identityCard);
 
 
         userValid = new FuntimeUserValid();
-        userValid.setAlipayNo(alipayNo);
         userValid.setDepositCard(depositCard);
         userValid.setFullname(fullname);
         userValid.setIdentityCard(identityCard);
-        userValid.setWxNo(wxNo);
         userValid.setUserId(userId);
         int k = userValidMapper.insertSelective(userValid);
         if(k!=1){
@@ -973,6 +983,15 @@ public class UserServiceImpl implements UserService {
         result.put("black_to_rmb",black_to_rmb);
         result.put("agreementUrl",Constant.COS_URL_PREFIX+Constant.AGREEMENT_WITHDRAL);
 
+        result.put("withdrawalMaxDay",parameterService.getParameterValueByKey("withdrawal_max_day"));
+        result.put("withdrawalMinOnce",parameterService.getParameterValueByKey("withdrawal_min_once"));
+        FuntimeUserThird userThird = queryUserThirdIdByType(userId, Constant.LOGIN_WX);
+        if (userThird==null){
+            result.put("wx_bind",false);
+        }else{
+            result.put("wx_bind",true);
+            result.put("wxNickname",userThird.getNickname());
+        }
         return result;
     }
 
@@ -995,8 +1014,10 @@ public class UserServiceImpl implements UserService {
         if (!checkUserExists(userId)){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
-        Long smsId = smsService.validateSms(SmsType.UPDATE_PHONENUMBER.getValue(),oldPhoneNumber,code);
-        smsService.updateSmsInfoById(smsId,1);
+        String isSend = parameterService.getParameterValueByKey("is_send");
+        if (isSend!=null&&isSend.equals("1")) {
+            smsService.validateSms(SmsType.UPDATE_PHONENUMBER.getValue(),oldPhoneNumber,code);
+        }
     }
 
     @Override
@@ -1062,6 +1083,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void bindPhoneNumber(Long userId, String phoneNumber) {
         FuntimeUser user = userMapper.queryUserInfoByPhone(phoneNumber);
         if (user!=null){
@@ -1080,6 +1102,7 @@ public class UserServiceImpl implements UserService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        userMapper.saveUserInfoChangeLog(userId,"phone_number",phoneNumber);
     }
 
     @Override
@@ -1097,15 +1120,17 @@ public class UserServiceImpl implements UserService {
         if (user.getPhoneNumber()!=null){
             throw new BusinessException(ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getValue(),ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getDesc());
         }
-
-        Long smsId = smsService.validateSms(SmsType.BIND_PHONENUMBER.getValue(),phoneNumber,code);
+        String isSend = parameterService.getParameterValueByKey("is_send");
+        if (isSend!=null&&isSend.equals("1")) {
+            smsService.validateSms(SmsType.BIND_PHONENUMBER.getValue(),phoneNumber,code);
+        }
 
         int k = userMapper.updatePhoneNumberById(userId,user.getVersion(),System.currentTimeMillis(),phoneNumber);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        userMapper.saveUserInfoChangeLog(userId,"phone_number",phoneNumber);
 
-        smsService.updateSmsInfoById(smsId,1);
     }
 
     @Override
@@ -1114,7 +1139,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void bindWeixin(Long userId, String code, Integer type) {
+    @Transactional(rollbackFor = Throwable.class)
+    public String bindWeixin(Long userId, String code, Integer type) {
+        if (!checkUserExists(userId)){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if (type == 3){
+            unBindWeixin(userId);
+            return null;
+        }
         JSONObject tokenJson = WeixinLoginUtils.getAccessToken(code);
         String openid = tokenJson.getString("openid");
         String access_token = tokenJson.getString("access_token");
@@ -1130,7 +1163,6 @@ public class UserServiceImpl implements UserService {
             if (userThird!=null){
                 throw new BusinessException(ErrorMsgEnum.USER_WX_EXISTS.getValue(),ErrorMsgEnum.USER_WX_EXISTS.getDesc());
             }
-
             saveUserThird(userId,Constant.LOGIN_WX,openid,userJson.getString("unionid"),access_token,nickName);
 
         }else if (type == 2){
@@ -1142,7 +1174,51 @@ public class UserServiceImpl implements UserService {
         }else{
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
+        userMapper.saveUserInfoChangeLog(userId,"openid",Constant.LOGIN_WX+"/"+openid);
 
+        return nickName;
+    }
+
+    @Override
+    public Map<String, Object> getInstallInfo(Long userId) {
+        Map<String,Object> result = new HashMap<>();
+        FuntimeUser user = queryUserById(userId);
+        if (user == null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if (StringUtils.isNotBlank(user.getPhoneNumber())){
+            result.put("bindPhone",true);
+            result.put("phoneNumber",user.getPhoneNumber());
+        }else{
+            result.put("bindPhone",false);
+        }
+        FuntimeUserThird userThird = queryUserThirdIdByType(userId,Constant.LOGIN_WX);
+        if (userThird == null){
+            result.put("bindWx",false);
+        }else{
+            result.put("bindWx",true);
+            result.put("wxNickname",userThird.getNickname());
+        }
+        userThird = queryUserThirdIdByType(userId,Constant.LOGIN_QQ);
+        if (userThird == null){
+            result.put("bindQq",false);
+        }else{
+            result.put("bindQq",true);
+            result.put("qqNickname",userThird.getNickname());
+        }
+        return result;
+    }
+
+    private void unBindWeixin(Long userId) {
+        FuntimeUserThird userThird = queryUserThirdIdByType(userId, Constant.LOGIN_WX);
+        if (userThird == null){
+            throw new BusinessException(ErrorMsgEnum.USER_WX_NOT_BIND.getValue(),ErrorMsgEnum.USER_WX_NOT_BIND.getDesc());
+        }
+        int k = userThirdMapper.deleteByPrimaryKey(userThird.getId());
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        userMapper.saveUserInfoChangeLog(userId,"openid","weixin unbind");
     }
 
     public void updateUserThird(Long id,String unionId,String token,String openid,String nickname){

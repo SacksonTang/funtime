@@ -51,6 +51,8 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     FuntimeUserAccountBlueLogMapper userAccountBlueLogMapper;
     @Autowired
+    FuntimeUserAccountGoldLogMapper userAccountGoldLogMapper;
+    @Autowired
     FuntimeUserAccountMapper userAccountMapper;
     @Autowired
     FuntimeUserAccountHornLogMapper userAccountHornLogMapper;
@@ -1159,6 +1161,7 @@ public class AccountServiceImpl implements AccountService {
         return resultMsg;
     }
 
+    @Override
     public FuntimeUserAccount getUserAccountByUserId(Long userId){
         FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
         if (userAccount==null){
@@ -1314,7 +1317,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void applyWithdrawal(Long userId, Integer withdrawalType, BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal preChannelAmount, BigDecimal amount, String ip) {
+    public void applyWithdrawal(Long userId, BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal preChannelAmount, BigDecimal amount, String ip) {
 
         FuntimeUser user = userService.queryUserById(userId);
         if(user==null){
@@ -1340,8 +1343,8 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLACK_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLACK_NOT_EN.getDesc());
         }
         //是否绑定微信
-        String openid = userService.queryUserOpenidByType(userId, "WX");
-        if (StringUtils.isBlank(openid)){
+        FuntimeUserThird userThird = userService.queryUserThirdIdByType(userId, Constant.LOGIN_WX);
+        if (userThird==null){
             throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_WX_NOT_BIND.getValue(),ErrorMsgEnum.WITHDRAWAL_WX_NOT_BIND.getDesc());
         }
         //是否实名认证
@@ -1350,10 +1353,8 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.USERVALID_IS_NOT_VALID.getValue(),ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
         }
 
-        //Long smsId = smsService.validateSms(SmsType.REAL_VALID.getValue(),user.getPhoneNumber(),code);
-
         //获取配置表中渠道费
-        BigDecimal channelAmount = getServiceAmount(blackAmount.intValue());
+        BigDecimal channelAmount = getServiceAmount(preRmbAmount.intValue());
 
         //检查前端渠道费
         if (channelAmount.subtract(preChannelAmount).intValue()!=0){
@@ -1382,16 +1383,18 @@ public class AccountServiceImpl implements AccountService {
         //检查实际提现金额限制
         checkWithdrawalConf(userId,amount);
 
+        Integer withdrawalType = getWithdrawalType(preRmbAmount);
         //获取提现号码
-        String withdrawalCard = getWithdrawalCard(userId, withdrawalType,openid,userValid.getDepositCardReal());
+        String withdrawalCard = getWithdrawalCard(withdrawalType,userThird.getOpenid(),userValid.getDepositCardReal());
 
+        String nickname = getNickname(withdrawalType,userThird.getNickname(),userValid.getDepositCard());
         //获取审核类型
         int trialType = getTrialType(preRmbAmount);
 
         String orderNo = "D"+StringUtil.createOrderId();
 
         Long recordId = saveFuntimeUserAccountWithdrawalRecord(userId,withdrawalType
-                ,withdrawalCard,amount,blackAmount,ratio,channelAmount,preRmbAmount,trialType,orderNo);
+                ,withdrawalCard,amount,blackAmount,ratio,channelAmount,preRmbAmount,trialType,orderNo,nickname);
 
         //减去用户黑钻
         userService.updateUserAccountForSub(userId,blackAmount,null,null);
@@ -1401,7 +1404,7 @@ public class AccountServiceImpl implements AccountService {
         //自动转账
         if (trialType == 1){
             try {
-                Map<String, String> resp = MyWxPay.mmpaymkttransfers(1, orderNo, ip, openid, userValid.getFullname(), String.valueOf(amount.multiply(new BigDecimal(100)).intValue()));
+                Map<String, String> resp = MyWxPay.mmpaymkttransfers(1, orderNo, ip, userThird.getOpenid(), userValid.getFullname(), String.valueOf(amount.multiply(new BigDecimal(100)).intValue()));
                 String payment_no = resp.get("payment_no");
                 //转账成功更新状态和第三方订单
                 updateFuntimeUserAccountWithdrawalRecord(recordId,3,null,payment_no);
@@ -1412,6 +1415,28 @@ public class AccountServiceImpl implements AccountService {
         }
 
         //smsService.updateSmsInfoById(smsId,1);
+    }
+
+    private String getNickname(Integer withdrawalType, String nickname, String depositCard) {
+
+        if (WithdrawalType.WXPAY.getValue() == withdrawalType){
+            return nickname;
+        }else{
+            return "银行卡尾号:"+depositCard.substring(depositCard.length()-4);
+        }
+    }
+
+
+    private Integer getWithdrawalType(BigDecimal preRmbAmount) {
+        String withdrawal_wx_amount = parameterService.getParameterValueByKey("withdrawal_wx_amount");
+        BigDecimal wx_amount = withdrawal_wx_amount == null?new BigDecimal(5000):new BigDecimal(withdrawal_wx_amount);
+        if (preRmbAmount.subtract(wx_amount).doubleValue()<0){
+
+            return WithdrawalType.WXPAY.getValue();
+        }else{
+            return WithdrawalType.DESPOSIT_CARD.getValue();
+        }
+
     }
 
     private void checkAppAmount(BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal channelAmount, BigDecimal amount,BigDecimal ratio){
@@ -1518,7 +1543,7 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    private Long saveFuntimeUserAccountWithdrawalRecord(Long userId, Integer withdrawalType, String withdrawalCard, BigDecimal rmbAmount, BigDecimal blackAmount, BigDecimal ratio, BigDecimal channelAmount, BigDecimal preRmbAmount, int trialType, String orderNo) {
+    private Long saveFuntimeUserAccountWithdrawalRecord(Long userId, Integer withdrawalType, String withdrawalCard, BigDecimal rmbAmount, BigDecimal blackAmount, BigDecimal ratio, BigDecimal channelAmount, BigDecimal preRmbAmount, int trialType, String orderNo, String nickname) {
         FuntimeUserAccountWithdrawalRecord record = new FuntimeUserAccountWithdrawalRecord();
         record.setTrialType(trialType);
         record.setAmount(rmbAmount);
@@ -1532,6 +1557,7 @@ public class AccountServiceImpl implements AccountService {
         record.setWithdrawalType(withdrawalType);
         record.setVersion(System.currentTimeMillis());
         record.setState(1);
+        record.setNickname(nickname);
 
         int k = userAccountWithdrawalRecordMapper.insertSelective(record);
         if(k!=1){
@@ -1556,8 +1582,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-    private BigDecimal getServiceAmount(int black) {
-        BigDecimal channelAmount = withdrawalConfMapper.getServiceAmount(black);
+    private BigDecimal getServiceAmount(int rmb) {
+        BigDecimal channelAmount = withdrawalConfMapper.getServiceAmount(rmb);
         if (channelAmount==null){
             throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
         }
@@ -1565,7 +1591,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-    public String getWithdrawalCard(Long userId, Integer withdrawalType, String openid, String depositCard){
+    public String getWithdrawalCard(Integer withdrawalType, String openid, String depositCard){
 
         if (WithdrawalType.DESPOSIT_CARD.getValue()==withdrawalType.intValue()){
             return depositCard;
@@ -1673,6 +1699,21 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    @Override
+    public void saveUserAccountGoldLog(Long userId, BigDecimal amount,Long recordId,String actionType,String operationType){
+        FuntimeUserAccountGoldLog goldLog = new FuntimeUserAccountGoldLog();
+        goldLog.setUserId(userId);
+        goldLog.setAmount(amount);
+        goldLog.setRelationId(recordId);
+        goldLog.setActionType(actionType);
+        goldLog.setOperationType(operationType);
+        int k = userAccountGoldLogMapper.insertSelective(goldLog);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
     public void saveUserAccountHornLog(Long userId, Integer amount,Long recordId,String actionType,String operationType){
         FuntimeUserAccountHornLog hornLog = new FuntimeUserAccountHornLog();
         hornLog.setUserId(userId);
@@ -1686,6 +1727,7 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    @Override
     public void saveUserAccountBlueLog(Long userId, BigDecimal amount,Long recordId,String actionType,String operationType){
         FuntimeUserAccountBlueLog blueLog = new FuntimeUserAccountBlueLog();
         blueLog.setUserId(userId);
@@ -1699,6 +1741,7 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    @Override
     public void saveUserAccountBlackLog(Long userId, BigDecimal amount,Long recordId,String actionType,String operationType){
         FuntimeUserAccountBlackLog blackLog = new FuntimeUserAccountBlackLog();
         blackLog.setUserId(userId);

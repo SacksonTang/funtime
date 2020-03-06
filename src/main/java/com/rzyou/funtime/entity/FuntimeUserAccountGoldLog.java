@@ -1,12 +1,14 @@
 package com.rzyou.funtime.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
+
 @Data
-public class FuntimeUserAccountHornLog implements Serializable {
-    private static final long serialVersionUID = -870589656943863042L;
+public class FuntimeUserAccountGoldLog implements Serializable {
     private Long id;
 
     private Long userId;
@@ -17,8 +19,8 @@ public class FuntimeUserAccountHornLog implements Serializable {
 
     private String operationType;
 
-    private Integer amount;
-
+    private BigDecimal amount;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
 
 

@@ -27,7 +27,7 @@
     select
     t.amount
     from t_funtime_withdrawal_conf t
-    where #{blackAmount}>=t.from_amount and t.to_amount>=#{blackAmount}
+    where #{rmbAmount}>=t.from_amount and t.to_amount>=#{rmbAmount}
   </select>
 
 

@@ -80,6 +80,14 @@ public interface UserService {
     String queryUserOpenidByType(Long userId,String thirdType);
 
     /**
+     * 查询用户微信
+     * @param userId
+     * @param thirdType
+     * @return
+     */
+    FuntimeUserThird queryUserThirdIdByType(Long userId,String thirdType);
+
+    /**
      * 保存用户
      * @param user
      * @param openType
@@ -172,11 +180,9 @@ public interface UserService {
      * @param fullname
      * @param identityCard
      * @param depositCard
-     * @param alipayNo
-     * @param wxNo
      * @param code
      */
-    void saveUserValid(Long userId, String fullname, String identityCard, String depositCard, String alipayNo, String wxNo, String code);
+    void saveUserValid(Long userId, String fullname, String identityCard, String depositCard,String code);
 
     /**
      * 查询实名认证信息
@@ -453,5 +459,12 @@ public interface UserService {
      * @param code
      * @param type
      */
-    void bindWeixin(Long userId, String code, Integer type);
+    String bindWeixin(Long userId, String code, Integer type);
+
+    /**
+     * 获取设置页信息
+     * @param userId
+     * @return
+     */
+    Map<String, Object> getInstallInfo(Long userId);
 }

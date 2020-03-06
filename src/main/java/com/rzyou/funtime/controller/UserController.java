@@ -57,6 +57,7 @@ public class UserController {
             data.put("cosRegion",Constant.TENCENT_YUN_COS_REGION);
             //音乐url
             data.put("musicUrl",Constant.TENCENT_YUN_MUSIC_URL);
+            data.put("yaoyaoNeedLevel",parameterService.getParameterValueByKey("yaoyao_need_level"));
             result.setData(data);
             return result;
         } catch (BusinessException be) {
@@ -443,14 +444,20 @@ public class UserController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
             String code = paramJson.getString("code");
-            Integer type = paramJson.getInteger("type");//1-绑定2-换绑
-            if (StringUtils.isBlank(code)||userId==null||type==null) {
+            Integer type = paramJson.getInteger("type");//1-绑定2-换绑3-解绑
+            if (userId==null||type==null) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            userService.bindWeixin(userId,code,type);
+            if(StringUtils.isBlank(code)&&(type == 1||type == 2)){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            String nickname = userService.bindWeixin(userId,code,type);
+            result.setData(JsonUtil.getMap("wxNickname",nickname));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();
@@ -767,20 +774,17 @@ public class UserController {
             String fullname = paramJson.getString("fullname");
             String identityCard = paramJson.getString("identityCard");
             String depositCard = paramJson.getString("depositCard");
-            String alipayNo = paramJson.getString("alipayNo");
-            String wxNo = paramJson.getString("wxNo");
             String code = paramJson.getString("code");
 
             if (StringUtils.isBlank(fullname)||StringUtils.isBlank(identityCard)
-                    ||StringUtils.isBlank(depositCard)||StringUtils.isBlank(alipayNo)
-                    ||userId==null||StringUtils.isBlank(wxNo)||StringUtils.isBlank(code)) {
+                    ||StringUtils.isBlank(depositCard)||StringUtils.isBlank(code)) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            userService.saveUserValid(userId,fullname,identityCard,depositCard,alipayNo,wxNo,code);
+            userService.saveUserValid(userId,fullname,identityCard,depositCard,code);
 
             return result;
         } catch (BusinessException be) {
@@ -805,18 +809,54 @@ public class UserController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
-
             if (userId==null) {
-
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-
             Map<String,Object> data = userService.getWithdralInfo(userId);
+            boolean isFirst = accountService.checkWithdrawalRecordIsFirst(userId);
+            if(isFirst){
+                data.put("rule",1);//1-首次规则2-100的倍数
+                data.put("multiple",1);
+            }else{
+                data.put("rule",2);
+                data.put("multiple",100);
+            }
+            data.put("isFirst",isFirst);
 
-            data.put("isFirst",accountService.checkWithdrawalRecordIsFirst(userId));
+            result.setData(data);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
+    /**
+     * 设置页信息
+     * @param request
+     * @return
+     */
+    @PostMapping("getInstallInfo")
+    public ResultMsg<Object> getInstallInfo(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            if (userId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String,Object> data = userService.getInstallInfo(userId);
             result.setData(data);
             return result;
         } catch (BusinessException be) {

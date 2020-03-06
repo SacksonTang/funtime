@@ -12,6 +12,13 @@ import java.util.Map;
 public interface GameService {
 
     /**
+     * 是否显示
+     * @param type
+     * @return
+     */
+    boolean getYaoyaoShowConf(int type);
+
+    /**
      * 初始化摇摇乐
      * @param type
      * @return

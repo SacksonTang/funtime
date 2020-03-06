@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.rzyou.funtime.mapper.FuntimeGameYaoyaoMapper">
-  
-  <select id="getYaoyaoConf" resultType="com.rzyou.funtime.entity.FuntimeGameYaoyaoConf">
+
+  <select id="getYaoyaoShowConf" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+    SELECT count(id) FROM `t_funtime_game_yaoyao_show_conf`
+    where type = #{type}
+     and DATE_FORMAT(NOW(),'%Y%m%d')+0 BETWEEN day_start AND day_end
+     and DATE_FORMAT(NOW(),'%H%i')+0 BETWEEN hour_start AND hour_end;
+  </select>
+
+  <select id="getYaoyaoConf" parameterType="java.lang.Integer" resultType="com.rzyou.funtime.entity.FuntimeGameYaoyaoConf">
     select
     number1,number2,number3,draw_type as drawType,draw_val as drawVal
     ,probability,broadcast
     from
     t_funtime_game_yaoyao_conf
+    where type = #{type}
   </select>
   <select id="getYaoyaoPool" resultType="com.rzyou.funtime.entity.FuntimeGameYaoyaoPool">
     select
@@ -33,5 +41,13 @@
     set actual_pool = actual_pool-#{amount}
     where id = #{id} and actual_pool-#{amount}>=0
   </update>
+  <insert id="insertYaoyaoRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountYaoyaoRecord" keyProperty="id" useGeneratedKeys="true">
+    insert into t_funtime_user_account_yaoyao_record (user_id, type,
+      draw_random, draw_info, draw_amount,basic_amount,user_amont,pool_amount,
+      pool_percent,user_exchange_amount)
+    values (#{userId}, #{type},
+      #{drawRandom}, #{drawInfo}, #{drawAmount},
+      #{basicAmount},#{userAmont},#{poolAmount},#{poolPercent},#{userExchangeAmount})
+  </insert>
 
 </mapper>

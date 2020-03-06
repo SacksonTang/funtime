@@ -11,6 +11,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserMapper {
 
+    int saveUserInfoChangeLog(@Param("userId") Long userId,@Param("changeColumn") String changeColumn,@Param("changeVal") String changeVal);
+
     int saveImHeart(@Param("userId") Long userId,@Param("userState") Integer userState
                ,@Param("action") String action,@Param("reason") String reason);
 

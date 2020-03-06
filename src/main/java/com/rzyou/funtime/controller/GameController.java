@@ -30,6 +30,11 @@ public class GameController {
     @Autowired
     UserService userService;
 
+    /**
+     * 奖池信息
+     * @param request
+     * @return
+     */
     @PostMapping("getYaoyaoPool")
     public ResultMsg<Object> getYaoyaoPool(HttpServletRequest request){
 
@@ -71,6 +76,42 @@ public class GameController {
         }
     }
 
+    @PostMapping("getYaoyaoShowConf")
+    public ResultMsg<Object> getYaoyaoShowConf(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            Integer type = paramJson.getInteger("type");
+
+            if (userId == null || type == null ){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String, Object> map = JsonUtil.getMap("isShow", gameService.getYaoyaoShowConf(type));
+            result.setData(map);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 抽奖
+     * @param request
+     * @return
+     */
     @PostMapping("drawing")
     public ResultMsg<Object> drawing(HttpServletRequest request){
 

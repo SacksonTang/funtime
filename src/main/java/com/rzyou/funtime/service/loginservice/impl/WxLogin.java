@@ -12,6 +12,7 @@ import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.DateUtil;
+import com.rzyou.funtime.utils.StringUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +46,7 @@ public class WxLogin implements LoginStrategy {
         String openid = tokenJson.getString("openid");
 
         FuntimeUserThird userThird = userService.queryUserInfoByOpenid(openid,user.getLoginType());
-
+        String uuid = StringUtil.createNonceStr();
         String userId;
         if (userThird==null){
             JSONObject refreshTokenJson = WeixinLoginUtils.refreshToken(refresh_token);
@@ -70,9 +71,9 @@ public class WxLogin implements LoginStrategy {
             user.setSignText("这个人很懒,什么都没有留下");
             userService.saveUser(user,Constant.LOGIN_WX,openid,userJson.getString("unionid"),access_token);
             userId = user.getId().toString();
-            String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
+            String token = JwtHelper.generateJWT(userId,uuid);
             user.setToken(token);
-            userService.updateTokenById(user.getId(),token);
+            userService.updateTokenById(user.getId(),uuid);
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
             if (!flag){
@@ -89,9 +90,9 @@ public class WxLogin implements LoginStrategy {
             if(funtimeUser.getState()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
-            String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
+            String token = JwtHelper.generateJWT(userId,uuid);
             user.setId(funtimeUser.getId());
-            user.setToken(token);
+            user.setToken(uuid);
             user.setOnlineState(1);
 
             userService.updateUserInfo(user);

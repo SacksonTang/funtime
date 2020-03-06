@@ -642,9 +642,13 @@
     REPLACE INTO t_funtime_im_heart (user_id,user_state,action,reason)
     VALUES(#{userId},#{userState},#{action},#{reason})
   </insert>
+  <insert id="saveUserInfoChangeLog">
+    insert into t_funtime_user_info_change_log (user_id,change_column,change_val)
+    VALUES(#{userId},#{changeColumn},#{changeVal})
+  </insert>
   <select id="getOfflineUser" resultType="java.lang.Long">
     select t.user_id from t_funtime_im_heart t
-    where t.user_state = 2 and DATE_SUB(NOW(),INTERVAL 30 MINUTE)>t.operation_time
+    where t.user_state = 2 and DATE_SUB(NOW(),INTERVAL 30 SECOND)>t.operation_time
   </select>
 
 </mapper>

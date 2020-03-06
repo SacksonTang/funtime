@@ -54,5 +54,6 @@ public class FuntimeUserAccountWithdrawalRecord implements Serializable {
 
     private Long version;
 
+    private String nickname;
 
 }

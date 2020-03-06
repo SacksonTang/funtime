@@ -58,7 +58,7 @@ public class LoginController {
     /**
      * 心跳
      */
-    @PostMapping("heart")
+    //@PostMapping("heart")
     public ResultMsg<Object> heart(HttpServletRequest request){
         JSONObject paramJson = HttpHelper.getParamterJson(request);
         Long userId = paramJson.getLong("userId");
@@ -149,26 +149,7 @@ public class LoginController {
         return result;
     }
 
-    /**
-     * 获取token
-     * @param request
-     * @return
-     */
-    @PostMapping("getToken")
-    public ResultMsg<Object> getToken(HttpServletRequest request) {
-        JSONObject paramJson = HttpHelper.getParamterJson(request);
-        String userId = paramJson.getString("userId");
-        String imei = paramJson.getString("imei");
-        if (StringUtils.isBlank(userId)) {
-            return new ResultMsg<>(ErrorMsgEnum.USER_ID_NOT_EXIST.getValue(), ErrorMsgEnum.USER_ID_NOT_EXIST.getDesc());
-        }
-        try {
-            String token = JwtHelper.generateJWT(userId,imei);
-            return new ResultMsg<>(JsonUtil.getMap("token",token));
-        } catch (Exception e) {
-            return new ResultMsg<>(ErrorMsgEnum.USER_GETTOKEN_FAIL.getValue(), ErrorMsgEnum.USER_GETTOKEN_FAIL.getDesc());
-        }
-    }
+
 
     /**
      * 发送短信

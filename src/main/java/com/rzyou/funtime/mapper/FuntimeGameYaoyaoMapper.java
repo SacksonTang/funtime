@@ -2,11 +2,11 @@ package com.rzyou.funtime.mapper;
 
 import com.rzyou.funtime.entity.FuntimeGameYaoyaoConf;
 import com.rzyou.funtime.entity.FuntimeGameYaoyaoPool;
+import com.rzyou.funtime.entity.FuntimeUserAccountYaoyaoRecord;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 2020/2/28
@@ -15,7 +15,11 @@ import java.util.Map;
 @Mapper
 public interface FuntimeGameYaoyaoMapper {
 
-    List<FuntimeGameYaoyaoConf> getYaoyaoConf();
+    int getYaoyaoShowConf(int type);
+
+    int insertYaoyaoRecord(FuntimeUserAccountYaoyaoRecord record);
+
+    List<FuntimeGameYaoyaoConf> getYaoyaoConf(int type);
 
     List<FuntimeGameYaoyaoPool> getYaoyaoPool(Integer type);
 

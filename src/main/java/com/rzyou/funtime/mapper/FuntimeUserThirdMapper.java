@@ -16,5 +16,7 @@ public interface FuntimeUserThirdMapper {
 
     FuntimeUserThird queryUserByOpenid(@Param("openid") String openid,@Param("thirdType") String thirdType);
 
+    FuntimeUserThird queryUserThirdIdByType(@Param("userId") Long userId,@Param("thirdType") String thirdType);
+
     String queryUserOpenidByType(@Param("userId") Long userId,@Param("thirdType") String thirdType);
 }

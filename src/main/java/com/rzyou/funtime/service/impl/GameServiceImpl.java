@@ -2,12 +2,16 @@ package com.rzyou.funtime.service.impl;
 
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.OperationType;
 import com.rzyou.funtime.entity.FuntimeGameYaoyaoConf;
 import com.rzyou.funtime.entity.FuntimeGameYaoyaoPool;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
+import com.rzyou.funtime.entity.FuntimeUserAccountYaoyaoRecord;
 import com.rzyou.funtime.mapper.FuntimeGameYaoyaoMapper;
 import com.rzyou.funtime.mapper.FuntimeUserAccountMapper;
+import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.GameService;
+import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.UserService;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +34,22 @@ public class GameServiceImpl implements GameService {
     @Autowired
     UserService userService;
     @Autowired
-    FuntimeGameYaoyaoMapper gameYaoyaoMapper;
+    ParameterService parameterService;
     @Autowired
-    FuntimeUserAccountMapper userAccountMapper;
+    AccountService accountService;
+    @Autowired
+    FuntimeGameYaoyaoMapper gameYaoyaoMapper;
 
-    public List<FuntimeGameYaoyaoConf> getYaoyaoConf(){
-        return gameYaoyaoMapper.getYaoyaoConf();
+    public List<FuntimeGameYaoyaoConf> getYaoyaoConf(int type){
+        return gameYaoyaoMapper.getYaoyaoConf(type);
+    }
+
+    @Override
+    public boolean getYaoyaoShowConf(int type){
+        if (gameYaoyaoMapper.getYaoyaoShowConf(type)<1){
+            return false;
+        }
+        return true;
     }
 
     void updateActualPoolForPlus(Integer id,Integer amount){
@@ -63,12 +77,17 @@ public class GameServiceImpl implements GameService {
         if (poolInfo==null){
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
-        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
+        FuntimeUserAccount userAccount = accountService.getUserAccountByUserId(userId);
 
         if (userAccount == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+
         int type = poolInfo.getType();
+        if (!getYaoyaoShowConf(type)){
+            throw new BusinessException(ErrorMsgEnum.DRAW_TIME_OUT.getValue(),ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
+        }
+        Integer userAmount = type == 1?userAccount.getGoldCoin().intValue():userAccount.getBlueDiamond().intValue();
         if (type == 1){
             //金币
             if (userAccount.getGoldCoin().subtract(new BigDecimal(poolInfo.getQuota())).doubleValue()<0){
@@ -77,16 +96,12 @@ public class GameServiceImpl implements GameService {
         }
         if (type == 2){
             //钻石
-            if (userAccount.getBlackDiamond().subtract(new BigDecimal(poolInfo.getQuota())).doubleValue()<0){
+            if (userAccount.getBlueDiamond().subtract(new BigDecimal(poolInfo.getQuota())).doubleValue()<0){
                 throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
             }
         }
-        /*
-        if (poolInfo.getActualPool()-poolInfo.getQuota()<0){
-            throw new BusinessException(ErrorMsgEnum.DRAW_POOL_NOT_EN.getValue(),ErrorMsgEnum.DRAW_POOL_NOT_EN.getDesc());
-        }*/
 
-        List<FuntimeGameYaoyaoConf> list = getYaoyaoConf();
+        List<FuntimeGameYaoyaoConf> list = getYaoyaoConf(type);
         int probabilityTotal = 1;
         Map<String,FuntimeGameYaoyaoConf> probabilityMap = new HashMap<>();
         for (FuntimeGameYaoyaoConf yaoyaoConf : list){
@@ -111,27 +126,39 @@ public class GameServiceImpl implements GameService {
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
 
+        String drawInfo = conf.getNumber1()+","+conf.getNumber2()+","+conf.getNumber3()+"/"+conf.getDrawType()+"/"+conf.getDrawVal();
+
         Map<String,Object> result = new HashMap<>();
         result.put("number1",conf.getNumber1());
         result.put("number2",conf.getNumber2());
         result.put("number3",conf.getNumber3());
-        BigDecimal subActualPool = new BigDecimal(poolInfo.getQuota()).multiply(new BigDecimal(0.8)).setScale(0,BigDecimal.ROUND_HALF_UP);
+        String percent = parameterService.getParameterValueByKey("pool_percent");
+        BigDecimal poolPer = percent == null?new BigDecimal(0.8):new BigDecimal(percent);
+        BigDecimal subActualPool = new BigDecimal(poolInfo.getQuota()).multiply(poolPer).setScale(0,BigDecimal.ROUND_HALF_UP);
 
         if (conf.getDrawVal().doubleValue()<=0){
             //不中奖
             //奖池增加
-
+            Long recordId = saveYaoyaoRecord(userId,type,random,drawInfo,0
+                    ,poolInfo.getQuota(),userAmount,poolInfo.getActualPool()
+                    ,new BigDecimal(100).multiply(poolPer).intValue(),poolInfo.getQuota());
             updateActualPoolForPlus(id,subActualPool.intValue());
-
             if (type == 1) {
                 result.put("userAmount",userAccount.getGoldCoin().intValue()-poolInfo.getQuota());
+
                 userService.updateUserAccountGoldCoinSub(userId, poolInfo.getQuota());
+                accountService.saveUserAccountGoldLog(userId,new BigDecimal(poolInfo.getQuota()),recordId
+                        ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType());
             } else if (type == 2) {
                 result.put("userAmount",userAccount.getBlueDiamond().intValue()-poolInfo.getQuota());
+
+                accountService.saveUserAccountBlueLog(userId,new BigDecimal(poolInfo.getQuota()),recordId
+                        ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType());
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(poolInfo.getQuota()), null);
             } else {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
             }
+
             result.put("actualPool",poolInfo.getActualPool()+subActualPool.intValue());
             return result;
         }
@@ -144,31 +171,50 @@ public class GameServiceImpl implements GameService {
         if (poolInfo.getActualPool()-actualAmount.intValue()<0){
             actualAmount = new BigDecimal(poolInfo.getActualPool());
             drawAmount = new BigDecimal(poolInfo.getActualPool());
-            //throw new BusinessException(ErrorMsgEnum.DRAW_POOL_NOT_EN.getValue(),ErrorMsgEnum.DRAW_POOL_NOT_EN.getDesc());
         }
         updateActualPoolForSub(id,actualAmount.intValue());
 
         result.put("actualPool",poolInfo.getActualPool()-actualAmount.intValue());
 
+        Integer userExchangeAmount = drawAmount.intValue()-poolInfo.getQuota()<0?poolInfo.getQuota()-drawAmount.intValue():drawAmount.intValue()-poolInfo.getQuota();
+        Long recordId = saveYaoyaoRecord(userId,type,random,drawInfo,drawAmount.intValue()
+                ,poolInfo.getQuota(),userAmount,poolInfo.getActualPool()
+                ,new BigDecimal(100).multiply(poolPer).intValue()
+                ,userExchangeAmount);
         if (drawAmount.intValue()-poolInfo.getQuota()<0) {
+            result.put("userAmount",userAmount-poolInfo.getQuota()+drawAmount.intValue());
+
             if (type == 1) {
-                result.put("userAmount",userAccount.getGoldCoin().intValue()-poolInfo.getQuota()+drawAmount.intValue());
                 userService.updateUserAccountGoldCoinSub(userId, poolInfo.getQuota()-drawAmount.intValue());
+                accountService.saveUserAccountGoldLog(userId,new BigDecimal(poolInfo.getQuota()).subtract(drawAmount),recordId
+                        ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType());
+
             } else if (type == 2) {
-                result.put("userAmount",userAccount.getBlueDiamond().intValue()-poolInfo.getQuota()+drawAmount.intValue());
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(poolInfo.getQuota()).subtract(drawAmount), null);
+
+                accountService.saveUserAccountBlueLog(userId,new BigDecimal(poolInfo.getQuota()).subtract(drawAmount),recordId
+                        ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType());
+
             } else {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
             }
         }
 
         if (drawAmount.intValue()-poolInfo.getQuota()>0) {
+            result.put("userAmount",userAmount-poolInfo.getQuota()+drawAmount.intValue());
             if (type == 1) {
-                result.put("userAmount",userAccount.getGoldCoin().intValue()-poolInfo.getQuota()+drawAmount.intValue());
+
                 userService.updateUserAccountGoldCoinPlus(userId, drawAmount.intValue()-poolInfo.getQuota());
+
+                accountService.saveUserAccountGoldLog(userId,drawAmount.subtract(new BigDecimal(poolInfo.getQuota())),recordId
+                        ,OperationType.YAOYAOLE_IN.getAction(),OperationType.YAOYAOLE_IN.getOperationType());
+
             } else if (type == 2) {
-                result.put("userAmount",userAccount.getBlueDiamond().intValue()-poolInfo.getQuota()+drawAmount.intValue());
                 userService.updateUserAccountForPlus(userId, null, drawAmount.subtract(new BigDecimal(poolInfo.getQuota())), null);
+
+                accountService.saveUserAccountBlueLog(userId,drawAmount.subtract(new BigDecimal(poolInfo.getQuota())),recordId
+                        ,OperationType.YAOYAOLE_IN.getAction(),OperationType.YAOYAOLE_IN.getOperationType());
+
             } else {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
             }
@@ -176,4 +222,24 @@ public class GameServiceImpl implements GameService {
 
         return result;
     }
+
+    private Long saveYaoyaoRecord(Long userId, int type, int random, String drawInfo, int drawAmount, Integer basicAmount, int userAmont, Integer poolAmount, int poolPercent, Integer userExchangeAmount) {
+        FuntimeUserAccountYaoyaoRecord record = new FuntimeUserAccountYaoyaoRecord();
+        record.setUserId(userId);
+        record.setType(type);
+        record.setDrawRandom(random);
+        record.setDrawInfo(drawInfo);
+        record.setDrawAmount(drawAmount);
+        record.setBasicAmount(basicAmount);
+        record.setPoolAmount(poolAmount);
+        record.setPoolPercent(poolPercent);
+        record.setUserAmont(userAmont);
+        record.setUserExchangeAmount(userExchangeAmount);
+        int k = gameYaoyaoMapper.insertYaoyaoRecord(record);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        return record.getId();
+    }
+
 }

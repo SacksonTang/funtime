@@ -47,6 +47,7 @@ public enum ErrorMsgEnum {
     USER_NOT_REALNAME_VALID("10036","用户未实名认证"),
     USER_ACCOUNT_GOLD_NOT_EN("10037","账户金币不足"),
     USER_WX_EXISTS("10038","微信已绑定"),
+    USER_WX_NOT_BIND("10039","没有用户微信绑定信息"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -118,8 +119,8 @@ public enum ErrorMsgEnum {
     ROOM_USER_IS_EMPTY("80026","房间没有其他人"),
     ROOM_MICUSER_IS_EMPTY("80027","房间麦上没有其他人"),
 
-    DRAW_POOL_NOT_EN("90001","奖池余额不足")
-
+    DRAW_POOL_NOT_EN("90001","奖池余额不足"),
+    DRAW_TIME_OUT("90002","当前时间项目不可用")
 
     ;
 

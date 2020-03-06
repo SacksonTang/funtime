@@ -70,6 +70,7 @@ public class SmsServiceImpl implements SmsService {
         if(new Date().after(sms.getExpireTime())){
             throw new BusinessException(ErrorMsgEnum.SMS_IS_EXPIRE.getValue(),ErrorMsgEnum.SMS_IS_EXPIRE.getDesc());
         }
+        updateSmsInfoById(sms.getId(),1);
         return sms.getId();
     }
 

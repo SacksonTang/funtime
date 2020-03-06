@@ -34,6 +34,13 @@
     where user_id = #{userId} and third_type = #{thirdType}
     limit 1
   </select>
+  <select id="queryUserThirdIdByType"  resultMap="BaseResultMap" >
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user_third
+    where user_id = #{userId} and third_type = #{thirdType}
+    limit 1
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_third
     where id = #{id,jdbcType=BIGINT}

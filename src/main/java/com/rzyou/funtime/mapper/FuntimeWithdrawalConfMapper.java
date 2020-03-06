@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface FuntimeWithdrawalConfMapper {
 
-    BigDecimal getServiceAmount(Integer blackAmount);
+    BigDecimal getServiceAmount(Integer rmbAmount);
 
     FuntimeWithdrawalConf selectByPrimaryKey(Integer id);
 

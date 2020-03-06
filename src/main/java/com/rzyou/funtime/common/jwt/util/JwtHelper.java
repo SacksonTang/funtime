@@ -4,6 +4,7 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.jwt.constant.SecretConstant;
 import com.rzyou.funtime.common.jwt.secret.AESSecretUtil;
+import com.rzyou.funtime.utils.StringUtil;
 import io.jsonwebtoken.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class JwtHelper {
      * @param userId - 用户编号
      * @Modified By:
      */
-    public static String generateJWT(String userId,String imei) {
+    public static String generateJWT(String userId,String nonceStr) {
         //签名算法，选择SHA-256
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         //获取当前系统时间
@@ -51,21 +52,19 @@ public class JwtHelper {
         Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
         //添加构成JWT的参数
         Map<String, Object> headMap = new HashMap<>();
-
+        long expMillis = nowTimeMillis + SecretConstant.EXPIRESSECOND;
+        Date expDate = new Date(expMillis);
         headMap.put("alg", SignatureAlgorithm.HS256.getValue());
         headMap.put("typ", "JWT");
         JwtBuilder builder = Jwts.builder().setHeader(headMap)
                 //加密后的客户ID
                 .claim("userId", AESSecretUtil.encryptToStr(userId, SecretConstant.DATAKEY))
-                .claim("imei",AESSecretUtil.encryptToStr(imei, SecretConstant.DATAKEY))
+                .claim("nonceStr", AESSecretUtil.encryptToStr(nonceStr, SecretConstant.DATAKEY))
                 //Signature
-                .signWith(signatureAlgorithm, signingKey);
+                .signWith(signatureAlgorithm, signingKey)
+                .setExpiration(expDate);
         //添加Token过期时间
-        if (SecretConstant.EXPIRESSECOND >= 0) {
-            long expMillis = nowTimeMillis + SecretConstant.EXPIRESSECOND;
-            Date expDate = new Date(expMillis);
-            builder.setExpiration(expDate).setNotBefore(now);
-        }
+
         return builder.compact();
     }
 
@@ -111,10 +110,10 @@ public class JwtHelper {
         if (claims != null) {
             //解密客户编号
             String decryptUserId = AESSecretUtil.decryptToStr((String)claims.get("userId"), SecretConstant.DATAKEY);
-            String decryptIemi = AESSecretUtil.decryptToStr((String)claims.get("imei"), SecretConstant.DATAKEY);
+            String decryptNonceStr = AESSecretUtil.decryptToStr((String)claims.get("nonceStr"), SecretConstant.DATAKEY);
             Map<String,Object> result = new HashMap<>();
             result.put("userId",decryptUserId);
-            result.put("imei",decryptIemi);
+            result.put("nonceStr",decryptNonceStr);
             return result;
         }else {
             logger.warn("[JWTHelper]-JWT解析出claims为空");
@@ -123,16 +122,11 @@ public class JwtHelper {
     }
 
     public static void main(String[] args) {
-       String jsonWebKey = generateJWT("123","111");
-        String jsonWebKey1 = generateJWT("123","11");
-       System.out.println(jsonWebKey.equals(jsonWebKey1));
-       Claims claims =  parseJWT(jsonWebKey);
-       if(claims!=null) {
-           System.out.println(claims.getNotBefore() + "---" + claims.getExpiration());
-           System.out.println(claims);
-           System.out.println(validateLogin(jsonWebKey));
-       }
+        String jwt = generateJWT("11", "111100");
+        Claims claims = parseJWT(jwt);
+        System.out.println(claims+""+claims.getExpiration());
     }
+
 
 
 }

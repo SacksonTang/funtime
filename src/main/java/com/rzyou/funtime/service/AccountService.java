@@ -181,13 +181,12 @@ public interface AccountService {
     /**
      * 生成领赏记录
      * @param userId
-     * @param withdrawalType
      * @param blackAmount
      * @param preRmbAmount
      * @param preChannelAmount
      * @param amount
      */
-    void applyWithdrawal(Long userId, Integer withdrawalType, BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal preChannelAmount, BigDecimal amount, String ip);
+    void applyWithdrawal(Long userId, BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal preChannelAmount, BigDecimal amount, String ip);
 
     /**
      * 领赏记录列表
@@ -284,6 +283,12 @@ public interface AccountService {
     PageInfo<Map<String,Object>> getGiftsByUserId(Integer startPage, Integer pageSize, Long userId);
 
     /**
+     * 用户账户信息
+     * @param userId
+     * @return
+     */
+    FuntimeUserAccount getUserAccountByUserId(Long userId);
+    /**
      * 修改订单状态
      * @param id
      * @param state
@@ -303,4 +308,44 @@ public interface AccountService {
      * @param productId
      */
     void iosRecharge(Long userId, String transactionId, String payload, String productId);
+
+    /**
+     * 蓝钻日志
+     * @param userId
+     * @param amount
+     * @param recordId
+     * @param actionType
+     * @param operationType
+     */
+    void saveUserAccountBlueLog(Long userId, BigDecimal amount,Long recordId,String actionType,String operationType);
+
+    /**
+     * 红钻日志
+     * @param userId
+     * @param amount
+     * @param recordId
+     * @param actionType
+     * @param operationType
+     */
+    void saveUserAccountBlackLog(Long userId, BigDecimal amount,Long recordId,String actionType,String operationType);
+
+    /**
+     * 喇叭日志
+     * @param userId
+     * @param amount
+     * @param recordId
+     * @param actionType
+     * @param operationType
+     */
+    void saveUserAccountHornLog(Long userId, Integer amount,Long recordId,String actionType,String operationType);
+
+    /**
+     * 金币日志
+     * @param userId
+     * @param amount
+     * @param recordId
+     * @param actionType
+     * @param operationType
+     */
+    void saveUserAccountGoldLog(Long userId, BigDecimal amount,Long recordId,String actionType,String operationType);
 }

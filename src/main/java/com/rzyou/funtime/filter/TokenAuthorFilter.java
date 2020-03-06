@@ -95,7 +95,13 @@ public class TokenAuthorFilter implements Filter {
                                 resultInfo.setCode(ErrorMsgEnum.USER_IS_DELETE.getValue());
                                 resultInfo.setMsg(ErrorMsgEnum.USER_IS_DELETE.getDesc());
                             }else {
-                                isFilter = true;
+                                String uuid = map.get("nonceStr").toString();
+                                if (!user.getToken().equals(uuid)){
+                                    resultInfo.setCode(ErrorMsgEnum.USER_TOKEN_ERROR.getValue());
+                                    resultInfo.setMsg(ErrorMsgEnum.USER_TOKEN_ERROR.getDesc());
+                                }else {
+                                    isFilter = true;
+                                }
                             }
                         }
                     }

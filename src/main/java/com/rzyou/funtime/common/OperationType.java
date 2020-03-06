@@ -7,13 +7,15 @@ public enum OperationType {
     ,RECEIVEGIFT("IN","RECEIVEGIFT","收礼物")
     ,GAMEIN("IN","GAMEIN","游戏收入")
     ,BLACK_BLUE_IN("IN","BLACK_BLUE_IN","黑钻兑换蓝钻")
-    ,WITHDRAWAL_RETURN("IN","WITHDRAWAL_RETURN","体现退回")
+    ,WITHDRAWAL_RETURN("IN","WITHDRAWAL_RETURN","提现退回")
+    ,YAOYAOLE_IN("IN","YAOYAOLE_IN","摇摇乐中奖")
 
     ,WITHDRAWAL("OUT","WITHDRAWAL","提现")
     ,GIVEREDPACKET("OUT","GIVEREDPACKET","发红包")
     ,GIVEGIFT("OUT","GIVEGIFT","送礼物")
     ,GAMEOUT("OUT","GAMEOUT","游戏支出")
     ,BLACK_BLUE_OUT("OUT","BLACK_BLUE_OUT","黑钻兑换蓝钻")
+    ,YAOYAOLE_OUT("OUT","YAOYAOLE_OUT","摇摇乐消耗")
     ;
 
      private String action;

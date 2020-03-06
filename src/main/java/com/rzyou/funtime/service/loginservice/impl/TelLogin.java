@@ -7,10 +7,12 @@ import com.rzyou.funtime.common.SmsType;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
+import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.DateUtil;
+import com.rzyou.funtime.utils.StringUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,8 @@ public class TelLogin implements LoginStrategy {
     @Autowired
     UserService userService;
 
+    @Autowired
+    ParameterService parameterService;
 
     @Override
     @Transactional
@@ -34,10 +38,14 @@ public class TelLogin implements LoginStrategy {
         if (StringUtils.isBlank(user.getPhoneNumber())){
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
-        //校验验证码
-        //smsService.validateSms(SmsType.REGISTER_LOGIN.getValue(),user.getPhoneNumber(),user.getCode());
-
+        String isSend = parameterService.getParameterValueByKey("is_send");
+        if (isSend!=null&&isSend.equals("1")) {
+            //校验验证码
+            smsService.validateSms(SmsType.REGISTER_LOGIN.getValue(),user.getPhoneNumber(),user.getCode());
+        }
+        String uuid = StringUtil.createNonceStr();
         String userId;
+        String token;
         FuntimeUser funtimeUser = userService.queryUserInfoByPhone(user.getPhoneNumber());
         boolean isNewUser = true;
         if(funtimeUser==null){
@@ -59,9 +67,8 @@ public class TelLogin implements LoginStrategy {
 
             userService.saveUser(user, null, null, null,null);
             userId = user.getId().toString();
-            String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
-            user.setToken(token);
-            userService.updateTokenById(user.getId(),token);
+            token = JwtHelper.generateJWT(userId,uuid);
+            userService.updateTokenById(user.getId(),uuid);
 
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
@@ -74,13 +81,14 @@ public class TelLogin implements LoginStrategy {
             if(funtimeUser.getState().intValue()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
-            String token = JwtHelper.generateJWT(userId,user.getPhoneImei());
-            userService.updateUserInfo(funtimeUser.getId(),1,token,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
+            token = JwtHelper.generateJWT(userId,uuid);
+            userService.updateUserInfo(funtimeUser.getId(),1,uuid,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
 
         }
         FuntimeUser info = userService.getUserBasicInfoById(Long.parseLong(userId));
         info.setBlueAmount(userService.getUserAccountInfoById(Long.parseLong(userId)).getBlueDiamond().intValue());
         info.setNewUser(isNewUser);
+        info.setToken(token);
         return info;
     }
 }
