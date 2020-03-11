@@ -5,6 +5,7 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
+import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.impl.UserServiceImpl;
@@ -100,6 +101,7 @@ public class TokenAuthorFilter implements Filter {
                                     resultInfo.setCode(ErrorMsgEnum.USER_TOKEN_ERROR.getValue());
                                     resultInfo.setMsg(ErrorMsgEnum.USER_TOKEN_ERROR.getDesc());
                                 }else {
+                                    HttpHelper.setUserId(user.getId());
                                     isFilter = true;
                                 }
                             }

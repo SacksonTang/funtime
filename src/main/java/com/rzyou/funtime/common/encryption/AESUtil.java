@@ -1,111 +1,108 @@
 package com.rzyou.funtime.common.encryption;
-
-import org.apache.commons.codec.binary.Base64;
-import lombok.extern.slf4j.Slf4j;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import com.rzyou.funtime.common.BusinessException;
+import com.rzyou.funtime.common.ErrorMsgEnum;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-@Slf4j
 public class AESUtil {
-    private static final String KEY_ALGORITHM = "AES";
-    private static final String DEFAULT_CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";//默认的加密算法
+    public static final String VIPARA = "9769475569322011";
+    public static final String bm = "utf-8";
 
     /**
-     * AES 加密操作
+     * 字节数组转化为大写16进制字符串
      *
-     * @param content 待加密内容
-     * @param key 加密密钥
-     * @return 返回Base64转码后的加密数据
+     * @param b
+     * @return
      */
-    public static String encrypt(String content, String key) {
-        try {
-            Cipher cipher = Cipher.getInstance(DEFAULT_CIPHER_ALGORITHM);// 创建密码器
+    private static String byte2HexStr(byte[] b) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < b.length; i++) {
+            String s = Integer.toHexString(b[i] & 0xFF);
+            if (s.length() == 1) {
+                sb.append("0");
+            }
 
-            byte[] byteContent = content.getBytes("utf-8");
-
-            cipher.init(Cipher.ENCRYPT_MODE, getSecretKey(key));// 初始化为加密模式的密码器
-
-            byte[] result = cipher.doFinal(byteContent);// 加密
-
-            return Base64.encodeBase64String(result);//通过Base64转码返回
-
-        } catch (Exception ex) {
-            log.info("加密错误,加密数据 content:{},exception:{}",content,ex);
+            sb.append(s.toUpperCase());
         }
 
-        return null;
+        return sb.toString();
     }
 
     /**
-     * AES 解密操作
+     * 16进制字符串转字节数组
+     *
+     * @param s
+     * @return
+     */
+    private static byte[] str2ByteArray(String s) {
+        int byteArrayLength = s.length() / 2;
+        byte[] b = new byte[byteArrayLength];
+        for (int i = 0; i < byteArrayLength; i++) {
+            byte b0 = (byte) Integer.valueOf(s.substring(i * 2, i * 2 + 2), 16)
+                    .intValue();
+            b[i] = b0;
+        }
+
+        return b;
+    }
+
+
+    /**
+     * AES 加密
      *
      * @param content
+     *            明文
      * @param key
+     *            生成秘钥的关键字
      * @return
      */
-    public static String decrypt(String content, String key) {
 
+    public static String aesEncrypt(String content, String key) {
         try {
-            //实例化
-            Cipher cipher = Cipher.getInstance(DEFAULT_CIPHER_ALGORITHM);
+            IvParameterSpec zeroIv = new IvParameterSpec(VIPARA.getBytes());
+            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, zeroIv);
+            byte[] encryptedData = cipher.doFinal(content.getBytes(bm));
 
-            //使用密钥初始化，设置为解密模式
-            cipher.init(Cipher.DECRYPT_MODE, getSecretKey(key));
-
-            //执行操作
-            byte[] result = cipher.doFinal(Base64.decodeBase64(content));
-
-
-            return new String(result, "utf-8");
-        } catch (Exception ex) {
-            log.info("解密错误,解密数据 content:{},exception:{}",content,ex);
+            return byte2HexStr(encryptedData);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ENCRYPT_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ENCRYPT_ERROR.getDesc());
         }
-
-        return null;
     }
 
     /**
-     * 生成加密秘钥
+     * AES 解密
      *
+     * @param content
+     *            密文
+     * @param key
+     *            生成秘钥的关键字
      * @return
      */
-    private static SecretKeySpec getSecretKey(final String key) {
-        //返回生成指定算法密钥生成器的 KeyGenerator 对象
-        KeyGenerator kg ;
 
+    public static String aesDecrypt(String content, String key) {
         try {
-            kg = KeyGenerator.getInstance(KEY_ALGORITHM);
-
-            //AES 要求密钥长度为 128
-            kg.init(128, new SecureRandom(key.getBytes()));
-
-            //生成一个密钥
-            SecretKey secretKey = kg.generateKey();
-
-            return new SecretKeySpec(secretKey.getEncoded(), KEY_ALGORITHM);// 转换为AES专用密钥
-        } catch (NoSuchAlgorithmException ex) {
-            log.info("生成加密密钥错误:{}",ex);
+            byte[] byteMi=  str2ByteArray(content);
+            IvParameterSpec zeroIv = new IvParameterSpec(VIPARA.getBytes());
+            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, zeroIv);
+            byte[] decryptedData = cipher.doFinal(byteMi);
+            return new String(decryptedData, "utf-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_DECRYPT_ERROR.getValue(),ErrorMsgEnum.PARAMETER_DECRYPT_ERROR.getDesc());
         }
-
-        return null;
     }
 
     public static void main(String[] args) {
-        String content = "hello,您好";
-
-        String key = "";
-        System.out.println("key:" + key);
-        System.out.println("content:" + content);
-        String s1 = AESUtil.encrypt(content, key);
-        System.out.println("s1:" + s1);
-        System.out.println("s2:"+AESUtil.decrypt(s1, key));
-
+        String key = "Yhi6HglhWHBiw0ZQ";
+        String encrypt = aesEncrypt("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiIxMjMiLCJ1c2VyTmFtZSI6Ikp1ZHkiLCJleHAiOjE1MzI3Nzk2MjIsIm5iZiI6MTUzMjc3NzgyMn0.sIw_leDZwG0pJ8ty85Iecd_VXjObYutILNEwPUyeVSo", key);
+        System.out.println(encrypt);
+        System.out.println(aesDecrypt(encrypt,key));
     }
-
 }

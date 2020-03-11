@@ -61,6 +61,6 @@ logging:
 app:
   pay:
     notifyUrl: https://test.rzyou.com/callback/notifyWxPay
-    ip: "127.0.0.1"
+    certData: E:/cert/apiclient_cert.p12
   logpath: E:\log
 

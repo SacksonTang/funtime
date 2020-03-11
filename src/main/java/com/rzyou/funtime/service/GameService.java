@@ -14,9 +14,10 @@ public interface GameService {
     /**
      * 是否显示
      * @param type
+     * @param userId
      * @return
      */
-    boolean getYaoyaoShowConf(int type);
+    boolean getYaoyaoShowConf(int type, Long userId);
 
     /**
      * 初始化摇摇乐
@@ -32,4 +33,9 @@ public interface GameService {
      * @return
      */
     Map<String,Object> drawing(Integer id, Long userId);
+
+    /**
+     * 修改摇摇乐配置
+     */
+    void updateYaoyaoPoolTask();
 }

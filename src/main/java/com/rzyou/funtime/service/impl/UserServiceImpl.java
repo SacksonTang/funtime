@@ -132,13 +132,13 @@ public class UserServiceImpl implements UserService {
         }
         if (user.getSex()!=null){
             if (user.getSex() == 1){
-                user.setSexColor("#0093FF");
+                user.setSexColor(Constant.SEX_MALE_COLOR);
             }else {
-                user.setSexColor("#FF0096");
+                user.setSexColor(Constant.SEX_FEMALE_COLOR);
             }
         }
         if (user.getHeight()!=null){
-            user.setHeightColor("#FF9500");
+            user.setHeightColor(Constant.HEIGHT_COLOR);
         }
 
         List<Map<String, Object>> tagNames = tagMapper.queryTagNamesByUserId(user.getId());
@@ -657,13 +657,13 @@ public class UserServiceImpl implements UserService {
                 }
                 if (user.getSex()!=null){
                     if (user.getSex() == 1){
-                        user.setSexColor("#0093FF");
+                        user.setSexColor(Constant.SEX_MALE_COLOR);
                     }else {
-                        user.setSexColor("#FF0096");
+                        user.setSexColor(Constant.SEX_FEMALE_COLOR);
                     }
                 }
                 if (user.getHeight()!=null){
-                    user.setHeightColor("#FF9500");
+                    user.setHeightColor(Constant.HEIGHT_COLOR);
                 }
 
                 List<Map<String, Object>> tagNames = tagMapper.queryTagNamesByUserId(user.getId());
@@ -716,13 +716,13 @@ public class UserServiceImpl implements UserService {
             if (result.get("sex")!=null){
                 Integer sex = Integer.parseInt(result.get("sex").toString());
                 if (sex == 1){
-                    result.put("sexColor","#0093FF");
+                    result.put("sexColor",Constant.SEX_MALE_COLOR);
                 }else {
-                    result.put("sexColor","#FF0096");
+                    result.put("sexColor",Constant.SEX_FEMALE_COLOR);
                 }
             }
             if (result.get("height")!=null){
-                result.put("height","#FF9500");
+                result.put("height",Constant.HEIGHT_COLOR);
             }
 
         }
@@ -941,13 +941,13 @@ public class UserServiceImpl implements UserService {
                 }
                 if (user.getSex()!=null){
                     if (user.getSex() == 1){
-                        user.setSexColor("#0093FF");
+                        user.setSexColor(Constant.SEX_MALE_COLOR);
                     }else {
-                        user.setSexColor("#FF0096");
+                        user.setSexColor(Constant.SEX_FEMALE_COLOR);
                     }
                 }
                 if (user.getHeight()!=null){
-                    user.setHeightColor("#FF9500");
+                    user.setHeightColor(Constant.HEIGHT_COLOR);
                 }
 
                 List<Map<String, Object>> tagNames = tagMapper.queryTagNamesByUserId(user.getId());
@@ -1156,7 +1156,7 @@ public class UserServiceImpl implements UserService {
         try {
             nickName = new String(userJson.getString("nickname").getBytes("ISO-8859-1"), "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            nickName = "大侠";
+            nickName = Constant.DEFAULT_NICKNAME;
         }
         FuntimeUserThird userThird = queryUserInfoByOpenid(openid,Constant.LOGIN_WX);
         if (type==1){

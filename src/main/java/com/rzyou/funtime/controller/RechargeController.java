@@ -72,7 +72,7 @@ public class RechargeController {
     public ResultMsg<Object> startRecharge(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            JSONObject paramJson = HttpHelper.getParamterJsonDecrypt(request);
             FuntimeUserAccountRechargeRecord record = JSONObject.toJavaObject(paramJson, FuntimeUserAccountRechargeRecord.class);
 
             if (record==null||record.getUserId()==null||record.getRechargeConfId()==null) {

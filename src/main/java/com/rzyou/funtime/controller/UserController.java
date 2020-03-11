@@ -2,14 +2,12 @@ package com.rzyou.funtime.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.cos.CosStsUtil;
-import com.rzyou.funtime.common.cos.CosUtil;
+import com.rzyou.funtime.common.encryption.AESUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.common.sms.linkme.LinkmeUtil;
 import com.rzyou.funtime.entity.FuntimeAccusation;
-import com.rzyou.funtime.entity.FuntimeTag;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.service.AccountService;
@@ -26,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,37 +38,7 @@ public class UserController {
     @Autowired
     ParameterService parameterService;
 
-    @PostMapping("getGlobalConfig")
-    public ResultMsg<Object> getGlobalConfig(HttpServletRequest request){
-        ResultMsg<Object> result = new ResultMsg<>();
-        try {
-            Map<String,Object> data = new HashMap<>();
-            //IM
-            data.put("imSdkAppId",Constant.TENCENT_YUN_SDK_APPID);
-            data.put("imAdmin",Constant.TENCENT_YUN_IDENTIFIER);
 
-            //是否显示红包
-            data.put("isRedpacketShow",parameterService.getParameterValueByKey("is_redpacket_show"));
-            //cos信息
-            data.put("cosBucket",Constant.TENCENT_YUN_COS_BUCKET);
-            data.put("cosRegion",Constant.TENCENT_YUN_COS_REGION);
-            //音乐url
-            data.put("musicUrl",Constant.TENCENT_YUN_MUSIC_URL);
-            data.put("yaoyaoNeedLevel",parameterService.getParameterValueByKey("yaoyao_need_level"));
-            result.setData(data);
-            return result;
-        } catch (BusinessException be) {
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-            return result;
-        }catch (Exception e){
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-            return result;
-        }
-    }
 
     /**
      * 根据类型获取标签
@@ -211,6 +178,7 @@ public class UserController {
             if (byUserId!=null) {
                 user.setConcerned(userService.checkRecordExist(byUserId, userId));
             }
+            user.setToken(null);
             result.setData(JsonUtil.getMap("user",user));
             return result;
         } catch (BusinessException be) {
@@ -238,7 +206,6 @@ public class UserController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
             if (userId==null) {
-
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
@@ -249,7 +216,43 @@ public class UserController {
             userAccount.setBlueDiamondShow(String.valueOf(userAccount.getBlueDiamond().intValue()));
             BigDecimal sumGrabAmount = accountService.getSumGrabAmountById(userId, null);
             userAccount.setGrabAmountTotal(sumGrabAmount==null?0:sumGrabAmount.intValue());
-            result.setData(JsonUtil.getMap("userAccount",userAccount));
+            Map<String, Object> map = JsonUtil.getMap("userAccount", userAccount);
+            //String encrypt = AESSecretUtil.encryptToStr(JSONObject.toJSONString(map),Constant.AES_KEY);
+            result.setData(map);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    @PostMapping("getUserAccountInfoById1")
+    public ResultMsg<Object> getUserAccountInfoById1(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJsonTest(request);
+            Long userId = paramJson.getLong("userId");
+            if (userId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
+            userAccount.setBlackDiamondShow(String.valueOf(userAccount.getBlackDiamond().intValue()));
+            userAccount.setBlueDiamondShow(String.valueOf(userAccount.getBlueDiamond().intValue()));
+            BigDecimal sumGrabAmount = accountService.getSumGrabAmountById(userId, null);
+            userAccount.setGrabAmountTotal(sumGrabAmount==null?0:sumGrabAmount.intValue());
+            Map<String, Object> map = JsonUtil.getMap("userAccount", userAccount);
+            String encrypt = AESUtil.aesEncrypt(JSONObject.toJSONString(map),Constant.AES_KEY);
+            result.setData(encrypt);
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

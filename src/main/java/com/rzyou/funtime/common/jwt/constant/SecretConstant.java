@@ -14,7 +14,4 @@ public class SecretConstant {
     //超时毫秒数（默认30天）
     public static final long EXPIRESSECOND = 30*24*60*60*1000L;
 
-    //用于JWT加密的密匙
-    public static final String DATAKEY = "u^3y6SPER4jm*fn";
-
 }

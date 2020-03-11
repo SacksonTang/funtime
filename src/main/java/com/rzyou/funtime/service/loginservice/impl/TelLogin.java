@@ -53,7 +53,7 @@ public class TelLogin implements LoginStrategy {
             //新用户
             user.setOnlineState(1);
             user.setState(1);
-            user.setNickname("大侠");
+            user.setNickname(Constant.DEFAULT_NICKNAME);
 
             user.setSignText("这个人很懒,什么都没有留下");
 

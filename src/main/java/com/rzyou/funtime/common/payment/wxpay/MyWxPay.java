@@ -4,6 +4,7 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.payment.wxpay.sdk.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -12,6 +13,8 @@ import java.util.Map;
 @Component
 public class MyWxPay {
 
+    @Value("${app.pay.certData}")
+    public static String certData ;
     /**
      * 企业付款到零钱
      * @param payType
@@ -25,7 +28,7 @@ public class MyWxPay {
     public static Map<String,String> mmpaymkttransfers(Integer payType,String partner_trade_no,String ip,
                                                        String openid,String re_user_name,String amount){
         try {
-            MyWxPayConfig config = new MyWxPayConfig(payType);
+            MyWxPayConfig config = new MyWxPayConfig(payType,certData);
             WXPay wxpay = new WXPay(config, WXPayConstants.SignType.MD5);
 
             Map<String, String> data = new HashMap<>();
@@ -40,6 +43,9 @@ public class MyWxPay {
             log.info("企业付款接口返回:resp===> {}",resp);
             if(!"SUCCESS".equals(resp.get("return_code"))||!"SUCCESS".equals(resp.get("result_code"))){
                 log.error("企业付款到零钱接口:mmpaymkttransfers 失败:{}",resp);
+                if ("NOTENOUGH".equals(resp.get("err_code"))){
+                    throw new BusinessException(ErrorMsgEnum.MMPAYMKTTRANSFER_NOTENOUGH.getValue(),ErrorMsgEnum.MMPAYMKTTRANSFER_NOTENOUGH.getDesc());
+                }
                 throw new BusinessException(ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getValue(),ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getDesc());
             }
             else{
@@ -60,7 +66,7 @@ public class MyWxPay {
      */
     public static Map<String, String> unifiedOrder(String totalFee, String ip, String orderNo, String imei, String notifyUrl, String orderId, String trade_type,String openid,Integer payType) {
         try {
-            MyWxPayConfig config = new MyWxPayConfig(payType);
+            MyWxPayConfig config = new MyWxPayConfig(payType, certData);
             WXPay wxpay = new WXPay(config);
 
             Map<String, String> data = new HashMap<>();
@@ -100,7 +106,7 @@ public class MyWxPay {
      */
     public static Map<String, String> unifiedOrder(String totalFee, String ip, String orderNo, String imei, String notifyUrl, String orderId, String trade_type,Integer payType) {
         try {
-            MyWxPayConfig config = new MyWxPayConfig(payType);
+            MyWxPayConfig config = new MyWxPayConfig(payType, certData);
             WXPay wxpay = new WXPay(config);
 
             Map<String, String> data = new HashMap<>();
@@ -142,7 +148,7 @@ public class MyWxPay {
      */
     public static Map<String, String> orderQuery(String transaction_id,String out_trade_no,Integer payType){
         try {
-            MyWxPayConfig config = new MyWxPayConfig(payType);
+            MyWxPayConfig config = new MyWxPayConfig(payType, certData);
             WXPay wxpay = new WXPay(config);
 
             Map<String, String> data = new HashMap<>();
@@ -168,7 +174,7 @@ public class MyWxPay {
      */
     public static Map<String, String> closeOrder(String out_trade_no,Integer payType){
         try {
-            MyWxPayConfig config = new MyWxPayConfig(payType);
+            MyWxPayConfig config = new MyWxPayConfig(payType, certData);
             WXPay wxpay = new WXPay(config);
 
             Map<String, String> data = new HashMap<>();
@@ -187,7 +193,7 @@ public class MyWxPay {
 
     public static boolean isPayResultNotifySignatureValid(Map<String,String> map){
         try {
-            MyWxPayConfig config = new MyWxPayConfig(1);
+            MyWxPayConfig config = new MyWxPayConfig(1, certData);
             WXPay wxpay = new WXPay(config);
 
             return wxpay.isPayResultNotifySignatureValid(map);

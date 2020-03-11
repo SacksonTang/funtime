@@ -83,14 +83,14 @@ public class GameController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
-            Integer type = paramJson.getInteger("type");
 
-            if (userId == null || type == null ){
+            if (userId == null ){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            Map<String, Object> map = JsonUtil.getMap("isShow", gameService.getYaoyaoShowConf(type));
+            Map<String, Object> map = JsonUtil.getMap("isGoldShow", gameService.getYaoyaoShowConf(1,userId));
+            map.put("isBlueShow",gameService.getYaoyaoShowConf(2,userId));
             result.setData(map);
             return result;
 

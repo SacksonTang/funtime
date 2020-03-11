@@ -104,6 +104,7 @@ public class RoomController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
             Long roomId = paramJson.getLong("roomId");
+            Long userId = paramJson.getLong("userId");
 
             if (roomId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
@@ -111,7 +112,7 @@ public class RoomController {
                 return result;
             }
 
-            Map<String,Object> map = roomService.getRoomInfo(roomId);
+            Map<String,Object> map = roomService.getRoomInfo(roomId,userId);
 
             result.setData(map);
             return result;

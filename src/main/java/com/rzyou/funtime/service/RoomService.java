@@ -35,9 +35,10 @@ public interface RoomService {
     /**
      * 获取房间信息
      * @param roomId
+     * @param userId
      * @return
      */
-    Map<String, Object> getRoomInfo(Long roomId);
+    Map<String, Object> getRoomInfo(Long roomId, Long userId);
 
     /**
      * 推出房间

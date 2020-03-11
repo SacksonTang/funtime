@@ -5,6 +5,8 @@ public enum ErrorMsgEnum {
     SUCCESS("0","成功"),
     PARAMETER_ERROR("99999","获取参数失败"),
     PARAMETER_CONF_ERROR("99998","获取配置参数失败"),
+    PARAMETER_DECRYPT_ERROR("99997","参数解密失败"),
+    PARAMETER_ENCRYPT_ERROR("99996","参数加密失败"),
     UNKNOWN_ERROR("10000","系统繁忙，请稍后再试...."),
     DATA_ORER_ERROR("10001","数据操作失败"),
     USER_NOT_EXISTS("10002","用户不存在"),
@@ -46,7 +48,7 @@ public enum ErrorMsgEnum {
     USER_GETOPENID_ERROR("10035","获取openid失败"),
     USER_NOT_REALNAME_VALID("10036","用户未实名认证"),
     USER_ACCOUNT_GOLD_NOT_EN("10037","账户金币不足"),
-    USER_WX_EXISTS("10038","微信已绑定"),
+    USER_WX_EXISTS("10038","该微信已被其它账号绑定"),
     USER_WX_NOT_BIND("10039","没有用户微信绑定信息"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
@@ -62,6 +64,7 @@ public enum ErrorMsgEnum {
     IOSPAY_NOT_THIS("30007","当前交易不在交易列表中"),
     IOSPAY_TRANSFERS_EMPTY("30008","未能获取获取到交易列表"),
     IOSPAY_ERROR("30009","支付失败，错误码："),
+    MMPAYMKTTRANSFER_NOTENOUGH("30010","企业账户余额不足"),
 
     ORDER_NOT_EXISTS("40001","充值订单记录不存在"),
     ORDER_IS_INVALID("40002","订单记录已失效"),
@@ -120,7 +123,7 @@ public enum ErrorMsgEnum {
     ROOM_MICUSER_IS_EMPTY("80027","房间麦上没有其他人"),
 
     DRAW_POOL_NOT_EN("90001","奖池余额不足"),
-    DRAW_TIME_OUT("90002","当前时间项目不可用")
+    DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启")
 
     ;
 

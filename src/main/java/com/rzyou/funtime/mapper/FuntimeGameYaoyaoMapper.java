@@ -15,11 +15,15 @@ import java.util.List;
 @Mapper
 public interface FuntimeGameYaoyaoMapper {
 
+    int updateYaoyaoPoolTask();
+
+    int insertYaoyaoPoolHisotry();
+
     int getYaoyaoShowConf(int type);
 
     int insertYaoyaoRecord(FuntimeUserAccountYaoyaoRecord record);
 
-    List<FuntimeGameYaoyaoConf> getYaoyaoConf(int type);
+    List<FuntimeGameYaoyaoConf> getYaoyaoConf(int id);
 
     List<FuntimeGameYaoyaoPool> getYaoyaoPool(Integer type);
 

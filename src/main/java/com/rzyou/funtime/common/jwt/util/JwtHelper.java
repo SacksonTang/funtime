@@ -2,9 +2,8 @@ package com.rzyou.funtime.common.jwt.util;
 
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.encryption.AESUtil;
 import com.rzyou.funtime.common.jwt.constant.SecretConstant;
-import com.rzyou.funtime.common.jwt.secret.AESSecretUtil;
-import com.rzyou.funtime.utils.StringUtil;
 import io.jsonwebtoken.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -58,8 +57,8 @@ public class JwtHelper {
         headMap.put("typ", "JWT");
         JwtBuilder builder = Jwts.builder().setHeader(headMap)
                 //加密后的客户ID
-                .claim("userId", AESSecretUtil.encryptToStr(userId, SecretConstant.DATAKEY))
-                .claim("nonceStr", AESSecretUtil.encryptToStr(nonceStr, SecretConstant.DATAKEY))
+                .claim("userId", userId)
+                .claim("nonceStr", nonceStr)
                 //Signature
                 .signWith(signatureAlgorithm, signingKey)
                 .setExpiration(expDate);
@@ -109,11 +108,11 @@ public class JwtHelper {
 
         if (claims != null) {
             //解密客户编号
-            String decryptUserId = AESSecretUtil.decryptToStr((String)claims.get("userId"), SecretConstant.DATAKEY);
-            String decryptNonceStr = AESSecretUtil.decryptToStr((String)claims.get("nonceStr"), SecretConstant.DATAKEY);
+            String userId = (String)claims.get("userId");
+            String nonceStr = (String)claims.get("nonceStr");
             Map<String,Object> result = new HashMap<>();
-            result.put("userId",decryptUserId);
-            result.put("nonceStr",decryptNonceStr);
+            result.put("userId",userId);
+            result.put("nonceStr",nonceStr);
             return result;
         }else {
             logger.warn("[JWTHelper]-JWT解析出claims为空");

@@ -2,10 +2,7 @@ package com.rzyou.funtime.task;
 
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.entity.FuntimeNotice;
-import com.rzyou.funtime.service.AccountService;
-import com.rzyou.funtime.service.NoticeService;
-import com.rzyou.funtime.service.RoomService;
-import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.service.*;
 import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +24,18 @@ public class CommonTask {
     NoticeService noticeService;
     @Autowired
     UserService userService;
+    @Autowired
+    GameService gameService;
 
     Integer[] sendGroupType = {1,2,3,4,5,6,7,8,10,11,12,13,14,17,18};
     Integer[] sendSingleType = {15,16};
     Integer[] snedAllApp = {9};
+
+    @Scheduled(cron = "0 0 0 ? * MON")
+    public void resetYaoyaoPool(){
+        gameService.updateYaoyaoPoolTask();
+    }
+
 
     /**
      * 房内离线用户退房

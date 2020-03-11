@@ -3,6 +3,31 @@ package com.rzyou.funtime.common;
 
 public class Constant {
 
+    public final static String SEX_MALE_COLOR = "#0093FF";
+    public final static String SEX_FEMALE_COLOR = "#FF0096";
+    public final static String HEIGHT_COLOR = "#FF9500";
+    public final static String DEFAULT_NICKNAME = "大侠";
+
+    //AES秘钥
+    public static final String AES_KEY = "Yhi6HglhWHBiw0ZQ";
+
+
+    //客户端加密
+    public final static String SERVER_PUBLIC_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHiAmFsSlmwlIT0I3Zt0jB" +
+            "R6rRJndSDfeOQUBcAN53+PBRuBbxP0ibvpoDXAXcUHisxhQ8ODolv/t38wGckduLvAHf1bJj8dv7N9Ae+e9zyOMUTliQEH7Eq/+c" +
+            "xOcda2kHbbauEQ+iw027tP+/0eimSqHomjhRY2arxwSWtCvMqwIDAQAB";
+    //服务端解密
+    public final static String SERVER_PRIVATE_KEY = "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAMeICYWxKWbC" +
+            "UhPQjdm3SMFHqtEmd1IN945BQFwA3nf48FG4FvE/SJu+mgNcBdxQeKzGFDw4OiW/+3fzAZyR24u8Ad/VsmPx2/s30B7573PI4xRO" +
+            "WJAQfsSr/5zE5x1raQdttq4RD6LDTbu0/7/R6KZKoeiaOFFjZqvHBJa0K8yrAgMBAAECgYBZTl0ctpfWQ4FjFwR2ft+UitQ8up/L" +
+            "XS8BP9ljlIv+XLCLkv7Jyc5gzyW1/TkuS+JHSn0CGxSDkvMl0+FTx8DgdqBRsmQvhxbnxnEpxoI7rNkNBaVt319jXHiMRSXEcXUI" +
+            "s3GHcECMZikdDhrih8U/qDW+FUmgRmwNjo9Kb6FpgQJBAO0XTaLAMVyxwa9oWmgDNRpf4ybZUenpKI8tXl6ikhdwJmmID3n2xeqg" +
+            "0yAP4bDRAcL1xWTpjfrivoRLderPRmsCQQDXceCgLcwqIPCjh9JTxDO6ZstVrai9Zly1nvJO5UDvFpybZjbA/RYk5VQ/3PMuxSOdL" +
+            "FTStVcFydeKpZHwCKLBAkEAx7h0rt/l9SbMeN2YIrxo9GHH8QbqiPffMdVPBLtAA7x2rzltiBlIGeEGWKDoRtGaAUiV0u8nqittv/X" +
+            "tTDL1JwJAI7HAT4mG6+vtMorMNAirsVRal+VfsZGGBqlA6AVfjr0mUTDMHYlQ4+gC31nSCIus7NttakOVGWZpiZUI6sXjgQJAUto9" +
+            "Y6tqVG9XDIFg6Np/fL8PprJb1gPT3TwoCVwM5xXHAZDiuGuu64x3c/QG6+dH2H/D1PhWq/Z7/6TDPhF5OA==";
+
+
     public final static String COS_URL_PREFIX = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com";
     public final static String AGREEMENT_PRIVACY = "/agreement/privacy_protocol.html";
     public final static String AGREEMENT_WITHDRAL = "/agreement/withdral_protocol.html";

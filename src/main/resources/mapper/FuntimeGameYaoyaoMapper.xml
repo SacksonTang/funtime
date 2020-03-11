@@ -4,9 +4,9 @@
 
   <select id="getYaoyaoShowConf" parameterType="java.lang.Integer" resultType="java.lang.Integer">
     SELECT count(id) FROM `t_funtime_game_yaoyao_show_conf`
-    where type = #{type}
+    where type = #{type} and flag = 1
      and DATE_FORMAT(NOW(),'%Y%m%d')+0 BETWEEN day_start AND day_end
-     and DATE_FORMAT(NOW(),'%H%i')+0 BETWEEN hour_start AND hour_end;
+    and if(hour_start>hour_end,DATE_FORMAT(NOW(),'%H%i')+0>hour_start or hour_end>DATE_FORMAT(NOW(),'%H%i')+0,DATE_FORMAT(NOW(),'%H%i')+0 BETWEEN hour_start AND hour_end)
   </select>
 
   <select id="getYaoyaoConf" parameterType="java.lang.Integer" resultType="com.rzyou.funtime.entity.FuntimeGameYaoyaoConf">
@@ -15,7 +15,7 @@
     ,probability,broadcast
     from
     t_funtime_game_yaoyao_conf
-    where type = #{type}
+    where pool_id = #{id}
   </select>
   <select id="getYaoyaoPool" resultType="com.rzyou.funtime.entity.FuntimeGameYaoyaoPool">
     select
@@ -31,16 +31,27 @@
     t_funtime_game_yaoyao_pool
     where id = #{id}
   </select>
+
   <update id="updateActualPoolForPlus">
     update  t_funtime_game_yaoyao_pool
     set actual_pool = actual_pool+#{amount}
     where id = #{id}
+  </update>
+  <update id="updateYaoyaoPoolTask">
+    update  t_funtime_game_yaoyao_pool
+    set actual_pool = init_pool
   </update>
   <update id="updateActualPoolForSub">
     update  t_funtime_game_yaoyao_pool
     set actual_pool = actual_pool-#{amount}
     where id = #{id} and actual_pool-#{amount}>=0
   </update>
+  <insert id="insertYaoyaoPoolHisotry"  >
+    insert into t_funtime_game_yaoyao_pool_history (pool_id,type,
+      quota, init_pool, actual_pool)
+    select id,type,quota, init_pool, actual_pool
+    from t_funtime_game_yaoyao_pool
+  </insert>
   <insert id="insertYaoyaoRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountYaoyaoRecord" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user_account_yaoyao_record (user_id, type,
       draw_random, draw_info, draw_amount,basic_amount,user_amont,pool_amount,

@@ -92,7 +92,7 @@ public class RedpacketController {
     public ResultMsg<Object> createRedpacket(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            JSONObject paramJson = HttpHelper.getParamterJsonDecrypt(request);
 
             FuntimeUserRedpacket redpacket = JSONObject.toJavaObject(paramJson, FuntimeUserRedpacket.class);
             if (redpacket==null||(redpacket.getType() == 1&&redpacket.getRedpacketNum()<5)

@@ -41,7 +41,7 @@ public class PayController {
      * @param request
      * @return
      */
-    @PostMapping("unifiedorder")
+    //@PostMapping("unifiedorder")
     public ResultMsg<Object> unifiedorder(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {

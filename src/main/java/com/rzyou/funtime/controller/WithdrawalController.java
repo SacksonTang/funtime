@@ -38,7 +38,7 @@ public class WithdrawalController {
     public ResultMsg<Object> startWithdrawal(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            JSONObject paramJson = HttpHelper.getParamterJsonDecrypt(request);
 
             //Integer withdrawalType = paramJson.getInteger("withdrawalType");
             BigDecimal blackAmount = paramJson.getBigDecimal("blackAmount");

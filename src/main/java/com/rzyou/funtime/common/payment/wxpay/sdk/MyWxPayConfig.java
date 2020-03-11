@@ -12,10 +12,10 @@ public class MyWxPayConfig extends WXPayConfig {
     private byte[] certData;
     private int payType;
 
-    public MyWxPayConfig(int payType) throws Exception {
+    public MyWxPayConfig(int payType, String certData) throws Exception {
         //String certPath = "E:/cert/apiclient_cert.p12";
         this.payType = payType;
-        String certPath = "/usr/cert/apiclient_cert.p12";
+        String certPath = certData;
         File file = new File(certPath);
         InputStream certStream = new FileInputStream(file);
         this.certData = new byte[(int) file.length()];

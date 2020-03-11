@@ -1,5 +1,6 @@
-package com.rzyou.funtime.common.jwt.secret;
+package com.rzyou.funtime.common.encryption;
 
+import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.jwt.constant.SecretConstant;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +39,7 @@ public class AESSecretUtil {
                 SecretKey secretKey = keyGenerator.generateKey();
                 byte[] enCodeFormat = secretKey.getEncoded();
                 SecretKeySpec secretKeySpec = new SecretKeySpec(enCodeFormat, "AES");
-                Cipher cipher = Cipher.getInstance("AES");// 创建密码器
+                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");// 创建密码器
                 byte[] byteContent = data.getBytes("utf-8");
                 cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);// 初始化
                 byte[] result = cipher.doFinal(byteContent);
@@ -83,7 +84,7 @@ public class AESSecretUtil {
                 SecretKey secretKey = keyGenerator.generateKey();
                 byte[] enCodeFormat = secretKey.getEncoded();
                 SecretKeySpec secretKeySpec = new SecretKeySpec(enCodeFormat, "AES");
-                Cipher cipher = Cipher.getInstance("AES");// 创建密码器
+                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");// 创建密码器
                 cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);// 初始化
                 byte[] result = cipher.doFinal(data);
                 return result; // 加密
@@ -145,9 +146,9 @@ public class AESSecretUtil {
     }
 
     public static void main(String[] args) {
-        String ss = encryptToStr("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiIxMjMiLCJ1c2VyTmFtZSI6Ikp1ZHkiLCJleHAiOjE1MzI3Nzk2MjIsIm5iZiI6MTUzMjc3NzgyMn0.sIw_leDZwG0pJ8ty85Iecd_VXjObYutILNEwPUyeVSo", SecretConstant.DATAKEY);
+        String ss = encryptToStr("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiIxMjMiLCJ1c2VyTmFtZSI6Ikp1ZHkiLCJleHAiOjE1MzI3Nzk2MjIsIm5iZiI6MTUzMjc3NzgyMn0.sIw_leDZwG0pJ8ty85Iecd_VXjObYutILNEwPUyeVSo", Constant.AES_KEY);
         System.out.println(ss);
-        System.out.println(decryptToStr(ss, SecretConstant.DATAKEY));
+        System.out.println(decryptToStr(ss, Constant.AES_KEY));
     }
 
 }

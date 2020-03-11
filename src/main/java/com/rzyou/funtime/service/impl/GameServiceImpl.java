@@ -8,7 +8,6 @@ import com.rzyou.funtime.entity.FuntimeGameYaoyaoPool;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.entity.FuntimeUserAccountYaoyaoRecord;
 import com.rzyou.funtime.mapper.FuntimeGameYaoyaoMapper;
-import com.rzyou.funtime.mapper.FuntimeUserAccountMapper;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.GameService;
 import com.rzyou.funtime.service.ParameterService;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,12 +38,24 @@ public class GameServiceImpl implements GameService {
     @Autowired
     FuntimeGameYaoyaoMapper gameYaoyaoMapper;
 
-    public List<FuntimeGameYaoyaoConf> getYaoyaoConf(int type){
-        return gameYaoyaoMapper.getYaoyaoConf(type);
+    public List<FuntimeGameYaoyaoConf> getYaoyaoConf(int id){
+        return gameYaoyaoMapper.getYaoyaoConf(id);
     }
 
     @Override
-    public boolean getYaoyaoShowConf(int type){
+    public boolean getYaoyaoShowConf(int type, Long userId){
+        FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
+        if (userAccount == null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if (!parameterService.getParameterValueByKey("yaoyao_show").equals("1")){
+            return false;
+        }
+        String yaoyaoNeedLevel = parameterService.getParameterValueByKey("yaoyao_need_level");
+        int level = yaoyaoNeedLevel==null?0:Integer.parseInt(yaoyaoNeedLevel);
+        if (userAccount.getLevel()<level){
+            return false;
+        }
         if (gameYaoyaoMapper.getYaoyaoShowConf(type)<1){
             return false;
         }
@@ -84,7 +94,7 @@ public class GameServiceImpl implements GameService {
         }
 
         int type = poolInfo.getType();
-        if (!getYaoyaoShowConf(type)){
+        if (!getYaoyaoShowConf(type, userId)){
             throw new BusinessException(ErrorMsgEnum.DRAW_TIME_OUT.getValue(),ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
         }
         Integer userAmount = type == 1?userAccount.getGoldCoin().intValue():userAccount.getBlueDiamond().intValue();
@@ -101,7 +111,7 @@ public class GameServiceImpl implements GameService {
             }
         }
 
-        List<FuntimeGameYaoyaoConf> list = getYaoyaoConf(type);
+        List<FuntimeGameYaoyaoConf> list = getYaoyaoConf(id);
         int probabilityTotal = 1;
         Map<String,FuntimeGameYaoyaoConf> probabilityMap = new HashMap<>();
         for (FuntimeGameYaoyaoConf yaoyaoConf : list){
@@ -221,6 +231,16 @@ public class GameServiceImpl implements GameService {
         }
 
         return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void updateYaoyaoPoolTask() {
+
+        gameYaoyaoMapper.insertYaoyaoPoolHisotry();
+
+        gameYaoyaoMapper.updateYaoyaoPoolTask();
+
     }
 
     private Long saveYaoyaoRecord(Long userId, int type, int random, String drawInfo, int drawAmount, Integer basicAmount, int userAmont, Integer poolAmount, int poolPercent, Integer userExchangeAmount) {

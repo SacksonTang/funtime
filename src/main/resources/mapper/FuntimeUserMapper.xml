@@ -59,13 +59,19 @@
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
-    <include refid="Base_Column_List" />
+    id, username, fullname, nickname, password, phone_number,
+    drainage_channel_id,token, portrait_address, sex, birthday, height, sign_text,version,
+    state, realname_authentication_flag, online_state, create_room, registration_time,
+    update_time, last_login_time, concerns, fans, ip, flag, guild_id,platform,channel,show_id
     from t_funtime_user
     where id = #{id,jdbcType=BIGINT} and flag = 1
   </select>
   <select id="getUserInfoByShowId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
-    <include refid="Base_Column_List" />
+    id, username, fullname, nickname, password, phone_number,
+    drainage_channel_id, portrait_address, sex, birthday, height, sign_text,
+    state, realname_authentication_flag, online_state, create_room, registration_time,
+    update_time, last_login_time, concerns, fans, ip, flag, guild_id,platform,channel,show_id
     from t_funtime_user
     where show_id = #{showId} and flag = 1
   </select>

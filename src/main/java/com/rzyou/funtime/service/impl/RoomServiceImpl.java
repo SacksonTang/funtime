@@ -8,10 +8,7 @@ import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
-import com.rzyou.funtime.service.NoticeService;
-import com.rzyou.funtime.service.ParameterService;
-import com.rzyou.funtime.service.RoomService;
-import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.service.*;
 
 import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +29,8 @@ public class RoomServiceImpl implements RoomService {
     NoticeService noticeService;
     @Autowired
     ParameterService parameterService;
+    @Autowired
+    GameService gameService;
 
     @Autowired
     FuntimeChatroomMapper chatroomMapper;
@@ -314,7 +313,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public Map<String, Object> getRoomInfo(Long roomId) {
+    public Map<String, Object> getRoomInfo(Long roomId, Long userId) {
 
         FuntimeChatroom chatroom = chatroomMapper.getRoomInfoById(roomId);
         if (chatroom==null){
@@ -330,7 +329,10 @@ public class RoomServiceImpl implements RoomService {
         result.put("isRedpacketShow",parameterService.getParameterValueByKey("is_redpacket_show"));
 
         result.put("shareUrl",Constant.SHARE_URL);
-
+        if (userId!=null) {
+            result.put("isGoldShow", gameService.getYaoyaoShowConf(1, userId));
+            result.put("isBlueShow", gameService.getYaoyaoShowConf(2, userId));
+        }
         return result;
     }
 
@@ -385,25 +387,22 @@ public class RoomServiceImpl implements RoomService {
             }
         }
         //删除用户
-        deleteChatroomUser(roomId, userId);
+        int k = deleteChatroomUser(roomId, userId);
 
-        if (!isLastOne) {
+        if (!isLastOne&&k>0) {
             //通知人数
             noticeService.notice20(roomId, roomNos, chatroom.getOnlineNum() - 1);
         }
 
     }
 
-    private void deleteChatroomUser(Long roomId, Long userId) {
+    private int deleteChatroomUser(Long roomId, Long userId) {
         Long id = chatroomUserMapper.checkUserIsExist(roomId,userId);
         if (id==null){
             log.info("deleteChatroomUser：{}",ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getDesc());
             throw new BusinessException(ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getDesc());
         }
-        int k = chatroomUserMapper.deleteByPrimaryKey(id);
-        if(k!=1){
-            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
-        }
+        return chatroomUserMapper.deleteByPrimaryKey(id);
     }
 
     @Override

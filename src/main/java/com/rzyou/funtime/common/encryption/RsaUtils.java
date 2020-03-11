@@ -1,7 +1,11 @@
-package com.rzyou.funtime.common.sms.linkme;
+package com.rzyou.funtime.common.encryption;
 
+import com.rzyou.funtime.common.BusinessException;
+import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.sms.linkme.SignAlgorithm;
 import org.apache.commons.lang3.StringUtils;
 
+import java.security.KeyPair;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -86,8 +90,8 @@ public class RsaUtils {
             return Rsa.encryptHex(sourceData, publicKeyStr);
         } catch (Exception e) {
             e.printStackTrace();
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ENCRYPT_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ENCRYPT_ERROR.getDesc());
         }
-        return null;
     }
 
     /**
@@ -102,8 +106,10 @@ public class RsaUtils {
             return Rsa.decryptHex(encodeData, privateKeyStr);
         } catch (Exception e) {
             e.printStackTrace();
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_DECRYPT_ERROR.getValue(),ErrorMsgEnum.PARAMETER_DECRYPT_ERROR.getDesc());
         }
-        return null;
     }
+
+
 
 }

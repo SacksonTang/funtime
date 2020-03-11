@@ -791,7 +791,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
-        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
         for (String toUserIdStr : toUserIdArray) {
             Long toUserId = Long.valueOf(toUserIdStr);
             FuntimeUser toUser = userService.queryUserById(toUserId);
@@ -895,7 +895,7 @@ public class AccountServiceImpl implements AccountService {
         Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
                 , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannelId);
 
-        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(0, RoundingMode.DOWN);
 
         //用户送减去蓝钻
         userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
@@ -999,7 +999,7 @@ public class AccountServiceImpl implements AccountService {
         userRole = userRole == null?4:userRole;
 
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
-        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(0, RoundingMode.DOWN);
         for (Long toUserId : toUserIdArray) {
 
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
@@ -1103,7 +1103,7 @@ public class AccountServiceImpl implements AccountService {
         userRole = userRole == null?4:userRole;
 
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
-        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(0, RoundingMode.DOWN);
         for (Long toUserId : toUserIdArray) {
 
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
