@@ -433,6 +433,8 @@ public class AccountServiceImpl implements AccountService {
                 userRedpacketDetailMapper.insertBatch(details);
             }
             userService.updateUserAccountForSub(redpacket.getUserId(),null,redpacket.getAmount(),null);
+            //新建用户日志
+            saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getAmount(),redpacket.getId(),OperationType.GIVEREDPACKET.getAction(),OperationType.GIVEREDPACKET.getOperationType());
 
 
             //通知
@@ -452,6 +454,8 @@ public class AccountServiceImpl implements AccountService {
             userRedpacketDetailMapper.insertSelective(detail);
 
             userService.updateUserAccountForSub(redpacket.getUserId(),null,redpacket.getAmount(),null);
+            //新建用户日志
+            saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getAmount(),redpacket.getId(),OperationType.GIVEREDPACKET.getAction(),OperationType.GIVEREDPACKET.getOperationType());
 
         }
 
@@ -469,7 +473,7 @@ public class AccountServiceImpl implements AccountService {
         }
         //个人
         if (redpacket.getType()==2){
-            if (userId.equals(redpacket.getToUserId())){
+            if (!userId.equals(redpacket.getToUserId())){
                 throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_YOURS.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_YOURS.getDesc());
             }
             if (redpacket.getBestowCondition()==1){
@@ -895,7 +899,7 @@ public class AccountServiceImpl implements AccountService {
         Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
                 , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannelId);
 
-        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(0, RoundingMode.DOWN);
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
 
         //用户送减去蓝钻
         userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
@@ -999,7 +1003,7 @@ public class AccountServiceImpl implements AccountService {
         userRole = userRole == null?4:userRole;
 
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
-        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(0, RoundingMode.DOWN);
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
         for (Long toUserId : toUserIdArray) {
 
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
@@ -1103,7 +1107,7 @@ public class AccountServiceImpl implements AccountService {
         userRole = userRole == null?4:userRole;
 
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
-        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(0, RoundingMode.DOWN);
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
         for (Long toUserId : toUserIdArray) {
 
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
@@ -1352,6 +1356,8 @@ public class AccountServiceImpl implements AccountService {
         if (userValid==null){
             throw new BusinessException(ErrorMsgEnum.USERVALID_IS_NOT_VALID.getValue(),ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
         }
+        //检查实际提现金额限制
+        checkWithdrawalConf(userId,amount);
 
         //获取配置表中渠道费
         BigDecimal channelAmount = getServiceAmount(preRmbAmount.intValue());
@@ -1379,9 +1385,6 @@ public class AccountServiceImpl implements AccountService {
         BigDecimal ratio = convert("black", "rmb");
         //检查前端传过来的数字
         checkAppAmount(blackAmount,preRmbAmount,channelAmount,amount,ratio);
-
-        //检查实际提现金额限制
-        checkWithdrawalConf(userId,amount);
 
         Integer withdrawalType = getWithdrawalType(preRmbAmount);
         //获取提现号码

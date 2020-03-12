@@ -45,7 +45,7 @@ public class Constant {
     public static final String APPLE_URL_VERIFY = "https://buy.itunes.apple.com/verifyReceipt";
 
 
-    public final static String WXCHATTEMP = "提交领赏申请成功，客服将按照你提交的领取方式联系您请关注公司公众号#，最新领赏通知将通过公众号推送";
+    public final static String WXCHATTEMP = "申请成功,提现金额将在10个工作日到账,关注触娱公众号#,充值更优惠";
 
     public final static String BChATROOM = "funtimefadacai";
 

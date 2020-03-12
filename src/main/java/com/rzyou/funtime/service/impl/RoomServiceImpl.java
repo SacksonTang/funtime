@@ -10,13 +10,16 @@ import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
 
+import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Slf4j
@@ -26,12 +29,16 @@ public class RoomServiceImpl implements RoomService {
     @Autowired
     UserService userService;
     @Autowired
+    AccountService accountService;
+    @Autowired
     NoticeService noticeService;
     @Autowired
     ParameterService parameterService;
     @Autowired
     GameService gameService;
 
+    @Autowired
+    FuntimeBackgroundMapper backgroundMapper;
     @Autowired
     FuntimeChatroomMapper chatroomMapper;
     @Autowired
@@ -349,6 +356,11 @@ public class RoomServiceImpl implements RoomService {
         if (chatroom==null){
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
+        Long id = chatroomUserMapper.checkUserIsExist(roomId,userId);
+        if (id==null){
+            log.info("deleteChatroomUser：{}",ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getDesc());
+            throw new BusinessException(ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getDesc());
+        }
 
         //用户是否在麦上
         Integer mic = chatroomMicMapper.getMicLocation(roomId, userId);
@@ -387,23 +399,19 @@ public class RoomServiceImpl implements RoomService {
             }
         }
         //删除用户
-        int k = deleteChatroomUser(roomId, userId);
+        int k = chatroomUserMapper.deleteByPrimaryKey(id);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getDesc());
+        }
 
-        if (!isLastOne&&k>0) {
+        if (!isLastOne) {
             //通知人数
             noticeService.notice20(roomId, roomNos, chatroom.getOnlineNum() - 1);
         }
 
     }
 
-    private int deleteChatroomUser(Long roomId, Long userId) {
-        Long id = chatroomUserMapper.checkUserIsExist(roomId,userId);
-        if (id==null){
-            log.info("deleteChatroomUser：{}",ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getDesc());
-            throw new BusinessException(ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getDesc());
-        }
-        return chatroomUserMapper.deleteByPrimaryKey(id);
-    }
+
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -1041,6 +1049,77 @@ public class RoomServiceImpl implements RoomService {
             roomExit(userId,roomId);
         }
         userService.updateOnlineState(userId,2);
+    }
+
+    @Override
+    public PageInfo<Map<String, Object>> getBackgroundList(Integer startPage, Integer pageSize, Long userId) {
+        PageHelper.startPage(startPage,pageSize);
+        List<Map<String,Object>> list = backgroundMapper.getBackgroundList(userId);
+        if (list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }else{
+
+            return new PageInfo<>(list);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public ResultMsg<Object> buyBackground(Integer backgroundId, Long userId) {
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+        FuntimeUserAccount userAccount = accountService.getUserAccountByUserId(userId);
+        if (userAccount==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        Map<String, Object> map = backgroundMapper.getBackgroundInfoById(backgroundId, userId);
+        if (map == null||map.isEmpty()){
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
+        }
+        BigDecimal price = new BigDecimal(map.get("price").toString());
+        Integer type = Integer.parseInt(map.get("type").toString());
+
+        if (userAccount.getBlueDiamond().subtract(price).doubleValue()<0){
+            resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            map = new HashMap<>();
+            map.put("userBlueAmount",userAccount.getBlueDiamond().intValue());
+            map.put("price",price.intValue());
+            resultMsg.setData(map);
+            return resultMsg;
+        }
+        FuntimeUserBackground userBackground = new FuntimeUserBackground();
+        userBackground.setBackgroundId(backgroundId);
+        userBackground.setUserId(userId);
+        if (type==3){
+            userBackground.setMonths(1);
+
+            userBackground.setEndTime(DateUtils.addMonths(new Date(),1));
+        }
+        userBackground.setBackgroundType(type);
+        userBackground.setPrice(price);
+        int k ;
+        if (map.get("ubId")==null){
+            //没买过
+            k = backgroundMapper.insertUserBackground(userBackground);
+            if(k!=1){
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+        }else{
+            Long ubId = Long.parseLong(map.get("ubId").toString());
+            userBackground.setId(ubId);
+            k = backgroundMapper.updateUserBackground(userBackground);
+            if(k!=1){
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+            userBackground.setId(null);
+        }
+        k = backgroundMapper.insertUserBackgroundRecord(userBackground);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        userService.updateUserAccountForSub(userId,null,price,null);
+        accountService.saveUserAccountBlueLog(userId,price,userBackground.getId(),OperationType.BUY_BACKGROUND.getAction(),OperationType.BUY_BACKGROUND.getOperationType());
+        return resultMsg;
     }
 
 

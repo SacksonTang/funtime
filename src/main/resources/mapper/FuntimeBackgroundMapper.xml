@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeBackgroundMapper">
+
+  <select id="getBackgroundList" parameterType="java.lang.Long" resultType="java.util.Map">
+    select
+    t.id,t.type,t.background_url as backgroundUrl,t.thumbnail_url as thumbnailUrl,
+    t.original_price as originalPrice,t.activity_price as activityPrice,t.discount,
+    IFNULL(d.background_id,0) isOwner,
+	IF(now() >= d.start_time and d.end_time>=now(),0,1) isExpiry
+
+    from  t_funtime_background t left join t_funtime_user_background d on d.background_id = t.id and d.user_id = #{userId}
+    where t.flag = 1
+    order by t.sort asc
+  </select>
+  <select id="getBackgroundInfoById"  resultType="java.util.Map">
+    select
+    t.type,
+    IF(t.activity_price is null,t.original_price,t.activity_price) as price,
+    d.id as ubId
+
+    from  t_funtime_background t inner join t_funtime_user_background d on d.background_id = t.id and d.user_id = #{userId}
+    where t.id = #{id}  and t.flag = 1
+    limit 1
+  </select>
+
+    <insert id="insertUserBackground" parameterType="com.rzyou.funtime.entity.FuntimeUserBackground">
+        insert into t_funtime_user_background(user_id,background_id,background_type,price,end_time)
+        values (#{userId},#{backgroundId},#{backgroundType},#{price},#{endTime})
+    </insert>
+    <update id="updateUserBackground" parameterType="com.rzyou.funtime.entity.FuntimeUserBackground">
+      update t_funtime_user_background
+      <set>
+        <if test="backgroundType != null">
+          background_type = #{backgroundType},
+        </if>
+        <if test="price != null">
+          price = #{price},
+        </if>
+        <if test="months != null">
+          end_time = date_add(IF(end_time>NOW(),end_time,NOW()), interval ${months} month),
+        </if>
+        update_time = NOW()
+      </set>
+      where id = #{id}
+    </update>
+    <insert id="insertUserBackgroundRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserBackground" useGeneratedKeys="true" keyProperty="id">
+        insert into t_funtime_user_account_background_record(user_id,background_id,background_type,price,months)
+        values (#{userId},#{backgroundId},#{backgroundType},#{price},#{months})
+    </insert>
+
+</mapper>

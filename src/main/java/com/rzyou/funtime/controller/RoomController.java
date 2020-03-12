@@ -30,6 +30,75 @@ public class RoomController {
     @Autowired
     RoomService roomService;
 
+
+    /**
+     * 背景列表
+     * @param request
+     * @return
+     */
+    @PostMapping("getBackgroundList")
+    public ResultMsg<Object> getBackgroundList(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+
+            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
+            Long userId = paramJson.getLong("userId");
+            if (userId==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String,Object> map = new HashMap<>();
+            map.put("pageInfo",roomService.getBackgroundList(startPage, pageSize,userId));
+            result.setData(map);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 购买背景图
+     * @param request
+     * @return
+     */
+    @PostMapping("buyBackground")
+    public ResultMsg<Object> buyBackground(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer backgroundId = paramJson.getInteger("backgroundId");
+            Long userId = paramJson.getLong("userId");
+            if (backgroundId==null||userId==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            return roomService.buyBackground(backgroundId,userId);
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+
     /**
      * 房间列表
      */

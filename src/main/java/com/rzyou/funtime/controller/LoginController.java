@@ -2,6 +2,7 @@ package com.rzyou.funtime.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.*;
+import com.rzyou.funtime.common.encryption.AESUtil;
 import com.rzyou.funtime.common.encryption.RsaUtils;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
@@ -115,7 +116,13 @@ public class LoginController {
         ResultMsg<Object> result = new ResultMsg<>();
 
         try {
-            JSONObject paramJson = HttpHelper.getParamterJsonDecrypt(request);
+            JSONObject paramJson;
+            String flag = parameterService.getParameterValueByKey("is_encrypt");
+            if (flag!=null&&flag.equals("1")){
+                paramJson = HttpHelper.getParamterJsonDecrypt(request);
+            }else{
+                paramJson = HttpHelper.getParamterJson(request);
+            }
 
             FuntimeUser user = JSONObject.toJavaObject(paramJson, FuntimeUser.class);
             if (user == null
@@ -140,8 +147,13 @@ public class LoginController {
             }
             userInfo.setImSdkAppId(Constant.TENCENT_YUN_SDK_APPID);
             Map<String, Object> map = JsonUtil.getMap("user", userInfo);
-            //String encrypt = AESUtil.aesDecrypt(JSONObject.toJSONString(map),Constant.AES_KEY);
-            result.setData(map);
+            if (flag!=null&&flag.equals("1")){
+                String encrypt = AESUtil.aesDecrypt(JSONObject.toJSONString(map),Constant.AES_KEY);
+                result.setData(encrypt);
+            }else {
+                result.setData(map);
+            }
+
         } catch (BusinessException be) {
             be.printStackTrace();
             result.setCode(be.getCode());
@@ -287,7 +299,6 @@ public class LoginController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            log.info("clientPublicKey ==>  "+clientPublicKey);
             clientPublicKey = RsaUtils.decryptHexData(clientPublicKey,Constant.SERVER_PRIVATE_KEY);
             result.setData(JsonUtil.getMap("encryptAesKey", RsaUtils.encryptHexData(Constant.AES_KEY,clientPublicKey)));
             return result;
@@ -390,6 +401,7 @@ public class LoginController {
             data.put("musicUrl",Constant.TENCENT_YUN_MUSIC_URL);
             data.put("yaoyaoNeedLevel",parameterService.getParameterValueByKey("yaoyao_need_level"));
             data.put("yaoyaoShow",parameterService.getParameterValueByKey("yaoyao_show"));
+            data.put("isEncrypt",parameterService.getParameterValueByKey("is_encrypt"));
 
             result.setData(data);
             return result;

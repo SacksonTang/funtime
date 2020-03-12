@@ -16,6 +16,7 @@ public enum OperationType {
     ,GAMEOUT("OUT","GAMEOUT","游戏支出")
     ,BLACK_BLUE_OUT("OUT","BLACK_BLUE_OUT","黑钻兑换蓝钻")
     ,YAOYAOLE_OUT("OUT","YAOYAOLE_OUT","摇摇乐消耗")
+    ,BUY_BACKGROUND("OUT","BUY_BACKGROUND","购买背景资源")
     ;
 
      private String action;

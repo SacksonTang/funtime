@@ -30,12 +30,12 @@ public class HttpHelper {
         if (StringUtils.isBlank(str)){
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
-        /*
+
         str = AESUtil.aesDecrypt(str, Constant.AES_KEY);
         if (StringUtils.isBlank(str)){
             log.error("参数解密失败");
             throw new BusinessException(ErrorMsgEnum.PARAMETER_DECRYPT_ERROR.getValue(),ErrorMsgEnum.PARAMETER_DECRYPT_ERROR.getDesc());
-        }*/
+        }
         JSONObject obj = JSONObject.parseObject(str);
 
         JSONObject paramJson = obj.getJSONObject("param");

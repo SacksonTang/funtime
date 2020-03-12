@@ -28,6 +28,8 @@
     id, name, tags, exam_desc, is_block, is_lock, hot, online_num, state, create_time,
     chat_message_file,user_id,password,exam_url,avatar_url
   </sql>
+
+
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />

@@ -217,7 +217,6 @@ public class UserController {
             BigDecimal sumGrabAmount = accountService.getSumGrabAmountById(userId, null);
             userAccount.setGrabAmountTotal(sumGrabAmount==null?0:sumGrabAmount.intValue());
             Map<String, Object> map = JsonUtil.getMap("userAccount", userAccount);
-            //String encrypt = AESSecretUtil.encryptToStr(JSONObject.toJSONString(map),Constant.AES_KEY);
             result.setData(map);
             return result;
         } catch (BusinessException be) {

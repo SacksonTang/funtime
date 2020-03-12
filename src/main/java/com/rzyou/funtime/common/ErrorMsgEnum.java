@@ -83,10 +83,10 @@ public enum ErrorMsgEnum {
 
     GIFT_NOT_EXISTS("60001","礼物不存在"),
 
-    WITHDRAWAL_DAY_LIMIT("70001","提现超出每日金额限额"),
-    WITHDRAWAL_MONTH_LIMIT("70002","提现超出每月次数限额"),
-    WITHDRAWAL_MIN_LIMIT("70003","提现金额小于最低领赏金额"),
-    WITHDRAWAL_OPERATION_LIMIT("70004","上次领赏正在处理,请移步公众号查询进度"),
+    WITHDRAWAL_DAY_LIMIT("70001","当日已达到最高提现金额"),
+    WITHDRAWAL_MONTH_LIMIT("70002","已达到每月最高提现次数"),
+    WITHDRAWAL_MIN_LIMIT("70003","未达到最低提现金额"),
+    WITHDRAWAL_OPERATION_LIMIT("70004","有处理中申请，待处理完成后再提交,请移步公众号查询进度"),
     WITHDRAWAL_CHANNELAMOUNT_ERROR("70005","渠道费用不符,请重试"),
     WITHDRAWAL_PRERMBAMOUNT_ERROR("70006","试算金额不符,请重重试"),
     WITHDRAWAL_RMBAMOUNT_ERROR("70007","实际提现金额不符,请重重试"),

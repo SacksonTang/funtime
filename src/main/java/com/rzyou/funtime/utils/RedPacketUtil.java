@@ -1,7 +1,9 @@
 package com.rzyou.funtime.utils;
 
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class RedPacketUtil {
 
     /**
@@ -86,13 +88,13 @@ public class RedPacketUtil {
         //如果生成的金额不合法 则递归重新生成
         if (LESS == status) {
             recursiveCount++;
-            System.out.println("recursiveCount==" + recursiveCount);
+            log.info("recursiveCount==" + recursiveCount);
             return randomRedPacket(totalMoney, minMoney, redPacket, count);
         }
 
         if (MORE == status) {
             recursiveCount++;
-            System.out.println("recursiveCount===" + recursiveCount);
+            log.info("recursiveCount===" + recursiveCount);
             return randomRedPacket(totalMoney, redPacket, maxMoney, count);
         }
 

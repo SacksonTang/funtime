@@ -10,6 +10,7 @@ import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
 import com.rzyou.funtime.entity.FuntimeUserAccountRedpacketRecord;
 import com.rzyou.funtime.entity.FuntimeUserRedpacket;
 import com.rzyou.funtime.service.AccountService;
+import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.utils.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,8 @@ public class RedpacketController {
 
     @Autowired
     AccountService accountService;
+    @Autowired
+    ParameterService parameterService;
 
     /**
      * 房间红包已抢记录
@@ -92,10 +95,16 @@ public class RedpacketController {
     public ResultMsg<Object> createRedpacket(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJsonDecrypt(request);
+            JSONObject paramJson;
+            String flag = parameterService.getParameterValueByKey("is_encrypt");
+            if (flag!=null&&flag.equals("1")){
+                paramJson = HttpHelper.getParamterJsonDecrypt(request);
+            }else{
+                paramJson = HttpHelper.getParamterJson(request);
+            }
 
             FuntimeUserRedpacket redpacket = JSONObject.toJavaObject(paramJson, FuntimeUserRedpacket.class);
-            if (redpacket==null||(redpacket.getType() == 1&&redpacket.getRedpacketNum()<5)
+            if (redpacket==null||redpacket.getAmount().intValue()<=0||(redpacket.getType() == 1&&redpacket.getRedpacketNum()<5)
                 ||(redpacket.getType()==2&&redpacket.getToUserId()==null)) {
 
                     result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());

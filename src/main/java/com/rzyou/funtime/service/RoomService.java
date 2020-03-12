@@ -1,6 +1,7 @@
 package com.rzyou.funtime.service;
 
 import com.github.pagehelper.PageInfo;
+import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.entity.FuntimeChatroom;
 import com.rzyou.funtime.entity.FuntimeGift;
 
@@ -290,4 +291,21 @@ public interface RoomService {
      * @param userId
      */
     void roomExitTask(Long userId);
+
+    /**
+     * 背景列表
+     * @param startPage
+     * @param pageSize
+     * @param userId
+     * @return
+     */
+    PageInfo<Map<String, Object>> getBackgroundList(Integer startPage, Integer pageSize, Long userId);
+
+    /**
+     * 购买背景图
+     * @param backgroundId
+     * @param userId
+     * @return
+     */
+    ResultMsg<Object> buyBackground(Integer backgroundId, Long userId);
 }

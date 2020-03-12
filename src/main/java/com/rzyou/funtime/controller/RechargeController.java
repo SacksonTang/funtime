@@ -6,6 +6,7 @@ import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
 import com.rzyou.funtime.service.AccountService;
+import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.JsonUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +26,8 @@ public class RechargeController {
     UserService userService;
     @Autowired
     AccountService accountService;
-
+    @Autowired
+    ParameterService parameterService;
 
     /**
      * 苹果内购
@@ -72,7 +74,13 @@ public class RechargeController {
     public ResultMsg<Object> startRecharge(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJsonDecrypt(request);
+            JSONObject paramJson;
+            String flag = parameterService.getParameterValueByKey("is_encrypt");
+            if (flag!=null&&flag.equals("1")){
+                paramJson = HttpHelper.getParamterJsonDecrypt(request);
+            }else{
+                paramJson = HttpHelper.getParamterJson(request);
+            }
             FuntimeUserAccountRechargeRecord record = JSONObject.toJavaObject(paramJson, FuntimeUserAccountRechargeRecord.class);
 
             if (record==null||record.getUserId()==null||record.getRechargeConfId()==null) {

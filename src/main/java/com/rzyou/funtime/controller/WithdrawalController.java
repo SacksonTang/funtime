@@ -38,7 +38,13 @@ public class WithdrawalController {
     public ResultMsg<Object> startWithdrawal(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJsonDecrypt(request);
+            JSONObject paramJson;
+            String flag = parameterService.getParameterValueByKey("is_encrypt");
+            if (flag!=null&&flag.equals("1")){
+                paramJson = HttpHelper.getParamterJsonDecrypt(request);
+            }else{
+                paramJson = HttpHelper.getParamterJson(request);
+            }
 
             //Integer withdrawalType = paramJson.getInteger("withdrawalType");
             BigDecimal blackAmount = paramJson.getBigDecimal("blackAmount");
