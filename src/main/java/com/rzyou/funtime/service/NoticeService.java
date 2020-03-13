@@ -26,6 +26,13 @@ public interface NoticeService {
     void sendSingleNotice(String userSig, String data, Long id);
 
     /**
+     * 单聊
+     * @param userSig
+     * @param data
+     * @param id
+     */
+    void sendMsgNotice(String userSig, String data, Long id);
+    /**
      * 全服发送
      * @param userSig
      * @param data
@@ -233,4 +240,45 @@ public interface NoticeService {
      * @param roomNos
      */
     void notice25(Long userId, Long roomId, String levelUrl, String nickname, String portraitAddress, List<String> roomNos);
+
+    /**
+     * 封禁用户
+     * @param userId
+     */
+    void notice24(Long userId);
+
+    /**
+     * 封禁用户
+     * @param roomId
+     * @param roomNo1
+     */
+    void notice30(Long roomId, String roomNo1);
+
+
+    /**
+     * 封禁房间
+     * @param roomId
+     * @param roomNo1
+     */
+    void notice23(Long roomId, String roomNo1);
+
+    /**
+     * 红包开启
+     */
+    void notice26();
+
+    /**
+     * 红包关闭
+     */
+    void notice27();
+
+    /**
+     * 摇摇乐开启
+     */
+    void notice28();
+
+    /**
+     * 摇摇乐关闭
+     */
+    void notice29();
 }

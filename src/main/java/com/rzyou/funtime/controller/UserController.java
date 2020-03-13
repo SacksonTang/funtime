@@ -38,6 +38,67 @@ public class UserController {
     @Autowired
     ParameterService parameterService;
 
+    /**
+     * 红包/摇摇乐显示控制
+     * @param request
+     * @return
+     */
+    @PostMapping("parameterReset")
+    public ResultMsg<Object> parameterReset(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer type = paramJson.getInteger("type");
+            if (type == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            userService.parameterReset(type);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 封禁用户
+     * @param request
+     * @return
+     */
+    @PostMapping("blockUser")
+    public ResultMsg<Object> blockUser(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            if (userId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            userService.blockUser(userId);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
 
     /**
@@ -53,7 +114,6 @@ public class UserController {
             String tagType = paramJson.getString("tagType");
             Integer type = paramJson.getInteger("type");
             if (StringUtils.isBlank(tagType)) {
-
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
@@ -84,7 +144,6 @@ public class UserController {
     public ResultMsg<Object> getExpression(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-
             List<Map<String,Object>> list = userService.getExpression();
             result.setData(JsonUtil.getMap("expressions",list));
             return result;

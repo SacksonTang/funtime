@@ -3,6 +3,9 @@ package com.rzyou.funtime.common;
 
 public class Constant {
 
+    public final static String CERTPATH_DEV = "E:/cert/apiclient_cert.p12";
+    public final static String CERTPATH_TEST = "/usr/cert/apiclient_cert.p12";
+
     public final static String SEX_MALE_COLOR = "#0093FF";
     public final static String SEX_FEMALE_COLOR = "#FF0096";
     public final static String HEIGHT_COLOR = "#FF9500";
@@ -127,6 +130,7 @@ public class Constant {
 
     public final static String TENCENT_YUN_PORTRAIT_SET = "portrait_set";
     public final static String TENCENT_YUN_BATCHSENDMSG = "batchsendmsg";
+    public final static String TENCENT_YUN_SENDMSG = "sendmsg";
 
     public final static String TENCENT_YUN_QUERYSTATE = "querystate";
 
@@ -161,6 +165,13 @@ public class Constant {
     public static final int ROOM_USER_COUNT = 20;
     public static final int ROOM_GIFT_SEND_ROOM_ALL = 21;
     public static final int ROOM_REDPACKET_EXIST = 22;
+    public static final int BLOCK_ROOM = 23;
+    public static final int BLOCK_USER = 24;
     public static final int ROOM_MIC_USER_LEVEL_UPDATE = 25;
+    public static final int REDPACKET_SHOW_OPEN = 26;
+    public static final int REDPACKET_SHOW_CLOSE = 27;
+    public static final int YAOYAO_SHOW_OPEN = 28;
+    public static final int YAOYAO_SHOW_CLOSE = 29;
+    public static final int BLOCK_USER_ROOM = 30;
     public static final int SERVICE_MSG = 10001;
 }

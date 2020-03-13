@@ -14,6 +14,7 @@ import com.rzyou.funtime.mapper.FuntimeNoticeMapper;
 import com.rzyou.funtime.service.NoticeService;
 import com.rzyou.funtime.service.RoomService;
 import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.utils.JsonUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,6 @@ import java.util.*;
 
 @Service
 public class NoticeServerImpl implements NoticeService {
-
-
 
     @Autowired
     FuntimeNoticeMapper noticeMapper;
@@ -51,6 +50,16 @@ public class NoticeServerImpl implements NoticeService {
     public void sendSingleNotice(String userSig, String data, Long id) {
 
         boolean flag = TencentUtil.sendGroupSystemNotification(userSig,data);
+        if (flag){
+            noticeMapper.updateState(id,1);
+        }else{
+            noticeMapper.updateState(id,2);
+        }
+    }
+
+    @Override
+    public void sendMsgNotice(String userSig, String data, Long id) {
+        boolean flag = TencentUtil.sendMsg(userSig,data);
         if (flag){
             noticeMapper.updateState(id,1);
         }else{
@@ -179,8 +188,10 @@ public class NoticeServerImpl implements NoticeService {
             return noticeMapper.getSingleFailNotice();
         }else if (sendType == 3){
             return noticeMapper.getAllRoomFailNotice();
-        }else{
+        }else if (sendType == 4){
             return noticeMapper.getAllFailNotice();
+        }else{
+            return noticeMapper.getSingleFailNoticeNoRoom();
         }
 
     }
@@ -516,6 +527,69 @@ public class NoticeServerImpl implements NoticeService {
         }
     }
 
+    @Override
+    public void notice24(Long userId) {
+        JSONObject object = new JSONObject();
+        object.put("uid",userId);
+        object.put("type",Constant.BLOCK_USER);
+        String objectStr = JSONObject.toJSONString(object);
+        String parameterHandler = parameterHandler(userId.toString(),StringEscapeUtils.unescapeJava(objectStr));
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        if (!TencentUtil.sendMsg(userSig,parameterHandler)) {
+            saveNotice(Constant.BLOCK_USER, parameterHandler,2);
+        }
+    }
+
+    @Override
+    public void notice30(Long roomId, String roomNo1) {
+        JSONObject object = new JSONObject();
+        object.put("rid",roomId);
+        object.put("type",Constant.BLOCK_USER_ROOM);
+        String parameterHandler = parameterHandler(roomNo1, StringEscapeUtils.unescapeJava(object.toJSONString()));
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        if (!TencentUtil.sendGroupMsg(userSig,parameterHandler)) {
+            saveNotice(Constant.BLOCK_USER_ROOM, parameterHandler,2);
+        }
+    }
+    @Override
+    public void notice23(Long roomId, String roomNo1) {
+        JSONObject object = new JSONObject();
+        object.put("rid",roomId);
+        object.put("type",Constant.BLOCK_ROOM);
+        String parameterHandler = parameterHandler(roomNo1, StringEscapeUtils.unescapeJava(object.toJSONString()));
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        if (!TencentUtil.sendGroupMsg(userSig,parameterHandler)) {
+            saveNotice(Constant.BLOCK_ROOM, parameterHandler,2);
+        }
+    }
+
+    @Override
+    public void notice26() {
+        String object = JSONObject.toJSONString(JsonUtil.getMap("type",Constant.REDPACKET_SHOW_OPEN));
+        String parameterHandler = StringEscapeUtils.unescapeJava(object);
+        saveNotice(Constant.REDPACKET_SHOW_OPEN, parameterHandler,0);
+    }
+
+    @Override
+    public void notice27() {
+        String object = JSONObject.toJSONString(JsonUtil.getMap("type",Constant.REDPACKET_SHOW_CLOSE));
+        String parameterHandler = StringEscapeUtils.unescapeJava(object);
+        saveNotice(Constant.REDPACKET_SHOW_CLOSE, parameterHandler,0);
+    }
+
+    @Override
+    public void notice28() {
+        String object = JSONObject.toJSONString(JsonUtil.getMap("type",Constant.YAOYAO_SHOW_OPEN));
+        String parameterHandler = StringEscapeUtils.unescapeJava(object);
+        saveNotice(Constant.YAOYAO_SHOW_OPEN, parameterHandler,0);
+    }
+
+    @Override
+    public void notice29() {
+        String object = JSONObject.toJSONString(JsonUtil.getMap("type",Constant.YAOYAO_SHOW_CLOSE));
+        String parameterHandler = StringEscapeUtils.unescapeJava(object);
+        saveNotice(Constant.YAOYAO_SHOW_CLOSE, parameterHandler,0);
+    }
 
     public String parameterHandler(String groupId,String data){
         JSONObject paramMap = new JSONObject();
@@ -523,6 +597,27 @@ public class NoticeServerImpl implements NoticeService {
         paramMap.put("OnlineOnlyFlag",1);
         paramMap.put("GroupId",groupId);
         paramMap.put("Random",random.nextInt(100000000));
+        Map<String,String> msgContent = new HashMap<>();
+        msgContent.put("Data",data);
+        msgContent.put("Desc","");
+        msgContent.put("Ext","");
+        msgContent.put("Sound","");
+        Map<String,Object> elem = new HashMap<>();
+        elem.put("MsgType","TIMCustomElem");
+        elem.put("MsgContent",msgContent);
+        List<Map<String,Object>> msgBody = new ArrayList<>();
+        msgBody.add(elem);
+        paramMap.put("MsgBody",msgBody);
+        return paramMap.toJSONString();
+    }
+
+    private String paramterHandler(String toAccount,String data){
+        JSONObject paramMap = new JSONObject();
+        Random random = new Random();
+        paramMap.put("SyncOtherMachine",2);
+        paramMap.put("MsgLifeTime",0);
+        paramMap.put("To_Account",toAccount);
+        paramMap.put("MsgRandom",random.nextInt(100000000));
         Map<String,String> msgContent = new HashMap<>();
         msgContent.put("Data",data);
         msgContent.put("Desc","");

@@ -59,6 +59,9 @@ public class RoomServiceImpl implements RoomService {
         if (user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        if (user.getState() ==2){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
         FuntimeChatroom chatroom = chatroomMapper.getRoomByUserId(userId);
         Long roomId ;
         if (chatroom!=null&&chatroom.getId()!=null){
@@ -175,6 +178,9 @@ public class RoomServiceImpl implements RoomService {
         FuntimeUser user = userService.queryUserById(userId);
         if (user == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if (user.getState()==2){
+            throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
         }
         //房间已封禁
         if (chatroom.getIsBlock().intValue()==1){
@@ -776,6 +782,24 @@ public class RoomServiceImpl implements RoomService {
 
     }
 
+    public void blockUserForCloseRoom(Long roomId){
+        List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
+        chatroomMapper.deleteByRoomId(roomId);
+        chatroomMicMapper.deleteByRoomId(roomId);
+        chatroomUserMapper.deleteByRoomId(roomId);
+
+        if (roomNos!=null&&roomNos.size()>0) {
+            //发送通知
+            for (String roomNo1 : roomNos) {
+                noticeService.notice30(roomId,roomNo1);
+            }
+            String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+            for (String roomNo:roomNos) {
+                TencentUtil.destroyGroup(userSig, roomNo);
+            }
+        }
+    }
+
     @Override
     public PageInfo<Map<String, Object>> getRoomList(Integer startPage, Integer pageSize, Integer tagId) {
         PageHelper.startPage(startPage,pageSize);
@@ -1120,6 +1144,61 @@ public class RoomServiceImpl implements RoomService {
         userService.updateUserAccountForSub(userId,null,price,null);
         accountService.saveUserAccountBlueLog(userId,price,userBackground.getId(),OperationType.BUY_BACKGROUND.getAction(),OperationType.BUY_BACKGROUND.getOperationType());
         return resultMsg;
+    }
+
+    @Override
+    public void blockUserForRoom(Long userId) {
+        FuntimeChatroomUser chatroomUser = chatroomUserMapper.getRoomUserInfoByUserId(userId);
+        if (chatroomUser == null){
+            noticeService.notice24(userId);
+            return;
+        }
+        if (chatroomUser.getUserRole() == UserRole.ROOM_CREATER.getValue()){
+            //房主需解散房间
+            blockUserForCloseRoom(chatroomUser.getRoomId());
+            return;
+        }else{
+            roomExit(userId,chatroomUser.getRoomId());
+            noticeService.notice24(userId);
+            return;
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void blockRoom(Long roomId) {
+        FuntimeChatroom chatroom = getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        updateChatroomBlock(roomId,1);
+        if (chatroom.getOnlineNum()>0) {
+            List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
+            chatroomMapper.deleteByRoomId(roomId);
+            chatroomMicMapper.deleteByRoomId(roomId);
+            chatroomUserMapper.deleteByRoomId(roomId);
+
+            if (roomNos != null && roomNos.size() > 0) {
+                //发送通知
+                for (String roomNo1 : roomNos) {
+                    noticeService.notice23(roomId, roomNo1);
+                }
+                String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+                for (String roomNo : roomNos) {
+                    TencentUtil.destroyGroup(userSig, roomNo);
+                }
+            }
+        }
+    }
+
+    private void updateChatroomBlock(Long roomId, int isBlock) {
+        FuntimeChatroom chatroom = new FuntimeChatroom();
+        chatroom.setId(roomId);
+        chatroom.setIsBlock(isBlock);
+        int k = chatroomMapper.updateByPrimaryKeySelective(chatroom);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
     }
 
 

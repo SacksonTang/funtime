@@ -467,4 +467,16 @@ public interface UserService {
      * @return
      */
     Map<String, Object> getInstallInfo(Long userId);
+
+    /**
+     * 封禁用户
+     * @param userId
+     */
+    void blockUser(Long userId);
+
+    /**
+     * 1-红包开启2-红包关闭3-摇摇乐开启4-摇摇乐关闭
+     * @param type
+     */
+    void parameterReset(Integer type);
 }

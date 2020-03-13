@@ -17,6 +17,7 @@ public interface FuntimeChatroomUserMapper {
 
     FuntimeChatroomUser selectByPrimaryKey(Long id);
 
+    FuntimeChatroomUser getRoomUserInfoByUserId(Long userId);
     /**
      * 待加入腾讯聊天室的房间编号
      * @return

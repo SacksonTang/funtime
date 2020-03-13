@@ -244,6 +244,25 @@ public class TencentUtil {
     }
 
     /**
+     * 单聊消息
+     * @param usersig
+     * @param paramMap
+     * @return
+     */
+    public static boolean sendMsg(String usersig,String paramMap){
+        String url = getOpenimUrl(Constant.TENCENT_YUN_SENDMSG,usersig);
+        String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
+        JSONObject result = JSONObject.parseObject(postStr);
+        if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
+            log.error("腾讯发单聊接口:sendmsg 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+            return false;
+        }else{
+            log.debug("************腾讯发单聊接口:sendmsg 调用成功*******************");
+            return true;
+        }
+    }
+
+    /**
      * 查询用户状态
      * @param usersig
      * @param toAccounts

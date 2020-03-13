@@ -30,6 +30,11 @@
     delete from t_funtime_parameter
     where id = #{id,jdbcType=INTEGER}
   </delete>
+  <update id="updateValueByKey" >
+    update t_funtime_parameter
+    set  parameter_value = #{parameterValue}
+    where parameter_key = #{parameterKey}
+  </update>
   <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeParameter">
     insert into t_funtime_parameter (id, key_type, parameter_key,
       parameter_value, key_name, parameter_desc,

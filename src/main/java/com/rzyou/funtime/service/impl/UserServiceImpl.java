@@ -116,6 +116,13 @@ public class UserServiceImpl implements UserService {
         saveRecode(user.getId(),user.getPhoneImei(),user.getIp(),1, user.getNickname(), user.getLoginType(), user.getDeviceName());
     }
 
+    public void updateUserState(Long userId,Integer state){
+        FuntimeUser user = new FuntimeUser();
+        user.setId(userId);
+        user.setState(state);
+        updateByPrimaryKeySelective(user);
+    }
+
 
     @Override
     public FuntimeUser getUserBasicInfoById(Long id) {
@@ -1207,6 +1214,39 @@ public class UserServiceImpl implements UserService {
             result.put("qqNickname",userThird.getNickname());
         }
         return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void blockUser(Long userId) {
+        if(checkUserExists(userId)){
+            updateUserState(userId,2);
+            roomService.blockUserForRoom(userId);
+
+        }else{
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void parameterReset(Integer type) {
+        if (type == 1){
+            parameterService.updateValueByKey("is_redpacket_show","1");
+            noticeService.notice26();
+        }
+        if (type == 2){
+            parameterService.updateValueByKey("is_redpacket_show","2");
+            noticeService.notice27();
+        }
+        if (type == 3){
+            parameterService.updateValueByKey("yaoyao_show","1");
+            noticeService.notice28();
+        }
+        if (type == 4){
+            parameterService.updateValueByKey("yaoyao_show","2");
+            noticeService.notice29();
+        }
     }
 
     private void unBindWeixin(Long userId) {

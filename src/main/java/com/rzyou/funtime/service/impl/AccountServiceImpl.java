@@ -395,6 +395,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Long createRedpacket(FuntimeUserRedpacket redpacket) {
+        String isRedpacketShow = parameterService.getParameterValueByKey("is_redpacket_show");
+        if (isRedpacketShow!=null&&isRedpacketShow.equals("2")){
+            throw new BusinessException(ErrorMsgEnum.DRAW_TIME_OUT.getValue(),ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
+        }
         if (redpacket.getType() == 1) {
             FuntimeChatroom chatroom = roomService.getChatroomById(redpacket.getRoomId());
             if (chatroom == null) {
@@ -466,7 +470,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> grabRedpacket(Long userId, Long redpacketId){
-
+        String isRedpacketShow = parameterService.getParameterValueByKey("is_redpacket_show");
+        if (isRedpacketShow!=null&&isRedpacketShow.equals("2")){
+            throw new BusinessException(ErrorMsgEnum.DRAW_TIME_OUT.getValue(),ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
+        }
         FuntimeUserRedpacket redpacket = userRedpacketMapper.selectByPrimaryKey(redpacketId);
         if (redpacket==null){
             throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_EXISTS.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_EXISTS.getDesc());

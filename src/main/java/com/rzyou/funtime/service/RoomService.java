@@ -308,4 +308,16 @@ public interface RoomService {
      * @return
      */
     ResultMsg<Object> buyBackground(Integer backgroundId, Long userId);
+
+    /**
+     * 封禁用户房间操作
+     * @param userId
+     */
+    void blockUserForRoom(Long userId);
+
+    /**
+     * 封禁房间
+     * @param roomId
+     */
+    void blockRoom(Long roomId);
 }

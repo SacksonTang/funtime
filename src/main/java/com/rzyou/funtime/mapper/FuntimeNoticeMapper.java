@@ -19,6 +19,8 @@ public interface FuntimeNoticeMapper {
 
     List<FuntimeNotice> getAllFailNotice();
 
+    List<FuntimeNotice> getSingleFailNoticeNoRoom();
+
     int updateState(@Param("id") Long id, @Param("state") Integer state);
 
 

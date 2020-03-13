@@ -24,7 +24,14 @@ public enum NoticeType {
     ,ROOM_USER_COUNT(Constant.ROOM_USER_COUNT,"房间人数","")
     ,ROOM_GIFT_SEND_ROOM_ALL(Constant.ROOM_GIFT_SEND_ROOM_ALL,"全房送超级大礼","")
     ,ROOM_REDPACKET_EXIST(Constant.ROOM_REDPACKET_EXIST,"是否有待抢红包","")
+    ,BLOCK_ROOM(Constant.BLOCK_ROOM,"封禁房间","")
+    ,BLOCK_USER(Constant.BLOCK_USER,"封禁用户","")
     ,ROOM_MIC_USER_LEVEL_UPDATE(Constant.ROOM_MIC_USER_LEVEL_UPDATE,"麦上用户等级变更","")
+    ,REDPACKET_SHOW_OPEN(Constant.REDPACKET_SHOW_OPEN,"红包控制开启","")
+    ,REDPACKET_SHOW_CLOSE(Constant.REDPACKET_SHOW_CLOSE,"红包控制关闭","")
+    ,YAOYAO_SHOW_OPEN(Constant.YAOYAO_SHOW_OPEN,"摇摇乐控制开启","")
+    ,YAOYAO_SHOW_CLOSE(Constant.YAOYAO_SHOW_CLOSE,"摇摇乐控制关闭","")
+    ,BLOCK_USER_ROOM(Constant.BLOCK_USER_ROOM,"封禁用户房间","")
 
     ,SERVICE_MSG(Constant.SERVICE_MSG,"全服大喇叭","")
     ;

@@ -137,5 +137,16 @@ public class CommonTask {
         }
 
     }
+    @Scheduled(fixedRate = 1000*3)
+    public void notice5() {
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        List<FuntimeNotice> failNotices = noticeService.getFailNotice(5);
+        if (failNotices != null && !failNotices.isEmpty()) {
+            for (FuntimeNotice failNotice : failNotices) {
+
+                noticeService.sendMsgNotice(userSig, failNotice.getData(), failNotice.getId());
+            }
+        }
+    }
 
 }

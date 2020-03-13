@@ -22,4 +22,12 @@ public class ParameterServiceImpl implements ParameterService {
         }
         return val;
     }
+
+    @Override
+    public void updateValueByKey(String parameterKey, String parameterValue) {
+        int k = parameterMapper.updateValueByKey(parameterKey,parameterValue);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
 }
