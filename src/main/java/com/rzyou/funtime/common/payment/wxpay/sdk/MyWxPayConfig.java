@@ -10,13 +10,14 @@ import java.io.InputStream;
 
 public class MyWxPayConfig extends WXPayConfig {
 
+    public static String certPath;
 
     private byte[] certData;
     private int payType;
 
     public MyWxPayConfig(int payType) throws Exception {
         this.payType = payType;
-        File file = new File(Constant.CERTPATH_TEST);
+        File file = new File(certPath);
         InputStream certStream = new FileInputStream(file);
         this.certData = new byte[(int) file.length()];
         certStream.read(this.certData);

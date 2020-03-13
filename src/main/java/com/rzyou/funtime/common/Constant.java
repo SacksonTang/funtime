@@ -3,9 +3,6 @@ package com.rzyou.funtime.common;
 
 public class Constant {
 
-    public final static String CERTPATH_DEV = "E:/cert/apiclient_cert.p12";
-    public final static String CERTPATH_TEST = "/usr/cert/apiclient_cert.p12";
-
     public final static String SEX_MALE_COLOR = "#0093FF";
     public final static String SEX_FEMALE_COLOR = "#FF0096";
     public final static String HEIGHT_COLOR = "#FF9500";

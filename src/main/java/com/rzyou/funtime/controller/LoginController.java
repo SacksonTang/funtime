@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.encryption.AESUtil;
 import com.rzyou.funtime.common.encryption.RsaUtils;
+import com.rzyou.funtime.common.payment.wxpay.sdk.MyWxPayConfig;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
 import com.rzyou.funtime.entity.FuntimeUser;
@@ -30,7 +31,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("login")
 public class LoginController {
-
+    @Value("${app.pay.certPath}")
+    public String certPath ;
     @Autowired
     UserService userService;
     @Autowired
@@ -53,6 +55,7 @@ public class LoginController {
     @PostConstruct
     public void init(){
 
+        MyWxPayConfig.certPath = certPath;
         context.put(Constant.LOGIN_TEL,telLogin);
         context.put(Constant.LOGIN_WX,wxLogin);
         context.put(Constant.LOGIN_QQ,qqLogin);

@@ -62,6 +62,7 @@ logging:
 app:
   pay:
     notifyUrl: https://test.rzyou.com/callback/notifyWxPay
+    certPath: /usr/cert/apiclient_cert.p12
   logpath: /opt/log/pro_log
 
 
