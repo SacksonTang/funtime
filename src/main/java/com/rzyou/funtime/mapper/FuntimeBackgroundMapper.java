@@ -10,9 +10,13 @@ import java.util.Map;
 @Mapper
 public interface FuntimeBackgroundMapper {
 
+    Integer getBackgroundIdForType1();
+
     List<Map<String, Object>> getBackgroundList(Long userId);
 
     Map<String, Object> getBackgroundInfoById(@Param("id") Integer id,@Param("userId") Long userId);
+
+    Map<String, Object> getBackgroundUrlById(@Param("id") Integer id,@Param("userId") Long userId);
 
     int insertUserBackgroundRecord(FuntimeUserBackground userBackground);
 

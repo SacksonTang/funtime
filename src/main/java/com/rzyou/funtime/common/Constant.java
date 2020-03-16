@@ -170,5 +170,6 @@ public class Constant {
     public static final int YAOYAO_SHOW_OPEN = 28;
     public static final int YAOYAO_SHOW_CLOSE = 29;
     public static final int BLOCK_USER_ROOM = 30;
+    public static final int SET_BACKGROUND = 31;
     public static final int SERVICE_MSG = 10001;
 }

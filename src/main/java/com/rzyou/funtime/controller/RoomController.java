@@ -128,6 +128,39 @@ public class RoomController {
         }
     }
 
+    /**
+     * 设置背景
+     * @param request
+     * @return
+     */
+    @PostMapping("setBackground")
+    public ResultMsg<Object> setBackground(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer backgroundId = paramJson.getInteger("backgroundId");
+            Long userId = paramJson.getLong("userId");
+            Long roomId = paramJson.getLong("roomId");
+            if (backgroundId==null||userId==null||roomId==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            roomService.setBackground(backgroundId,userId,roomId);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
 
     /**
      * 房间列表
@@ -311,19 +344,14 @@ public class RoomController {
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
-
             Long userId = paramJson.getLong("userId");
-
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-
             Long roomId = roomService.roomCreate(userId);
-
             result.setData(JsonUtil.getMap("roomId",roomId));
-
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

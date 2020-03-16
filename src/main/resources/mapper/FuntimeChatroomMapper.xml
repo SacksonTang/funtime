@@ -23,10 +23,13 @@
     <result column="show_id"  property="showId" />
     <result column="level"  property="level" />
     <result column="level_url"  property="levelUrl" />
+    <result column="background_id"  property="backgroundId" />
+    <result column="background_url"  property="bgUrl" />
+    <result column="background_url2"  property="bgUrl2" />
   </resultMap>
   <sql id="Base_Column_List">
     id, name, tags, exam_desc, is_block, is_lock, hot, online_num, state, create_time,
-    chat_message_file,user_id,password,exam_url,avatar_url
+    chat_message_file,user_id,password,exam_url,avatar_url,background_id
   </sql>
 
 
@@ -45,11 +48,13 @@
   <select id="getRoomInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
      m.* ,u.portrait_address,u.nickname,u.sex,u.show_id,l.level_url,l.level
+     ,k.background_url,k.background_url2
     from t_funtime_chatroom m inner join
         (t_funtime_user u
         inner join t_funtime_user_account t on u.id = t.user_id
         inner join t_funtime_user_level_conf l on t.level = l.level)
     on m.user_id = u.id
+    left join t_funtime_background k on m.background_id = k.id
     where m.id = #{id,jdbcType=BIGINT}
   </select>
   <select id="getRoomByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -165,6 +170,9 @@
       <if test="chatMessageFile != null">
         chat_message_file,
       </if>
+      <if test="backgroundId != null">
+        background_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="userId != null">
@@ -208,6 +216,9 @@
       <if test="chatMessageFile != null">
         #{chatMessageFile,jdbcType=VARCHAR},
       </if>
+      <if test="backgroundId != null">
+        #{backgroundId},
+      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeChatroom">
@@ -249,25 +260,31 @@
       <if test="state != null">
         state = #{state,jdbcType=INTEGER},
       </if>
-
       <if test="chatMessageFile != null">
         chat_message_file = #{chatMessageFile,jdbcType=VARCHAR},
+      </if>
+      <if test="backgroundId != null">
+        background_id = #{backgroundId},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeChatroom">
+  <update id="updateChatroomState" >
     update t_funtime_chatroom
-    set name = #{name,jdbcType=VARCHAR},
-      tags = #{tags},
-      desc = #{desc,jdbcType=VARCHAR},
-      is_block = #{isBlock,jdbcType=INTEGER},
-      is_lock = #{isLock,jdbcType=INTEGER},
-      hot = #{hot,jdbcType=INTEGER},
-      online_num = #{onlineNum,jdbcType=INTEGER},
-      state = #{state,jdbcType=INTEGER},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      chat_message_file = #{chatMessageFile,jdbcType=VARCHAR}
+    set
+      state = #{state,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateChatroomBlock" >
+    update t_funtime_chatroom
+    set
+      is_block = #{isBlock,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateChatroomBackgroundId" >
+    update t_funtime_chatroom
+    set
+      background_id = #{backgroundId}
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateOnlineNumPlus" parameterType="java.lang.Long">

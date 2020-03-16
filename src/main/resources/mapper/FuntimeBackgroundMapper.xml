@@ -4,12 +4,14 @@
 
   <select id="getBackgroundList" parameterType="java.lang.Long" resultType="java.util.Map">
     select
-    t.id,t.type,t.background_url as backgroundUrl,t.thumbnail_url as thumbnailUrl,
+    t.id,t.type,t.background_url as backgroundUrl,t.background_url2 as backgroundUrl2,t.thumbnail_url as thumbnailUrl,
     t.original_price as originalPrice,t.activity_price as activityPrice,t.discount,
-    IFNULL(d.background_id,0) isOwner,
-	IF(now() >= d.start_time and d.end_time>=now(),0,1) isExpiry
-
-    from  t_funtime_background t left join t_funtime_user_background d on d.background_id = t.id and d.user_id = #{userId}
+    IF(d.background_id is null,0,1) isOwner,
+	  IF((now() >= d.start_time and d.end_time>=now()) or t.type in (1,2),0,1) isExpiry
+    ,IF(m.background_id is null,0,1) isCurrentPage
+    from  t_funtime_background t left join t_funtime_user_background d
+            on d.background_id = t.id and d.user_id = #{userId}
+            left join t_funtime_chatroom m on t.id = m.background_id and m.user_id = #{userId}
     where t.flag = 1
     order by t.sort asc
   </select>
@@ -19,11 +21,27 @@
     IF(t.activity_price is null,t.original_price,t.activity_price) as price,
     d.id as ubId
 
-    from  t_funtime_background t inner join t_funtime_user_background d on d.background_id = t.id and d.user_id = #{userId}
+    from  t_funtime_background t left join t_funtime_user_background d
+            on d.background_id = t.id and d.user_id = #{userId}
     where t.id = #{id}  and t.flag = 1
     limit 1
   </select>
-
+  <select id="getBackgroundIdForType1"  resultType="java.lang.Integer">
+    select
+    id
+    from  t_funtime_background
+    where  type = 1 and flag = 1
+    limit 1
+  </select>
+  <select id="getBackgroundUrlById"  resultType="java.util.Map" >
+    select
+    t.type,t.background_url as backgroundUrl,t.background_url2 as backgroundUrl2,
+    IFNULL(d.background_id,0) isOwner,
+	IF(now() >= d.start_time and d.end_time>=now(),0,1) isExpiry
+    from  t_funtime_background t left join t_funtime_user_background d
+           on d.background_id = t.id and d.user_id = #{userId}
+    where t.id = #{id} and t.flag = 1
+  </select>
     <insert id="insertUserBackground" parameterType="com.rzyou.funtime.entity.FuntimeUserBackground">
         insert into t_funtime_user_background(user_id,background_id,background_type,price,end_time)
         values (#{userId},#{backgroundId},#{backgroundType},#{price},#{endTime})

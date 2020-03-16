@@ -113,25 +113,28 @@ public class GameServiceImpl implements GameService {
 
         List<FuntimeGameYaoyaoConf> list = getYaoyaoConf(id);
         int probabilityTotal = 1;
+        int noDraw = 1;
         Map<String,FuntimeGameYaoyaoConf> probabilityMap = new HashMap<>();
+        Map<String,FuntimeGameYaoyaoConf> noDrawProbabilityMap = new HashMap<>();
         for (FuntimeGameYaoyaoConf yaoyaoConf : list){
             int temp = probabilityTotal;
             probabilityTotal += yaoyaoConf.getProbability();
             probabilityMap.put(temp+"-"+probabilityTotal,yaoyaoConf);
-        }
-        int random = RandomUtils.nextInt(1,probabilityTotal);
-        FuntimeGameYaoyaoConf conf = null;
-        for (Map.Entry<String,FuntimeGameYaoyaoConf> entry : probabilityMap.entrySet()){
-            String key = entry.getKey();
-            String[] array = key.split("-");
-            int key1 = Integer.parseInt(array[0]);
-            int key2 = Integer.parseInt(array[1]);
-            if (random>=key1&&random<key2){
-                conf = entry.getValue();
-                break;
+            if (yaoyaoConf.getDrawVal().intValue() == 0){
+                temp = noDraw;
+                noDraw += yaoyaoConf.getProbability();
+                noDrawProbabilityMap.put(temp+"-"+noDraw,yaoyaoConf);
             }
         }
-
+        FuntimeGameYaoyaoConf conf;
+        int random;
+        if (poolInfo.getActualPool() == 0){
+            random = RandomUtils.nextInt(1,noDraw);
+            conf = getConf(noDrawProbabilityMap,random);
+        }else {
+            random = RandomUtils.nextInt(1, probabilityTotal);
+            conf = getConf(probabilityMap,random);
+        }
         if (conf == null){
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
@@ -231,6 +234,19 @@ public class GameServiceImpl implements GameService {
         }
 
         return result;
+    }
+
+    private FuntimeGameYaoyaoConf getConf(Map<String,FuntimeGameYaoyaoConf> map,int random){
+        for (Map.Entry<String,FuntimeGameYaoyaoConf> entry : map.entrySet()){
+            String key = entry.getKey();
+            String[] array = key.split("-");
+            int key1 = Integer.parseInt(array[0]);
+            int key2 = Integer.parseInt(array[1]);
+            if (random>=key1&&random<key2){
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     @Override

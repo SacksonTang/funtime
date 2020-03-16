@@ -15,6 +15,7 @@ public enum UserRoleAuthority {
     ,A_11(11,"解封")
     ,A_12(12,"解禁")
     ,A_13(13,"取消主持")
+    ,A_14(14,"设置背景")
     ;
     private int value;
     private String desc;

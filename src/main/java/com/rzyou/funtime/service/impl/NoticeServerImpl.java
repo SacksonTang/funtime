@@ -533,7 +533,7 @@ public class NoticeServerImpl implements NoticeService {
         object.put("uid",userId);
         object.put("type",Constant.BLOCK_USER);
         String objectStr = JSONObject.toJSONString(object);
-        String parameterHandler = parameterHandler(userId.toString(),StringEscapeUtils.unescapeJava(objectStr));
+        String parameterHandler = parameterHandler2(userId.toString(),StringEscapeUtils.unescapeJava(objectStr));
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         if (!TencentUtil.sendMsg(userSig,parameterHandler)) {
             saveNotice(Constant.BLOCK_USER, parameterHandler,2);
@@ -591,6 +591,21 @@ public class NoticeServerImpl implements NoticeService {
         saveNotice(Constant.YAOYAO_SHOW_CLOSE, parameterHandler,0);
     }
 
+    @Override
+    public void notice31(Long roomId, Long userId, String backgroundUrl, String roomNo, String backgroundUrl2) {
+        JSONObject object = new JSONObject();
+        object.put("rid",roomId);
+        object.put("uid",userId);
+        object.put("bgUrl",backgroundUrl);
+        object.put("bgUrl2",backgroundUrl2);
+        object.put("type",Constant.SET_BACKGROUND);
+        String parameterHandler = parameterHandler(roomNo, StringEscapeUtils.unescapeJava(object.toJSONString()));
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        if (!TencentUtil.sendGroupMsg(userSig,parameterHandler)) {
+            saveNotice(Constant.SET_BACKGROUND, parameterHandler,2);
+        }
+    }
+
     public String parameterHandler(String groupId,String data){
         JSONObject paramMap = new JSONObject();
         Random random = new Random();
@@ -611,7 +626,7 @@ public class NoticeServerImpl implements NoticeService {
         return paramMap.toJSONString();
     }
 
-    private String paramterHandler(String toAccount,String data){
+    private String parameterHandler2(String toAccount,String data){
         JSONObject paramMap = new JSONObject();
         Random random = new Random();
         paramMap.put("SyncOtherMachine",2);

@@ -37,6 +37,12 @@ public class FuntimeChatroom implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
 
+    private Integer backgroundId;
+
+    private String bgUrl;
+
+    private String bgUrl2;
+
     private String chatMessageFile;
 
     private String portraitAddress;

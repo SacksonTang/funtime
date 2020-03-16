@@ -2,6 +2,7 @@ package com.rzyou.funtime.mapper;
 
 import com.rzyou.funtime.entity.FuntimeChatroom;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,11 @@ public interface FuntimeChatroomMapper {
 
     int updateByPrimaryKeySelective(FuntimeChatroom record);
 
-    int updateByPrimaryKey(FuntimeChatroom record);
+    int updateChatroomState(@Param("id") Long id, @Param("state") Integer state);
+
+    int updateChatroomBlock(@Param("id") Long id, @Param("isBlock") Integer isBlock);
+
+    int updateChatroomBackgroundId(@Param("id") Long id, @Param("backgroundId") Integer backgroundId);
 
     int updateOnlineNumPlus(Long id);
 

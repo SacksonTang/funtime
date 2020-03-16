@@ -281,4 +281,14 @@ public interface NoticeService {
      * 摇摇乐关闭
      */
     void notice29();
+
+    /**
+     * 设置背景
+     * @param roomId
+     * @param userId
+     * @param backgroundUrl
+     * @param roomNo
+     * @param backgroundUrl2
+     */
+    void notice31(Long roomId, Long userId, String backgroundUrl, String roomNo, String backgroundUrl2);
 }

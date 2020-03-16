@@ -320,4 +320,12 @@ public interface RoomService {
      * @param roomId
      */
     void blockRoom(Long roomId);
+
+    /**
+     * 设置背景
+     * @param backgroundId
+     * @param userId
+     * @param roomId
+     */
+    void setBackground(Integer backgroundId, Long userId, Long roomId);
 }

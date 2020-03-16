@@ -32,6 +32,7 @@ public enum NoticeType {
     ,YAOYAO_SHOW_OPEN(Constant.YAOYAO_SHOW_OPEN,"摇摇乐控制开启","")
     ,YAOYAO_SHOW_CLOSE(Constant.YAOYAO_SHOW_CLOSE,"摇摇乐控制关闭","")
     ,BLOCK_USER_ROOM(Constant.BLOCK_USER_ROOM,"封禁用户房间","")
+    ,SET_BACKGROUND(Constant.SET_BACKGROUND,"设置背景","")
 
     ,SERVICE_MSG(Constant.SERVICE_MSG,"全服大喇叭","")
     ;

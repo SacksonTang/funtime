@@ -10,7 +10,6 @@ import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
 
-import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -137,7 +136,7 @@ public class RoomServiceImpl implements RoomService {
         }else{
             chatroom.setAvatarUrl(Constant.COS_URL_PREFIX+Constant.DEFAULT_FEMALE_ROOM_AVATAR);
         }
-
+        chatroom.setBackgroundId(backgroundMapper.getBackgroundIdForType1());
         chatroom.setExamDesc("这个家伙很懒,什么都没有留下~");
         int k = chatroomMapper.insertSelective(chatroom);
         if(k!=1){
@@ -219,10 +218,7 @@ public class RoomServiceImpl implements RoomService {
             FuntimeChatroomMic chatroomMic = chatroomMicMapper.getMicLocationUser(roomId,10);
             chatroomMicMapper.upperWheat(chatroomMic.getId(),userId);
             if (chatroom.getState() == 2){
-                FuntimeChatroom chatroom1 = new FuntimeChatroom();
-                chatroom1.setState(1);
-                chatroom1.setId(chatroom.getId());
-                updateChatroom(chatroom1);
+                chatroomMapper.updateChatroomState(chatroom.getId(),1);
             }
         }else{
             //房间已停播
@@ -1102,6 +1098,10 @@ public class RoomServiceImpl implements RoomService {
         BigDecimal price = new BigDecimal(map.get("price").toString());
         Integer type = Integer.parseInt(map.get("type").toString());
 
+        if (type == 1){
+            throw new BusinessException(ErrorMsgEnum.ROOM_BACKGROUND_NOBUY.getValue(),ErrorMsgEnum.ROOM_BACKGROUND_NOBUY.getDesc());
+        }
+
         if (userAccount.getBlueDiamond().subtract(price).doubleValue()<0){
             resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
             resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
@@ -1191,11 +1191,45 @@ public class RoomServiceImpl implements RoomService {
         }
     }
 
+    @Override
+    public void setBackground(Integer backgroundId, Long userId, Long roomId) {
+        Integer userRole = getUserRole(roomId, userId);
+        if (!userService.checkAuthorityForUserRole(userRole,UserRoleAuthority.A_14.getValue())){
+            throw new BusinessException(ErrorMsgEnum.ROOM_USER_NO_AUTH.getValue(),ErrorMsgEnum.ROOM_USER_NO_AUTH.getDesc());
+        }
+        FuntimeChatroom chatroom = getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        Map<String, Object> map = backgroundMapper.getBackgroundUrlById(backgroundId, userId);
+        if (map == null||map.isEmpty()){
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
+        }
+        String backgroundUrl = map.get("backgroundUrl").toString();
+        String backgroundUrl2 = map.get("backgroundUrl2").toString();
+        Integer type = Integer.parseInt(map.get("type").toString());
+        Integer isOwner = Integer.parseInt(map.get("isOwner").toString());
+        Integer isExpiry = Integer.parseInt(map.get("isExpiry").toString());
+        if ((type == 2&&isOwner == 0)||(type == 3&&isExpiry ==1)){
+            throw new BusinessException(ErrorMsgEnum.ROOM_BACKGROUND_ERROR.getValue(),ErrorMsgEnum.ROOM_BACKGROUND_ERROR.getDesc());
+        }
+
+        if (chatroom.getBackgroundId()==null||!backgroundId.equals(chatroom.getBackgroundId())) {
+            int k = chatroomMapper.updateChatroomBackgroundId(roomId, backgroundId);
+            if (k != 1) {
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(), ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+            List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
+            //发送通知
+            for (String roomNo : roomNos) {
+                noticeService.notice31(roomId,userId,backgroundUrl,roomNo,backgroundUrl2);
+            }
+
+        }
+    }
+
     private void updateChatroomBlock(Long roomId, int isBlock) {
-        FuntimeChatroom chatroom = new FuntimeChatroom();
-        chatroom.setId(roomId);
-        chatroom.setIsBlock(isBlock);
-        int k = chatroomMapper.updateByPrimaryKeySelective(chatroom);
+        int k = chatroomMapper.updateChatroomBlock(roomId,isBlock);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
