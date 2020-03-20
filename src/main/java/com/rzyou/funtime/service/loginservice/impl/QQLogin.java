@@ -59,7 +59,11 @@ public class QQLogin implements LoginStrategy {
             String nickName = userJson.getString("nickname");
 
             user.setNickname(nickName);
-            user.setPortraitAddress(userJson.getString("figureurl_qq_1"));
+            String url = userJson.getString("figureurl_qq_1");
+            if (url !=null&&url.startsWith("http:")){
+                url = url.replace("http:","https:");
+            }
+            user.setPortraitAddress(url);
             user.setSex("男".equals(userJson.getString("gender"))?1:2);
             user.setVersion(System.currentTimeMillis());
             user.setSignText("这个人很懒,什么都没有留下");

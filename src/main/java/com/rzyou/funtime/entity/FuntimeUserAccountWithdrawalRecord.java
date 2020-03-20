@@ -56,4 +56,6 @@ public class FuntimeUserAccountWithdrawalRecord implements Serializable {
 
     private String nickname;
 
+    private BigDecimal preBlackAmount;
+
 }

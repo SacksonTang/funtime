@@ -901,8 +901,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveHeart(Long userId) {
-        userMapper.saveHeart(userId);
+    public void saveHeart(Long userId, String ipAddr) {
+        userMapper.saveHeart(userId,ipAddr);
     }
 
     @Override
@@ -992,6 +992,7 @@ public class UserServiceImpl implements UserService {
 
         result.put("withdrawalMaxDay",parameterService.getParameterValueByKey("withdrawal_max_day"));
         result.put("withdrawalMinOnce",parameterService.getParameterValueByKey("withdrawal_min_once"));
+        result.put("withdrawalWxAmount",parameterService.getParameterValueByKey("withdrawal_wx_amount"));
         FuntimeUserThird userThird = queryUserThirdIdByType(userId, Constant.LOGIN_WX);
         if (userThird==null){
             result.put("wx_bind",false);
@@ -1036,9 +1037,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageInfo<Map<String, Object>> getInvitationUserList(Integer startPage, Integer pageSize, Long userId, Long roomId) {
+    public PageInfo<Map<String, Object>> getInvitationUserList(Integer startPage, Integer pageSize, Long userId, Long roomId, Integer type, String content) {
         PageHelper.startPage(startPage,pageSize);
-        List<Map<String, Object>> list = userMapper.getInvitationUserList(userId,roomId);
+        List<Map<String, Object>> list;
+        if (type == 1){
+            list = userMapper.getInvitationUserList(userId,roomId,content);
+        }else if (type == 2){
+            list = userMapper.getInvitationUserList2(userId,roomId,content);
+        }else if (type == 3){
+            list = userMapper.getInvitationUserList3(userId,roomId,content);
+        }else{
+            list = null;
+        }
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }
@@ -1247,6 +1257,11 @@ public class UserServiceImpl implements UserService {
             parameterService.updateValueByKey("yaoyao_show","2");
             noticeService.notice29();
         }
+    }
+
+    @Override
+    public void heartTask() {
+        userMapper.heartTask();
     }
 
     private void unBindWeixin(Long userId) {

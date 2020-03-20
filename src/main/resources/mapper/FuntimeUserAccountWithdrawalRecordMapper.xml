@@ -23,12 +23,13 @@
     <result column="nickname" property="nickname" />
     <result column="first_trial_id" property="firstTrialId" />
     <result column="retrial_id" property="retrialId" />
+    <result column="pre_black_amount" property="preBlackAmount" />
     <result column="retrial_time" jdbcType="TIMESTAMP" property="retrialTime" />
   </resultMap>
   <sql id="Base_Column_List">
     id, order_no, user_id, trial_type,withdrawal_type,nickname, card_number, third_order_number, amount,
     black_diamond, black_rmb_ratio, channel_amount, create_time, first_trial_time, state,
-    flag, version,pre_rmb_amount,reason,first_trial_id,retrial_id,retrial_time
+    flag, version,pre_rmb_amount,reason,first_trial_id,retrial_id,retrial_time,pre_black_amount
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -136,6 +137,9 @@
       <if test="version != null">
         version,
       </if>
+      <if test="preBlackAmount != null">
+        pre_black_amount,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
 
@@ -183,6 +187,9 @@
       </if>
       <if test="version != null">
         #{version,jdbcType=BIGINT},
+      </if>
+      <if test="preBlackAmount != null">
+        #{preBlackAmount},
       </if>
     </trim>
   </insert>

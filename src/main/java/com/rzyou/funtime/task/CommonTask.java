@@ -31,9 +31,33 @@ public class CommonTask {
     Integer[] sendSingleType = {15,16};
     Integer[] snedAllApp = {9};
 
+    /**
+     * 背景资源过去设置
+     */
+    @Scheduled(fixedRate = 1000*5*60)
+    public void setBackgroundTask(){
+        try {
+            roomService.setBackgroundTask();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * 摇摇乐奖池重置
+     */
     @Scheduled(cron = "0 0 0 ? * MON")
     public void resetYaoyaoPool(){
         gameService.updateYaoyaoPoolTask();
+    }
+
+    /**
+     * 心跳合并
+     */
+    @Scheduled(cron = "0 0 1 * * ?")
+    public void heartTask(){
+        userService.heartTask();
     }
 
 

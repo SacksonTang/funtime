@@ -70,7 +70,7 @@ public interface FuntimeUserMapper {
 
     List<Map<String, Object>> getCharmList(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
-    int saveHeart(Long userId);
+    int saveHeart(@Param("userId") Long userId,@Param("ip") String ip);
 
     List<Map<String, Object>> getExpression();
 
@@ -94,9 +94,16 @@ public interface FuntimeUserMapper {
      * 邀请用户列表
      * @param userId
      * @param roomId
+     * @param content
      * @return
      */
-    List<Map<String, Object>> getInvitationUserList(@Param("userId") Long userId, @Param("roomId") Long roomId);
+    List<Map<String, Object>> getInvitationUserList(@Param("userId") Long userId, @Param("roomId") Long roomId,@Param("content") String content);
+
+    List<Map<String, Object>> getInvitationUserList2(@Param("userId") Long userId, @Param("roomId") Long roomId, @Param("content") String content);
+
+    List<Map<String, Object>> getInvitationUserList3(@Param("userId") Long userId, @Param("roomId") Long roomId, @Param("content") String content);
 
     FuntimeUser getUserInfoByShowId(Long showId);
+
+    void heartTask();
 }

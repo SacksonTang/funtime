@@ -124,7 +124,7 @@ public class RedPacketUtil {
 
     public static void main(String[] args) {
         RedPacketUtil redPacket = new RedPacketUtil(100);
-        Integer[] redPackets = redPacket.splitRedPacket(100, 12);
+        Integer[] redPackets = redPacket.splitRedPacket(100, 1);
         System.out.println(redPackets);
 
     }

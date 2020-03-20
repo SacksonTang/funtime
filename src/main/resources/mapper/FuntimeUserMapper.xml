@@ -167,10 +167,37 @@
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     where c.user_id = #{userId}
     and not exists (select t.id from t_funtime_chatroom_user t where t.user_id = c.to_user_id and t.room_id = #{roomId})
-
+    <if test="content!=null and content!=''">
+      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%') or m.name like concat('%',#{content},'%'))
+    </if>
     order by u.online_state asc, c.id desc
   </select>
-
+  <select id="getInvitationUserList2" resultType="java.util.Map">
+    select
+    u.id,u.nickname,u.portrait_address as portraitAddress,u.sex,u.show_id as showId,u.sign_text as  signText
+    ,u.online_state onlineState,l.level,l.level_url as levelUrl
+    from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.user_id
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    where c.to_user_id = #{userId}
+    and not exists (select t.id from t_funtime_chatroom_user t where t.user_id = c.user_id and t.room_id = #{roomId})
+    <if test="content!=null and content!=''">
+      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%') or m.name like concat('%',#{content},'%'))
+    </if>
+    order by u.online_state asc, c.id desc
+  </select>
+  <select id="getInvitationUserList3" resultType="java.util.Map">
+    select
+    u.id,u.nickname,u.portrait_address as portraitAddress,u.sex,u.show_id as showId,u.sign_text as  signText
+    ,u.online_state onlineState,l.level,l.level_url as levelUrl
+    from t_funtime_user u
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    where not exists (select c.id from t_funtime_user_concern c where c.user_id = #{userId} or c.to_user_id = #{userId})
+    and not exists (select t.id from t_funtime_chatroom_user t where t.user_id = u.id and t.room_id = #{roomId})
+    <if test="content!=null and content!=''">
+      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%') or m.name like concat('%',#{content},'%'))
+    </if>
+    order by u.online_state asc, c.id desc
+  </select>
 
   <select id="getFansList" resultType="java.util.Map">
     select
@@ -640,10 +667,19 @@
   <update id="updateRealnameAuthenticationFlagById" >
   update t_funtime_user set realname_authentication_flag = 1,update_time =now() where id = #{id}
 </update>
-  <insert id="saveHeart" parameterType="java.lang.Long">
-    REPLACE INTO t_funtime_heart (user_id) VALUES(#{userId})
+  <insert id="saveHeart" >
+    insert INTO t_funtime_heart (user_id,ip) VALUES(#{userId},#{ip})
   </insert>
+  <insert id="heartTask" >
+    insert INTO t_funtime_heart_history (user_id,heart_date,counts,ip,imei)
+    select t.user_id, DATE_FORMAT(t.heart,'%Y%m%d') heart_date,count(t.id) counts,GROUP_CONCAT(DISTINCT t.ip) ip
+    ,u.phone_imei as imei
+    from t_funtime_heart t inner join t_funtime_user u on t.user_id = u.id
+    where t.heart BETWEEN DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 day),'%Y-%m-%d 00:00:01')
+    and DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 1 day),'%Y-%m-%d 23:59:59')
+    GROUP BY t.user_id,DATE_FORMAT(t.heart,'%Y%m%d');
 
+  </insert>
   <insert id="saveImHeart" >
     REPLACE INTO t_funtime_im_heart (user_id,user_state,action,reason)
     VALUES(#{userId},#{userState},#{action},#{reason})

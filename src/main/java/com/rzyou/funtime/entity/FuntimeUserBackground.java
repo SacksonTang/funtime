@@ -16,7 +16,7 @@ public class FuntimeUserBackground {
     private Integer backgroundId;
     private Integer backgroundType;
     private BigDecimal price;
-    private Integer months;
+    private Integer days;
     private Date endTime;
 
 }

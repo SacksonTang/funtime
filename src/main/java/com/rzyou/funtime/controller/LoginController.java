@@ -66,11 +66,12 @@ public class LoginController {
     /**
      * 心跳
      */
-    //@PostMapping("heart")
+    @PostMapping("heart")
     public ResultMsg<Object> heart(HttpServletRequest request){
         JSONObject paramJson = HttpHelper.getParamterJson(request);
         Long userId = paramJson.getLong("userId");
-        userService.saveHeart(userId);
+        String ipAddr = HttpHelper.getClientIpAddr(request);
+        userService.saveHeart(userId,ipAddr);
         return new ResultMsg<>();
     }
 
@@ -404,6 +405,8 @@ public class LoginController {
             data.put("musicUrl",Constant.TENCENT_YUN_MUSIC_URL);
             data.put("yaoyaoNeedLevel",parameterService.getParameterValueByKey("yaoyao_need_level"));
             data.put("yaoyaoShow",parameterService.getParameterValueByKey("yaoyao_show"));
+            data.put("heartRate",parameterService.getParameterValueByKey("heart_rate"));
+            data.put("hornLength",parameterService.getParameterValueByKey("horn_length"));
             data.put("isEncrypt",parameterService.getParameterValueByKey("is_encrypt"));
 
             result.setData(data);

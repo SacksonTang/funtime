@@ -965,8 +965,14 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public void sendNotice(Long userId, String imgUrl, String msg, Long roomId, Integer type) {
+        FuntimeUser user = userService.getUserBasicInfoById(userId);
+        if (user == null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if (user.getOnlineState() == 2){
+            throw new BusinessException(ErrorMsgEnum.USER_IS_IFFLINE.getValue(),ErrorMsgEnum.USER_IS_IFFLINE.getDesc());
+        }
         Integer userRole = getUserRole(roomId,userId);
-
         userRole = userRole == null?4:userRole;
         List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
         noticeService.notice11Or14(userId,imgUrl,msg,roomId,type,roomNos,userRole);
@@ -1097,6 +1103,7 @@ public class RoomServiceImpl implements RoomService {
         }
         BigDecimal price = new BigDecimal(map.get("price").toString());
         Integer type = Integer.parseInt(map.get("type").toString());
+        Integer days = Integer.parseInt(map.get("days").toString());
 
         if (type == 1){
             throw new BusinessException(ErrorMsgEnum.ROOM_BACKGROUND_NOBUY.getValue(),ErrorMsgEnum.ROOM_BACKGROUND_NOBUY.getDesc());
@@ -1115,10 +1122,10 @@ public class RoomServiceImpl implements RoomService {
         userBackground.setBackgroundId(backgroundId);
         userBackground.setUserId(userId);
         if (type==3){
-            userBackground.setMonths(1);
-
-            userBackground.setEndTime(DateUtils.addMonths(new Date(),1));
+            userBackground.setDays(days);
+            userBackground.setEndTime(DateUtils.addDays(new Date(),days));
         }
+
         userBackground.setBackgroundType(type);
         userBackground.setPrice(price);
         int k ;
@@ -1225,6 +1232,27 @@ public class RoomServiceImpl implements RoomService {
                 noticeService.notice31(roomId,userId,backgroundUrl,roomNo,backgroundUrl2);
             }
 
+        }
+    }
+
+    @Override
+    public void setBackgroundTask() {
+        List<Map<String,Long>> roomIdsMap = backgroundMapper.getBackgroundForExpiry();
+        if (roomIdsMap!=null&&!roomIdsMap.isEmpty()){
+            for (Map<String,Long> roomMap : roomIdsMap) {
+                Long roomId = roomMap.get("id");
+                Long userId = roomMap.get("userId");
+                Map<String, Object> map = backgroundMapper.getBackgroundUrlForType1();
+                String backgroundUrl = map.get("backgroundUrl").toString();
+                String backgroundUrl2 = map.get("backgroundUrl2").toString();
+                chatroomMapper.updateChatroomBackgroundId(roomId, Integer.parseInt(map.get("id").toString()));
+
+                List<String> roomNos = chatroomUserMapper.getRoomNoByRoomIdAll(roomId);
+                //发送通知
+                for (String roomNo : roomNos) {
+                    noticeService.notice31(roomId, userId, backgroundUrl, roomNo, backgroundUrl2);
+                }
+            }
         }
     }
 

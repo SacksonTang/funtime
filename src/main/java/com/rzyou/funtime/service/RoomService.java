@@ -328,4 +328,9 @@ public interface RoomService {
      * @param roomId
      */
     void setBackground(Integer backgroundId, Long userId, Long roomId);
+
+    /**
+     * 定时设置过期资源
+     */
+    void setBackgroundTask();
 }

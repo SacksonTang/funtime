@@ -450,6 +450,7 @@ public class AccountServiceImpl implements AccountService {
                 noticeService.notice13(redpacket.getRoomId(), roomNo,user.getNickname());
             }
         }else{
+            checkUser(redpacket.getToUserId());
             //单发
             FuntimeUserRedpacketDetail detail = new FuntimeUserRedpacketDetail();
             detail.setVersion(System.currentTimeMillis());
@@ -1404,7 +1405,7 @@ public class AccountServiceImpl implements AccountService {
         String orderNo = "D"+StringUtil.createOrderId();
 
         Long recordId = saveFuntimeUserAccountWithdrawalRecord(userId,withdrawalType
-                ,withdrawalCard,amount,blackAmount,ratio,channelAmount,preRmbAmount,trialType,orderNo,nickname);
+                ,withdrawalCard,amount,blackAmount,ratio,channelAmount,preRmbAmount,trialType,orderNo,nickname,userAccount.getBlackDiamond());
 
         //减去用户黑钻
         userService.updateUserAccountForSub(userId,blackAmount,null,null);
@@ -1553,7 +1554,11 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    private Long saveFuntimeUserAccountWithdrawalRecord(Long userId, Integer withdrawalType, String withdrawalCard, BigDecimal rmbAmount, BigDecimal blackAmount, BigDecimal ratio, BigDecimal channelAmount, BigDecimal preRmbAmount, int trialType, String orderNo, String nickname) {
+    private Long saveFuntimeUserAccountWithdrawalRecord(Long userId, Integer withdrawalType,
+                                                        String withdrawalCard, BigDecimal rmbAmount,
+                                                        BigDecimal blackAmount, BigDecimal ratio, BigDecimal channelAmount,
+                                                        BigDecimal preRmbAmount, int trialType, String orderNo, String nickname,
+                                                        BigDecimal blackDiamond) {
         FuntimeUserAccountWithdrawalRecord record = new FuntimeUserAccountWithdrawalRecord();
         record.setTrialType(trialType);
         record.setAmount(rmbAmount);
@@ -1568,6 +1573,7 @@ public class AccountServiceImpl implements AccountService {
         record.setVersion(System.currentTimeMillis());
         record.setState(1);
         record.setNickname(nickname);
+        record.setPreBlackAmount(blackDiamond);
 
         int k = userAccountWithdrawalRecordMapper.insertSelective(record);
         if(k!=1){

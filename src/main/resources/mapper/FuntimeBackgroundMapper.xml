@@ -6,6 +6,7 @@
     select
     t.id,t.type,t.background_url as backgroundUrl,t.background_url2 as backgroundUrl2,t.thumbnail_url as thumbnailUrl,
     t.original_price as originalPrice,t.activity_price as activityPrice,t.discount,
+    t.show_price as showPrice,
     IF(d.background_id is null,0,1) isOwner,
 	  IF((now() >= d.start_time and d.end_time>=now()) or t.type in (1,2),0,1) isExpiry
     ,IF(m.background_id is null,0,1) isCurrentPage
@@ -17,7 +18,7 @@
   </select>
   <select id="getBackgroundInfoById"  resultType="java.util.Map">
     select
-    t.type,
+    t.type,t.days,
     IF(t.activity_price is null,t.original_price,t.activity_price) as price,
     d.id as ubId
 
@@ -33,6 +34,13 @@
     where  type = 1 and flag = 1
     limit 1
   </select>
+  <select id="getBackgroundUrlForType1"  resultType="java.util.Map">
+    select
+    id,background_url as backgroundUrl,background_url2 as backgroundUrl2
+    from  t_funtime_background
+    where  type = 1 and flag = 1
+    limit 1
+  </select>
   <select id="getBackgroundUrlById"  resultType="java.util.Map" >
     select
     t.type,t.background_url as backgroundUrl,t.background_url2 as backgroundUrl2,
@@ -41,6 +49,13 @@
     from  t_funtime_background t left join t_funtime_user_background d
            on d.background_id = t.id and d.user_id = #{userId}
     where t.id = #{id} and t.flag = 1
+  </select>
+  <select id="getBackgroundForExpiry"  resultType="java.util.Map" >
+    select
+    distinct m.id,m.user_id as userId
+    from  t_funtime_user_background d inner join t_funtime_chatroom m
+           on d.background_id = m.background_id and d.user_id = m.user_id
+    where d.background_type in (3,4) and now()>d.end_time
   </select>
     <insert id="insertUserBackground" parameterType="com.rzyou.funtime.entity.FuntimeUserBackground">
         insert into t_funtime_user_background(user_id,background_id,background_type,price,end_time)
@@ -55,16 +70,16 @@
         <if test="price != null">
           price = #{price},
         </if>
-        <if test="months != null">
-          end_time = date_add(IF(end_time>NOW(),end_time,NOW()), interval ${months} month),
+        <if test="days != null">
+          end_time = date_add(IF(end_time>NOW(),end_time,NOW()), interval ${days} day),
         </if>
         update_time = NOW()
       </set>
       where id = #{id}
     </update>
     <insert id="insertUserBackgroundRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserBackground" useGeneratedKeys="true" keyProperty="id">
-        insert into t_funtime_user_account_background_record(user_id,background_id,background_type,price,months)
-        values (#{userId},#{backgroundId},#{backgroundType},#{price},#{months})
+        insert into t_funtime_user_account_background_record(user_id,background_id,background_type,price,days)
+        values (#{userId},#{backgroundId},#{backgroundType},#{price},#{days})
     </insert>
 
 </mapper>

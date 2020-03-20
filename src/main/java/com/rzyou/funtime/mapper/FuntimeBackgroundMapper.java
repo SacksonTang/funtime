@@ -10,7 +10,11 @@ import java.util.Map;
 @Mapper
 public interface FuntimeBackgroundMapper {
 
+    List<Map<String, Long>> getBackgroundForExpiry();
+
     Integer getBackgroundIdForType1();
+
+    Map<String, Object> getBackgroundUrlForType1();
 
     List<Map<String, Object>> getBackgroundList(Long userId);
 

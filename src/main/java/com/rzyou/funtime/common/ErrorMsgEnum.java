@@ -50,6 +50,7 @@ public enum ErrorMsgEnum {
     USER_ACCOUNT_GOLD_NOT_EN("10037","账户金币不足"),
     USER_WX_EXISTS("10038","该微信已被其它账号绑定"),
     USER_WX_NOT_BIND("10039","没有用户微信绑定信息"),
+    USER_IS_IFFLINE("10040","用户IM已离线"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -91,7 +92,7 @@ public enum ErrorMsgEnum {
     WITHDRAWAL_PRERMBAMOUNT_ERROR("70006","试算金额不符,请重重试"),
     WITHDRAWAL_RMBAMOUNT_ERROR("70007","实际提现金额不符,请重重试"),
     WITHDRAWAL_WX_NOT_BIND("70008","微信没有绑定"),
-    WITHDRAWAL_PRERMBAMOUNT_100_ERROR("70009","非首次提现试算金额必须为100的倍数"),
+    WITHDRAWAL_PRERMBAMOUNT_100_ERROR("70009","非首次提现\"提现红钻\"必须为1000的倍数"),
     WITHDRAWAL_PHONE_NOT_BIND("70010","手机没有绑定"),
 
     ROOM_CREATE_ERROR("80001","房间创建失败"),

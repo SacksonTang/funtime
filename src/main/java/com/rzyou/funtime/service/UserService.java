@@ -338,8 +338,9 @@ public interface UserService {
     /**
      * 保存心跳
      * @param userId
+     * @param ipAddr
      */
-    void saveHeart(Long userId);
+    void saveHeart(Long userId, String ipAddr);
 
     /**
      * 保存在线状态变更回调
@@ -419,9 +420,11 @@ public interface UserService {
      * @param pageSize
      * @param userId
      * @param roomId
+     * @param type
+     * @param content
      * @return
      */
-    PageInfo<Map<String,Object>> getInvitationUserList(Integer startPage, Integer pageSize, Long userId, Long roomId);
+    PageInfo<Map<String,Object>> getInvitationUserList(Integer startPage, Integer pageSize, Long userId, Long roomId, Integer type, String content);
 
     /**
      * 版本管理
@@ -479,4 +482,9 @@ public interface UserService {
      * @param type
      */
     void parameterReset(Integer type);
+
+    /**
+     * 心跳定时处理
+     */
+    void heartTask();
 }
