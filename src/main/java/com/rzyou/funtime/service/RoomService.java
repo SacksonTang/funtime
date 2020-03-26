@@ -13,9 +13,10 @@ public interface RoomService {
     /**
      * 创建房间
      * @param userId
+     * @param platform
      * @return
      */
-    Long roomCreate(Long userId);
+    Long roomCreate(Long userId, Integer platform);
 
     /**
      * 设置房间

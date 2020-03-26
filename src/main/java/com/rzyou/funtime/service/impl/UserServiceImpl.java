@@ -14,6 +14,7 @@ import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
 import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -277,11 +278,16 @@ public class UserServiceImpl implements UserService {
 
         if (user.getPortraitAddress()==null&&funtimeUser.getPortraitAddress()==null){
             if (user.getSex()!=null) {
-                if (user.getSex() == 1) {
-                    user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
-                }
-                if (user.getSex() == 2) {
-                    user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_FEMALE_HEAD_PORTRAIT);
+                List<String> userImageDefaultUrls = userMapper.getUserImageDefaultUrls(user.getSex());
+                if (userImageDefaultUrls==null||userImageDefaultUrls.isEmpty()) {
+                    if (user.getSex() == 1) {
+                        user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
+                    }
+                    if (user.getSex() == 2) {
+                        user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_FEMALE_HEAD_PORTRAIT);
+                    }
+                }else{
+                    user.setPortraitAddress(userImageDefaultUrls.get(RandomUtils.nextInt(0, userImageDefaultUrls.size())));
                 }
             }
         }
@@ -1134,7 +1140,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
 
-        if (user.getPhoneNumber()!=null){
+        if (StringUtils.isBlank(user.getPhoneNumber())){
             throw new BusinessException(ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getValue(),ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getDesc());
         }
         String isSend = parameterService.getParameterValueByKey("is_send");

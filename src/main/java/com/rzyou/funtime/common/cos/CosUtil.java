@@ -15,6 +15,7 @@ import com.qcloud.cos.model.PutObjectResult;
 import com.qcloud.cos.region.Region;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.utils.DateUtil;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -74,7 +75,8 @@ public class CosUtil {
     }
 
     public static void main(String[] args) {
+
         //CosUtil.upload("123","C:/test/test1.png");
-        System.out.println(generatePresignedUrl("123/20191217171038test1.png"));
+        //System.out.println(RandomUtils.nextInt(0,2));
     }
 }

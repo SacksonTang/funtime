@@ -34,6 +34,7 @@ public interface FuntimeUserMapper {
 
     Long checkUserExists(Long id);
 
+    List<String> getUserImageDefaultUrls(Integer sex);
 
     int updateByPrimaryKeySelective(FuntimeUser record);
 

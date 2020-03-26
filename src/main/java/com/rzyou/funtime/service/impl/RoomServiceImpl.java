@@ -53,7 +53,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Long roomCreate(Long userId) {
+    public Long roomCreate(Long userId, Integer platform) {
         FuntimeUser user = userService.queryUserById(userId);
         if (user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
@@ -65,7 +65,9 @@ public class RoomServiceImpl implements RoomService {
         Long roomId ;
         if (chatroom!=null&&chatroom.getId()!=null){
             roomId = chatroom.getId();
-            roomJoin(userId,chatroom.getId(),null, null);
+            if (platform == 0) {
+                roomJoin(userId, chatroom.getId(), null, null);
+            }
             return roomId;
         }
         //用户所在的房间
@@ -80,7 +82,7 @@ public class RoomServiceImpl implements RoomService {
         }
         userService.updateCreateRoomPlus(userId);
 
-        roomId = saveChatroom(userId,user.getNickname(),user.getSex());
+        roomId = saveChatroom(userId,user.getNickname(),user.getPortraitAddress());
 
         saveMic(roomId,10,userId);
 
@@ -126,16 +128,12 @@ public class RoomServiceImpl implements RoomService {
 
     }
 
-    private Long saveChatroom(Long userId, String nickname, Integer sex) {
+    private Long saveChatroom(Long userId, String nickname, String avatarUrl) {
 
         FuntimeChatroom chatroom = new FuntimeChatroom();
         chatroom.setUserId(userId);
         chatroom.setName(nickname);
-        if (sex!=null&&sex==1){
-            chatroom.setAvatarUrl(Constant.COS_URL_PREFIX+Constant.DEFAULT_MALE_ROOM_AVATAR);
-        }else{
-            chatroom.setAvatarUrl(Constant.COS_URL_PREFIX+Constant.DEFAULT_FEMALE_ROOM_AVATAR);
-        }
+        chatroom.setAvatarUrl(avatarUrl);
         chatroom.setBackgroundId(backgroundMapper.getBackgroundIdForType1());
         chatroom.setExamDesc("这个家伙很懒,什么都没有留下~");
         int k = chatroomMapper.insertSelective(chatroom);
@@ -581,7 +579,11 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
 
-        k = chatroomUserMapper.updateUserRoleById(chatroomUserMapper.checkUserIsExist(roomId,micUserId),UserRole.ROOM_MIC.getValue());
+        Long id = chatroomUserMapper.checkUserIsExist(roomId, micUserId);
+        if (id == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getDesc());
+        }
+        k = chatroomUserMapper.updateUserRoleById(id,UserRole.ROOM_MIC.getValue());
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }

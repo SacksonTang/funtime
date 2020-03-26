@@ -168,7 +168,7 @@
     where c.user_id = #{userId}
     and not exists (select t.id from t_funtime_chatroom_user t where t.user_id = c.to_user_id and t.room_id = #{roomId})
     <if test="content!=null and content!=''">
-      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%') or m.name like concat('%',#{content},'%'))
+      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
     </if>
     order by u.online_state asc, c.id desc
   </select>
@@ -181,7 +181,7 @@
     where c.to_user_id = #{userId}
     and not exists (select t.id from t_funtime_chatroom_user t where t.user_id = c.user_id and t.room_id = #{roomId})
     <if test="content!=null and content!=''">
-      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%') or m.name like concat('%',#{content},'%'))
+      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
     </if>
     order by u.online_state asc, c.id desc
   </select>
@@ -194,9 +194,9 @@
     where not exists (select c.id from t_funtime_user_concern c where c.user_id = #{userId} or c.to_user_id = #{userId})
     and not exists (select t.id from t_funtime_chatroom_user t where t.user_id = u.id and t.room_id = #{roomId})
     <if test="content!=null and content!=''">
-      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%') or m.name like concat('%',#{content},'%'))
+      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
     </if>
-    order by u.online_state asc, c.id desc
+    order by u.online_state asc, u.id desc
   </select>
 
   <select id="getFansList" resultType="java.util.Map">
@@ -301,6 +301,10 @@
     where flag = 1 and  now() between start_time and end_time
     order by id
 
+  </select>
+
+  <select id="getUserImageDefaultUrls" parameterType="java.lang.Integer" resultType="java.lang.String">
+    select image_url from t_funtime_user_image_default where sex = #{sex}
   </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">

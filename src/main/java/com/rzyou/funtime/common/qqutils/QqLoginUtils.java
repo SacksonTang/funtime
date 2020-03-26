@@ -32,8 +32,8 @@ public class QqLoginUtils {
                 + "&client_id=" + Constant.QQ_APPID + "&redirect_uri=" + redirectUri
                 + "&client_secret=" + Constant.QQ_APPSECRET + "&code=" + code;
         String result = HttpClientUtil.doGet(url);
-        log.debug("getAccessToken result : {}",result);
-        if (result.indexOf("callback") == -1){
+        log.info("getAccessToken result : {}",result);
+        if (!result.contains("callback")){
             throw new BusinessException(ErrorMsgEnum.USER_QQLOGIN_GETTOKEN_ERROR.getValue(),ErrorMsgEnum.USER_QQLOGIN_GETTOKEN_ERROR.getDesc());
         }
         Pattern p = Pattern.compile("access_token=(\\w*)&");
@@ -56,7 +56,7 @@ public class QqLoginUtils {
 
         //调用httpclient处理请求得到返回json数据
         String result = HttpClientUtil.doGet(url);
-        log.debug("getOpenId result : {}",result);
+        log.info("getOpenId result : {}",result);
         if (result.indexOf("callback") == -1){
             log.error("获取openid失败:{}",result);
             throw new BusinessException(ErrorMsgEnum.USER_QQLOGIN_GETOPENID_ERROR.getValue(),ErrorMsgEnum.USER_QQLOGIN_GETOPENID_ERROR.getDesc());

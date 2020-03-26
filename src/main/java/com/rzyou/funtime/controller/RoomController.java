@@ -345,12 +345,14 @@ public class RoomController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
+            Integer platform = paramJson.getInteger("platform");
+            platform = platform == null?1:platform;
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            Long roomId = roomService.roomCreate(userId);
+            Long roomId = roomService.roomCreate(userId,platform);
             result.setData(JsonUtil.getMap("roomId",roomId));
             return result;
         } catch (BusinessException be) {

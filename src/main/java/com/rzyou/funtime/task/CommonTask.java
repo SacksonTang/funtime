@@ -69,7 +69,12 @@ public class CommonTask {
         List<Long> users = userService.getOfflineUser();
         if (users!=null&&!users.isEmpty()){
             for (Long userId : users){
-                roomService.roomExitTask(userId);
+                try {
+                    roomService.roomExitTask(userId);
+                }catch (Exception e){
+                    log.error("offlineUserTask ===>异常用户ID:{}",userId);
+                    e.printStackTrace();
+                }
             }
         }
     }
