@@ -187,7 +187,17 @@ public class LoginController {
             String resend = paramJson.getString("resend");
             int smsType = paramJson.getInteger("smsType");
             String ip = HttpHelper.getClientIpAddr(request);
-
+            if (StringUtils.isBlank(phone)) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            FuntimeUser user = userService.queryUserInfoByPhone(phone);
+            if (user!=null&&user.getState() == 2){
+                result.setCode(ErrorMsgEnum.USER_IS_DELETE.getValue());
+                result.setMsg(ErrorMsgEnum.USER_IS_DELETE.getDesc());
+                return result;
+            }
             smsService.sendSms(phone,resend,ip,smsType);
         }catch (BusinessException be){
             be.printStackTrace();

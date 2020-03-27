@@ -34,6 +34,7 @@ public class OnekeyLogin implements LoginStrategy {
         String uuid = StringUtil.createNonceStr();
         String userId ;
         String token;
+        boolean isNewUser = true;
         FuntimeUser funtimeUser = userService.queryUserInfoByPhone(phoneNumber);
         if(funtimeUser==null){
             //新用户
@@ -63,6 +64,7 @@ public class OnekeyLogin implements LoginStrategy {
             }
 
         }else{
+            isNewUser = false;
             userId = funtimeUser.getId().toString();
             if(funtimeUser.getState().intValue()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
@@ -73,7 +75,7 @@ public class OnekeyLogin implements LoginStrategy {
         }
         FuntimeUser info = userService.getUserBasicInfoById(Long.parseLong(userId));
         info.setBlueAmount(userService.getUserAccountInfoById(Long.parseLong(userId)).getBlueDiamond().intValue());
-        info.setNewUser(false);
+        info.setNewUser(isNewUser);
         info.setToken(token);
         return info;
     }

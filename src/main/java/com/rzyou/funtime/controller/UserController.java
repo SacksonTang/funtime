@@ -645,7 +645,7 @@ public class UserController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             String content = paramJson.getString("content");
 
@@ -1165,7 +1165,7 @@ public class UserController {
             Long userId = paramJson.getLong("userId");
             Long roomId = paramJson.getLong("roomId");
             String content = paramJson.getString("content");
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
             Integer type = paramJson.getInteger("type")==null?1:paramJson.getInteger("type");
             if (userId==null||roomId==null) {

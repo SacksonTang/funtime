@@ -1067,29 +1067,29 @@ public class UserServiceImpl implements UserService {
 
         Map<String, Object> result = new HashMap<>();
         //当前版本
-        Map<String, String> curVer = appVersionMapper.getVersionInfoByVerAndPlatform(platform, appVersion);
+        Map<String, Integer> curVer = appVersionMapper.getVersionInfoByVerAndPlatform(platform, appVersion);
         //当前版本信息缺失,直接更新最新版本
         if (curVer==null){
             result.put("state",2);
             result.put("versionInfo",appVersionMapper.getNewVersionInfoByPlatform(platform));
             return result;
         }
-        String curState = curVer.get("state");
+        Integer curState = curVer.get("state");
         //最新版本
-        if (curState.equals("1")){
+        if (curState==1){
             result.put("state",1);
             return result;
         }
         //强制更新
-        else if (curState.equals("2")){
+        else if (curState==2){
             result.put("state",2);
             result.put("versionInfo",appVersionMapper.getNewVersionInfoByPlatform(platform));
             return result;
         }
         //其他更新,需要检测后续版本有没有强制更新的
         else{
-            String id = curVer.get("id");
-            Integer count = appVersionMapper.checkVersion(Integer.parseInt(id));
+            Integer id = curVer.get("id");
+            Integer count = appVersionMapper.checkVersion(id);
             if (count!=null&&count>0){
                 //后续有强制更新
                 result.put("state",2);

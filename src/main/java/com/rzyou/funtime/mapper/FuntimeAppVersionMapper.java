@@ -25,7 +25,7 @@ public interface FuntimeAppVersionMapper {
      * @param appVersion
      * @return
      */
-    Map<String,String> getVersionInfoByVerAndPlatform(@Param("platform") String platform
+    Map<String,Integer> getVersionInfoByVerAndPlatform(@Param("platform") String platform
             , @Param("appVersion") String appVersion);
 
     /**
