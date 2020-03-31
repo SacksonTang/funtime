@@ -19,8 +19,6 @@ public interface FuntimeUserAccountRechargeRecordMapper {
 
     Integer getRechargeRecordByUserId(Long userId);
 
-    BigDecimal getRechargeNumByUserId(Long userId);
-
     Map<String,Object> getUserLevel(Integer amount);
 
     int deleteByPrimaryKey(Long id);

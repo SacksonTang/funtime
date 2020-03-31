@@ -142,8 +142,9 @@ public interface UserService {
      * @param userId
      * @param blackDiamond
      * @param receivedGiftNum
+     * @param charmVal
      */
-    void updateUserAccountForPlusGift(Long userId,BigDecimal blackDiamond, Integer receivedGiftNum);
+    void updateUserAccountForPlusGift(Long userId, BigDecimal blackDiamond, Integer receivedGiftNum, Integer charmVal);
     /**
      * 账户减少
      * @param blackDiamond
@@ -313,14 +314,12 @@ public interface UserService {
 
     /**
      * 排行榜
-     * @param startPage
-     * @param pageSize
      * @param dateType
      * @param type
      * @param curUserId
      * @return
      */
-    Map<String,Object> getRankingList(Integer startPage, Integer pageSize, Integer dateType, Integer type, String curUserId);
+    Map<String,Object> getRankingList(Integer dateType, Integer type, String curUserId);
 
     /**
      * 更新相册

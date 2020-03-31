@@ -1238,14 +1238,12 @@ public class UserController {
             String userId = paramJson.getString("userId");
             Integer type = paramJson.getInteger("type");//1-魅力榜2-贡献榜
             Integer dateType = paramJson.getInteger("dateType");//1-日2-周3-月
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
-            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             if (type==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            Map<String,Object> resultMap = userService.getRankingList(startPage, pageSize, dateType, type,userId);
+            Map<String,Object> resultMap = userService.getRankingList(dateType, type,userId);
 
             result.setData(resultMap);
 

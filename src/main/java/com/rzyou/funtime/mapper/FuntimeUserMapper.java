@@ -67,9 +67,9 @@ public interface FuntimeUserMapper {
 
     List<Map<String, Object>> getFansList(Long userId);
 
-    List<Map<String, Object>> getContributionList(@Param("startDate") String startDate, @Param("endDate") String endDate);
+    List<Map<String, Object>> getContributionList(@Param("startDate") String startDate, @Param("endDate") String endDate,@Param("count") int count);
 
-    List<Map<String, Object>> getCharmList(@Param("startDate") String startDate, @Param("endDate") String endDate);
+    List<Map<String, Object>> getCharmList(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("count") int count);
 
     int saveHeart(@Param("userId") Long userId,@Param("ip") String ip);
 

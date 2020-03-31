@@ -15,13 +15,15 @@ public interface FuntimeUserAccountMapper {
 
     int updateUserAccountForPlus(@Param("id") Long id, @Param("blackDiamond") BigDecimal blackDiamond, @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber);
 
-    int updateUserAccountForPlusGift(@Param("id") Long id, @Param("blackDiamond") BigDecimal blackDiamond, @Param("receivedGiftNum") Integer receivedGiftNum);
+    int updateUserAccountForPlusGift(@Param("id") Long id, @Param("blackDiamond") BigDecimal blackDiamond, @Param("receivedGiftNum") Integer receivedGiftNum,@Param("charmVal") Integer charmVal);
 
     int updateUserAccountForSub(@Param("id") Long id, @Param("blackDiamond") BigDecimal blackDiamond
             , @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber
             , @Param("version") Long version,@Param("newVersion") Long newVersion);
 
-    int updateUserAccountLevel(@Param("id") Long id, @Param("level") Integer level, @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber);
+    int updateUserAccountLevel(@Param("id") Long id, @Param("level") Integer level, @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber, @Param("levelVal") Integer levelVal, @Param("wealthVal") Integer wealthVal);
+
+    int updateUserAccountForConvert(@Param("id") Long id, @Param("level") Integer level, @Param("blueDiamond") BigDecimal blueDiamond, @Param("blackDiamond") BigDecimal blackDiamond, @Param("levelVal") Integer levelVal, @Param("wealthVal") Integer wealthVal);
 
     int deleteByPrimaryKey(Long id);
 

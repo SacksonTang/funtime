@@ -1,5 +1,6 @@
 package com.rzyou.funtime.mapper;
 
+import com.rzyou.funtime.entity.FuntimeUserAccountCharmRecord;
 import com.rzyou.funtime.entity.FuntimeUserAccountGifttransRecord;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -12,6 +13,8 @@ public interface FuntimeUserAccountGifttransRecordMapper {
     int deleteByPrimaryKey(Long id);
 
     int insertSelective(FuntimeUserAccountGifttransRecord record);
+
+    int insertCharmRecord(FuntimeUserAccountCharmRecord record);
 
     FuntimeUserAccountGifttransRecord selectByPrimaryKey(Long id);
 

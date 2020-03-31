@@ -21,10 +21,12 @@
     <result column="tagName"  property="tagName" />
     <result column="poll_times"  property="pollTimes" />
     <result column="pay_type" property="payType" />
+    <result column="level_val"  property="levelVal" />
+    <result column="wealth_val"  property="wealthVal" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, amount, rmb, recharge_card_id, recharge_channel_id, recharge_conf_id,
-    horn_num, os, phone_type, imei, state, create_time, version, complete_time,order_no,pay_type
+    horn_num, os, phone_type, imei, state, create_time, version, complete_time,order_no,pay_type,level_val,wealth_val
   </sql>
 
   <select id="getRechargeRecordByTask"  resultMap="BaseResultMap">
@@ -53,12 +55,7 @@
     from t_funtime_user_account_recharge_record
     where recharge_card_id = #{transactionId}
   </select>
-  <select id="getRechargeNumByUserId" parameterType="java.lang.Long" resultType="java.math.BigDecimal">
-    select
-     ifnull(sum(rmb),0)
-    from t_funtime_user_account_recharge_record
-    where user_id = #{userId} and state = 3
-  </select>
+
   <select id="getUserLevel" parameterType="java.lang.Integer" resultType="java.util.Map">
     select
      level,level_url as levelUrl
@@ -126,6 +123,12 @@
       <if test="hornNum != null">
         horn_num,
       </if>
+      <if test="levelVal != null">
+        level_val,
+      </if>
+      <if test="wealthVal != null">
+        wealth_val,
+      </if>
       <if test="os != null">
         os,
       </if>
@@ -176,6 +179,12 @@
       </if>
       <if test="hornNum != null">
         #{hornNum,jdbcType=INTEGER},
+      </if>
+      <if test="levelVal != null">
+        #{levelVal},
+      </if>
+      <if test="wealthVal != null">
+        #{wealthVal},
       </if>
       <if test="os != null">
         #{os,jdbcType=VARCHAR},

@@ -39,4 +39,10 @@ public class FuntimeUserAccount implements Serializable {
 
     private BigDecimal goldCoin;
 
+    private Integer levelVal;
+
+    private Integer wealthVal;
+
+    private Integer charmVal;
+
 }

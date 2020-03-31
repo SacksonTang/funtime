@@ -98,54 +98,51 @@
           t.amountSum,
           GROUP_CONCAT(
           t.user_id
-          ) groupStr
+          ) groupIdStr
       FROM
           (
       SELECT
           d.user_id,
-          sum( d.amount ) amountSum
+          sum( d.wealth_val ) amountSum
       FROM
-          t_funtime_user_account_gifttrans_record d
+          t_funtime_user_account_level_wealth_record d
       WHERE
           d.create_time between #{startDate} and #{endDate}
       GROUP BY
           d.user_id
-      ORDER BY
-          d.user_id DESC
           ) t
 
       GROUP BY
           t.amountSum
       ORDER BY
           t.amountSum DESC
-
+      limit ${count}
   </select>
 
   <select id="getCharmList" resultType="java.util.Map">
     SELECT
           t.amountSum,
           GROUP_CONCAT(
-          t.to_user_id
+          t.user_id
           ) groupIdStr
       FROM
           (
       SELECT
-          d.to_user_id,
-          sum( d.amount ) amountSum
+          d.user_id,
+          sum( d.charm_val ) amountSum
       FROM
-          t_funtime_user_account_gifttrans_record d
+          t_funtime_user_account_charm_record d
       WHERE
           d.create_time between #{startDate} and #{endDate}
       GROUP BY
-          d.to_user_id
-      ORDER BY
-          d.to_user_id DESC
+          d.user_id
           ) t
 
       GROUP BY
           t.amountSum
       ORDER BY
           t.amountSum DESC
+          limit ${count}
   </select>
 
   <select id="getConcernUserList" resultType="java.util.Map">

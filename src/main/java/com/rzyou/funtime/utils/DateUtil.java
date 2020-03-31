@@ -62,7 +62,12 @@ public class DateUtil {
         String time = df.format(date);
         return time;
     }
+    public static String getDateTime(Date date,String format) {
+        SimpleDateFormat df = new SimpleDateFormat(format, Locale.CHINA);
 
+        String time = df.format(date);
+        return time;
+    }
 
     public static Date getDateByDayMonth(String day_month) throws Exception{
         String date = day_month+"-01";
@@ -89,12 +94,26 @@ public class DateUtil {
         String date = getCurrentDateTime(YYYY_MM_DD);
         return date+" 00:00:00";
     }
+    /**
+     * 获取昨天时间的开始
+     */
+    public static String getLastDayStart(){
+        String date = getDateTime(DateUtils.addDays(new Date(),-1),YYYY_MM_DD);
+        return date+" 00:00:00";
+    }
 
     /**
      * 获取当天时间的结束
      */
     public static String getCurrentDayEnd(){
         String date = getCurrentDateTime(YYYY_MM_DD);
+        return date+" 23:59:59";
+    }
+    /**
+     * 获取昨天时间的结束
+     */
+    public static String getLastDayEnd(){
+        String date = getDateTime(DateUtils.addDays(new Date(),-1),YYYY_MM_DD);
         return date+" 23:59:59";
     }
 
@@ -108,6 +127,18 @@ public class DateUtil {
         calendar.add(Calendar.DATE, -week);
         return dateToString(calendar.getTime(),YYYY_MM_DD)+" 00:00:00";
     }
+    /**
+     * 获取上周的开始时间
+     * @return
+     */
+    public static String getLastWeekStart(){
+        Calendar calendar = Calendar.getInstance();
+        // 将每周第一天设为星期一，默认是星期天
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.add(Calendar.DATE, -1 * 7);
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        return dateToString(calendar.getTime(),YYYY_MM_DD)+" 00:00:00";
+    }
 
     /**
      * 获取本周的结束时间
@@ -117,6 +148,19 @@ public class DateUtil {
         Calendar calendar = Calendar.getInstance();
         int week = calendar.get(Calendar.DAY_OF_WEEK);
         calendar.add(Calendar.DATE, 8-week);
+        return dateToString(calendar.getTime(),YYYY_MM_DD)+" 23:59:59";
+    }
+    /**
+     * 获取上周的结束时间
+     * @return
+     */
+    public static String getLastWeekEnd(){
+        Calendar calendar = Calendar.getInstance();
+        //将每周第一天设为星期一，默认是星期天
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        calendar.add(Calendar.DATE, -1*7);
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+
         return dateToString(calendar.getTime(),YYYY_MM_DD)+" 23:59:59";
     }
 
@@ -129,6 +173,16 @@ public class DateUtil {
         calendar.set(Calendar.DATE, 1);
         return dateToString(calendar.getTime(),YYYY_MM_DD)+" 00:00:00";
     }
+    /**
+     * 获取上月的开始时间
+     * @return
+     */
+    public static String getLastMonthStart(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, -1);
+        calendar.set(Calendar.DATE, 1);
+        return dateToString(calendar.getTime(),YYYY_MM_DD)+" 00:00:00";
+    }
 
     /**
      * 获取本月的结束时间
@@ -138,6 +192,18 @@ public class DateUtil {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DATE, 1);
         calendar.add(Calendar.MONTH, 1);
+        calendar.add(Calendar.DATE, -1);
+        return dateToString(calendar.getTime(),YYYY_MM_DD)+" 23:59:59";
+    }
+
+    /**
+     * 获取上月的结束时间
+     * @return
+     */
+    public static String getLastMonthEnd(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DATE, 1);
+        calendar.add(Calendar.MONTH, -1);
         calendar.add(Calendar.DATE, -1);
         return dateToString(calendar.getTime(),YYYY_MM_DD)+" 23:59:59";
     }
@@ -165,7 +231,7 @@ public class DateUtil {
 
     public static void main(String[] args) throws Exception{
 
-        System.out.println(getCurrentYearAdd(new Date(),-90));
+        System.out.println(getLastDayStart());
     }
 
 }

@@ -348,4 +348,24 @@ public interface AccountService {
      * @param operationType
      */
     void saveUserAccountGoldLog(Long userId, BigDecimal amount,Long recordId,String actionType,String operationType);
+
+    /**
+     * 等级值财富值记录
+     * @param userId
+     * @param levelVal
+     * @param wealthVal
+     * @param recordId
+     * @param type
+     */
+    Long saveUserAccountLevelWealthRecord(Long userId, Integer levelVal,Integer wealthVal,Long recordId,Integer type);
+    /**
+     * 等级值财富值日志
+     * @param userId
+     * @param levelVal
+     * @param wealthVal
+     * @param recordId
+     * @param actionType
+     * @param operationType
+     */
+    void saveUserAccountLevelWealthLog(Long userId, Integer levelVal,Integer wealthVal,Long recordId,String actionType,String operationType);
 }

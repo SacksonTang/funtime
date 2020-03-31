@@ -27,6 +27,10 @@ public class FuntimeUserAccountRechargeRecord implements Serializable {
 
     private Integer hornNum;
 
+    private Integer levelVal;
+
+    private Integer wealthVal;
+
     private String os;
 
     private String phoneType;
