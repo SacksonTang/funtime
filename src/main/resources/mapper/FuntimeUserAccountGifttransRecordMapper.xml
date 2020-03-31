@@ -237,11 +237,9 @@
   </update>
   <insert id="insertCharmRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountCharmRecord" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user_account_charm_record (user_id, relation_id,
-      type, charm_val,create_user_id,
-      create_time)
+      type, charm_val)
     values (#{userId}, #{relationId},
-      #{type}, #{charmVal},#{createUserId},
-      now())
+      #{type}, #{charmVal})
   </insert>
 
 </mapper>

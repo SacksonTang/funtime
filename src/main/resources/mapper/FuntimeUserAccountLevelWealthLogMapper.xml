@@ -12,10 +12,10 @@
   </insert>
   <insert id="insertRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountLevelWealthRecord" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user_account_level_wealth_record (user_id, relation_id,
-      type, level_val,wealth_val,create_user_id,
+      type, level_val,wealth_val,
       create_time)
     values (#{userId}, #{relationId},
-      #{type}, #{levelVal},#{wealthVal},#{createUserId},
+      #{type}, #{levelVal},#{wealthVal},
       now())
   </insert>
 </mapper>
