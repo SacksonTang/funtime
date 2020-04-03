@@ -438,6 +438,9 @@ public class AccountServiceImpl implements AccountService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        userService.updateUserAccountForSub(redpacket.getUserId(),null,redpacket.getAmount(),null);
+        //新建用户日志
+        saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getAmount(),redpacket.getId(),OperationType.GIVEREDPACKET.getAction(),OperationType.GIVEREDPACKET.getOperationType());
 
         if (redpacket.getType() == 1) {
             RedPacketUtil redPacketUtil = new RedPacketUtil(redpacket.getAmount().intValue());
@@ -456,9 +459,6 @@ public class AccountServiceImpl implements AccountService {
                 }
                 userRedpacketDetailMapper.insertBatch(details);
             }
-            userService.updateUserAccountForSub(redpacket.getUserId(),null,redpacket.getAmount(),null);
-            //新建用户日志
-            saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getAmount(),redpacket.getId(),OperationType.GIVEREDPACKET.getAction(),OperationType.GIVEREDPACKET.getOperationType());
 
 
             //通知
@@ -477,10 +477,6 @@ public class AccountServiceImpl implements AccountService {
             detail.setAmount(redpacket.getAmount());
             detail.setRedpacketId(redpacket.getId());
             userRedpacketDetailMapper.insertSelective(detail);
-
-            userService.updateUserAccountForSub(redpacket.getUserId(),null,redpacket.getAmount(),null);
-            //新建用户日志
-            saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getAmount(),redpacket.getId(),OperationType.GIVEREDPACKET.getAction(),OperationType.GIVEREDPACKET.getOperationType());
 
         }
 
@@ -1260,6 +1256,7 @@ public class AccountServiceImpl implements AccountService {
         if (redpacketListInvalid!=null&&!redpacketListInvalid.isEmpty()) {
             for (FuntimeUserRedpacket redpacket : redpacketListInvalid){
                 userService.updateUserAccountForPlus(redpacket.getUserId(),null,redpacket.getGrabAmount(),null);
+                saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getGrabAmount(),redpacket.getId(),OperationType.REDPACKETINVALID.getAction(),OperationType.REDPACKETINVALID.getOperationType());
             }
 
             userRedpacketMapper.updateStateForInvalid();

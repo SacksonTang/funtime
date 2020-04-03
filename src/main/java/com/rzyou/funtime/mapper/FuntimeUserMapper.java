@@ -11,6 +11,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserMapper {
 
+    List<Map<String,Object>> getRankRewardConf(Integer dateType);
+
     int saveUserInfoChangeLog(@Param("userId") Long userId,@Param("changeColumn") String changeColumn,@Param("changeVal") String changeVal);
 
     int saveImHeart(@Param("userId") Long userId,@Param("userState") Integer userState
@@ -67,9 +69,9 @@ public interface FuntimeUserMapper {
 
     List<Map<String, Object>> getFansList(Long userId);
 
-    List<Map<String, Object>> getContributionList(@Param("startDate") String startDate, @Param("endDate") String endDate,@Param("count") int count);
+    List<Map<String, Object>> getContributionList(@Param("startDate") String startDate, @Param("endDate") String endDate,@Param("startCount") int startCount,@Param("endCount") int endCount);
 
-    List<Map<String, Object>> getCharmList(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("count") int count);
+    List<Map<String, Object>> getCharmList(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("startCount") int startCount,@Param("endCount") int endCount);
 
     int saveHeart(@Param("userId") Long userId,@Param("ip") String ip);
 

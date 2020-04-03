@@ -45,4 +45,6 @@ public class FuntimeUserAccount implements Serializable {
 
     private Integer charmVal;
 
+    private String isRedpacketShow;
+
 }

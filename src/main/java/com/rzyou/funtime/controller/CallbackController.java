@@ -5,6 +5,7 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
 import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
+import com.rzyou.funtime.component.StaticData;
 import com.rzyou.funtime.entity.dto.SdkParam;
 import com.rzyou.funtime.entity.dto.UserStateOfflineParam;
 import com.rzyou.funtime.service.AccountService;
@@ -46,7 +47,7 @@ public class CallbackController {
         try {
 
             if (StringUtils.isBlank(sdkParam.getCallbackCommand()) || StringUtils.isBlank(sdkParam.getSdkAppid())
-                    || !sdkParam.getSdkAppid().equals(String.valueOf(Constant.TENCENT_YUN_SDK_APPID))) {
+                    || !sdkParam.getSdkAppid().equals(String.valueOf(StaticData.TENCENT_YUN_SDK_APPID))) {
                 log.error("**************用户：{} 已下线参数有问题******************", params.getInfo().getTo_Account());
                 result.put("ActionStatus", "FAIL");
                 result.put("ErrorCode", -1);

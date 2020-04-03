@@ -8,6 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class ParameterServiceImpl implements ParameterService {
 
@@ -29,5 +32,10 @@ public class ParameterServiceImpl implements ParameterService {
         if (k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+    }
+
+    @Override
+    public List<Map<String, Object>> getStaticResource() {
+        return parameterMapper.getStaticResource();
     }
 }

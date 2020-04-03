@@ -1,7 +1,7 @@
 server:
   port: 8086
   tomcat:
-    max-threads: 5000
+    max-threads: 10000
     max-connections: 20000
     min-spare-threads: 30
     accesslog:
@@ -58,6 +58,11 @@ logging:
   config: classpath:logback-spring.xml
 app:
   pay:
-    notifyUrl: http://122.51.172.209:8086/pay/notifyWxPay
+    notifyUrl: https://api.rzyou.com/callback/notifyWxPay
+    certPath: /usr/cert/zjqF56nqXswklqA8.p12
+    appleUrl: https://buy.itunes.apple.com/verifyReceipt
   logpath: /var/local/logs/funtimelogs
+  im:
+    imSdkAppId: 1400323798
+    imSdkAppSecret: fe86b9de3bc8f83e011c39286c2977250e4dc7a793e77938a39f0817733109b1
 

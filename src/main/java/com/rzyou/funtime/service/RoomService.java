@@ -334,4 +334,9 @@ public interface RoomService {
      * 定时设置过期资源
      */
     void setBackgroundTask();
+
+    /**
+     * 定时同步房间用户数量
+     */
+    void updateOnlineNumTask();
 }

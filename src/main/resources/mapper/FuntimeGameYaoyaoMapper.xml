@@ -48,9 +48,15 @@
   </update>
   <insert id="insertYaoyaoPoolHisotry"  >
     insert into t_funtime_game_yaoyao_pool_history (pool_id,type,
-      quota, init_pool, actual_pool)
-    select id,type,quota, init_pool, actual_pool
-    from t_funtime_game_yaoyao_pool
+      quota, init_pool, actual_pool,sys_expend,counts)
+      select t.id,t.type,t.quota, t.init_pool, t.actual_pool
+      ,ROUND(sum(d.basic_amount*((100-d.pool_percent)/100))) sys_expend
+      ,count(d.id) counts
+    from t_funtime_game_yaoyao_pool t left join t_funtime_user_account_yaoyao_record d on d.basic_amount = t.quota
+		where d.create_time BETWEEN #{startDate} and #{endDate}
+		GROUP BY t.id
+		order by t.id
+
   </insert>
   <insert id="insertYaoyaoRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountYaoyaoRecord" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user_account_yaoyao_record (user_id, type,

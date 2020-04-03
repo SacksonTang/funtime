@@ -94,15 +94,9 @@
   </select>
 
   <select id="getContributionList" resultType="java.util.Map">
+
       SELECT
-          t.amountSum,
-          GROUP_CONCAT(
-          t.user_id
-          ) groupIdStr
-      FROM
-          (
-      SELECT
-          d.user_id,
+          d.user_id as userId,
           sum( d.wealth_val ) amountSum
       FROM
           t_funtime_user_account_level_wealth_record d
@@ -110,25 +104,15 @@
           d.create_time between #{startDate} and #{endDate}
       GROUP BY
           d.user_id
-          ) t
-
-      GROUP BY
-          t.amountSum
       ORDER BY
-          t.amountSum DESC
-      limit ${count}
+          amountSum DESC,max(d.id) ASC
+      limit ${startCount},${endCount}
   </select>
 
   <select id="getCharmList" resultType="java.util.Map">
-    SELECT
-          t.amountSum,
-          GROUP_CONCAT(
-          t.user_id
-          ) groupIdStr
-      FROM
-          (
+
       SELECT
-          d.user_id,
+          d.user_id as userId,
           sum( d.charm_val ) amountSum
       FROM
           t_funtime_user_account_charm_record d
@@ -136,13 +120,9 @@
           d.create_time between #{startDate} and #{endDate}
       GROUP BY
           d.user_id
-          ) t
-
-      GROUP BY
-          t.amountSum
       ORDER BY
-          t.amountSum DESC
-          limit ${count}
+          amountSum DESC,max(d.id) ASC
+      limit ${startCount},${endCount}
   </select>
 
   <select id="getConcernUserList" resultType="java.util.Map">
@@ -665,7 +645,7 @@
     update t_funtime_user set create_room = create_room+1,update_time =now() where id = #{id} and create_room>0
   </update>
 <update id="updateTokenById" >
-  update t_funtime_user set token = #{token},update_time =now(),show_id = #{id}+666666 where id = #{id}
+  update t_funtime_user set token = #{token},update_time =now(),show_id = #{id}+690000 where id = #{id}
 </update>
   <update id="updateRealnameAuthenticationFlagById" >
   update t_funtime_user set realname_authentication_flag = 1,update_time =now() where id = #{id}
@@ -692,8 +672,12 @@
     VALUES(#{userId},#{changeColumn},#{changeVal})
   </insert>
   <select id="getOfflineUser" resultType="java.lang.Long">
-    select t.user_id from t_funtime_im_heart t
-    where t.user_state = 2 and DATE_SUB(NOW(),INTERVAL 30 SECOND)>t.operation_time
+    select t.user_id from t_funtime_im_heart t inner join t_funtime_user u on t.user_id = u.id
+    where t.user_state = 2 and u.online_state = 2 and DATE_SUB(NOW(),INTERVAL 30 SECOND)>t.operation_time
+  </select>
+  <select id="getRankRewardConf" resultType="java.util.Map" parameterType="java.lang.Integer">
+    select rank_type as rankType,ranking,reward from t_funtime_rank_reward_conf where  date_type = #{dateType}
+    order by ranking asc
   </select>
 
 </mapper>

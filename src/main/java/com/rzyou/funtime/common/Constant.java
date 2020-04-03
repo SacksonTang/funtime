@@ -41,16 +41,11 @@ public class Constant {
     public final static String SHARE_URL = "https://www.baidu.com";
 
 
-    public static final String APPLE_URL_SANDBOX = "https://sandbox.itunes.apple.com/verifyReceipt";
-    public static final String APPLE_URL_VERIFY = "https://buy.itunes.apple.com/verifyReceipt";
+    //public static final String APPLE_URL_SANDBOX = "https://sandbox.itunes.apple.com/verifyReceipt";
+    //public static final String APPLE_URL_VERIFY = "https://buy.itunes.apple.com/verifyReceipt";
 
 
     public final static String WXCHATTEMP = "申请成功,提现金额将在10个工作日到账,关注触娱公众号#,充值更优惠";
-
-    public final static String BChATROOM = "funtimefadacai";
-
-    public final static String RONGYUN_APPKEY="mgb7ka1nmdxbg";
-    public final static String RONGYUN_APPSECRET="fXnloGxdUB8aN";
 
     public final static String WX_MCHID = "1574424871";
     //APP的ID
@@ -97,13 +92,11 @@ public class Constant {
     public final static String MOBPUSH_APPSECRET = "e760f1673c9beb3647bda6ba4e54055f";
 
 
-    public final static String AGORA_APP_ID = "392b88d30d4e406da230181043fbe58a";
-    public final static String AGORA_APP_CERTIFICATE = "a4b5b901bf49490eb0b30346f6d21e95";
+    //public final static String AGORA_APP_ID = "392b88d30d4e406da230181043fbe58a";
+    //public final static String AGORA_APP_CERTIFICATE = "a4b5b901bf49490eb0b30346f6d21e95";
 
-
-
-    public final static long TENCENT_YUN_SDK_APPID = 1400323798;
-    public final static String TENCENT_YUN_SDK_APPSECRET = "fe86b9de3bc8f83e011c39286c2977250e4dc7a793e77938a39f0817733109b1";
+    //public final static long TENCENT_YUN_SDK_APPID = 1400323798;
+    //public final static String TENCENT_YUN_SDK_APPSECRET = "fe86b9de3bc8f83e011c39286c2977250e4dc7a793e77938a39f0817733109b1";
     public final static String TENCENT_YUN_SDK_VER = "v4";
     public final static String TENCENT_YUN_SDK_HOST = "console.tim.qq.com";
     public final static String TENCENT_YUN_IDENTIFIER = "testapp";

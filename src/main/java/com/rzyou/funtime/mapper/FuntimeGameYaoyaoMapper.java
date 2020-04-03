@@ -17,7 +17,7 @@ public interface FuntimeGameYaoyaoMapper {
 
     int updateYaoyaoPoolTask();
 
-    int insertYaoyaoPoolHisotry();
+    int insertYaoyaoPoolHisotry(@Param("startDate") String startDate,@Param("endDate") String endDate);
 
     int getYaoyaoShowConf(int type);
 

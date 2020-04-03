@@ -297,4 +297,10 @@
     set online_num = online_num-1
     where id = #{id}
   </update>
+  <update id="updateOnlineNumTask">
+    update  t_funtime_chatroom m
+    inner join (select room_id,count(id) counts from t_funtime_chatroom_user GROUP BY room_id) u on m.id = u.room_id
+    set m.online_num = u.counts
+    where  m.online_num!= u.counts
+  </update>
 </mapper>

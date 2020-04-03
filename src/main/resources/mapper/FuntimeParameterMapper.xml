@@ -26,6 +26,12 @@
     from t_funtime_parameter
     where parameter_key=#{key} limit 1
   </select>
+  <select id="getStaticResource" resultType="java.util.Map">
+    select
+     type,name,url
+    from t_funtime_static_resource
+
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from t_funtime_parameter
     where id = #{id,jdbcType=INTEGER}

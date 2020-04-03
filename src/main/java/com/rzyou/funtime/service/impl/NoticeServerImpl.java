@@ -5,12 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.OperationType;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.FuntimeNotice;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.entity.RoomGiftNotice;
 import com.rzyou.funtime.mapper.FuntimeNoticeMapper;
+import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.NoticeService;
 import com.rzyou.funtime.service.RoomService;
 import com.rzyou.funtime.service.UserService;
@@ -21,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -32,6 +35,8 @@ public class NoticeServerImpl implements NoticeService {
     UserService userService;
     @Autowired
     RoomService roomService;
+    @Autowired
+    AccountService accountService;
 
 
 
@@ -491,8 +496,12 @@ public class NoticeServerImpl implements NoticeService {
                 throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
             }
             userService.updateUserAccountForSub(userId,null,userAccountInfo.getHornPrice(),null);
+            accountService.saveUserAccountBlueLog(userId,userAccountInfo.getHornPrice(),null
+                    , OperationType.BUY_HORN.getAction(),OperationType.BUY_HORN.getOperationType());
+
         }else {
             userService.updateUserAccountForSub(userId, null, null, 1);
+            accountService.saveUserAccountHornLog(userId,1,null,OperationType.HORN_CONSUME.getAction(),OperationType.HORN_CONSUME.getOperationType());
         }
         FuntimeUser user = userService.queryUserById(userId);
         JSONObject object = new JSONObject();

@@ -4,6 +4,7 @@ public enum OperationType {
 
      RECHARGE("IN","RECHARGE","充值")
     ,GRABREDPACKET("IN","GRABREDPACKET","抢红包")
+    ,REDPACKETINVALID("IN","REDPACKETINVALID","红包过期退回")
     ,RECEIVEGIFT("IN","RECEIVEGIFT","收礼物")
     ,GAMEIN("IN","GAMEIN","游戏收入")
     ,BLACK_BLUE_IN("IN","BLACK_BLUE_IN","黑钻兑换蓝钻")
@@ -17,6 +18,8 @@ public enum OperationType {
     ,BLACK_BLUE_OUT("OUT","BLACK_BLUE_OUT","黑钻兑换蓝钻")
     ,YAOYAOLE_OUT("OUT","YAOYAOLE_OUT","摇摇乐消耗")
     ,BUY_BACKGROUND("OUT","BUY_BACKGROUND","购买背景资源")
+    ,BUY_HORN("OUT","BUY_HORN","购买喇叭")
+    ,HORN_CONSUME("OUT","HORN_CONSUME","发送大喇叭")
     ;
 
      private String action;

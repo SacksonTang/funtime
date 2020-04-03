@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.httputil.HttpClientUtil;
+import com.rzyou.funtime.component.StaticData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -461,7 +462,7 @@ public class TencentUtil {
                 .replaceAll("HOST",Constant.TENCENT_YUN_SDK_HOST)
                 .replaceAll("SERVICENAME",servicename)
                 .replaceAll("COMMAND",command)
-                .replaceAll("APPID",String.valueOf(Constant.TENCENT_YUN_SDK_APPID))
+                .replaceAll("APPID",String.valueOf(StaticData.TENCENT_YUN_SDK_APPID))
                 .replaceAll("IDENTIFIER",Constant.TENCENT_YUN_IDENTIFIER)
                 .replaceAll("USERSIG",usersig)
                 .replaceAll("RANDOM",String.valueOf(random.nextInt(100000000)));

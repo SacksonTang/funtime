@@ -35,6 +35,8 @@ public interface FuntimeChatroomMapper {
 
     int updateOnlineNumSub(Long id);
 
+    int updateOnlineNumTask();
+
     int insertUserRoomLog(Map<String, Object> map);
 
     List<Map<String, Object>> getRoomList(Integer tagId);

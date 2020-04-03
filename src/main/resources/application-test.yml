@@ -63,6 +63,10 @@ app:
   pay:
     notifyUrl: https://test.rzyou.com/callback/notifyWxPay
     certPath: /usr/cert/apiclient_cert.p12
+    appleUrl: https://sandbox.itunes.apple.com/verifyReceipt
   logpath: /opt/log/pro_log
+  im:
+    imSdkAppId: 1400323798
+    imSdkAppSecret: fe86b9de3bc8f83e011c39286c2977250e4dc7a793e77938a39f0817733109b1
 
 

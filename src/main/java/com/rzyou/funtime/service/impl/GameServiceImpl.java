@@ -12,6 +12,7 @@ import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.GameService;
 import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.utils.DateUtil;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -253,7 +254,7 @@ public class GameServiceImpl implements GameService {
     @Transactional(rollbackFor = Throwable.class)
     public void updateYaoyaoPoolTask() {
 
-        gameYaoyaoMapper.insertYaoyaoPoolHisotry();
+        gameYaoyaoMapper.insertYaoyaoPoolHisotry(DateUtil.getLastWeekStart(),DateUtil.getLastWeekEnd());
 
         gameYaoyaoMapper.updateYaoyaoPoolTask();
 

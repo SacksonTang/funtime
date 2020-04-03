@@ -288,6 +288,11 @@ public class RoomServiceImpl implements RoomService {
 
         //房间人数+1
         updateOnlineNumPlus(roomId);
+
+        //更改用户在线状态
+        if(user.getOnlineState() == 2){
+            userService.updateOnlineState(userId,1);
+        }
         //用户进入房间日志
         saveUserRoomLog(1,userId,roomId,null);
         if (newRoom){
@@ -334,11 +339,19 @@ public class RoomServiceImpl implements RoomService {
 
         result.put("mic",micUser);
         result.put("isRedpacketShow",parameterService.getParameterValueByKey("is_redpacket_show"));
+        result.put("isFishShow",parameterService.getParameterValueByKey("is_fish_show"));
 
         result.put("shareUrl",Constant.SHARE_URL);
         if (userId!=null) {
-            result.put("isGoldShow", gameService.getYaoyaoShowConf(1, userId));
-            result.put("isBlueShow", gameService.getYaoyaoShowConf(2, userId));
+            boolean bool1 = gameService.getYaoyaoShowConf(1, userId);
+            boolean bool2 = gameService.getYaoyaoShowConf(2, userId);
+            result.put("isGoldShow",bool1);
+            result.put("isBlueShow", bool2);
+            if (bool1||bool2){
+                result.put("isYaoyaoShow",true);
+            }else{
+                result.put("isYaoyaoShow",false);
+            }
         }
         return result;
     }
@@ -1256,6 +1269,11 @@ public class RoomServiceImpl implements RoomService {
                 }
             }
         }
+    }
+
+    @Override
+    public void updateOnlineNumTask() {
+        chatroomMapper.updateOnlineNumTask();
     }
 
     private void updateChatroomBlock(Long roomId, int isBlock) {

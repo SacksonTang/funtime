@@ -6,6 +6,7 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.httputil.HttpClientUtil;
+import com.rzyou.funtime.component.StaticData;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -27,20 +28,13 @@ public class IosPayUtil {
         //线上环境验证
         JSONObject paramMap = new JSONObject();
         paramMap.put("receipt-data",payload);
-        String verifyResult = HttpClientUtil.doPost(Constant.APPLE_URL_SANDBOX,paramMap, Constant.CONTENT_TYPE);
+        String verifyResult = HttpClientUtil.doPost(StaticData.APPLE_URL,paramMap, Constant.CONTENT_TYPE);
         if (verifyResult == null) {
             throw new BusinessException(ErrorMsgEnum.IOSPAY_VALID_ERROR.getValue(),ErrorMsgEnum.IOSPAY_VALID_ERROR.getDesc());
         } else {
             log.info("线上，苹果平台返回JSON:" + verifyResult);
             JSONObject appleReturn = JSONObject.parseObject(verifyResult);
             String states = appleReturn.getString("status");
-            //无数据则沙箱环境验证
-            if ("21007".equals(states)) {
-                verifyResult = HttpClientUtil.doPost(Constant.APPLE_URL_SANDBOX,paramMap, Constant.CONTENT_TYPE);
-                log.info("沙盒环境，苹果平台返回JSON:" + verifyResult);
-                appleReturn = JSONObject.parseObject(verifyResult);
-                states = appleReturn.getString("status");
-            }
             // 前端所提供的收据是有效的    验证成功
             if (states.equals("0")) {
                 String receipt = appleReturn.getString("receipt");

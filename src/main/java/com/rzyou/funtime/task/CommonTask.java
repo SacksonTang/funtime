@@ -47,7 +47,7 @@ public class CommonTask {
     /**
      * 摇摇乐奖池重置
      */
-    @Scheduled(cron = "0 0 0 ? * MON")
+    @Scheduled(cron = "1 0 0 ? * MON")
     public void resetYaoyaoPool(){
         gameService.updateYaoyaoPoolTask();
     }
@@ -60,6 +60,13 @@ public class CommonTask {
         userService.heartTask();
     }
 
+    /**
+     * 同步房间用户数
+     */
+    @Scheduled(fixedRate = 1000*5*60)
+    public void updateOnlineNumTask(){
+        roomService.updateOnlineNumTask();
+    }
 
     /**
      * 房内离线用户退房
@@ -108,7 +115,7 @@ public class CommonTask {
     /**
      * 同步腾讯群组
      */
-    @Scheduled(fixedRate = 1000*2)
+    @Scheduled(fixedRate = 1000*5)
     public void syncTencent(){
         try {
             log.debug("同步腾讯群组接口：start:{}", DateUtil.getCurrentDateTimeExtr());

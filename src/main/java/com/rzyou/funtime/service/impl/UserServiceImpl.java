@@ -793,14 +793,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Map<String, Object> getRankingList(Integer dateType, Integer type, String curUserId) {
+    public Map<String, Object> getRankingList(Integer dateType, Integer type, String curUserId, Integer startPage, Integer pageSize) {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("is_ranklist_show",parameterService.getParameterValueByKey("is_ranklist_show"));
         String count = parameterService.getParameterValueByKey("ranking_list_count");
-        //PageHelper.startPage(startPage,pageSize);
+        resultMap.put("rankCount",count);
+        int startCount = (startPage-1)*pageSize;
+        int endCount = startPage*pageSize;
+        if (endCount>Integer.parseInt(count)){
+            endCount = Integer.parseInt(count);
+        }
         String startDate;
         String endDate;
-
+        Integer dateTypeConf = dateType;
         if (dateType == 1){
             startDate = DateUtil.getCurrentDayStart();
             endDate = DateUtil.getCurrentDayEnd();
@@ -811,27 +816,56 @@ public class UserServiceImpl implements UserService {
             startDate = DateUtil.getCurrentMonthStart();
             endDate = DateUtil.getCurrentMonthEnd();
         }else if (dateType == 4){
+            dateTypeConf = 1;
             startDate = DateUtil.getLastDayStart();
             endDate = DateUtil.getLastDayEnd();
         }else if (dateType == 5){
+            dateTypeConf = 2;
             startDate = DateUtil.getLastWeekStart();
             endDate = DateUtil.getLastWeekEnd();
         }else if (dateType == 6){
+            dateTypeConf = 3;
             startDate = DateUtil.getLastMonthStart();
             endDate = DateUtil.getLastMonthEnd();
         }else {
             resultMap.put("rankingList",null);
             return resultMap;
         }
+
         List<Map<String, Object>> list;
+        if (startPage == 1){
+            Map<String,Object> conf = new HashMap<>();
+            List<Map<String, Object>> charmList = new ArrayList<>();
+            List<Map<String, Object>> contributionList = new ArrayList<>();
+            String[] array = {"一", "二", "三", "四", "五", "六", "七", "八", "九","十"};
+            list = userMapper.getRankRewardConf(dateTypeConf);
+            if (list!=null&&!list.isEmpty()) {
+                resultMap.put("isRewardShow",true);
+                for (Map<String, Object> map : list) {
+                    int rankType = Integer.parseInt(map.get("rankType").toString());
+                    int ranking = Integer.parseInt(map.get("ranking").toString());
+                    map.put("rankingName", "第" + array[ranking - 1] + "名");
+                    if (rankType == 1) {
+                        charmList.add(map);
+                    } else {
+                        contributionList.add(map);
+                    }
+                }
+                conf.put("charmConf", charmList);
+                conf.put("contributionConf", contributionList);
+                resultMap.put("conf", conf);
+            }else{
+                resultMap.put("isRewardShow",false);
+            }
+        }
         if (type == 1){
-            list = userMapper.getCharmList(startDate,endDate,Integer.parseInt(count));
+            list = userMapper.getCharmList(startDate,endDate,startCount,endCount);
         }else{
-            list = userMapper.getContributionList(startDate,endDate,Integer.parseInt(count));
+            list = userMapper.getContributionList(startDate,endDate,startCount,endCount);
         }
 
         if (list==null||list.isEmpty()){
-            resultMap.put("rankingList",new PageInfo<>());
+            resultMap.put("rankingList",null);
             return resultMap;
         }
         FuntimeUser user = userMapper.selectByPrimaryKey(Long.parseLong(curUserId));
@@ -845,44 +879,36 @@ public class UserServiceImpl implements UserService {
         myInfoMap.put("level",userAccount.getLevel());
         myInfoMap.put("levelUrl",userAccount.getLevelUrl());
         boolean isRankMe = false;
-        Map<String, Object> userInfoMap ;
+        FuntimeUser user1;
+        FuntimeUserAccount userAccount1;
         for (int i =0;i<list.size();i++){
             Map<String, Object> map = list.get(i);
-            String userIds = map.get("groupIdStr").toString();
-            String[] userIdArray = userIds.split(",");
-            List<Map<String, Object>> groupStr = new ArrayList<>();
-            for (String userId : userIdArray){
-                user = userMapper.selectByPrimaryKey(Long.parseLong(userId));
-                userAccount = accountMapper.selectByUserId(Long.parseLong(userId));
-                if (userId.equals(curUserId)){
-                    isRankMe = true;
-                    myInfoMap.put("isRankMe",true);
-                    myInfoMap.put("mySort", i);
-                    myInfoMap.put("myAmount", map.get("amountSum"));
-                    if (i == 0){
-                        myInfoMap.put("diffAmount",0);
-                    }else{
-                        BigDecimal currentAmount = new BigDecimal(map.get("amountSum").toString());
-                        BigDecimal lastAmount = new BigDecimal(list.get(i-1).get("amountSum").toString());
-                        myInfoMap.put("diffAmount",lastAmount.subtract(currentAmount).intValue());
-                    }
+            String userId = map.get("userId").toString();
+            user1 = userMapper.selectByPrimaryKey(Long.parseLong(userId));
+            userAccount1 = accountMapper.selectByUserId(Long.parseLong(userId));
 
-                    resultMap.put("user",myInfoMap);
+            if (userId.equals(curUserId)){
+                isRankMe = true;
+                myInfoMap.put("isRankMe",true);
+                myInfoMap.put("mySort", i+1);
+                myInfoMap.put("myAmount", map.get("amountSum"));
+                if (i == 0){
+                    myInfoMap.put("diffAmount",0);
+                }else{
+                    BigDecimal currentAmount = new BigDecimal(map.get("amountSum").toString());
+                    BigDecimal lastAmount = new BigDecimal(list.get(i-1).get("amountSum").toString());
+                    myInfoMap.put("diffAmount",lastAmount.subtract(currentAmount).intValue());
                 }
-                userInfoMap = new HashMap<>();
-                userInfoMap.put("userId",user.getId());
-                userInfoMap.put("nickname",user.getNickname());
-                userInfoMap.put("portraitAddress",user.getPortraitAddress());
-                userInfoMap.put("signText",user.getSignText());
-                userInfoMap.put("showId",user.getShowId());
-                userInfoMap.put("sex",user.getSex());
-                userInfoMap.put("level",userAccount.getLevel());
-                userInfoMap.put("levelUrl",userAccount.getLevelUrl());
-                groupStr.add(userInfoMap);
 
+                resultMap.put("user",myInfoMap);
             }
-            map.put("groupStr",groupStr);
-            map.remove("groupIdStr");
+            map.put("nickname",user1.getNickname());
+            map.put("portraitAddress",user1.getPortraitAddress());
+            map.put("signText",user1.getSignText());
+            map.put("showId",user1.getShowId());
+            map.put("sex",user1.getSex());
+            map.put("level",userAccount1.getLevel());
+            map.put("levelUrl",userAccount1.getLevelUrl());
         }
         if (!isRankMe){
             myInfoMap.put("isRankMe",false);

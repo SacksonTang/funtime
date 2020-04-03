@@ -231,7 +231,7 @@ public class DateUtil {
 
     public static void main(String[] args) throws Exception{
 
-        System.out.println(getLastDayStart());
+        System.out.println(getLastWeekStart()+"---"+getLastWeekEnd());
     }
 
 }

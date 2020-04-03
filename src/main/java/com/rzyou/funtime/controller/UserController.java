@@ -161,33 +161,6 @@ public class UserController {
     }
 
     /**
-     * 获取客服
-     * @param request
-     * @return
-     */
-    @PostMapping("getCustomerService")
-    public ResultMsg<Object> getCustomerService(HttpServletRequest request){
-        ResultMsg<Object> result = new ResultMsg<>();
-        try {
-
-            Map<String,Object> resultMap = userService.getCustomerService();
-            result.setData(JsonUtil.getMap("customerService",resultMap));
-            return result;
-        } catch (BusinessException be) {
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-            return result;
-        }catch (Exception e){
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-            return result;
-        }
-    }
-
-
-    /**
      * banner列表
      * @param request
      * @return
@@ -275,6 +248,7 @@ public class UserController {
             userAccount.setBlueDiamondShow(String.valueOf(userAccount.getBlueDiamond().intValue()));
             BigDecimal sumGrabAmount = accountService.getSumGrabAmountById(userId, null);
             userAccount.setGrabAmountTotal(sumGrabAmount==null?0:sumGrabAmount.intValue());
+            userAccount.setIsRedpacketShow(parameterService.getParameterValueByKey("is_redpacket_show"));
             Map<String, Object> map = JsonUtil.getMap("userAccount", userAccount);
             result.setData(map);
             return result;
@@ -291,39 +265,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("getUserAccountInfoById1")
-    public ResultMsg<Object> getUserAccountInfoById1(HttpServletRequest request){
-        ResultMsg<Object> result = new ResultMsg<>();
-        try {
-            JSONObject paramJson = HttpHelper.getParamterJsonTest(request);
-            Long userId = paramJson.getLong("userId");
-            if (userId==null) {
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
-            }
-
-            FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
-            userAccount.setBlackDiamondShow(String.valueOf(userAccount.getBlackDiamond().intValue()));
-            userAccount.setBlueDiamondShow(String.valueOf(userAccount.getBlueDiamond().intValue()));
-            BigDecimal sumGrabAmount = accountService.getSumGrabAmountById(userId, null);
-            userAccount.setGrabAmountTotal(sumGrabAmount==null?0:sumGrabAmount.intValue());
-            Map<String, Object> map = JsonUtil.getMap("userAccount", userAccount);
-            String encrypt = AESUtil.aesEncrypt(JSONObject.toJSONString(map),Constant.AES_KEY);
-            result.setData(encrypt);
-            return result;
-        } catch (BusinessException be) {
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-            return result;
-        }catch (Exception e){
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-            return result;
-        }
-    }
 
     /**
      * 修改用户基本信息
@@ -1238,12 +1179,15 @@ public class UserController {
             String userId = paramJson.getString("userId");
             Integer type = paramJson.getInteger("type");//1-魅力榜2-贡献榜
             Integer dateType = paramJson.getInteger("dateType");//1-日2-周3-月
+            Integer startPage = paramJson.getInteger("startPage")==null||paramJson.getInteger("startPage")<1?1:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?30:paramJson.getInteger("pageSize");
+
             if (type==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            Map<String,Object> resultMap = userService.getRankingList(dateType, type,userId);
+            Map<String,Object> resultMap = userService.getRankingList(dateType, type,userId,startPage,pageSize);
 
             result.setData(resultMap);
 

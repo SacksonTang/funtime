@@ -4,11 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.encryption.AESUtil;
 import com.rzyou.funtime.common.encryption.RsaUtils;
-import com.rzyou.funtime.common.payment.wxpay.sdk.MyWxPayConfig;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
+import com.rzyou.funtime.component.StaticData;
 import com.rzyou.funtime.entity.FuntimeUser;
-import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.ParameterService;
@@ -19,10 +18,8 @@ import com.rzyou.funtime.utils.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,8 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("login")
 public class LoginController {
-    @Value("${app.pay.certPath}")
-    public String certPath ;
+
     @Autowired
     UserService userService;
     @Autowired
@@ -41,27 +37,7 @@ public class LoginController {
     AccountService accountService;
     @Autowired
     ParameterService parameterService;
-    @Autowired
-    LoginStrategy telLogin;
-    @Autowired
-    LoginStrategy wxLogin;
-    @Autowired
-    LoginStrategy qqLogin;
-    @Autowired
-    LoginStrategy onekeyLogin;
 
-    private static Map<String,LoginStrategy> context = new HashMap<>();
-
-    @PostConstruct
-    public void init(){
-
-        MyWxPayConfig.certPath = certPath;
-        context.put(Constant.LOGIN_TEL,telLogin);
-        context.put(Constant.LOGIN_WX,wxLogin);
-        context.put(Constant.LOGIN_QQ,qqLogin);
-        context.put(Constant.LOGIN_ONEKEY,onekeyLogin);
-
-    }
 
     /**
      * 心跳
@@ -137,7 +113,7 @@ public class LoginController {
             }
             user.setIp(HttpHelper.getClientIpAddr(request));
             user.setLastLoginTime(new Date());
-            LoginStrategy strategy = context.get(user.getLoginType());
+            LoginStrategy strategy = StaticData.context.get(user.getLoginType());
             if(strategy==null){
                 result.setCode(ErrorMsgEnum.USER_LOGINTYPE_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.USER_LOGINTYPE_ERROR.getDesc());
@@ -149,7 +125,7 @@ public class LoginController {
                 userInfo.setPrivacyAgreementUrl(Constant.COS_URL_PREFIX+Constant.AGREEMENT_PRIVACY);
                 userInfo.setUserAgreementUrl(Constant.COS_URL_PREFIX+Constant.AGREEMENT_USER);
             }
-            userInfo.setImSdkAppId(Constant.TENCENT_YUN_SDK_APPID);
+            userInfo.setImSdkAppId(StaticData.TENCENT_YUN_SDK_APPID);
             Map<String, Object> map = JsonUtil.getMap("user", userInfo);
             if (flag!=null&&flag.equals("1")){
                 String encrypt = AESUtil.aesDecrypt(JSONObject.toJSONString(map),Constant.AES_KEY);
@@ -403,11 +379,12 @@ public class LoginController {
         try {
             Map<String,Object> data = new HashMap<>();
             //IM
-            data.put("imSdkAppId",Constant.TENCENT_YUN_SDK_APPID);
+            data.put("imSdkAppId",StaticData.TENCENT_YUN_SDK_APPID);
             data.put("imAdmin",Constant.TENCENT_YUN_IDENTIFIER);
 
             //是否显示红包
             data.put("isRedpacketShow",parameterService.getParameterValueByKey("is_redpacket_show"));
+            data.put("isFishShow",parameterService.getParameterValueByKey("is_fish_show"));
             //cos信息
             data.put("cosBucket",Constant.TENCENT_YUN_COS_BUCKET);
             data.put("cosRegion",Constant.TENCENT_YUN_COS_REGION);
@@ -418,8 +395,34 @@ public class LoginController {
             data.put("heartRate",parameterService.getParameterValueByKey("heart_rate"));
             data.put("hornLength",parameterService.getParameterValueByKey("horn_length"));
             data.put("isEncrypt",parameterService.getParameterValueByKey("is_encrypt"));
-
+            data.put("staticResource",parameterService.getStaticResource());
             result.setData(data);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 获取客服
+     * @param request
+     * @return
+     */
+    @PostMapping("getCustomerService")
+    public ResultMsg<Object> getCustomerService(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+
+            Map<String,Object> resultMap = userService.getCustomerService();
+            result.setData(JsonUtil.getMap("customerService",resultMap));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

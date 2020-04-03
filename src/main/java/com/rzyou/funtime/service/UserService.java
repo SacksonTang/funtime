@@ -317,9 +317,11 @@ public interface UserService {
      * @param dateType
      * @param type
      * @param curUserId
+     * @param startPage
+     * @param pageSize
      * @return
      */
-    Map<String,Object> getRankingList(Integer dateType, Integer type, String curUserId);
+    Map<String,Object> getRankingList(Integer dateType, Integer type, String curUserId, Integer startPage, Integer pageSize);
 
     /**
      * 更新相册

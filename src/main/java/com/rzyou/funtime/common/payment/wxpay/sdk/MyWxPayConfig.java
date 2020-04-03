@@ -1,6 +1,7 @@
 package com.rzyou.funtime.common.payment.wxpay.sdk;
 
 import com.rzyou.funtime.common.Constant;
+import com.rzyou.funtime.component.StaticData;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.ByteArrayInputStream;
@@ -10,14 +11,12 @@ import java.io.InputStream;
 
 public class MyWxPayConfig extends WXPayConfig {
 
-    public static String certPath;
-
     private byte[] certData;
     private int payType;
 
     public MyWxPayConfig(int payType) throws Exception {
         this.payType = payType;
-        File file = new File(certPath);
+        File file = new File(StaticData.CERPATH);
         InputStream certStream = new FileInputStream(file);
         this.certData = new byte[(int) file.length()];
         certStream.read(this.certData);
