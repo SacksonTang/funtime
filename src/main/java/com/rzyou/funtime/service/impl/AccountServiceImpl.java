@@ -25,7 +25,8 @@ import java.util.*;
 
 @Slf4j
 @Service
-public class AccountServiceImpl implements AccountService {
+public class AccountServiceImpl implements AccountService
+{
 
 
     @Value("${app.pay.notifyUrl}")
@@ -835,7 +836,7 @@ public class AccountServiceImpl implements AccountService {
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
             //用户收加上黑钻,魅力值
             userService.updateUserAccountForPlusGift(toUserId, black, giftNum,charmVal);
-            saveUserAccountCharmRecord(userId,charmVal,recordId,1);
+            saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
             //用户送的日志
             saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
                     , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType());
@@ -1040,7 +1041,7 @@ public class AccountServiceImpl implements AccountService {
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
             //用户收加上黑钻
             userService.updateUserAccountForPlusGift(toUserId, black, giftNum, charmVal);
-            saveUserAccountCharmRecord(userId,charmVal,recordId,1);
+            saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
             //用户送的日志
             saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
                     , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType());
@@ -1145,7 +1146,7 @@ public class AccountServiceImpl implements AccountService {
             //用户收加上黑钻
             userService.updateUserAccountForPlusGift(toUserId, black, giftNum, charmVal);
 
-            saveUserAccountCharmRecord(userId,charmVal,recordId,1);
+            saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
             //用户送的日志
             saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
                     , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType());
@@ -1796,6 +1797,68 @@ public class AccountServiceImpl implements AccountService {
         levelWealthLog.setOperationType(operationType);
         int k = userAccountLevelWealthLogMapper.insert(levelWealthLog);
         if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public Map<String, Object> getBulletOfFish(Long userId) {
+        Map<String, Object> fish = userAccountMapper.getBulletOfFish(userId);
+        if(fish==null||fish.isEmpty()){
+            int k = userAccountMapper.insertFishAccount(userId,0,0);
+            if (k!=1){
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+            fish = new HashMap<>();
+            fish.put("bullet",0);
+            fish.put("score",0);
+        }
+        return fish;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void saveScoreOfFish(Long userId, Integer score, Integer bullet) {
+        Map<String, Object> fish = userAccountMapper.getBulletOfFish(userId);
+        if (fish == null||fish.isEmpty()){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        Integer bulletPre = Integer.parseInt(fish.get("bullet").toString());
+        if (bulletPre-bullet<0){
+            throw new BusinessException(ErrorMsgEnum.USER_BULLET_NO_EN.getValue(),ErrorMsgEnum.USER_BULLET_NO_EN.getDesc());
+        }
+        int k = userAccountMapper.insertFishRecord(userId,score,bullet);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        k = userAccountMapper.saveScoreOfFish(userId,score,bullet);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public Long insertFishAccountRecord(Long userId, Integer bullet, int parseInt) {
+
+        FuntimeUserAccountFishRecord record = new FuntimeUserAccountFishRecord();
+        record.setBullet(bullet);
+        record.setBulletPrice(parseInt);
+        record.setUserId(userId);
+        int k = userAccountMapper.insertFishAccountRecord(record);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        return record.getId();
+    }
+
+    @Override
+    public List<Map<String, Object>> getFishRanklist(int startCount, int endCount) {
+        return userAccountMapper.getFishRanklist(startCount,endCount);
+    }
+
+    @Override
+    public void updateBulletForPlus(Long userId, int bullet) {
+        if (userAccountMapper.updateBulletForPlus(userId,bullet)!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
     }

@@ -317,11 +317,11 @@ public interface UserService {
      * @param dateType
      * @param type
      * @param curUserId
-     * @param startPage
-     * @param pageSize
+
      * @return
      */
-    Map<String,Object> getRankingList(Integer dateType, Integer type, String curUserId, Integer startPage, Integer pageSize);
+    Map<String,Object> getRankingList(Integer dateType, Integer type, String curUserId);
+
 
     /**
      * 更新相册
@@ -488,4 +488,17 @@ public interface UserService {
      * 心跳定时处理
      */
     void heartTask();
+
+    /**
+     * 心跳定时任务
+     */
+    void offlineUserAppTask();
+
+    /**
+     * 修改同步状态
+     * @param userId
+     */
+    void updateImHeartSync(Long userId);
+
+
 }

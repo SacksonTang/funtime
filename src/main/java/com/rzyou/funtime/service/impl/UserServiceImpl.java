@@ -14,6 +14,7 @@ import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
 import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -603,13 +605,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateOnlineState(Long userId, Integer onlineState) {
-        FuntimeUser user = queryUserById(userId);
-        if(user == null){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-        }
-        if(user.getOnlineState().equals(onlineState)){
-            return;
-        }
+
         if(userMapper.updateOnlineState(userId, onlineState)!=1){
 
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
@@ -793,16 +789,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Map<String, Object> getRankingList(Integer dateType, Integer type, String curUserId, Integer startPage, Integer pageSize) {
+    public Map<String, Object> getRankingList(Integer dateType, Integer type, String curUserId) {
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("is_ranklist_show",parameterService.getParameterValueByKey("is_ranklist_show"));
         String count = parameterService.getParameterValueByKey("ranking_list_count");
         resultMap.put("rankCount",count);
-        int startCount = (startPage-1)*pageSize;
-        int endCount = startPage*pageSize;
-        if (endCount>Integer.parseInt(count)){
-            endCount = Integer.parseInt(count);
-        }
+        int startCount = 1;
+        int endCount = Integer.parseInt(count);
+
         String startDate;
         String endDate;
         Integer dateTypeConf = dateType;
@@ -833,31 +827,31 @@ public class UserServiceImpl implements UserService {
         }
 
         List<Map<String, Object>> list;
-        if (startPage == 1){
-            Map<String,Object> conf = new HashMap<>();
-            List<Map<String, Object>> charmList = new ArrayList<>();
-            List<Map<String, Object>> contributionList = new ArrayList<>();
-            String[] array = {"一", "二", "三", "四", "五", "六", "七", "八", "九","十"};
-            list = userMapper.getRankRewardConf(dateTypeConf);
-            if (list!=null&&!list.isEmpty()) {
-                resultMap.put("isRewardShow",true);
-                for (Map<String, Object> map : list) {
-                    int rankType = Integer.parseInt(map.get("rankType").toString());
-                    int ranking = Integer.parseInt(map.get("ranking").toString());
-                    map.put("rankingName", "第" + array[ranking - 1] + "名");
-                    if (rankType == 1) {
-                        charmList.add(map);
-                    } else {
-                        contributionList.add(map);
-                    }
+
+        Map<String,Object> conf = new HashMap<>();
+        List<Map<String, Object>> charmList = new ArrayList<>();
+        List<Map<String, Object>> contributionList = new ArrayList<>();
+        String[] array = {"一", "二", "三", "四", "五", "六", "七", "八", "九","十"};
+        list = userMapper.getRankRewardConf(dateTypeConf);
+        if (list!=null&&!list.isEmpty()) {
+            resultMap.put("isRewardShow",true);
+            for (Map<String, Object> map : list) {
+                int rankType = Integer.parseInt(map.get("rankType").toString());
+                int ranking = Integer.parseInt(map.get("ranking").toString());
+                map.put("rankingName", "第" + array[ranking - 1] + "名");
+                if (rankType == 1) {
+                    charmList.add(map);
+                } else {
+                    contributionList.add(map);
                 }
-                conf.put("charmConf", charmList);
-                conf.put("contributionConf", contributionList);
-                resultMap.put("conf", conf);
-            }else{
-                resultMap.put("isRewardShow",false);
             }
+            conf.put("charmConf", charmList);
+            conf.put("contributionConf", contributionList);
+            resultMap.put("conf", conf);
+        }else{
+            resultMap.put("isRewardShow",false);
         }
+
         if (type == 1){
             list = userMapper.getCharmList(startDate,endDate,startCount,endCount);
         }else{
@@ -879,14 +873,9 @@ public class UserServiceImpl implements UserService {
         myInfoMap.put("level",userAccount.getLevel());
         myInfoMap.put("levelUrl",userAccount.getLevelUrl());
         boolean isRankMe = false;
-        FuntimeUser user1;
-        FuntimeUserAccount userAccount1;
         for (int i =0;i<list.size();i++){
             Map<String, Object> map = list.get(i);
             String userId = map.get("userId").toString();
-            user1 = userMapper.selectByPrimaryKey(Long.parseLong(userId));
-            userAccount1 = accountMapper.selectByUserId(Long.parseLong(userId));
-
             if (userId.equals(curUserId)){
                 isRankMe = true;
                 myInfoMap.put("isRankMe",true);
@@ -902,13 +891,6 @@ public class UserServiceImpl implements UserService {
 
                 resultMap.put("user",myInfoMap);
             }
-            map.put("nickname",user1.getNickname());
-            map.put("portraitAddress",user1.getPortraitAddress());
-            map.put("signText",user1.getSignText());
-            map.put("showId",user1.getShowId());
-            map.put("sex",user1.getSex());
-            map.put("level",userAccount1.getLevel());
-            map.put("levelUrl",userAccount1.getLevelUrl());
         }
         if (!isRankMe){
             myInfoMap.put("isRankMe",false);
@@ -918,6 +900,8 @@ public class UserServiceImpl implements UserService {
         return resultMap;
 
     }
+
+
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -1198,7 +1182,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
 
-        if (StringUtils.isBlank(user.getPhoneNumber())){
+        if (StringUtils.isNotBlank(user.getPhoneNumber())){
             throw new BusinessException(ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getValue(),ErrorMsgEnum.PHONE_NUMBER_IS_REGISTER.getDesc());
         }
         String isSend = parameterService.getParameterValueByKey("is_send");
@@ -1327,6 +1311,22 @@ public class UserServiceImpl implements UserService {
     public void heartTask() {
         userMapper.heartTask();
     }
+
+    @Override
+    public void offlineUserAppTask() {
+        String val = parameterService.getParameterValueByKey("heart_rate");
+        List<Long> users = userMapper.getOfflineUserByApp(Integer.parseInt(val)+5);
+        for (Long userId : users){
+            log.info("offlineUserAppTask========>updateOnlineState:userId:{}",userId);
+            userMapper.updateOnlineState(userId, 2);
+        }
+    }
+
+    @Override
+    public void updateImHeartSync(Long userId) {
+        userMapper.updateImHeartSync(userId);
+    }
+
 
     private void unBindWeixin(Long userId) {
         FuntimeUserThird userThird = queryUserThirdIdByType(userId, Constant.LOGIN_WX);

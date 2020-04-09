@@ -20,6 +20,7 @@ public enum OperationType {
     ,BUY_BACKGROUND("OUT","BUY_BACKGROUND","购买背景资源")
     ,BUY_HORN("OUT","BUY_HORN","购买喇叭")
     ,HORN_CONSUME("OUT","HORN_CONSUME","发送大喇叭")
+    ,BUY_BULLET("OUT","BUY_BULLET","捕鱼购买子弹")
     ;
 
      private String action;

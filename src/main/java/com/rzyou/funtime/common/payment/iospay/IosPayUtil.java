@@ -35,6 +35,13 @@ public class IosPayUtil {
             log.info("线上，苹果平台返回JSON:" + verifyResult);
             JSONObject appleReturn = JSONObject.parseObject(verifyResult);
             String states = appleReturn.getString("status");
+            //无数据则沙箱环境验证
+            if ("21007".equals(states)) {
+                verifyResult = HttpClientUtil.doPost(Constant.APPLE_URL_SANDBOX,paramMap, Constant.CONTENT_TYPE);
+                log.info("沙盒环境，苹果平台返回JSON:" + verifyResult);
+                appleReturn = JSONObject.parseObject(verifyResult);
+                states = appleReturn.getString("status");
+            }
             // 前端所提供的收据是有效的    验证成功
             if (states.equals("0")) {
                 String receipt = appleReturn.getString("receipt");

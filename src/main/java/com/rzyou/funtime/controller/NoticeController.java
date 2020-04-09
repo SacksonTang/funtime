@@ -6,6 +6,7 @@ import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.service.NoticeService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("notice")
+@Slf4j
 public class NoticeController {
 
     @Autowired
@@ -36,6 +38,7 @@ public class NoticeController {
             noticeService.notice10001(content,userId,roomId);
             return result;
         } catch (BusinessException be) {
+            log.error("sendHorn BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());

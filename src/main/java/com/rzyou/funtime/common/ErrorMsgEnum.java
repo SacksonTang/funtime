@@ -35,7 +35,7 @@ public enum ErrorMsgEnum {
     USER_WXLOGIN_REFRESHTOKEN_ERROR("10025","微信登录刷新access_token失败"),
     USER_WXLOGIN_USERINFO_ERROR("10026","微信登录获取用户信息失败"),
     USER_SYNC_TENCENT_ERROR("10027","同步腾讯接口出错"),
-    USER_LOGIN_ONEKEY_ERROR("10028","一键登录失败"),
+    USER_LOGIN_ONEKEY_ERROR("10028","运营商故障,请使用切换号码登录"),
     USER_GETCREDENTIAL_ERROR("10029","获取临时密钥失败"),
 
     USER_QQLOGIN_GETOPENID_ERROR("10030","QQ登录获取openId失败"),
@@ -51,6 +51,8 @@ public enum ErrorMsgEnum {
     USER_WX_EXISTS("10038","该微信已被其它账号绑定"),
     USER_WX_NOT_BIND("10039","没有用户微信绑定信息"),
     USER_IS_IFFLINE("10040","用户IM已离线"),
+    USER_IS_LOGIN_OTHER("10041","你已在别的地方上线"),
+    USER_BULLET_NO_EN("10042","子弹数不足"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),

@@ -20,6 +20,10 @@ public class StaticData {
     public  long imSdkAppId ;
     @Value("${app.im.imSdkAppSecret}")
     public  String imSdkAppSecret ;
+    @Value("${app.im.iosPushCertDevId}")
+    public  Integer iosPushCertDevId ;
+    @Value("${app.im.iosPushCertProdId}")
+    public  Integer iosPushCertProdId ;
     @Value("${app.pay.certPath}")
     public String certPath ;
     @Value("${app.pay.appleUrl}")
@@ -37,14 +41,18 @@ public class StaticData {
     public static long TENCENT_YUN_SDK_APPID ;
     public static String TENCENT_YUN_SDK_APPSECRET ;
     public static String APPLE_URL;
-    public static String CERPATH;
+    public static String CERT_PATH;
+    public static Integer IOS_PUSHCERTDEVID;
+    public static Integer IOS_PUSHCERTPRODID;
 
     @PostConstruct
     public void init(){
         TENCENT_YUN_SDK_APPID = imSdkAppId;
         TENCENT_YUN_SDK_APPSECRET = imSdkAppSecret;
         APPLE_URL = appleUrl;
-        CERPATH = certPath;
+        CERT_PATH = certPath;
+        IOS_PUSHCERTDEVID = iosPushCertDevId;
+        IOS_PUSHCERTPRODID = iosPushCertProdId;
 
         context.put(Constant.LOGIN_TEL,telLogin);
         context.put(Constant.LOGIN_WX,wxLogin);

@@ -41,7 +41,7 @@ public class Constant {
     public final static String SHARE_URL = "https://www.baidu.com";
 
 
-    //public static final String APPLE_URL_SANDBOX = "https://sandbox.itunes.apple.com/verifyReceipt";
+    public static final String APPLE_URL_SANDBOX = "https://sandbox.itunes.apple.com/verifyReceipt";
     //public static final String APPLE_URL_VERIFY = "https://buy.itunes.apple.com/verifyReceipt";
 
 
@@ -100,6 +100,7 @@ public class Constant {
     public final static String TENCENT_YUN_SDK_VER = "v4";
     public final static String TENCENT_YUN_SDK_HOST = "console.tim.qq.com";
     public final static String TENCENT_YUN_IDENTIFIER = "testapp";
+    public final static String TENCENT_YUN_SYSTEMUSER = "systemuser";
 
     public final static String TENCENT_YUN_SERVICENAME_GROUP = "group_open_http_svc";
     public final static String TENCENT_YUN_SERVICENAME_IM = "im_open_login_svc";

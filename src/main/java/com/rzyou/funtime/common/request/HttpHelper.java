@@ -15,7 +15,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 @Slf4j
 public class HttpHelper {
-    private static final ThreadLocal<Long> context  = new ThreadLocal<>();
+    private static ThreadLocal<Long> context  = new ThreadLocal<>();
 
     public static void setUserId(Long id){
         context .set(id);
@@ -42,24 +42,7 @@ public class HttpHelper {
 
         return paramJson;
     }
-    public static JSONObject getParamterJsonTest(HttpServletRequest request){
-        String str = getBodyString(request);
-        log.info("请求Body: {} ", str);
-        if (StringUtils.isBlank(str)){
-            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-        }
 
-        str = AESUtil.aesDecrypt(str, Constant.AES_KEY);
-        if (StringUtils.isBlank(str)){
-            log.error("参数解密失败");
-            throw new BusinessException(ErrorMsgEnum.PARAMETER_DECRYPT_ERROR.getValue(),ErrorMsgEnum.PARAMETER_DECRYPT_ERROR.getDesc());
-        }
-        JSONObject obj = JSONObject.parseObject(str);
-
-        JSONObject paramJson = obj.getJSONObject("param");
-
-        return paramJson;
-    }
 
     public static JSONObject getParamterJson(HttpServletRequest request){
 

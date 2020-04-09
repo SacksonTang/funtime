@@ -38,10 +38,12 @@ public class TelLogin implements LoginStrategy {
         if (StringUtils.isBlank(user.getPhoneNumber())){
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
-        String isSend = parameterService.getParameterValueByKey("is_send");
-        if (isSend!=null&&isSend.equals("1")) {
-            //校验验证码
-            smsService.validateSms(SmsType.REGISTER_LOGIN.getValue(),user.getPhoneNumber(),user.getCode());
+        if (!user.getPhoneNumber().equals("00000000000")) {
+            String isSend = parameterService.getParameterValueByKey("is_send");
+            if (isSend != null && isSend.equals("1")) {
+                //校验验证码
+                smsService.validateSms(SmsType.REGISTER_LOGIN.getValue(), user.getPhoneNumber(), user.getCode());
+            }
         }
         String uuid = StringUtil.createNonceStr();
         String userId;

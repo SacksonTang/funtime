@@ -8,18 +8,8 @@ import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.service.UserService;
-import com.rzyou.funtime.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.stereotype.Component;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import javax.annotation.Resource;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -98,9 +88,12 @@ public class TokenAuthorFilter implements Filter {
                             }else {
                                 String uuid = map.get("nonceStr").toString();
                                 if (!user.getToken().equals(uuid)){
-                                    resultInfo.setCode(ErrorMsgEnum.USER_TOKEN_ERROR.getValue());
-                                    resultInfo.setMsg(ErrorMsgEnum.USER_TOKEN_ERROR.getDesc());
+                                    resultInfo.setCode(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getValue());
+                                    resultInfo.setMsg(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getDesc());
                                 }else {
+                                    if (user.getOnlineState() == 2){
+                                        userService.updateOnlineState(user.getId(),1);
+                                    }
                                     HttpHelper.setUserId(user.getId());
                                     isFilter = true;
                                 }

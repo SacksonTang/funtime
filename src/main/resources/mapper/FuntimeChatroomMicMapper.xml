@@ -39,6 +39,7 @@
     from t_funtime_chatroom_mic
     where room_id = #{roomId} and mic_user_id = #{userId}  limit 1
   </select>
+
   <select id="checkUserIsInMic"  resultType="java.lang.Long">
     select
     room_id

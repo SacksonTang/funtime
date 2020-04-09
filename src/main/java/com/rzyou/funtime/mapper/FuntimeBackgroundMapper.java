@@ -27,4 +27,6 @@ public interface FuntimeBackgroundMapper {
     int insertUserBackground(FuntimeUserBackground userBackground);
 
     int updateUserBackground(FuntimeUserBackground userBackground);
+
+    int deleteUserBackgroundById(Long id);
 }

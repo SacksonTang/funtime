@@ -368,4 +368,43 @@ public interface AccountService {
      * @param operationType
      */
     void saveUserAccountLevelWealthLog(Long userId, Integer levelVal,Integer wealthVal,Long recordId,String actionType,String operationType);
+
+    /**
+     * 捕鱼子弹
+     * @param userId
+     * @return
+     */
+    Map<String, Object> getBulletOfFish(Long userId);
+
+    /**
+     * 保存得分
+     * @param userId
+     * @param score
+     * @param bullet
+     */
+    void saveScoreOfFish(Long userId, Integer score, Integer bullet);
+
+    /**
+     * 保存购买记录
+     * @param userId
+     * @param bullet
+     * @param parseInt
+     * @return
+     */
+    Long insertFishAccountRecord(Long userId, Integer bullet, int parseInt);
+
+    /**
+     * 捕鱼排行榜
+     * @param startCount
+     * @param endCount
+     * @return
+     */
+    List<Map<String, Object>> getFishRanklist(int startCount, int endCount);
+
+    /**
+     * 增加子弹数
+     * @param userId
+     * @param bullet
+     */
+    void updateBulletForPlus(Long userId, int bullet);
 }

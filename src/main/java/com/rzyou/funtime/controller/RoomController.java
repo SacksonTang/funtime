@@ -12,6 +12,7 @@ import com.rzyou.funtime.entity.FuntimeChatroom;
 import com.rzyou.funtime.service.RoomService;
 import com.rzyou.funtime.utils.JsonUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("room")
+@Slf4j
 public class RoomController {
 
     @Autowired
@@ -116,6 +118,7 @@ public class RoomController {
             }
             return roomService.buyBackground(backgroundId,userId);
         } catch (BusinessException be) {
+            log.error("buyBackground BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -149,6 +152,7 @@ public class RoomController {
             roomService.setBackground(backgroundId,userId,roomId);
             return result;
         } catch (BusinessException be) {
+            log.error("setBackground BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -242,6 +246,9 @@ public class RoomController {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
+            }
+            if(userId == null){
+                userId = HttpHelper.getUserId();
             }
 
             Map<String,Object> map = roomService.getRoomInfo(roomId,userId);
@@ -356,6 +363,7 @@ public class RoomController {
             result.setData(JsonUtil.getMap("roomId",roomId));
             return result;
         } catch (BusinessException be) {
+            log.error("roomCreate BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -393,6 +401,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("roomClose BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -431,6 +440,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("roomUpdate BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -471,6 +481,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("roomJoin BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -507,6 +518,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("roomExit BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -543,6 +555,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("roomKicked BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -580,6 +593,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("holdWheat BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -617,6 +631,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("upperWheat BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -653,6 +668,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("lowerWheat BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -690,6 +706,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("stopWheat BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -726,6 +743,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("openWheat BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -762,6 +780,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("forbidWheat BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -798,6 +817,7 @@ public class RoomController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("releaseWheat BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -985,6 +1005,7 @@ public class RoomController {
 
 
         } catch (BusinessException be) {
+            log.error("sendNotice BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());

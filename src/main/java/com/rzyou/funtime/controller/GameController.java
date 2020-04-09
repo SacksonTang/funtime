@@ -9,12 +9,14 @@ import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.service.GameService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.JsonUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,6 +25,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("game")
+@Slf4j
 public class GameController {
 
     @Autowired
@@ -64,6 +67,7 @@ public class GameController {
             return result;
 
         } catch (BusinessException be) {
+            log.error("getYaoyaoPool BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -76,6 +80,11 @@ public class GameController {
         }
     }
 
+    /**
+     * 摇摇乐配置
+     * @param request
+     * @return
+     */
     @PostMapping("getYaoyaoShowConf")
     public ResultMsg<Object> getYaoyaoShowConf(HttpServletRequest request){
 
@@ -130,6 +139,7 @@ public class GameController {
             return result;
 
         } catch (BusinessException be) {
+            log.error("drawing BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -141,4 +151,143 @@ public class GameController {
             return result;
         }
     }
+
+    /**
+     * 获取捕鱼子弹数
+     * @param request
+     * @return
+     */
+    @PostMapping("getBulletOfFish")
+    public ResultMsg<Object> getBulletOfFish(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            if (userId == null ){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String, Object> map = JsonUtil.getMap("fish", gameService.getBulletOfFish(userId));
+            result.setData(map);
+            return result;
+
+        } catch (BusinessException be) {
+            log.error("getBulletOfFish BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 保存得分
+     * @param request
+     * @return
+     */
+    @PostMapping("saveScoreOfFish")
+    public ResultMsg<Object> saveScoreOfFish(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Integer score = paramJson.getInteger("score");
+            Integer bullet = paramJson.getInteger("bullet");
+            if (userId == null||score == null||bullet==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            gameService.saveScoreOfFish(userId,score,bullet);
+            return result;
+
+        } catch (BusinessException be) {
+            log.error("saveScoreOfFish BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 购买子弹
+     * @param request
+     * @return
+     */
+    @PostMapping("buyBullet")
+    public ResultMsg<Object> buyBullet(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Integer bullet = paramJson.getInteger("bullet");
+            if (userId == null||bullet==null||bullet<1||bullet%100!=0){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            gameService.buyBullet(userId,bullet);
+            return result;
+
+        } catch (BusinessException be) {
+            log.error("buyBullet BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 获取捕鱼排行榜
+     * @param request
+     * @return
+     */
+    @PostMapping("getFishRanklist")
+    public ResultMsg<Object> getFishRanklist(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            if (userId == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            result.setData(gameService.getFishRanklist(userId));
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
 }

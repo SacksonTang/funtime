@@ -87,6 +87,8 @@ public interface FuntimeUserMapper {
      */
     List<Long> getOfflineUser();
 
+    List<Long> getOfflineUserByApp(Integer mins);
+
     /**
      * 客服
      * @return
@@ -109,4 +111,6 @@ public interface FuntimeUserMapper {
     FuntimeUser getUserInfoByShowId(Long showId);
 
     void heartTask();
+
+    int updateImHeartSync(Long userId);
 }

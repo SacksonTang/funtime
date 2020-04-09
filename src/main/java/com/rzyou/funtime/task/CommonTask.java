@@ -69,7 +69,7 @@ public class CommonTask {
     }
 
     /**
-     * 房内离线用户退房
+     * 房内离线用户下麦
      */
     @Scheduled(fixedRate = 1000*5)
     public void offlineUserTask(){
@@ -77,6 +77,7 @@ public class CommonTask {
         if (users!=null&&!users.isEmpty()){
             for (Long userId : users){
                 try {
+
                     roomService.roomExitTask(userId);
                 }catch (Exception e){
                     log.error("offlineUserTask ===>异常用户ID:{}",userId);
@@ -84,6 +85,14 @@ public class CommonTask {
                 }
             }
         }
+    }
+
+    /**
+     * APP用户离线
+     */
+    @Scheduled(fixedRate = 1000*60)
+    public void offlineUserAppTask(){
+        userService.offlineUserAppTask();
     }
 
     /**

@@ -27,6 +27,44 @@
     from t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level
     where t.user_id = #{userId} limit 1
   </select>
+  <select id="getBulletOfFish" parameterType="java.lang.Long" resultType="java.util.Map">
+    select bullet,score from t_funtime_user_account_fish where user_id = #{userId}
+  </select>
+  <update id="saveScoreOfFish" >
+    update t_funtime_user_account_fish set score = score+#{score},bullet = bullet-#{bullet}
+    where user_id = #{userId} and bullet-#{bullet} >= 0
+  </update>
+  <update id="updateBulletForPlus" >
+    update t_funtime_user_account_fish set bullet = bullet+#{bullet}
+    where user_id = #{userId}
+  </update>
+  <insert id="insertFishAccount">
+    insert into t_funtime_user_account_fish (user_id,bullet,score)
+    values (#{userId},#{bullet},#{score})
+  </insert>
+  <insert id="insertFishRecord">
+    insert into t_funtime_user_fish_record (user_id,bullet,score)
+    values (#{userId},#{bullet},#{score})
+  </insert>
+  <insert id="insertFishAccountRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountFishRecord" useGeneratedKeys="true" keyProperty="id">
+    insert into t_funtime_user_account_fish_record (user_id,bullet,bullet_price)
+    values (#{userId},#{bullet},#{bulletPrice})
+  </insert>
+  <select id="getFishRanklist" resultType="java.util.Map">
+    select f.user_id as userId,f.score ,
+          u.nickname,
+          u.portrait_address as portraitAddress,
+          u.show_id as showId,
+          u.sex,
+          t.level,
+          l.level_url as levelUrl
+    from t_funtime_user_account_fish f
+       inner join t_funtime_user u on f.user_id = u.id
+       inner join (t_funtime_user_account t
+       inner join t_funtime_user_level_conf l on t.level = l.level) on f.user_id = t.user_id
+    order by f.score desc
+    limit ${startCount},${endCount}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_account
     where id = #{id,jdbcType=BIGINT}

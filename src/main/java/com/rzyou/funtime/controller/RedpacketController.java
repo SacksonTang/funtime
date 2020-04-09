@@ -12,6 +12,7 @@ import com.rzyou.funtime.entity.FuntimeUserRedpacket;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.utils.JsonUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/redpacket")
+@Slf4j
 public class RedpacketController {
 
     @Autowired
@@ -117,6 +119,7 @@ public class RedpacketController {
             result.setData(JsonUtil.getMap("id",id));
             return result;
         } catch (BusinessException be) {
+            log.error("createRedpacket BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -151,6 +154,7 @@ public class RedpacketController {
 
             return accountService.grabRedpacket(userId,redpacketId);
         } catch (BusinessException be) {
+            log.error("grabRedpacket BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());

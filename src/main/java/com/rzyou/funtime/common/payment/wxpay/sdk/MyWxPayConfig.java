@@ -16,7 +16,7 @@ public class MyWxPayConfig extends WXPayConfig {
 
     public MyWxPayConfig(int payType) throws Exception {
         this.payType = payType;
-        File file = new File(StaticData.CERPATH);
+        File file = new File(StaticData.CERT_PATH);
         InputStream certStream = new FileInputStream(file);
         this.certData = new byte[(int) file.length()];
         certStream.read(this.certData);

@@ -14,4 +14,8 @@ public class UsersigUtil {
         TLSSigAPIv2 api = new TLSSigAPIv2(StaticData.TENCENT_YUN_SDK_APPID, StaticData.TENCENT_YUN_SDK_APPSECRET);
         return api.genSig(identifier, expire);
     }
+
+    public static void main(String[] args) {
+        System.out.println(getUsersig(Constant.TENCENT_YUN_SYSTEMUSER));
+    }
 }

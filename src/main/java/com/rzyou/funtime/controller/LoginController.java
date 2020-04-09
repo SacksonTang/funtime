@@ -135,6 +135,7 @@ public class LoginController {
             }
 
         } catch (BusinessException be) {
+            log.error("login BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -176,6 +177,7 @@ public class LoginController {
             }
             smsService.sendSms(phone,resend,ip,smsType);
         }catch (BusinessException be){
+            log.error("sendSms BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -361,6 +363,7 @@ public class LoginController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("startRecharge BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -380,7 +383,12 @@ public class LoginController {
             Map<String,Object> data = new HashMap<>();
             //IM
             data.put("imSdkAppId",StaticData.TENCENT_YUN_SDK_APPID);
+            data.put("iosPushCertDevId",StaticData.IOS_PUSHCERTDEVID);
+            data.put("iosPushCertProdId",StaticData.IOS_PUSHCERTPRODID);
+            //data.put("androidPushCertDevId",StaticData.IOS_PUSHCERTPRODID);
+            //data.put("androidPushCertProdId",StaticData.IOS_PUSHCERTPRODID);
             data.put("imAdmin",Constant.TENCENT_YUN_IDENTIFIER);
+            data.put("imAdminSystemUser",Constant.TENCENT_YUN_SYSTEMUSER);
 
             //是否显示红包
             data.put("isRedpacketShow",parameterService.getParameterValueByKey("is_redpacket_show"));
@@ -395,6 +403,9 @@ public class LoginController {
             data.put("heartRate",parameterService.getParameterValueByKey("heart_rate"));
             data.put("hornLength",parameterService.getParameterValueByKey("horn_length"));
             data.put("isEncrypt",parameterService.getParameterValueByKey("is_encrypt"));
+            data.put("roomGameTag",parameterService.getParameterValueByKey("room_game_tag"));
+            data.put("roomGameIcon",parameterService.getParameterValueByKey("room_game_icon"));
+            data.put("sysIcon",parameterService.getParameterValueByKey("sys_icon"));
             data.put("staticResource",parameterService.getStaticResource());
             result.setData(data);
             return result;

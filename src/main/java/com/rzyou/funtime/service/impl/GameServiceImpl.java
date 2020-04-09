@@ -3,10 +3,7 @@ package com.rzyou.funtime.service.impl;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.OperationType;
-import com.rzyou.funtime.entity.FuntimeGameYaoyaoConf;
-import com.rzyou.funtime.entity.FuntimeGameYaoyaoPool;
-import com.rzyou.funtime.entity.FuntimeUserAccount;
-import com.rzyou.funtime.entity.FuntimeUserAccountYaoyaoRecord;
+import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.FuntimeGameYaoyaoMapper;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.GameService;
@@ -277,6 +274,91 @@ public class GameServiceImpl implements GameService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
         return record.getId();
+    }
+
+
+    @Override
+    public Map<String, Object> getBulletOfFish(Long userId) {
+        Map<String, Object> map = accountService.getBulletOfFish(userId);
+        FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
+        String bulletPrice = parameterService.getParameterValueByKey("bullet_price");
+        map.put("blueAmount",userAccount.getBlueDiamond().intValue());
+        map.put("bulletPrice",bulletPrice);
+        return map;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void saveScoreOfFish(Long userId, Integer score, Integer bullet) {
+        accountService.saveScoreOfFish(userId,score,bullet);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void buyBullet(Long userId, Integer bullet) {
+        String bulletPrice = parameterService.getParameterValueByKey("bullet_price");
+        FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
+        if (userAccount == null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        BigDecimal blueAmount = new BigDecimal((bullet/100)*Integer.parseInt(bulletPrice));
+        if (userAccount.getBlueDiamond().subtract(blueAmount).intValue()<0){
+            throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+        }
+        userService.updateUserAccountForSub(userId,null,blueAmount,null);
+        accountService.updateBulletForPlus(userId,bullet);
+        Long recordId = accountService.insertFishAccountRecord(userId,bullet,Integer.parseInt(bulletPrice));
+        accountService.saveUserAccountBlueLog(userId,blueAmount,recordId,OperationType.BUY_BULLET.getAction(),OperationType.BUY_BULLET.getOperationType());
+    }
+
+    @Override
+    public Map<String, Object> getFishRanklist(Long curUserId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        String count = parameterService.getParameterValueByKey("fish_rank_count");
+        resultMap.put("rankCount",count);
+        int startCount = 1;
+        int endCount = Integer.parseInt(count);
+        List<Map<String, Object>> list = accountService.getFishRanklist(startCount,endCount);
+        if (list==null||list.isEmpty()){
+            resultMap.put("rankingList",null);
+            return resultMap;
+        }
+        FuntimeUser user = userService.queryUserById(curUserId);
+        FuntimeUserAccount userAccount= accountService.getUserAccountByUserId(curUserId);
+        Map<String,Object> myInfoMap = new HashMap<>();
+        myInfoMap.put("nickname",user.getNickname());
+        myInfoMap.put("portraitAddress",user.getPortraitAddress());
+        myInfoMap.put("signText",user.getSignText());
+        myInfoMap.put("showId",user.getShowId());
+        myInfoMap.put("sex",user.getSex());
+        myInfoMap.put("level",userAccount.getLevel());
+        myInfoMap.put("levelUrl",userAccount.getLevelUrl());
+        boolean isRankMe = false;
+        for (int i =0;i<list.size();i++){
+            Map<String, Object> map = list.get(i);
+            String userId = map.get("userId").toString();
+            if (userId.equals(curUserId.toString())){
+                isRankMe = true;
+                myInfoMap.put("isRankMe",true);
+                myInfoMap.put("mySort", i+1);
+                myInfoMap.put("myScore", map.get("score"));
+                if (i == 0){
+                    myInfoMap.put("diffScore",0);
+                }else{
+                    BigDecimal currentScore = new BigDecimal(map.get("score").toString());
+                    BigDecimal lastScore = new BigDecimal(list.get(i-1).get("score").toString());
+                    myInfoMap.put("diffScore",lastScore.subtract(currentScore).intValue());
+                }
+
+                resultMap.put("user",myInfoMap);
+            }
+        }
+        if (!isRankMe){
+            myInfoMap.put("isRankMe",false);
+            resultMap.put("user",myInfoMap);
+        }
+        resultMap.put("rankingList",list);
+        return resultMap;
     }
 
 }

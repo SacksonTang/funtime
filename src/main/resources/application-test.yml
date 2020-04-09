@@ -68,5 +68,8 @@ app:
   im:
     imSdkAppId: 1400323798
     imSdkAppSecret: fe86b9de3bc8f83e011c39286c2977250e4dc7a793e77938a39f0817733109b1
+    iosPushCertDevId: 18791
+    iosPushCertProdId: 18790
+
 
 

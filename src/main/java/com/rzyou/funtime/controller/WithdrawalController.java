@@ -11,6 +11,7 @@ import com.rzyou.funtime.entity.FuntimeUserAccountWithdrawalRecord;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.utils.JsonUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("withdrawal")
+@Slf4j
 public class WithdrawalController {
 
     @Autowired
@@ -69,6 +71,7 @@ public class WithdrawalController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("startWithdrawal BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());

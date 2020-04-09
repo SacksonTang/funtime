@@ -8,6 +8,7 @@ import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.utils.JsonUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("gift")
+@Slf4j
 public class GiftTransController {
 
     @Autowired
@@ -41,7 +43,7 @@ public class GiftTransController {
             Integer giveChannel = paramJson.getInteger("giveChannel");//1-房间2-单发
             Long roomId = paramJson.getLong("roomId");
             if (userId == null || StringUtils.isBlank(toUserIds)||giftId == null || giftNum == null || giveChannel == null
-                    ||(giveChannel.equals(GiveChannel.ROOM.getValue())&&roomId==null)
+                    ||(giveChannel.equals(GiveChannel.ROOM.getValue())&&roomId==null||giftNum<1)
                     ){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -50,6 +52,7 @@ public class GiftTransController {
 
             return accountService.createGiftTrans(userId,toUserIds,giftId,giftNum,"送礼物",giveChannel,roomId);
         } catch (BusinessException be) {
+            log.error("sendGift BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -77,7 +80,7 @@ public class GiftTransController {
             Integer giftId = paramJson.getInteger("giftId");
             Integer giftNum = paramJson.getInteger("giftNum");
             Long roomId = paramJson.getLong("roomId");
-            if (userId == null || giftId == null || giftNum == null || roomId == null){
+            if (userId == null || giftId == null || giftNum == null || roomId == null||giftNum<1){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
@@ -85,6 +88,7 @@ public class GiftTransController {
             return accountService.sendGiftForMic(userId,giftId,giftNum,"送礼物",1,roomId);
 
         } catch (BusinessException be) {
+            log.error("sendGiftForMic BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -112,7 +116,7 @@ public class GiftTransController {
             Integer giftId = paramJson.getInteger("giftId");
             Integer giftNum = paramJson.getInteger("giftNum");
             Long roomId = paramJson.getLong("roomId");
-            if (userId == null || giftId == null || giftNum == null || roomId == null){
+            if (userId == null || giftId == null || giftNum == null || roomId == null||giftNum<1){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
@@ -120,6 +124,7 @@ public class GiftTransController {
             return accountService.sendGiftForRoom(userId,giftId,giftNum,"送礼物",1,roomId);
 
         } catch (BusinessException be) {
+            log.error("sendGiftForRoom BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());

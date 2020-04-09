@@ -1,10 +1,13 @@
 package com.rzyou.funtime.mapper;
 
 import com.rzyou.funtime.entity.FuntimeUserAccount;
+import com.rzyou.funtime.entity.FuntimeUserAccountFishRecord;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface FuntimeUserAccountMapper {
@@ -33,4 +36,17 @@ public interface FuntimeUserAccountMapper {
 
     int updateByPrimaryKeySelective(FuntimeUserAccount record);
 
+    Map<String, Object> getBulletOfFish(Long userId);
+
+    int saveScoreOfFish(@Param("userId") Long userId,@Param("score") Integer score, @Param("bullet")Integer bullet);
+
+    int updateBulletForPlus(@Param("userId") Long userId,@Param("bullet")Integer bullet);
+
+    int insertFishRecord(@Param("userId") Long userId,@Param("score") Integer score, @Param("bullet")Integer bullet);
+
+    int insertFishAccount(@Param("userId") Long userId,@Param("score") Integer score, @Param("bullet")Integer bullet);
+
+    int insertFishAccountRecord(FuntimeUserAccountFishRecord record);
+
+    List<Map<String, Object>> getFishRanklist(@Param("startCount") int startCount,@Param("endCount") int endCount);
 }

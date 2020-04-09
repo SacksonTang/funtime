@@ -97,32 +97,50 @@
 
       SELECT
           d.user_id as userId,
-          sum( d.wealth_val ) amountSum
+          sum( d.wealth_val ) amountSum,
+          u.nickname,
+          u.portrait_address as portraitAddress,
+          u.show_id as showId,
+          u.sex,
+          t.level,
+          l.level_url as levelUrl
       FROM
           t_funtime_user_account_level_wealth_record d
+          inner join t_funtime_user u on u.id = d.user_id
+          inner join (t_funtime_user_account t
+          inner join t_funtime_user_level_conf l on t.level = l.level) on d.user_id = t.user_id
       WHERE
           d.create_time between #{startDate} and #{endDate}
       GROUP BY
           d.user_id
       ORDER BY
           amountSum DESC,max(d.id) ASC
-      limit ${startCount},${endCount}
+      limit ${endCount}
   </select>
 
   <select id="getCharmList" resultType="java.util.Map">
 
       SELECT
           d.user_id as userId,
-          sum( d.charm_val ) amountSum
+          sum( d.charm_val ) amountSum,
+          u.nickname,
+          u.portrait_address as portraitAddress,
+          u.show_id as showId,
+          u.sex,
+          t.level,
+          l.level_url as levelUrl
       FROM
           t_funtime_user_account_charm_record d
+          inner join t_funtime_user u on u.id = d.user_id
+          inner join (t_funtime_user_account t
+          inner join t_funtime_user_level_conf l on t.level = l.level) on d.user_id = t.user_id
       WHERE
           d.create_time between #{startDate} and #{endDate}
       GROUP BY
           d.user_id
       ORDER BY
           amountSum DESC,max(d.id) ASC
-      limit ${startCount},${endCount}
+      limit ${endCount}
   </select>
 
   <select id="getConcernUserList" resultType="java.util.Map">
@@ -235,7 +253,7 @@
     select
     u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text  ,
     u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
-    m.id roomId,m.is_lock as isLock,m.is_block as isBlock,
+    m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState,
     l.level,l.level_url as levelUrl
     from t_funtime_user u left join t_funtime_chatroom m on u.id = m.user_id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
@@ -645,7 +663,7 @@
     update t_funtime_user set create_room = create_room+1,update_time =now() where id = #{id} and create_room>0
   </update>
 <update id="updateTokenById" >
-  update t_funtime_user set token = #{token},update_time =now(),show_id = #{id}+690000 where id = #{id}
+  update t_funtime_user set token = #{token},update_time =now(),show_id = #{id}+690002 where id = #{id}
 </update>
   <update id="updateRealnameAuthenticationFlagById" >
   update t_funtime_user set realname_authentication_flag = 1,update_time =now() where id = #{id}
@@ -664,16 +682,31 @@
 
   </insert>
   <insert id="saveImHeart" >
-    REPLACE INTO t_funtime_im_heart (user_id,user_state,action,reason)
-    VALUES(#{userId},#{userState},#{action},#{reason})
+    REPLACE INTO t_funtime_im_heart (user_id,user_state,action,reason,is_sync)
+    VALUES(#{userId},#{userState},#{action},#{reason},2)
   </insert>
+  <update id="updateImHeartSync">
+    update t_funtime_im_heart set is_sync=1 where user_id = #{userId}
+  </update>
   <insert id="saveUserInfoChangeLog">
     insert into t_funtime_user_info_change_log (user_id,change_column,change_val)
     VALUES(#{userId},#{changeColumn},#{changeVal})
   </insert>
   <select id="getOfflineUser" resultType="java.lang.Long">
-    select t.user_id from t_funtime_im_heart t inner join t_funtime_user u on t.user_id = u.id
-    where t.user_state = 2 and u.online_state = 2 and DATE_SUB(NOW(),INTERVAL 30 SECOND)>t.operation_time
+    select t.user_id from t_funtime_im_heart t
+    where t.user_state = 2 and t.is_sync = 2  and DATE_SUB(NOW(),INTERVAL 30 SECOND)>t.operation_time
+  </select>
+  <select id="getOfflineUserByApp" resultType="java.lang.Long" parameterType="java.lang.Integer">
+    SELECT
+	t.user_id
+    FROM
+        t_funtime_heart t
+    WHERE
+        t.user_id IN ( SELECT id FROM t_funtime_user WHERE online_state = 1 )
+    GROUP BY
+        t.user_id
+    HAVING
+        DATE_SUB( NOW( ), INTERVAL ${mins} MINUTE ) > max( t.heart )
   </select>
   <select id="getRankRewardConf" resultType="java.util.Map" parameterType="java.lang.Integer">
     select rank_type as rankType,ranking,reward from t_funtime_rank_reward_conf where  date_type = #{dateType}

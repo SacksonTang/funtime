@@ -38,4 +38,33 @@ public interface GameService {
      * 修改摇摇乐配置
      */
     void updateYaoyaoPoolTask();
+
+    /**
+     * 获取捕鱼得分和子弹数
+     * @param userId
+     * @return
+     */
+    Map<String,Object> getBulletOfFish(Long userId);
+
+    /**
+     * 保存捕鱼得分
+     * @param userId
+     * @param score
+     * @param bullet
+     */
+    void saveScoreOfFish(Long userId, Integer score, Integer bullet);
+
+    /**
+     * 购买子弹
+     * @param userId
+     * @param bullet
+     */
+    void buyBullet(Long userId, Integer bullet);
+
+    /**
+     * 捕鱼排行榜
+     * @param curUserId
+     * @return
+     */
+    Map<String,Object> getFishRanklist(Long curUserId);
 }

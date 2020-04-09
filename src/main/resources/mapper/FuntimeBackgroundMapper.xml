@@ -8,8 +8,7 @@
     t.original_price as originalPrice,t.activity_price as activityPrice,t.discount,
     t.show_price as showPrice,
     IF(d.background_id is null,0,1) isOwner,
-	  IF((now() >= d.start_time and d.end_time>=now()) or t.type in (1,2),0,1) isExpiry
-    ,IF(m.background_id is null,0,1) isCurrentPage
+    IF(m.background_id is null,0,1) isCurrentPage
     from  t_funtime_background t left join t_funtime_user_background d
             on d.background_id = t.id and d.user_id = #{userId}
             left join t_funtime_chatroom m on t.id = m.background_id and m.user_id = #{userId}
@@ -44,19 +43,21 @@
   <select id="getBackgroundUrlById"  resultType="java.util.Map" >
     select
     t.type,t.background_url as backgroundUrl,t.background_url2 as backgroundUrl2,
-    IFNULL(d.background_id,0) isOwner,
-	IF(now() >= d.start_time and d.end_time>=now(),0,1) isExpiry
+    IFNULL(d.background_id,0) isOwner
     from  t_funtime_background t left join t_funtime_user_background d
            on d.background_id = t.id and d.user_id = #{userId}
     where t.id = #{id} and t.flag = 1
   </select>
   <select id="getBackgroundForExpiry"  resultType="java.util.Map" >
     select
-    distinct m.id,m.user_id as userId
+    distinct m.id,m.user_id as userId,d.id as ubId
     from  t_funtime_user_background d inner join t_funtime_chatroom m
            on d.background_id = m.background_id and d.user_id = m.user_id
     where d.background_type in (3,4) and now()>d.end_time
   </select>
+  <delete id="deleteUserBackgroundById">
+    delete from t_funtime_user_background where id = #{id}
+  </delete>
     <insert id="insertUserBackground" parameterType="com.rzyou.funtime.entity.FuntimeUserBackground">
         insert into t_funtime_user_background(user_id,background_id,background_type,price,end_time)
         values (#{userId},#{backgroundId},#{backgroundType},#{price},#{endTime})
@@ -73,7 +74,7 @@
         <if test="days != null">
           end_time = date_add(IF(end_time>NOW(),end_time,NOW()), interval ${days} day),
         </if>
-        update_time = NOW()
+
       </set>
       where id = #{id}
     </update>

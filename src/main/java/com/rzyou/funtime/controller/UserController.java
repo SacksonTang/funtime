@@ -15,6 +15,7 @@ import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.JsonUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("user")
+@Slf4j
 public class UserController {
 
     @Autowired
@@ -324,6 +326,7 @@ public class UserController {
 
             return result;
         } catch (BusinessException be) {
+
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -361,6 +364,7 @@ public class UserController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("updatePhoneNumber BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -422,6 +426,7 @@ public class UserController {
             }
             return result;
         } catch (BusinessException be) {
+            log.error("bindPhoneNumber BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -462,6 +467,7 @@ public class UserController {
             result.setData(JsonUtil.getMap("wxNickname",nickname));
             return result;
         } catch (BusinessException be) {
+            log.error("bindWeixin BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -529,6 +535,7 @@ public class UserController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("logout BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -624,7 +631,7 @@ public class UserController {
             convert.add("blue");
             convert.add("black");
             if (StringUtils.isBlank(from)||StringUtils.isBlank(to)
-                    ||amount==null||!convert.contains(from)||!convert.contains(to)) {
+                    ||amount==null||!convert.contains(from)||!convert.contains(to)||amount.intValue()<1) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -704,7 +711,7 @@ public class UserController {
             convert.add("rmb");
             convert.add("blue");
             convert.add("black");
-            if (StringUtils.isBlank(from)||StringUtils.isBlank(to)
+            if (StringUtils.isBlank(from)||StringUtils.isBlank(to)||amount.intValue()<1
                     ||amount==null||!convert.contains(from)||!convert.contains(to)) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
@@ -716,6 +723,7 @@ public class UserController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("diamondConvert BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -790,6 +798,7 @@ public class UserController {
 
             return result;
         } catch (BusinessException be) {
+            log.error("saveUserValid BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -1166,11 +1175,8 @@ public class UserController {
     }
 
 
-    /**
-     * 排行榜
-     * @param request
-     * @return
-     */
+
+
     @PostMapping("getRankingList")
     public ResultMsg<Object> getRankingList(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
@@ -1179,15 +1185,13 @@ public class UserController {
             String userId = paramJson.getString("userId");
             Integer type = paramJson.getInteger("type");//1-魅力榜2-贡献榜
             Integer dateType = paramJson.getInteger("dateType");//1-日2-周3-月
-            Integer startPage = paramJson.getInteger("startPage")==null||paramJson.getInteger("startPage")<1?1:paramJson.getInteger("startPage");
-            Integer pageSize = paramJson.getInteger("pageSize")==null?30:paramJson.getInteger("pageSize");
 
             if (type==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            Map<String,Object> resultMap = userService.getRankingList(dateType, type,userId,startPage,pageSize);
+            Map<String,Object> resultMap = userService.getRankingList(dateType, type,userId);
 
             result.setData(resultMap);
 
