@@ -19,11 +19,4 @@ public class FuntimeChatroomUser implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
 
-    private String roomNo;
-
-    private Integer isSync;
-
-    private Integer flag;
-
-
 }

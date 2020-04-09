@@ -171,25 +171,6 @@ public class TencentUtil {
      */
     public static boolean sendGroupMsg(String usersig,String paramMap){
         String url = getGroupUrl(Constant.TENCENT_YUN_SEND_GROUP_MSG,usersig);
-
-        /*
-        JSONObject paramMap = new JSONObject();
-        Random random = new Random();
-        paramMap.put("OnlineOnlyFlag",1);
-        paramMap.put("GroupId",groupId);
-        paramMap.put("Random",random.nextInt(100000000));
-        Map<String,String> msgContent = new HashMap<>();
-        msgContent.put("Data",data);
-        msgContent.put("Desc","");
-        msgContent.put("Ext","");
-        msgContent.put("Sound","");
-        Map<String,Object> elem = new HashMap<>();
-        elem.put("MsgType","TIMCustomElem");
-        elem.put("MsgContent",msgContent);
-        List<Map<String,Object>> msgBody = new ArrayList<>();
-        msgBody.add(elem);
-        paramMap.put("MsgBody",msgBody);*/
-
         log.debug("paramMap:{}",paramMap);
         String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
         JSONObject result = JSONObject.parseObject(postStr);

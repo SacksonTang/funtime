@@ -38,7 +38,7 @@ public interface NoticeService {
      * @param data
      * @param id
      */
-    void snedAllAppNotice(String userSig, String data, Long id);
+    void sendAllAppNotice(String userSig, String data, Long id);
 
     /**
      * 全服房間发送
@@ -53,9 +53,8 @@ public interface NoticeService {
      * @param micLocation
      * @param roomId
      * @param userId
-     * @param roomNo
      */
-    void notice15(Integer micLocation,Long roomId,Long userId,String roomNo);
+    void notice15(Integer micLocation,Long roomId,Long userId);
 
     /**
      * 上麦通知
@@ -64,11 +63,11 @@ public interface NoticeService {
      * @param micUserId
      * @param nickname
      * @param portraitAddress
-     * @param roomNo
+     * @param userIds
      * @param sex
      * @param levelUrl
      */
-    void notice1(Integer micLocation, Long roomId, Long micUserId, String nickname, String portraitAddress, String roomNo, Integer sex, String levelUrl);
+    void notice1(Integer micLocation, Long roomId, Long micUserId, String nickname, String portraitAddress, List<String> userIds, Integer sex, String levelUrl);
 
     /**
      * 下麦通知
@@ -76,56 +75,56 @@ public interface NoticeService {
      * @param roomId
      * @param micUserId
      * @param nickname
-     * @param roomNo
+     * @param userIds
      * @param isMe
      */
-    void notice2(Integer micLocation, Long roomId, Long micUserId, String nickname, String roomNo, int isMe);
+    void notice2(Integer micLocation, Long roomId, Long micUserId, String nickname, List<String> userIds, int isMe);
 
     /**
      * 封麦
      * @param micLocation
      * @param roomId
-     * @param roomNo
+     * @param userIds
      */
-    void notice3(Integer micLocation, Long roomId, String roomNo);
+    void notice3(Integer micLocation, Long roomId, List<String> userIds);
 
     /**
      * 解封
      * @param micLocation
      * @param roomId
-     * @param roomNo
+     * @param userIds
      */
-    void notice4(Integer micLocation, Long roomId, String roomNo);
+    void notice4(Integer micLocation, Long roomId, List<String> userIds);
 
     /**
      * 禁麦
      * @param micLocation
      * @param roomId
-     * @param roomNo
+     * @param userIds
      */
-    void notice5(Integer micLocation, Long roomId, String roomNo);
+    void notice5(Integer micLocation, Long roomId, List<String> userIds);
 
     /**
      * 解禁
      * @param micLocation
      * @param roomId
-     * @param roomNo
+     * @param userIds
      */
-    void notice6(Integer micLocation, Long roomId, String roomNo);
+    void notice6(Integer micLocation, Long roomId, List<String> userIds);
 
     /**
      * 解散房间
      * @param roomId
-     * @param roomNo1
+     * @param userIds
      */
-    void notice7(Long roomId, String roomNo1);
+    void notice7(Long roomId, List<String> userIds);
 
     /**
      * 房间送礼物
      * @param notice
-     * @param roomNo
+     * @param userIds
      */
-    void notice8(RoomGiftNotice notice, String roomNo);
+    void notice8(RoomGiftNotice notice, List<String> userIds);
 
     /**
      *
@@ -138,57 +137,57 @@ public interface NoticeService {
      * @param roomId
      * @param userId
      * @param nickname
-     * @param roomNo1
+     * @param userIds
      */
-    void notice12(Long roomId, Long userId, String nickname, String roomNo1);
+    void notice12(Long roomId, Long userId, String nickname, List<String> userIds);
 
     /**
      * 发红包
      * @param roomId
-     * @param roomNo
+     * @param userIds
      * @param nickname
      */
-    void notice13(Long roomId, String roomNo, String nickname);
+    void notice13(Long roomId, List<String> userIds, String nickname);
 
     /**
      * 踢人
      * @param micLocation
      * @param roomId
      * @param kickIdUserId
-     * @param roomNo
+     * @param userIds
      */
-    void notice16(Integer micLocation, Long roomId, Long kickIdUserId, String roomNo);
+    void notice16(Integer micLocation, Long roomId, Long kickIdUserId, List<String> userIds);
 
     /**
      * 设为主持
      * @param micLocation
      * @param roomId
-     * @param roomNo
+     * @param userIds
      * @param micUserId
      * @param nickname
      */
-    void notice17(Integer micLocation, Long roomId, String roomNo, Long micUserId, String nickname);
+    void notice17(Integer micLocation, Long roomId, List<String> userIds, Long micUserId, String nickname);
 
     /**
      * 取消主持
      * @param micLocation
      * @param roomId
-     * @param roomNo
+     * @param userIds
      * @param micUserId
      * @param nickname
      */
-    void notice18(Integer micLocation, Long roomId, String roomNo, Long micUserId, String nickname);
+    void notice18(Integer micLocation, Long roomId, List<String> userIds, Long micUserId, String nickname);
 
     /**
      * 抽麦序
      * @param micLocation
      * @param roomId
-     * @param roomNo
+     * @param userIds
      * @param micUserId
      * @param nickname
      * @param mic
      */
-    void notice10(Integer micLocation, Long roomId, String roomNo, Long micUserId, String nickname, int mic);
+    void notice10(Integer micLocation, Long roomId, List<String> userIds, Long micUserId, String nickname, int mic);
 
     /**
      * 发生房间公屏消息
@@ -199,21 +198,21 @@ public interface NoticeService {
      * @param type
      * @param userRole
      */
-    void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type, List<String> roomNos, Integer userRole);
+    void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type, List<String> userIds, Integer userRole);
 
     /**
      * 全房送普通礼物通知
      * @param notice
-     * @param roomNo
+     * @param userIds
      */
-    void notice19(RoomGiftNotice notice, String roomNo);
+    void notice19(RoomGiftNotice notice, List<String> userIds);
 
     /**
      * 更新房间人数通知
      * @param roomId
-     * @param roomNos
+     * @param userIds
      */
-    void notice20(Long roomId,List<String> roomNos,Integer roomUserCount);
+    void notice20(Long roomId,List<String> userIds,Integer roomUserCount);
 
     /**
      * 全房送超级大礼通知
@@ -237,9 +236,9 @@ public interface NoticeService {
      * @param levelUrl
      * @param nickname
      * @param portraitAddress
-     * @param roomNos
+     * @param userIds
      */
-    void notice25(Long userId, Long roomId, String levelUrl, String nickname, String portraitAddress, List<String> roomNos);
+    void notice25(Long userId, Long roomId, String levelUrl, String nickname, String portraitAddress, List<String> userIds);
 
     /**
      * 封禁用户
@@ -250,17 +249,17 @@ public interface NoticeService {
     /**
      * 封禁用户
      * @param roomId
-     * @param roomNo1
+     * @param userIds
      */
-    void notice30(Long roomId, String roomNo1);
+    void notice30(Long roomId, List<String> userIds);
 
 
     /**
      * 封禁房间
      * @param roomId
-     * @param roomNo1
+     * @param userIds
      */
-    void notice23(Long roomId, String roomNo1);
+    void notice23(Long roomId, List<String> userIds);
 
     /**
      * 红包开启
@@ -287,8 +286,8 @@ public interface NoticeService {
      * @param roomId
      * @param userId
      * @param backgroundUrl
-     * @param roomNo
+     * @param userIds
      * @param backgroundUrl2
      */
-    void notice31(Long roomId, Long userId, String backgroundUrl, String roomNo, String backgroundUrl2);
+    void notice31(Long roomId, Long userId, String backgroundUrl, List<String> userIds, String backgroundUrl2);
 }

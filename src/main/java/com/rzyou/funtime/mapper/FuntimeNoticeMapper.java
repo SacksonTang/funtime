@@ -11,8 +11,6 @@ public interface FuntimeNoticeMapper {
 
     int insertSelective(FuntimeNotice record);
 
-    List<FuntimeNotice> getGroupFailNotice();
-
     List<FuntimeNotice> getSingleFailNotice();
 
     List<FuntimeNotice> getAllRoomFailNotice();

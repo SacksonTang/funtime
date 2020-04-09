@@ -1019,62 +1019,6 @@ public class RoomController {
     }
 
     /**
-     * 獲取騰訊聊天室用戶
-     * @param request
-     * @return
-     */
-    @PostMapping("getTencentRoomMember")
-    public ResultMsg<Object> getTencentRoomMember(HttpServletRequest request){
-        ResultMsg<Object> result = new ResultMsg<>();
-
-        try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            String groupId = paramJson.getString("groupId");
-            result.setData(TencentUtil.getGroupMemberInfo(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),groupId));
-
-
-        } catch (BusinessException be) {
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-        }
-
-        return result;
-    }
-
-    /**
-     * 获取用户加入的群组
-     * @param request
-     * @return
-     */
-    @PostMapping("getGoinedGroupList")
-    public ResultMsg<Object> getGoinedGroupList(HttpServletRequest request){
-        ResultMsg<Object> result = new ResultMsg<>();
-
-        try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            String userId = paramJson.getString("userId");
-            result.setData(TencentUtil.getGoinedGroupList(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),userId));
-
-
-        } catch (BusinessException be) {
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-        }
-
-        return result;
-    }
-
-    /**
      * 获取用户状态
      * @param request
      * @return
@@ -1105,62 +1049,5 @@ public class RoomController {
     }
 
 
-    @PostMapping("destory")
-    public ResultMsg<Object> destory(HttpServletRequest request){
-        ResultMsg<Object> result = new ResultMsg<>();
 
-        try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            String userId = paramJson.getString("userId");
-            String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
-            JSONObject goinedGroupList = TencentUtil.getGoinedGroupList(userSig, userId);
-            if (goinedGroupList!=null){
-                JSONArray groups = goinedGroupList.getJSONArray("GroupIdList");
-                List<String> members = new ArrayList<>();
-                members.add(userId);
-                for (int i =0 ;i<groups.size();i++){
-                    TencentUtil.deleteGroupMember(userSig,groups.getJSONObject(i).getString("GroupId"),members);
-                }
-            }
-
-
-        } catch (BusinessException be) {
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-        }
-
-        return result;
-    }
-
-    /**
-     * 解散群组
-     * @param request
-     * @return
-     */
-    @PostMapping("destroyGroup")
-    public ResultMsg<Object> destroyGroup(HttpServletRequest request){
-        ResultMsg<Object> result = new ResultMsg<>();
-
-        try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            String groupId = paramJson.getString("groupId");
-            result.setData(TencentUtil.destroyGroup(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER),groupId));
-
-        } catch (BusinessException be) {
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-        }
-
-        return result;
-    }
 }

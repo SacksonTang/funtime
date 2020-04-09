@@ -214,7 +214,7 @@ public class AccountServiceImpl implements AccountService
         }
         Long roomId = roomService.checkUserIsInMic(userId);
         if (roomId!=null){
-            List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
+            List<String> roomNos = roomService.getRoomUserByRoomIdAll(roomId);
             if (roomNos!=null&&!roomNos.isEmpty()) {
                 noticeService.notice25(userId,roomId,levelUrl, null, null, roomNos);
             }
@@ -463,13 +463,11 @@ public class AccountServiceImpl implements AccountService
 
 
             //通知
-            List<String> roomNos = roomService.getRoomNoByRoomIdAll(redpacket.getRoomId());
-            if (roomNos == null || roomNos.isEmpty()) {
+            List<String> userIds = roomService.getRoomUserByRoomIdAll(redpacket.getRoomId());
+            if (userIds == null || userIds.isEmpty()) {
                 throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
             }
-            for (String roomNo : roomNos) {
-                noticeService.notice13(redpacket.getRoomId(), roomNo,user.getNickname());
-            }
+            noticeService.notice13(redpacket.getRoomId(), userIds,user.getNickname());
         }else{
             checkUser(redpacket.getToUserId());
             //单发
@@ -872,17 +870,14 @@ public class AccountServiceImpl implements AccountService
                     noticeService.notice21(notice);
 
                 }
-                List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
-                if (roomNos == null || roomNos.isEmpty()) {
+                List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+                if (userIds == null || userIds.isEmpty()) {
                     throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
                 }
                 notice.setSpecialEffect(type);
                 notice.setType(Constant.ROOM_GIFT_SEND);
                 //发送通知
-                for (String roomNo : roomNos) {
-                    noticeService.notice8(notice, roomNo);
-                }
-
+                noticeService.notice8(notice, userIds);
             }
         }
         return resultMsg;
@@ -969,17 +964,14 @@ public class AccountServiceImpl implements AccountService
                 noticeService.notice21(notice);
 
             }
-            List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
-            if (roomNos == null || roomNos.isEmpty()) {
+            List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+            if (userIds == null || userIds.isEmpty()) {
                 throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
             }
             notice.setSpecialEffect(type);
             notice.setType(Constant.ROOM_GIFT_SEND);
             //发送通知
-            for (String roomNo : roomNos) {
-                noticeService.notice8(notice, roomNo);
-            }
-
+            noticeService.notice8(notice, userIds);
         }
 
         resultMsg.setData(recordId);
@@ -1077,16 +1069,16 @@ public class AccountServiceImpl implements AccountService
             noticeService.notice21(notice);
 
         }
-        List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
-        if (roomNos == null || roomNos.isEmpty()) {
+        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+        if (userIds == null || userIds.isEmpty()) {
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
         notice.setSpecialEffect(type);
         notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
         //发送通知
-        for (String roomNo : roomNos) {
-            noticeService.notice19(notice, roomNo);
-        }
+
+        noticeService.notice19(notice, userIds);
+
 
         return resultMsg;
 
@@ -1180,16 +1172,14 @@ public class AccountServiceImpl implements AccountService
             noticeService.notice21(notice);
 
         }
-        List<String> roomNos = roomService.getRoomNoByRoomIdAll(roomId);
-        if (roomNos == null || roomNos.isEmpty()) {
+        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+        if (userIds == null || userIds.isEmpty()) {
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
         notice.setSpecialEffect(type);
         notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
         //发送通知
-        for (String roomNo : roomNos) {
-            noticeService.notice19(notice, roomNo);
-        }
+        noticeService.notice19(notice, userIds);
         return resultMsg;
     }
 

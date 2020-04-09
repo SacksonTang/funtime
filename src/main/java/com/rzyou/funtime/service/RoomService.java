@@ -85,11 +85,7 @@ public interface RoomService {
      */
     void lowerWheat(Long userId, Long roomId, Long micUserId);
 
-    /**
-     * 同步腾讯
-     * @param usersig
-     */
-    void syncTencent(String usersig);
+
 
     /**
      * 封麦
@@ -163,7 +159,7 @@ public interface RoomService {
      * @param roomId
      * @return
      */
-    List<String> getRoomNoByRoomIdAll(Long roomId);
+    List<String> getRoomUserByRoomIdAll(Long roomId);
 
     /**
      * 获取聊天室信息

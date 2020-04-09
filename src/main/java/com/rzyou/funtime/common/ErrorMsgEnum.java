@@ -50,7 +50,7 @@ public enum ErrorMsgEnum {
     USER_ACCOUNT_GOLD_NOT_EN("10037","账户金币不足"),
     USER_WX_EXISTS("10038","该微信已被其它账号绑定"),
     USER_WX_NOT_BIND("10039","没有用户微信绑定信息"),
-    USER_IS_IFFLINE("10040","用户IM已离线"),
+    USER_IS_OFFLINE("10040","用户IM已离线"),
     USER_IS_LOGIN_OTHER("10041","你已在别的地方上线"),
     USER_BULLET_NO_EN("10042","子弹数不足"),
 

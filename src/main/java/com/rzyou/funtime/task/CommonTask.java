@@ -121,35 +121,11 @@ public class CommonTask {
 
     }
 
-    /**
-     * 同步腾讯群组
-     */
-    @Scheduled(fixedRate = 1000*5)
-    public void syncTencent(){
-        try {
-            log.debug("同步腾讯群组接口：start:{}", DateUtil.getCurrentDateTimeExtr());
-            roomService.syncTencent(UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER));
-            log.debug("同步腾讯群组接口：end:{}", DateUtil.getCurrentDateTimeExtr());
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-    }
 
     /**
      * 处理通知
      */
-    @Scheduled(fixedRate = 1000*3)
-    public void notice1() {
-        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
-        List<FuntimeNotice> failNotices = noticeService.getFailNotice(1);
-        if (failNotices != null && !failNotices.isEmpty()) {
-            for (FuntimeNotice failNotice : failNotices) {
 
-                noticeService.sendGroupNotice(userSig, failNotice.getData(), failNotice.getId());
-            }
-        }
-    }
     @Scheduled(fixedRate = 1000*3)
     public void notice2() {
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
@@ -177,7 +153,7 @@ public class CommonTask {
         List<FuntimeNotice> failNotices = noticeService.getFailNotice(4);
         if (failNotices != null&&!failNotices.isEmpty()){
             for (FuntimeNotice failNotice : failNotices){
-                noticeService.snedAllAppNotice(userSig, failNotice.getData(),failNotice.getId());
+                noticeService.sendAllAppNotice(userSig, failNotice.getData(),failNotice.getId());
             }
         }
 
