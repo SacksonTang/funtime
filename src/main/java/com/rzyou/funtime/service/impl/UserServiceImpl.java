@@ -74,6 +74,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<String> getAllUserIdByApp() {
+        return userMapper.getAllUserIdByApp();
+    }
+
+    @Override
     public boolean checkUserExists(Long id) {
         if (userMapper.checkUserExists(id)==null){
             return false;
@@ -303,10 +308,7 @@ public class UserServiceImpl implements UserService {
             }
             Long roomId = roomService.checkUserIsInMic(user.getId());
             if (roomId!=null){
-                List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
-                if (userIds!=null&&!userIds.isEmpty()) {
-                    noticeService.notice25(user.getId(),roomId,null,user.getNickname(), user.getPortraitAddress(), userIds);
-                }
+                roomService.sendRoomInfoNotice(roomId);
             }
         }
 
@@ -611,6 +613,8 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
     }
+
+
 
     @Override
     public void updateTokenById(Long userId, String token) {
@@ -1058,11 +1062,9 @@ public class UserServiceImpl implements UserService {
         }
         updateOnlineState(userId,2);
         Long roomId = roomService.checkUserIsInRoom(userId);
-        if (roomId==null){
-            return;
+        if (roomId!=null){
+            roomService.roomExit(userId, roomId);
         }
-        roomService.roomExit(userId,roomId);
-
     }
 
     @Override

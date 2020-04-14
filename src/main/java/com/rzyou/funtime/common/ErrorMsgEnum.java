@@ -126,6 +126,7 @@ public enum ErrorMsgEnum {
     ROOM_MICUSER_IS_EMPTY("80027","房间麦上没有其他人"),
     ROOM_BACKGROUND_ERROR("80028","无此背景或已过期"),
     ROOM_BACKGROUND_NOBUY("80029","该资源免费,不需要购买"),
+    ROOM_LOWER_OWER_ERROR("80030","房主不能下麦"),
 
     DRAW_POOL_NOT_EN("90001","奖池余额不足"),
     DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启")

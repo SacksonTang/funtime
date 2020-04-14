@@ -31,8 +31,12 @@
     id, name, tags, exam_desc, is_block, is_lock, hot, online_num, state, create_time,
     chat_message_file,user_id,password,exam_url,avatar_url,background_id
   </sql>
+  <select id="getAllRoom" resultType="java.lang.Long" >
+    select
+    id
+    from t_funtime_chatroom where online_num>0 and state = 1 and is_block = 2
 
-
+  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -73,7 +77,7 @@
     (m.online_num - count(u1.id)) femaleCount
     from t_funtime_chatroom m
          inner join t_funtime_user u on m.user_id = u.id
-         left join (t_funtime_chatroom_user cu inner join t_funtime_user u1 on cu.user_id = u1.id and u1.sex = 1)
+         left join (t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id and u1.sex = 1)
                    on m.id = cu.room_id
     where m.is_block = 2 and m.state = 1
 
@@ -100,7 +104,7 @@
     from t_funtime_chatroom m
     inner join t_funtime_user_visit_log l on m.id = l.room_id
     inner join t_funtime_user u on m.user_id = u.id
-    inner join (t_funtime_chatroom_user cu inner join t_funtime_user u1 on cu.user_id = u1.id and u1.sex = 1)
+    inner join (t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id and u1.sex = 1)
     on m.id = cu.room_id
     where m.is_block = 2 and m.state = 1
      and l.user_id = #{userId}
@@ -299,7 +303,7 @@
   </update>
   <update id="updateOnlineNumTask">
     update  t_funtime_chatroom m
-    inner join (select room_id,count(id) counts from t_funtime_chatroom_user GROUP BY room_id) u on m.id = u.room_id
+    inner join (select room_id,count(id) counts from t_funtime_chatroom_mic where mic_user_id is not null GROUP BY room_id) u on m.id = u.room_id
     set m.online_num = u.counts
     where  m.online_num!= u.counts
   </update>

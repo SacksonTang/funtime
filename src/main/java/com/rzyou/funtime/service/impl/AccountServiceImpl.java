@@ -214,10 +214,8 @@ public class AccountServiceImpl implements AccountService
         }
         Long roomId = roomService.checkUserIsInMic(userId);
         if (roomId!=null){
-            List<String> roomNos = roomService.getRoomUserByRoomIdAll(roomId);
-            if (roomNos!=null&&!roomNos.isEmpty()) {
-                noticeService.notice25(userId,roomId,levelUrl, null, null, roomNos);
-            }
+            roomService.sendRoomInfoNotice(roomId);
+
         }
     }
 

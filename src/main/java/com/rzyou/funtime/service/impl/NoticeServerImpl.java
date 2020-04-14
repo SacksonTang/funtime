@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -357,7 +356,7 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    public void notice16(Integer micLocation, Long roomId, Long kickIdUserId, List<String> userIds) {
+    public void notice16(Integer micLocation, Long roomId, Long kickIdUserId) {
         JSONObject object = new JSONObject();
         object.put("pos",micLocation);
         object.put("rid",roomId);
@@ -578,6 +577,17 @@ public class NoticeServerImpl implements NoticeService {
         object.put("bgUrl",backgroundUrl);
         object.put("bgUrl2",backgroundUrl2);
         object.put("type",Constant.SET_BACKGROUND);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public void notice32(List<String> userIds, List<Map<String, Object>> micUser, int roomUserCount) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.REFRESH_MICINFO);
+        object.put("micUser",micUser);
+        object.put("roomUserCount",roomUserCount);
         String data = StringEscapeUtils.unescapeJava(object.toJSONString());
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         sendRoomUserNotice(userSig,data,userIds);

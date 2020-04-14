@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -31,6 +29,34 @@ public class RoomController {
 
     @Autowired
     RoomService roomService;
+
+
+
+    @PostMapping("sendRoomInfoNotice")
+    public ResultMsg<Object> sendRoomInfoNotice(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long roomId = paramJson.getLong("roomId");
+            if (roomId==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            roomService.sendRoomInfoNotice(roomId);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
     /**
      * 封禁房间
@@ -359,8 +385,7 @@ public class RoomController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            Long roomId = roomService.roomCreate(userId,platform);
-            result.setData(JsonUtil.getMap("roomId",roomId));
+            result.setData(roomService.roomCreate(userId,platform));
             return result;
         } catch (BusinessException be) {
             log.error("roomCreate BusinessException==========>{}",be.getMsg());
@@ -474,11 +499,7 @@ public class RoomController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-
-            boolean isOwner = roomService.roomJoin(userId,roomId,password,type);
-
-            result.setData(JsonUtil.getMap("isOwer",isOwner));
-
+            result.setData(roomService.roomJoin(userId,roomId,password,type));
             return result;
         } catch (BusinessException be) {
             log.error("roomJoin BusinessException==========>{}",be.getMsg());

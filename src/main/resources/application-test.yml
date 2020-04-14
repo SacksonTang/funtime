@@ -13,7 +13,7 @@ server:
 spring:
   datasource:
     druid:
-      url: jdbc:mysql://106.52.93.16:3306/funtime?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      url: jdbc:mysql://106.52.93.16:3306/funtime_pre?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
       username: root
       password: funtime2019
       driver-class-name: com.mysql.cj.jdbc.Driver

@@ -36,6 +36,7 @@ public class CommonTask {
      */
     @Scheduled(fixedRate = 1000*5*60)
     public void setBackgroundTask(){
+        log.info("背景资源过去设置 setBackgroundTask:{}",DateUtil.getCurrentDateTimeExtr());
         try {
             roomService.setBackgroundTask();
         }catch (Exception e){
@@ -49,7 +50,12 @@ public class CommonTask {
      */
     @Scheduled(cron = "1 0 0 ? * MON")
     public void resetYaoyaoPool(){
-        gameService.updateYaoyaoPoolTask();
+        log.info("摇摇乐奖池重置 resetYaoyaoPool:{}",DateUtil.getCurrentDateTimeExtr());
+        try {
+            gameService.updateYaoyaoPoolTask();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -57,7 +63,13 @@ public class CommonTask {
      */
     @Scheduled(cron = "0 0 1 * * ?")
     public void heartTask(){
-        userService.heartTask();
+        log.info("心跳合并 heartTask:{}",DateUtil.getCurrentDateTimeExtr());
+        try {
+            userService.heartTask();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -65,19 +77,20 @@ public class CommonTask {
      */
     @Scheduled(fixedRate = 1000*5*60)
     public void updateOnlineNumTask(){
+        log.info("同步房间用户数 updateOnlineNumTask:{}",DateUtil.getCurrentDateTimeExtr());
         roomService.updateOnlineNumTask();
     }
 
     /**
      * 房内离线用户下麦
      */
-    @Scheduled(fixedRate = 1000*5)
+    @Scheduled(fixedRate = 1000*30)
     public void offlineUserTask(){
+        log.info("offlineUserTask:{}",DateUtil.getCurrentDateTimeExtr());
         List<Long> users = userService.getOfflineUser();
         if (users!=null&&!users.isEmpty()){
             for (Long userId : users){
                 try {
-
                     roomService.roomExitTask(userId);
                 }catch (Exception e){
                     log.error("offlineUserTask ===>异常用户ID:{}",userId);
@@ -92,6 +105,7 @@ public class CommonTask {
      */
     @Scheduled(fixedRate = 1000*60)
     public void offlineUserAppTask(){
+        log.info("offlineUserAppTask:{}",DateUtil.getCurrentDateTimeExtr());
         userService.offlineUserAppTask();
     }
 
@@ -112,12 +126,21 @@ public class CommonTask {
      */
     @Scheduled(fixedRate = 1000*60)
     public void redpacketTask(){
-
         try {
             accountService.updateStateForInvalid();
         }catch (Exception e){
             e.printStackTrace();
         }
+
+    }
+
+    /**
+     * 发送房间麦位信息
+     */
+    @Scheduled(fixedRate = 1000*5)
+    public void sendRoomMicInfoTask(){
+        log.info("sendRoomMicInfoTask:{}",DateUtil.getCurrentDateTimeExtr());
+        roomService.sendRoomMicInfoTask();
 
     }
 

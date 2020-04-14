@@ -57,6 +57,11 @@
     from t_funtime_user
     where  online_state = 1 and flag = 1
   </select>
+  <select id="getAllUserIdByApp" resultType="java.lang.String">
+    select
+    id
+    from t_funtime_user
+  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
     id, username, fullname, nickname, password, phone_number,
@@ -161,7 +166,7 @@
     from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.to_user_id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     where c.user_id = #{userId} and u.state = 1
-    and not exists (select t.id from t_funtime_chatroom_user t where t.user_id = c.to_user_id and t.room_id = #{roomId})
+    and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = c.to_user_id and t.room_id = #{roomId})
     <if test="content!=null and content!=''">
       and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
     </if>
@@ -174,7 +179,7 @@
     from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.user_id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     where c.to_user_id = #{userId} and u.state = 1
-    and not exists (select t.id from t_funtime_chatroom_user t where t.user_id = c.user_id and t.room_id = #{roomId})
+    and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = c.user_id and t.room_id = #{roomId})
     <if test="content!=null and content!=''">
       and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
     </if>
@@ -189,7 +194,7 @@
     where u.online_state = 1 and u.state = 1
     and u.id not in (select c.to_user_id from t_funtime_user_concern c where c.user_id = #{userId} )
     and u.id not in (select c.user_id from t_funtime_user_concern c where c.to_user_id = #{userId} )
-    and not exists (select t.id from t_funtime_chatroom_user t where t.user_id = u.id and t.room_id = #{roomId})
+    and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = u.id and t.room_id = #{roomId})
     <if test="content!=null and content!=''">
       and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
     </if>

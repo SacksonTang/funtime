@@ -1,5 +1,7 @@
 package com.rzyou.funtime.service;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.entity.FuntimeChatroom;
@@ -16,7 +18,7 @@ public interface RoomService {
      * @param platform
      * @return
      */
-    Long roomCreate(Long userId, Integer platform);
+    JSONObject roomCreate(Long userId, Integer platform);
 
     /**
      * 设置房间
@@ -32,7 +34,7 @@ public interface RoomService {
      * @param type
      * @return
      */
-    boolean roomJoin(Long userId, Long roomId, String password, Integer type);
+    JSONObject roomJoin(Long userId, Long roomId, String password, Integer type);
 
     /**
      * 获取房间信息
@@ -253,13 +255,7 @@ public interface RoomService {
      */
     FuntimeChatroom getRoomByUserId(Long userId);
 
-    /**
-     * 用户是否在房间
-     * @param roomId
-     * @param userId
-     * @return
-     */
-    boolean checkUserIsExist(Long roomId,Long userId);
+
 
     /**
      * 用户是否在房间
@@ -335,4 +331,16 @@ public interface RoomService {
      * 定时同步房间用户数量
      */
     void updateOnlineNumTask();
+
+
+    /**
+     * 发生麦位信息
+     */
+    void sendRoomMicInfoTask();
+
+    /**
+     * 发生麦位信息
+     * @param roomId
+     */
+    void sendRoomInfoNotice(Long roomId);
 }

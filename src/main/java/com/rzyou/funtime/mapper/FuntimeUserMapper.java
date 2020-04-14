@@ -20,6 +20,8 @@ public interface FuntimeUserMapper {
 
     List<String> getAllUserId();
 
+    List<String> getAllUserIdByApp();
+
     Map<String, Object> queryUserByChatUser(@Param("userId") Long userId,@Param("byUserId") Long byUserId);
 
     FuntimeUser queryUserInfo(Map<String,Object> map);

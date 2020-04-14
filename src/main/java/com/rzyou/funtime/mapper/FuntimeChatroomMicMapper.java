@@ -11,11 +11,11 @@ import java.util.Map;
 public interface FuntimeChatroomMicMapper {
     Long checkUserIsInMic(Long userId);
 
+    FuntimeChatroomMic getRoomUserInfoByUserId(Long userId);
+
     int deleteByPrimaryKey(Long id);
 
     int lowerWheat(Long id);
-
-    int lowerWheatWithRole(Long id);
 
     int upperWheat(@Param("id") Long id,@Param("userId") Long userId);
 
@@ -23,28 +23,34 @@ public interface FuntimeChatroomMicMapper {
 
     int forbidWheat(Long id);
 
-    Integer getMicLocationUserRole(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
-    Long getMicLocationId(@Param("roomId") Long roomId, @Param("userId") Long userId);
-
-    List<Long> getMicUserIdByRoomId(@Param("roomId") Long roomId,@Param("userId") Long userId);
     /**
-     * 获取用户麦位
-     * @param roomId
-     * @param userId
+     * 获取全部腾讯聊天室
      * @return
      */
-    Integer getMicLocation(@Param("roomId") Long roomId, @Param("userId") Long userId);
+    List<String> getAllRoomUser();
+
+    FuntimeChatroomMic getMicLocationByRoomIdAndUser(@Param("roomId") Long roomId, @Param("userId") Long userId);
+
+    FuntimeChatroomMic getInfoByRoomIdAndUser(@Param("roomId") Long roomId, @Param("userId") Long userId);
+
+    List<Long> getMicUserIdByRoomId(@Param("roomId") Long roomId,@Param("userId") Long userId);
+
+    List<Long> getRoomUserByRoomId(@Param("roomId") Long roomId,@Param("userId") Long userId);
+
+    List<Map<String, Object>> getRoomUserById(@Param("roomId") Long roomId,@Param("nickname") String nickname);
+
+    List<Map<String, Object>> getRoomUserByIdAll(@Param("roomId") Long roomId,@Param("nickname") String nickname);
 
     FuntimeChatroomMic getMicLocationUser(@Param("roomId") Long roomId, @Param("micLocation") Integer micLocation);
+
+    List<String> getRoomUserByRoomIdAll(Long roomId);
 
     int insertBatch(@Param("mics") List<FuntimeChatroomMic> mics);
 
     List<Map<String, Object>> getMicUserByRoomId(Long roomId);
 
     int insertSelective(FuntimeChatroomMic record);
-
-    FuntimeChatroomMic selectByPrimaryKey(Long id);
 
     int updateByPrimaryKeySelective(FuntimeChatroomMic record);
 
@@ -55,6 +61,8 @@ public interface FuntimeChatroomMicMapper {
     int releaseWheat(Long id);
 
     int deleteByRoomId(Long roomId);
+
+    int updateMicByRoomId(Long roomId);
 
     int roomManage(Long id);
 

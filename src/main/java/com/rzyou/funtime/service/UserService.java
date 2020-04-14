@@ -1,6 +1,7 @@
 package com.rzyou.funtime.service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.entity.*;
 
@@ -15,6 +16,12 @@ public interface UserService {
      * @return
      */
     List<String> getAllUserId();
+
+    /**
+     * 查询所有系统用户
+     * @return
+     */
+    List<String> getAllUserIdByApp();
 
     /**
      * 检查用户是否存在
@@ -226,6 +233,7 @@ public interface UserService {
      * @param onlineState
      */
     void updateOnlineState(Long userId, Integer onlineState);
+
 
     /**
      * 修改token

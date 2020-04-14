@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.encryption.AESUtil;
 import com.rzyou.funtime.common.encryption.RsaUtils;
+import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
 import com.rzyou.funtime.component.StaticData;
@@ -15,6 +16,7 @@ import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.JsonUtil;
+import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 @Slf4j
 @RestController
@@ -448,5 +451,42 @@ public class LoginController {
         }
     }
 
+
+    /**
+     * 删除用户
+     */
+    @GetMapping("delUser")
+    public ResultMsg<Object> delUser() {
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            List<String> userIds = userService.getAllUserIdByApp();
+            String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+            if (userIds.size()>100){
+                int size = userIds.size();
+                int fromIndex = 0;
+                int toIndex = 100;
+                int k = size%toIndex == 0?size/toIndex:size/toIndex+1;
+                for (int j = 1;j<k+1;j++){
+                    List<String> spList = userIds.subList(fromIndex,toIndex);
+                    fromIndex = j*toIndex;
+                    toIndex =  Math.min((j+1)*toIndex,size) ;
+                    TencentUtil.accountDelete(userSig,spList);
+                }
+            }else {
+                TencentUtil.accountDelete(userSig, userIds);
+            }
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
 }

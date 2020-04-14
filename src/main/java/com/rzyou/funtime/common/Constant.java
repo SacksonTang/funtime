@@ -118,6 +118,7 @@ public class Constant {
     public final static String TENCENT_YUN_GET_JOINED_GROUP_LIST =  "get_joined_group_list";
 
     public final static String TENCENT_YUN_ACCOUNT_IMPORT = "account_import";
+    public final static String TENCENT_YUN_ACCOUNT_DELTE = "account_delete";
 
     public final static String TENCENT_YUN_PORTRAIT_SET = "portrait_set";
     public final static String TENCENT_YUN_BATCHSENDMSG = "batchsendmsg";
@@ -165,5 +166,6 @@ public class Constant {
     public static final int YAOYAO_SHOW_CLOSE = 29;
     public static final int BLOCK_USER_ROOM = 30;
     public static final int SET_BACKGROUND = 31;
+    public static final int REFRESH_MICINFO = 32;
     public static final int SERVICE_MSG = 10001;
 }

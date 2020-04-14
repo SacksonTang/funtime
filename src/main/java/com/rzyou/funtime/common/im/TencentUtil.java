@@ -319,6 +319,35 @@ public class TencentUtil {
     }
 
     /**
+     * 删除用户
+     * @param usersig
+     * @param userIds
+     * @return
+     */
+    public static boolean accountDelete(String usersig,List<String> userIds){
+        String url = getImUrl(Constant.TENCENT_YUN_ACCOUNT_IMPORT,usersig);
+
+        JSONObject paramMap = new JSONObject();
+        JSONArray array = new JSONArray();
+        JSONObject obj ;
+        for (String userId : userIds){
+            obj = new JSONObject();
+            obj.put("UserID",userId);
+            array.add(obj);
+        }
+        paramMap.put("DeleteItem",array);
+        log.info(JSONObject.toJSONString(paramMap));
+        String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
+        JSONObject result = JSONObject.parseObject(postStr);
+        if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
+            log.info("腾讯删除用户接口:account_delete 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+    /**
      * 设置用户资料
      * @param usersig
      * @param userId

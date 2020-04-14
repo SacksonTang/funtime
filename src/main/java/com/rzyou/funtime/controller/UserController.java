@@ -499,7 +499,7 @@ public class UserController {
                 return result;
             }
 
-            userService.updateOnlineState(userId,onlineState);
+            userService.saveImHeart(userId,onlineState,"Relogin","Client Login");
 
             return result;
         } catch (BusinessException be) {

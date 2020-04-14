@@ -4,6 +4,7 @@ import com.rzyou.funtime.entity.FuntimeNotice;
 import com.rzyou.funtime.entity.RoomGiftNotice;
 
 import java.util.List;
+import java.util.Map;
 
 public interface NoticeService {
 
@@ -127,7 +128,7 @@ public interface NoticeService {
     void notice8(RoomGiftNotice notice, List<String> userIds);
 
     /**
-     *
+     *全服房间通知礼物
      * @param notice
      */
     void notice9(RoomGiftNotice notice);
@@ -154,9 +155,8 @@ public interface NoticeService {
      * @param micLocation
      * @param roomId
      * @param kickIdUserId
-     * @param userIds
      */
-    void notice16(Integer micLocation, Long roomId, Long kickIdUserId, List<String> userIds);
+    void notice16(Integer micLocation, Long roomId, Long kickIdUserId);
 
     /**
      * 设为主持
@@ -290,4 +290,12 @@ public interface NoticeService {
      * @param backgroundUrl2
      */
     void notice31(Long roomId, Long userId, String backgroundUrl, List<String> userIds, String backgroundUrl2);
+
+    /**
+     * 刷新麦位信息
+     * @param userIds
+     * @param micUser
+     * @param roomUserCount
+     */
+    void notice32(List<String> userIds, List<Map<String, Object>> micUser, int roomUserCount);
 }

@@ -11,6 +11,8 @@ import java.util.Map;
 public interface FuntimeChatroomMapper {
     int deleteByPrimaryKey(Long id);
 
+    List<Long> getAllRoom();
+
     FuntimeChatroom getRoomInfoById(Long id);
 
     Long checkRoomExists(Long id);

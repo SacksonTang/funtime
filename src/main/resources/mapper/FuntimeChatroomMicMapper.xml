@@ -15,44 +15,59 @@
   <sql id="Base_Column_List">
     id, room_id, mic_location, mic_user_id, create_time, update_time,state,user_role
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select 
-    <include refid="Base_Column_List" />
-    from t_funtime_chatroom_mic
-    where id = #{id,jdbcType=BIGINT}
-  </select>
+
   <select id="getMicLocationUser"  resultMap="BaseResultMap">
     select
-    id,mic_user_id,user_role,state
+    <include refid="Base_Column_List" />
     from t_funtime_chatroom_mic
-    where room_id = #{roomId} and mic_location = #{micLocation}  limit 1
+    where room_id = #{roomId} and mic_location = #{micLocation} and mic_location>0 limit 1
   </select>
-  <select id="getMicLocationUserRole"  resultType="java.lang.Integer">
+  <select id="getMicLocationByRoomIdAndUser"  resultMap="BaseResultMap">
     select
-    user_role
+    <include refid="Base_Column_List" />
+    from t_funtime_chatroom_mic
+    where room_id = #{roomId} and mic_user_id = #{userId} and mic_location>0 limit 1
+  </select>
+  <select id="getInfoByRoomIdAndUser"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
     from t_funtime_chatroom_mic
     where room_id = #{roomId} and mic_user_id = #{userId}  limit 1
   </select>
-  <select id="getMicLocationId"  resultType="java.lang.Long">
-    select
-    id
-    from t_funtime_chatroom_mic
-    where room_id = #{roomId} and mic_user_id = #{userId}  limit 1
-  </select>
-
   <select id="checkUserIsInMic"  resultType="java.lang.Long">
     select
     room_id
     from t_funtime_chatroom_mic
+    where  mic_user_id = #{userId} and mic_location>0 limit 1
+  </select>
+  <select id="getAllRoomUser" resultType="java.lang.String" >
+    select
+    mic_user_id
+    from t_funtime_chatroom_mic
+    where mic_user_id is not null
+    group by mic_user_id
+  </select>
+
+  <select id="getRoomUserInfoByUserId"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_chatroom_mic
     where  mic_user_id = #{userId}  limit 1
   </select>
-  <select id="getMicLocation"  resultType="java.lang.Integer">
+  <select id="getRoomUserByRoomIdAll" resultType="java.lang.String" parameterType="java.lang.Long">
     select
-    mic_location
+    mic_user_id
     from t_funtime_chatroom_mic
-    where room_id = #{roomId} and mic_user_id = #{userId}  limit 1
+    where room_id = #{roomId} and mic_user_id is not null
+
   </select>
   <select id="getMicUserIdByRoomId"  resultType="java.lang.Long" >
+    select
+    mic_user_id
+    from t_funtime_chatroom_mic
+    where room_id = #{roomId} and mic_user_id !=#{userId} and mic_user_id is not null and mic_location>0
+  </select>
+  <select id="getRoomUserByRoomId"  resultType="java.lang.Long" >
     select
     mic_user_id
     from t_funtime_chatroom_mic
@@ -67,20 +82,50 @@
         inner join t_funtime_user_account t on u.id = t.user_id
         inner join t_funtime_user_level_conf l on t.level = l.level)
         on m.mic_user_id = u.id
-        where room_id = #{roomId}
+        where m.room_id = #{roomId} and m.mic_location>0
         order by m.mic_location asc
     </select>
+  <select id="getRoomUserByIdAll"  resultType="java.util.Map">
+    select
+    u.id id,u.nickname,u.portrait_address portraitAddress
+    ,u.sign_text signText,u.sex,u.show_id showId,m.user_role userRole
+    ,l.level,l.level_url as levelUrl
+    from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
 
-  <update id="deleteByRoomId" parameterType="java.lang.Long">
+    where m.room_id = #{roomId}
+    <if test="nickname!=null and nickname!=''">
+      and BINARY u.nickname like concat('%',#{nickname},'%')
+    </if>
+    order by m.user_role asc, m.create_time desc
+  </select>
+  <select id="getRoomUserById"  resultType="java.util.Map">
+    select
+    u.id id,u.nickname,u.portrait_address portraitAddress,u.sign_text signText,u.sex,u.show_id showId
+    ,l.level,l.level_url as levelUrl
+    from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+
+    where m.room_id = #{roomId}  and m.user_role = 4
+    <if test="nickname!=null and nickname!=''">
+      and BINARY u.nickname like concat('%',#{nickname},'%')
+    </if>
+    order by m.create_time desc
+  </select>
+  <update id="updateMicByRoomId" parameterType="java.lang.Long">
     update t_funtime_chatroom_mic set mic_user_id = null,state = 1,update_time = NOW()
-    where room_id = #{roomId}
+    where room_id = #{roomId} and mic_location>0
+  </update>
+  <update id="deleteByRoomId" parameterType="java.lang.Long">
+    delete from t_funtime_chatroom_mic
+    where room_id = #{roomId} and mic_location is null
   </update>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_chatroom_mic
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <update id="lowerWheat" >
-    update t_funtime_chatroom_mic set mic_user_id = null,state = 1,update_time = NOW()
+    update t_funtime_chatroom_mic set mic_user_id = null,update_time = NOW()
     where id = #{id}
   </update>
 
