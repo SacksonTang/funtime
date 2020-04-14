@@ -455,7 +455,7 @@ public class LoginController {
     /**
      * 删除用户
      */
-    @GetMapping("delUser")
+    //@GetMapping("delUser")
     public ResultMsg<Object> delUser() {
         ResultMsg<Object> result = new ResultMsg<>();
         try {

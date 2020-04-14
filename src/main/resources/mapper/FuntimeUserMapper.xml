@@ -117,7 +117,7 @@
       WHERE
           d.create_time between #{startDate} and #{endDate}
       GROUP BY
-          d.user_id
+          d.user_id,t.level
       ORDER BY
           amountSum DESC,max(d.id) ASC
       limit ${endCount}
@@ -142,7 +142,7 @@
       WHERE
           d.create_time between #{startDate} and #{endDate}
       GROUP BY
-          d.user_id
+          d.user_id,t.level
       ORDER BY
           amountSum DESC,max(d.id) ASC
       limit ${endCount}
