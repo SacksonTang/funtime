@@ -617,8 +617,8 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void updateTokenById(Long userId, String token) {
-        userMapper.updateTokenById(userId, token);
+    public void updateShowIdById(Long userId) {
+        userMapper.updateShowIdById(userId);
     }
 
     @Override

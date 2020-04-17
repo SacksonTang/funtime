@@ -667,8 +667,8 @@
   <update id="updateCreateRoomSub" parameterType="java.lang.Long">
     update t_funtime_user set create_room = create_room+1,update_time =now() where id = #{id} and create_room>0
   </update>
-<update id="updateTokenById" >
-  update t_funtime_user set token = #{token},update_time =now(),show_id = #{id}+690002 where id = #{id}
+<update id="updateShowIdById" >
+  update t_funtime_user set update_time =now(),show_id = #{id}+690002 where id = #{id}
 </update>
   <update id="updateRealnameAuthenticationFlagById" >
   update t_funtime_user set realname_authentication_flag = 1,update_time =now() where id = #{id}

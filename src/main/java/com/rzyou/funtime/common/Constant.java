@@ -43,6 +43,7 @@ public class Constant {
 
     public static final String APPLE_URL_SANDBOX = "https://sandbox.itunes.apple.com/verifyReceipt";
     //public static final String APPLE_URL_VERIFY = "https://buy.itunes.apple.com/verifyReceipt";
+    public static final String APPLE_GET_KEYS = "https://appleid.apple.com/auth/keys";
 
 
     public final static String WXCHATTEMP = "申请成功,提现金额将在10个工作日到账,关注触娱公众号#,充值更优惠";
@@ -86,6 +87,7 @@ public class Constant {
     public static final String LOGIN_QQ = "QQ";
     public static final String LOGIN_ONEKEY = "ONEKEY";
     public static final String LOGIN_WEIBO = "WEIBO";
+    public static final String LOGIN_APPLE = "APPLE";
 
 
     public final static String MOBPUSH_APPID = "2d2b03f3228f1";

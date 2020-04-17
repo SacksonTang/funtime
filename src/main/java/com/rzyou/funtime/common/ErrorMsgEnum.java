@@ -53,6 +53,7 @@ public enum ErrorMsgEnum {
     USER_IS_OFFLINE("10040","用户IM已离线"),
     USER_IS_LOGIN_OTHER("10041","你已在别的地方上线"),
     USER_BULLET_NO_EN("10042","子弹数不足"),
+    USER_APPLELOGIN_ERROR("10043","苹果登录失败"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),

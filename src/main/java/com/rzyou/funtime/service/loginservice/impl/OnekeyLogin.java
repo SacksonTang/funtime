@@ -51,11 +51,12 @@ public class OnekeyLogin implements LoginStrategy {
             user.setSignText("这个人很懒,什么都没有留下");
             user.setVersion(System.currentTimeMillis());
             user.setPhoneNumber(phoneNumber);
+            user.setToken(uuid);
             userService.saveUser(user, null, null, null,null);
             userId = user.getId().toString();
 
             token = JwtHelper.generateJWT(userId,uuid);
-            userService.updateTokenById(user.getId(),uuid);
+            userService.updateShowIdById(user.getId());
 
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());

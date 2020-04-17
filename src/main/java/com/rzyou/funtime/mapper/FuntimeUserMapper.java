@@ -61,7 +61,7 @@ public interface FuntimeUserMapper {
      */
     int updateRealnameAuthenticationFlagById(Long id);
 
-    int updateTokenById(@Param("id") Long id, @Param("token") String token);
+    int updateShowIdById(Long id);
 
     List<Map<String,Object>> queryAuthorityByRole(Integer userRole);
 

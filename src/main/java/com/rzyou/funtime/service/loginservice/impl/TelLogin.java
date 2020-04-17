@@ -66,11 +66,11 @@ public class TelLogin implements LoginStrategy {
                 user.setSex(1);
             }
             user.setVersion(System.currentTimeMillis());
-
+            user.setToken(uuid);
             userService.saveUser(user, null, null, null,null);
             userId = user.getId().toString();
             token = JwtHelper.generateJWT(userId,uuid);
-            userService.updateTokenById(user.getId(),uuid);
+            userService.updateShowIdById(user.getId());
 
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());

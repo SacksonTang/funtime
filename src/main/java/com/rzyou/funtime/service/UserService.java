@@ -238,9 +238,8 @@ public interface UserService {
     /**
      * 修改token
      * @param userId
-     * @param token
      */
-    void updateTokenById(Long userId,String token);
+    void updateShowIdById(Long userId);
 
     /**
      * 房间数加1

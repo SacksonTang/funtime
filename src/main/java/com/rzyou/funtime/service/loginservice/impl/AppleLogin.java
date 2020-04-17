@@ -1,14 +1,13 @@
 package com.rzyou.funtime.service.loginservice.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.appleutils.JwtUtils;
 import com.rzyou.funtime.common.im.TencentUtil;
-import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
+import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserThird;
-import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.DateUtil;
@@ -18,63 +17,47 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
 import java.util.Date;
 
 @Slf4j
-@Service("wxLogin")
-public class WxLogin implements LoginStrategy {
-
+@Service("appleLogin")
+public class AppleLogin implements LoginStrategy {
     @Autowired
     UserService userService;
 
-
-
     @Override
-    @Transactional
     public FuntimeUser login(FuntimeUser user) {
 
-        if (StringUtils.isBlank(user.getCode())){
-            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        if(!JwtUtils.isValid(user.getToken())){
+            throw new BusinessException(ErrorMsgEnum.USER_APPLELOGIN_ERROR.getValue(),ErrorMsgEnum.USER_APPLELOGIN_ERROR.getDesc());
         }
-        String code = user.getCode();
-        JSONObject tokenJson = WeixinLoginUtils.getAccessToken(code);
-        String refresh_token = tokenJson.getString("refresh_token");
-        String openid = tokenJson.getString("openid");
-
-        FuntimeUserThird userThird = userService.queryUserInfoByOpenid(openid,user.getLoginType());
+        FuntimeUserThird userThird = userService.queryUserInfoByOpenid(user.getAppleUserId(),user.getLoginType());
         String uuid = StringUtil.createNonceStr();
         String userId;
         if (userThird==null){
-            JSONObject refreshTokenJson = WeixinLoginUtils.refreshToken(refresh_token);
-            String access_token = refreshTokenJson.getString("access_token");
-            JSONObject userJson = WeixinLoginUtils.getUserInfo(access_token,openid);
             //新用户
             user.setOnlineState(1);
             user.setState(1);
-            String nickName = null;
-            try {
-                nickName = new String(userJson.getString("nickname").getBytes("ISO-8859-1"), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                log.error("wx nick encode error : {}",userJson);
+            if (StringUtils.isBlank(user.getFullname())){
+                user.setNickname(Constant.DEFAULT_NICKNAME);
+            }else {
+                user.setNickname(user.getFullname());
             }
-            user.setNickname(nickName);
-            user.setPortraitAddress(userJson.getString("headimgurl"));
-            user.setSex(userJson.getInteger("sex")==null?1:userJson.getInteger("sex"));
+            if (user.getSex()==null){
+                user.setSex(1);
+            }
             if (user.getBirthday()==null){
                 user.setBirthday(Integer.parseInt(DateUtil.getCurrentYearAdd(new Date(),-18)));
             }
-            user.setVersion(System.currentTimeMillis());
             user.setSignText("这个人很懒,什么都没有留下");
+            user.setVersion(System.currentTimeMillis());
             user.setToken(uuid);
-            userService.saveUser(user,Constant.LOGIN_WX,openid,userJson.getString("unionid"),access_token);
+            userService.saveUser(user,Constant.LOGIN_APPLE,user.getAppleUserId(),null,null);
+            userService.updateShowIdById(user.getId());
             userId = user.getId().toString();
             String token = JwtHelper.generateJWT(userId,uuid);
             user.setToken(token);
-            userService.updateShowIdById(user.getId());
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
             if (!flag){
@@ -101,12 +84,7 @@ public class WxLogin implements LoginStrategy {
             funtimeUser.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
             funtimeUser.setNewUser(false);
             return funtimeUser;
-
         }
-
-
-
-
 
     }
 

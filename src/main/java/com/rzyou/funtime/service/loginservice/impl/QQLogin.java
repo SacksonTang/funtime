@@ -70,11 +70,12 @@ public class QQLogin implements LoginStrategy {
             if (user.getBirthday()==null){
                 user.setBirthday(Integer.parseInt(DateUtil.getCurrentYearAdd(new Date(),-18)));
             }
+            user.setToken(uuid);
             userService.saveUser(user, Constant.LOGIN_QQ, openid, userJson.getString("unionid"), accessToken);
             userId = user.getId().toString();
             String token = JwtHelper.generateJWT(userId, uuid);
             user.setToken(token);
-            userService.updateTokenById(user.getId(), uuid);
+            userService.updateShowIdById(user.getId());
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig, user.getId().toString(), user.getNickname(), user.getPortraitAddress());
             if (!flag) {

@@ -131,4 +131,6 @@ public class FuntimeUser implements Serializable {
 
     private Integer receivedGiftNum;
 
+    private String appleUserId;
+
 }
