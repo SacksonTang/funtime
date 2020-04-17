@@ -26,7 +26,7 @@ public class FuntimeUser implements Serializable {
 
     private String phoneImei;
 
-    private Integer drainageChannelId;
+    private String drainageChannel;
 
     private String portraitAddress;
 
