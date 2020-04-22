@@ -5,8 +5,10 @@ import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.SmsType;
 import com.rzyou.funtime.common.im.TencentUtil;
+import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
+import com.rzyou.funtime.entity.RedisUser;
 import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
@@ -31,6 +33,8 @@ public class TelLogin implements LoginStrategy {
 
     @Autowired
     ParameterService parameterService;
+    @Autowired
+    RedisUtil redisUtil;
 
     @Override
     @Transactional
@@ -38,7 +42,7 @@ public class TelLogin implements LoginStrategy {
         if (StringUtils.isBlank(user.getPhoneNumber())){
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
-        if (!user.getPhoneNumber().equals("00000000000")) {
+        if (!user.getPhoneNumber().equals("00000000000")||!user.getPhoneNumber().equals("11111111111")) {
             String isSend = parameterService.getParameterValueByKey("is_send");
             if (isSend != null && isSend.equals("1")) {
                 //校验验证码
@@ -91,6 +95,10 @@ public class TelLogin implements LoginStrategy {
         info.setBlueAmount(userService.getUserAccountInfoById(Long.parseLong(userId)).getBlueDiamond().intValue());
         info.setNewUser(isNewUser);
         info.setToken(token);
+        RedisUser redisUser = new RedisUser();
+        redisUser.onlineState = 1;
+        redisUser.uuid = uuid;
+        redisUtil.set(Constant.REDISUSER_PREFIX+info.getId(),redisUser);
         return info;
     }
 }

@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface FuntimeNoticeMapper {
@@ -21,5 +22,9 @@ public interface FuntimeNoticeMapper {
 
     int updateState(@Param("id") Long id, @Param("state") Integer state);
 
+    List<Map<String,Object>> getSystemNoticeList();
 
+    Integer getIsReadByUserId(Long userId);
+
+    int saveUserSystemNotice(@Param("userId") Long userId,@Param("isRead") Integer isRead);
 }

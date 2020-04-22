@@ -28,6 +28,9 @@ spring:
       test-on-borrow: false
       test-on-return: false
       test-while-idle: true
+      log-abandoned: true
+      remove-abandoned: true
+      remove-abandoned-timeout: 1800
       time-between-eviction-runs-millis: 60000
       min-evictable-idle-time-millis: 100000
 
@@ -41,11 +44,15 @@ spring:
         reset-enable: false
         login-username: admin
         login-password: funtime@2019
+        allow:
       filter:
         stat:
           db-type: mysql
           log-slow-sql: true
           slow-sql-millis: 5000
+
+
+
   redis:
     host: 106.52.93.16
     port: 6379

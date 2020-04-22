@@ -8,8 +8,10 @@ import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.common.qqutils.QqLoginUtils;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
+import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserThird;
+import com.rzyou.funtime.entity.RedisUser;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.DateUtil;
@@ -30,7 +32,8 @@ import java.util.Date;
 public class QQLogin implements LoginStrategy {
     @Autowired
     UserService userService;
-
+    @Autowired
+    RedisUtil redisUtil;
 
 
     @Override
@@ -83,6 +86,10 @@ public class QQLogin implements LoginStrategy {
             }
             user.setBlueAmount(0);
             user.setNewUser(true);
+            RedisUser redisUser = new RedisUser();
+            redisUser.onlineState = 1;
+            redisUser.uuid = uuid;
+            redisUtil.set(Constant.REDISUSER_PREFIX+user.getId(),redisUser);
             return user;
         } else {
             userId = userThird.getUserId().toString();
@@ -101,6 +108,10 @@ public class QQLogin implements LoginStrategy {
             funtimeUser.setToken(token);
             funtimeUser.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
             funtimeUser.setNewUser(false);
+            RedisUser redisUser = new RedisUser();
+            redisUser.onlineState = 1;
+            redisUser.uuid = uuid;
+            redisUtil.set(Constant.REDISUSER_PREFIX+funtimeUser.getId(),redisUser);
             return funtimeUser;
 
         }

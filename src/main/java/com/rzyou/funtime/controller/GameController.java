@@ -235,12 +235,13 @@ public class GameController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = HttpHelper.getUserId();
             Integer bullet = paramJson.getInteger("bullet");
-            if (userId == null||bullet==null||bullet<1||bullet%100!=0){
+            Integer type = paramJson.getInteger("type");
+            if (userId == null||bullet==null||bullet<100||bullet%100!=0||type==null){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            gameService.buyBullet(userId,bullet);
+            gameService.buyBullet(userId,bullet,type);
             return result;
 
         } catch (BusinessException be) {

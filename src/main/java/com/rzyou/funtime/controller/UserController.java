@@ -39,6 +39,28 @@ public class UserController {
     AccountService accountService;
     @Autowired
     ParameterService parameterService;
+    /**
+     * 心跳
+     */
+    @PostMapping("heart")
+    public ResultMsg<Object> heart(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            String ipAddr = HttpHelper.getClientIpAddr(request);
+            if (userId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            userService.saveHeart(userId, ipAddr);
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return result;
+    }
 
     /**
      * 红包/摇摇乐显示控制
@@ -284,6 +306,9 @@ public class UserController {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
+            }
+            if (user.getOnlineState()!=null&&user.getOnlineState()==0){
+                user.setOnlineState(1);
             }
 
             userService.updateUserBasicInfoById(user);

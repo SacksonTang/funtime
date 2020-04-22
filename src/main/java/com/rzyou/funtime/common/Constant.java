@@ -39,6 +39,7 @@ public class Constant {
     public final static String DEFAULT_FEMALE_ROOM_AVATAR = "/default/room2.png";
     public final static String DEFAULT_ROOM_PORTRAIT = "/default/room.png";
     public final static String SHARE_URL = "https://www.baidu.com";
+    public final static String REDISUSER_PREFIX = "userlogin-";
 
 
     public static final String APPLE_URL_SANDBOX = "https://sandbox.itunes.apple.com/verifyReceipt";

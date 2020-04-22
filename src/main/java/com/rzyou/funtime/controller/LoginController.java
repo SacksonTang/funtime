@@ -7,6 +7,7 @@ import com.rzyou.funtime.common.encryption.RsaUtils;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
+import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.component.StaticData;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
@@ -42,17 +43,7 @@ public class LoginController {
     ParameterService parameterService;
 
 
-    /**
-     * 心跳
-     */
-    @PostMapping("heart")
-    public ResultMsg<Object> heart(HttpServletRequest request){
-        JSONObject paramJson = HttpHelper.getParamterJson(request);
-        Long userId = paramJson.getLong("userId");
-        String ipAddr = HttpHelper.getClientIpAddr(request);
-        userService.saveHeart(userId,ipAddr);
-        return new ResultMsg<>();
-    }
+
 
     /**
      * 检测版本
@@ -410,6 +401,8 @@ public class LoginController {
             data.put("roomGameIcon",parameterService.getParameterValueByKey("room_game_icon"));
             data.put("sysIcon",parameterService.getParameterValueByKey("sys_icon"));
             data.put("staticResource",parameterService.getStaticResource());
+            data.put("userUrl",Constant.COS_URL_PREFIX+Constant.AGREEMENT_USER);
+            data.put("priveteUrl",Constant.COS_URL_PREFIX+Constant.AGREEMENT_PRIVACY);
             result.setData(data);
             return result;
         } catch (BusinessException be) {
@@ -450,6 +443,7 @@ public class LoginController {
             return result;
         }
     }
+
 
 
     /**

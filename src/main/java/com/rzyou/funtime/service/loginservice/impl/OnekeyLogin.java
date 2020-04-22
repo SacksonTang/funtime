@@ -5,8 +5,10 @@ import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.sms.linkme.LinkmeUtil;
+import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
+import com.rzyou.funtime.entity.RedisUser;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.DateUtil;
@@ -14,6 +16,7 @@ import com.rzyou.funtime.utils.StringUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -23,6 +26,8 @@ public class OnekeyLogin implements LoginStrategy {
 
     @Autowired
     UserService userService;
+    @Autowired
+    RedisUtil redisUtil;
 
     @Override
     public FuntimeUser login(FuntimeUser user) {
@@ -78,6 +83,10 @@ public class OnekeyLogin implements LoginStrategy {
         info.setBlueAmount(userService.getUserAccountInfoById(Long.parseLong(userId)).getBlueDiamond().intValue());
         info.setNewUser(isNewUser);
         info.setToken(token);
+        RedisUser redisUser = new RedisUser();
+        redisUser.onlineState = 1;
+        redisUser.uuid = uuid;
+        redisUtil.set(Constant.REDISUSER_PREFIX+info.getId(),redisUser);
         return info;
     }
 }

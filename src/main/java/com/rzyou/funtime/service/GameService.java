@@ -58,8 +58,9 @@ public interface GameService {
      * 购买子弹
      * @param userId
      * @param bullet
+     * @param type
      */
-    void buyBullet(Long userId, Integer bullet);
+    void buyBullet(Long userId, Integer bullet, Integer type);
 
     /**
      * 捕鱼排行榜

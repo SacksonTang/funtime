@@ -87,5 +87,16 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <insert id="saveUserSystemNotice" >
+    REPLACE INTO t_funtime_user_system_notice (user_id,is_read,read_time) VALUES(#{userId},#{isRead},NOW())
+  </insert>
+
+  <select id="getSystemNoticeList"  resultType="java.util.Map">
+    select title,content,redirect_url as redirectUrl,show_time as showTime
+    from t_funtime_system_notice where NOW()>=show_time
+  </select>
+  <select id="getIsReadByUserId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select f.is_read from t_funtime_user_system_notice f where f.user_id = #{userId}
+  </select>
 
 </mapper>

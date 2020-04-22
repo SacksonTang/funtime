@@ -298,4 +298,19 @@ public interface NoticeService {
      * @param roomUserCount
      */
     void notice32(List<String> userIds, List<Map<String, Object>> micUser, int roomUserCount);
+
+    /**
+     * 系统通知
+     * @param startPage
+     * @param pageSie
+     * @param userId
+     * @return
+     */
+    Map<String, Object> getSystemNoticeList(Integer startPage, Integer pageSie, Long userId);
+
+    /**
+     * 通知已读
+     * @param userId
+     */
+    void readNotice(Long userId);
 }

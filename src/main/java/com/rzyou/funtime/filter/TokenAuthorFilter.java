@@ -2,17 +2,21 @@ package com.rzyou.funtime.filter;
 
 import com.alibaba.fastjson.JSON;
 import com.rzyou.funtime.common.BusinessException;
+import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.common.request.HttpHelper;
+import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
+import com.rzyou.funtime.entity.RedisUser;
 import com.rzyou.funtime.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -24,6 +28,8 @@ public class TokenAuthorFilter implements Filter {
 
     @Autowired
     UserService userService;
+    @Autowired
+    RedisUtil redisUtil;
 
     @Override
     public void init(FilterConfig filterConfig)  {
@@ -64,8 +70,6 @@ public class TokenAuthorFilter implements Filter {
         if (method.equals("OPTIONS")) {
             rep.setStatus(HttpServletResponse.SC_OK);
         }else{
-
-
             if (null == token || token.isEmpty()) {
                 resultInfo.setCode(ErrorMsgEnum.USER_TOKEN_EMPTY.getValue());
                 resultInfo.setMsg(ErrorMsgEnum.USER_TOKEN_EMPTY.getDesc());
@@ -76,27 +80,30 @@ public class TokenAuthorFilter implements Filter {
                         resultInfo.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());
                         resultInfo.setMsg(ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
                     }else {
+                        RedisUser user = (RedisUser) redisUtil.get(Constant.REDISUSER_PREFIX+map.get("userId").toString());
 
-                        FuntimeUser user = userService.queryUserById(Long.parseLong(map.get("userId").toString()));
-                        if (user==null){
-                            resultInfo.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());
-                            resultInfo.setMsg(ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-                        }else {
-                            if (user.getState() == 2){
-                                resultInfo.setCode(ErrorMsgEnum.USER_IS_DELETE.getValue());
-                                resultInfo.setMsg(ErrorMsgEnum.USER_IS_DELETE.getDesc());
+                        if (user == null) {
+                            FuntimeUser funtimeUser = userService.queryUserById(Long.parseLong(map.get("userId").toString()));
+                            if (funtimeUser == null){
+                                resultInfo.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());
+                                resultInfo.setMsg(ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
                             }else {
-                                String uuid = map.get("nonceStr").toString();
-                                if (!user.getToken().equals(uuid)){
-                                    resultInfo.setCode(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getValue());
-                                    resultInfo.setMsg(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getDesc());
-                                }else {
-                                    if (user.getOnlineState() == 2){
-                                        userService.updateOnlineState(user.getId(),1);
-                                    }
-                                    HttpHelper.setUserId(user.getId());
-                                    isFilter = true;
+                                user.onlineState = funtimeUser.getOnlineState();
+                                user.uuid = funtimeUser.getToken();
+
+                            }
+                        }
+                        if (user!=null){
+                            String uuid = map.get("nonceStr").toString();
+                            if (!user.uuid.equals(uuid)){
+                                resultInfo.setCode(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getValue());
+                                resultInfo.setMsg(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getDesc());
+                            }else {
+                                if (user.onlineState == 2){
+                                    userService.updateOnlineState(Long.parseLong(map.get("userId").toString()),1);
                                 }
+                                HttpHelper.setUserId(Long.parseLong(map.get("userId").toString()));
+                                isFilter = true;
                             }
                         }
                     }

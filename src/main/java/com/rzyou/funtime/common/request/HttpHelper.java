@@ -43,7 +43,6 @@ public class HttpHelper {
         return paramJson;
     }
 
-
     public static JSONObject getParamterJson(HttpServletRequest request){
 
 

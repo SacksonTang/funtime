@@ -22,6 +22,11 @@ public class NoticeController {
     @Autowired
     NoticeService noticeService;
 
+    /**
+     * 大喇叭
+     * @param request
+     * @return
+     */
     @PostMapping("sendHorn")
     public ResultMsg<Object> sendHorn(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
@@ -50,6 +55,72 @@ public class NoticeController {
             return result;
         }
     }
+
+    /**
+     * 通知列表
+     * @param request
+     * @return
+     */
+    @PostMapping("getSystemNoticeList")
+    public ResultMsg<Object> getSystemNoticeList(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
+            Integer pageSie = paramJson.getInteger("pageSie")==null?10:paramJson.getInteger("startPage");
+            Long userId = paramJson.getLong("userId");
+            if (userId == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            result.setData(noticeService.getSystemNoticeList(startPage,pageSie,userId));
+            return result;
+        } catch (BusinessException be) {
+            log.error("getSystemNoticeList BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+    /**
+     * 通知已读
+     * @param request
+     * @return
+     */
+    @PostMapping("readNotice")
+    public ResultMsg<Object> readNotice(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            if (userId == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            noticeService.readNotice(userId);
+            return result;
+        } catch (BusinessException be) {
+            log.error("readNotice BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
 
 
 }

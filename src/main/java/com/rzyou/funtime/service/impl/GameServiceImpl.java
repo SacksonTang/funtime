@@ -282,8 +282,10 @@ public class GameServiceImpl implements GameService {
         Map<String, Object> map = accountService.getBulletOfFish(userId);
         FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
         String bulletPrice = parameterService.getParameterValueByKey("bullet_price");
+        String bulletPriceGold = parameterService.getParameterValueByKey("bullet_price_gold");
         map.put("blueAmount",userAccount.getBlueDiamond().intValue());
         map.put("bulletPrice",bulletPrice);
+        map.put("bulletPriceGold",bulletPriceGold);
         return map;
     }
 
@@ -295,20 +297,35 @@ public class GameServiceImpl implements GameService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void buyBullet(Long userId, Integer bullet) {
+    public void buyBullet(Long userId, Integer bullet, Integer type) {
         String bulletPrice = parameterService.getParameterValueByKey("bullet_price");
+        String bulletPriceGold = parameterService.getParameterValueByKey("bullet_price_gold");
         FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
         if (userAccount == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
-        BigDecimal blueAmount = new BigDecimal((bullet/100)*Integer.parseInt(bulletPrice));
-        if (userAccount.getBlueDiamond().subtract(blueAmount).intValue()<0){
-            throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
-        }
-        userService.updateUserAccountForSub(userId,null,blueAmount,null);
-        accountService.updateBulletForPlus(userId,bullet);
         Long recordId = accountService.insertFishAccountRecord(userId,bullet,Integer.parseInt(bulletPrice));
-        accountService.saveUserAccountBlueLog(userId,blueAmount,recordId,OperationType.BUY_BULLET.getAction(),OperationType.BUY_BULLET.getOperationType());
+        accountService.updateBulletForPlus(userId,bullet);
+        if (type == 1){
+            BigDecimal goldAmount = new BigDecimal((bullet / 1000) * Integer.parseInt(bulletPriceGold));
+            if (userAccount.getGoldCoin().subtract(goldAmount).intValue() < 0) {
+                throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_GOLD_NOT_EN.getValue(), ErrorMsgEnum.USER_ACCOUNT_GOLD_NOT_EN.getDesc());
+            }
+            userService.updateUserAccountGoldCoinSub(userId,goldAmount.intValue());
+            accountService.saveUserAccountGoldLog(userId,goldAmount,recordId
+                    ,OperationType.BUY_BULLET.getAction(),OperationType.BUY_BULLET.getOperationType());
+
+        }else {
+            BigDecimal blueAmount = new BigDecimal((bullet / 100) * Integer.parseInt(bulletPrice));
+            if (userAccount.getBlueDiamond().subtract(blueAmount).intValue() < 0) {
+                throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(), ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            }
+            userService.updateUserAccountForSub(userId, null, blueAmount, null);
+            accountService.saveUserAccountBlueLog(userId,blueAmount,recordId,OperationType.BUY_BULLET.getAction(),OperationType.BUY_BULLET.getOperationType());
+        }
+
+
+
     }
 
     @Override

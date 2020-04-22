@@ -9,6 +9,7 @@ import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.im.BankCardVerificationUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
+import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
@@ -37,6 +38,8 @@ public class UserServiceImpl implements UserService {
     RoomService roomService;
     @Autowired
     NoticeService noticeService;
+    @Autowired
+    RedisUtil redisUtil;
     @Autowired
     FuntimeUserMapper userMapper;
     @Autowired
@@ -124,12 +127,6 @@ public class UserServiceImpl implements UserService {
         saveRecode(user.getId(),user.getPhoneImei(),user.getIp(),1, user.getNickname(), user.getLoginType(), user.getDeviceName());
     }
 
-    public void updateUserState(Long userId,Integer state){
-        FuntimeUser user = new FuntimeUser();
-        user.setId(userId);
-        user.setState(state);
-        updateByPrimaryKeySelective(user);
-    }
 
 
     @Override
@@ -612,6 +609,12 @@ public class UserServiceImpl implements UserService {
 
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        RedisUser redisUser = (RedisUser) redisUtil.get(Constant.REDISUSER_PREFIX+userId);
+        if (redisUser!=null) {
+            redisUser.onlineState = onlineState;
+            redisUtil.set(Constant.REDISUSER_PREFIX+userId,redisUser);
+        }
+
     }
 
 
@@ -954,15 +957,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveHeart(Long userId, String ipAddr) {
-        userMapper.saveHeart(userId,ipAddr);
+        if (checkUserExists(userId)){
+            userMapper.saveHeart(userId,ipAddr);
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void saveImHeart(Long userId,Integer userState,String action,String reason) {
-        userMapper.saveImHeart(userId,userState,action,reason);
-        if (userState == 1){
-            updateOnlineState(userId,1);
+        if (checkUserExists(userId)) {
+            userMapper.saveImHeart(userId, userState, action, reason);
+            if (userState == 1) {
+                updateOnlineState(userId, 1);
+            }
         }
     }
 
@@ -1280,7 +1287,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Throwable.class)
     public void blockUser(Long userId) {
         if(checkUserExists(userId)){
-            updateUserState(userId,2);
+            updateOnlineState(userId,2);
             roomService.blockUserForRoom(userId);
 
         }else{
@@ -1320,7 +1327,7 @@ public class UserServiceImpl implements UserService {
         List<Long> users = userMapper.getOfflineUserByApp(Integer.parseInt(val)+5);
         for (Long userId : users){
             log.info("offlineUserAppTask========>updateOnlineState:userId:{}",userId);
-            userMapper.updateOnlineState(userId, 2);
+            updateOnlineState(userId, 2);
         }
     }
 

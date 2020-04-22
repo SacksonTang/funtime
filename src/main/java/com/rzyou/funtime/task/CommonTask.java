@@ -27,16 +27,13 @@ public class CommonTask {
     @Autowired
     GameService gameService;
 
-    Integer[] sendGroupType = {1,2,3,4,5,6,7,8,10,11,12,13,14,17,18};
-    Integer[] sendSingleType = {15,16};
-    Integer[] snedAllApp = {9};
 
     /**
      * 背景资源过去设置
      */
     @Scheduled(fixedRate = 1000*5*60)
     public void setBackgroundTask(){
-        log.info("背景资源过去设置 setBackgroundTask:{}",DateUtil.getCurrentDateTimeExtr());
+        log.debug("背景资源过去设置 setBackgroundTask:{}",DateUtil.getCurrentDateTimeExtr());
         try {
             roomService.setBackgroundTask();
         }catch (Exception e){
@@ -63,7 +60,7 @@ public class CommonTask {
      */
     @Scheduled(cron = "0 0 1 * * ?")
     public void heartTask(){
-        log.info("心跳合并 heartTask:{}",DateUtil.getCurrentDateTimeExtr());
+        log.debug("心跳合并 heartTask:{}",DateUtil.getCurrentDateTimeExtr());
         try {
             userService.heartTask();
         }catch (Exception e){
@@ -77,7 +74,7 @@ public class CommonTask {
      */
     @Scheduled(fixedRate = 1000*5*60)
     public void updateOnlineNumTask(){
-        log.info("同步房间用户数 updateOnlineNumTask:{}",DateUtil.getCurrentDateTimeExtr());
+        log.debug("同步房间用户数 updateOnlineNumTask:{}",DateUtil.getCurrentDateTimeExtr());
         roomService.updateOnlineNumTask();
     }
 
@@ -86,7 +83,7 @@ public class CommonTask {
      */
     @Scheduled(fixedRate = 1000*30)
     public void offlineUserTask(){
-        log.info("offlineUserTask:{}",DateUtil.getCurrentDateTimeExtr());
+        log.debug("offlineUserTask:{}",DateUtil.getCurrentDateTimeExtr());
         List<Long> users = userService.getOfflineUser();
         if (users!=null&&!users.isEmpty()){
             for (Long userId : users){
@@ -105,7 +102,7 @@ public class CommonTask {
      */
     @Scheduled(fixedRate = 1000*60)
     public void offlineUserAppTask(){
-        log.info("offlineUserAppTask:{}",DateUtil.getCurrentDateTimeExtr());
+        log.debug("offlineUserAppTask:{}",DateUtil.getCurrentDateTimeExtr());
         userService.offlineUserAppTask();
     }
 
@@ -139,7 +136,7 @@ public class CommonTask {
      */
     @Scheduled(fixedRate = 1000*5)
     public void sendRoomMicInfoTask(){
-        log.info("sendRoomMicInfoTask:{}",DateUtil.getCurrentDateTimeExtr());
+        log.debug("sendRoomMicInfoTask:{}",DateUtil.getCurrentDateTimeExtr());
         roomService.sendRoomMicInfoTask();
 
     }

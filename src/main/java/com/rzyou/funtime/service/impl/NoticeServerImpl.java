@@ -2,6 +2,7 @@ package com.rzyou.funtime.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
@@ -591,6 +592,25 @@ public class NoticeServerImpl implements NoticeService {
         String data = StringEscapeUtils.unescapeJava(object.toJSONString());
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public Map<String, Object> getSystemNoticeList(Integer startPage, Integer pageSie, Long userId) {
+        PageHelper.startPage(startPage,pageSie);
+        List<Map<String, Object>> noticeList = noticeMapper.getSystemNoticeList();
+        Integer read = noticeMapper.getIsReadByUserId(userId);
+        read = read == null?1:2;
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("isRead",read);
+        resultMap.put("noticeList",noticeList);
+        return resultMap;
+    }
+
+    @Override
+    public void readNotice(Long userId) {
+        if (userService.checkUserExists(userId)){
+            noticeMapper.saveUserSystemNotice(userId,2);
+        }
     }
 
     private String parameterHandler2(String toAccount,String data){
