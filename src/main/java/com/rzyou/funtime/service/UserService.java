@@ -199,19 +199,6 @@ public interface UserService {
      */
     FuntimeUserValid queryValidInfoByUserId(Long userId);
 
-    /**
-     * 同意协议
-     * @param userId
-     * @param agreementTypes
-     */
-    void saveUserAgreement(Long userId, String agreementTypes);
-
-    /**
-     * 检查是否同意协议
-     * @param userId
-     * @param withdrawalType
-     */
-    boolean checkAgreementByuserId(Long userId, Integer withdrawalType);
 
     /**
      * 关注用户

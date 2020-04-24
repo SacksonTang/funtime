@@ -53,8 +53,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     FuntimeUserValidMapper userValidMapper;
     @Autowired
-    FuntimeUserAgreementMapper userAgreementMapper;
-    @Autowired
     FuntimeUserConcernMapper userConcernMapper;
     @Autowired
     FuntimeUserThirdMapper userThirdMapper;
@@ -534,39 +532,7 @@ public class UserServiceImpl implements UserService {
         return userValid;
     }
 
-    @Override
-    public void saveUserAgreement(Long userId, String agreementTypes) {
 
-        String[] split = agreementTypes.split(",");
-        for (String agreementType : split) {
-
-            Integer agreement = Integer.parseInt(agreementType);
-
-            FuntimeUserAgreement userAgreement = userAgreementMapper.selectByUserId(userId, agreement);
-            if (userAgreement != null) {
-                throw new BusinessException(ErrorMsgEnum.USERAGREEMENT_IS_EXISTS.getValue(), ErrorMsgEnum.USERAGREEMENT_IS_EXISTS.getDesc());
-            }
-            userAgreement = new FuntimeUserAgreement();
-            userAgreement.setType(agreement);
-            userAgreement.setUserId(userId);
-            userAgreement.setAgreement(1);
-            userAgreement.setCreateTime(new Date());
-            int k = userAgreementMapper.insertSelective(userAgreement);
-            if (k != 1) {
-                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(), ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
-            }
-        }
-    }
-
-    @Override
-    public boolean checkAgreementByuserId(Long userId,Integer agreementType){
-        FuntimeUserAgreement userAgreement = userAgreementMapper.selectByUserId(userId,agreementType);
-        if (userAgreement==null){
-            return false;
-        }else{
-            return true;
-        }
-    }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)

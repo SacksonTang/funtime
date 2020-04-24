@@ -114,11 +114,6 @@ public class LoginController {
                 return result;
             }
             FuntimeUser userInfo = strategy.login(user);
-
-            if (!userService.checkAgreementByuserId(userInfo.getId(),UserAgreementType.PRIVACY_AGREEMENT.getValue())){
-                userInfo.setPrivacyAgreementUrl(Constant.COS_URL_PREFIX+Constant.AGREEMENT_PRIVACY);
-                userInfo.setUserAgreementUrl(Constant.COS_URL_PREFIX+Constant.AGREEMENT_USER);
-            }
             userInfo.setImSdkAppId(StaticData.TENCENT_YUN_SDK_APPID);
             Map<String, Object> map = JsonUtil.getMap("user", userInfo);
             if (flag!=null&&flag.equals("1")){
@@ -403,6 +398,8 @@ public class LoginController {
             data.put("staticResource",parameterService.getStaticResource());
             data.put("userUrl",Constant.COS_URL_PREFIX+Constant.AGREEMENT_USER);
             data.put("priveteUrl",Constant.COS_URL_PREFIX+Constant.AGREEMENT_PRIVACY);
+
+            data.put("roomNotice",Constant.ROOM_NOTICE);
             result.setData(data);
             return result;
         } catch (BusinessException be) {

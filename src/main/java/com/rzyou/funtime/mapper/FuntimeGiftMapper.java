@@ -8,7 +8,6 @@ import java.util.Map;
 
 @Mapper
 public interface FuntimeGiftMapper {
-    int deleteByPrimaryKey(Integer id);
 
     List<Map<String,Object>> getGiftList();
 
@@ -16,10 +15,7 @@ public interface FuntimeGiftMapper {
 
     List<Map<String,Object>> getGiftByUserId(Long userId);
 
-    int insertSelective(FuntimeGift record);
-
     FuntimeGift selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(FuntimeGift record);
 
 }

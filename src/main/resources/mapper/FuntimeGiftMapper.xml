@@ -3,6 +3,7 @@
 <mapper namespace="com.rzyou.funtime.mapper.FuntimeGiftMapper">
   <resultMap id="BaseResultMap" type="com.rzyou.funtime.entity.FuntimeGift">
     <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="type" jdbcType="INTEGER" property="type" />
     <result column="gift_tag_id" jdbcType="INTEGER" property="giftTagId" />
     <result column="gift_name" jdbcType="VARCHAR" property="giftName" />
     <result column="original_price" jdbcType="DECIMAL" property="originalPrice" />
@@ -18,7 +19,7 @@
     <result column="flag" jdbcType="INTEGER" property="flag" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, gift_tag_id, gift_name, original_price, activity_price, special_effect,
+    id, type,gift_tag_id, gift_name, original_price, activity_price, special_effect,
     bestowed, animation_type, animation_url, animation_length, create_time, sort,image_url,sort,flag
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -35,145 +36,22 @@
   </select>
   <select id="getGiftList"  resultType="java.util.Map">
     select
-    t.id, t.gift_tag_id giftTagId ,g.tag_name tagName , t.gift_name giftName, t.special_effect specialEffect,
+    t.id, t.type ,t.gift_tag_id giftTagId ,g.tag_name tagName , t.gift_name giftName, t.special_effect specialEffect,
      t.original_price originalPrice, t.activity_price activityPrice,t.image_url imageUrl,
      t.animation_type animationType, t.animation_url animationUrl, t.animation_length animationLength
     from t_funtime_gift t inner join t_funtime_tag g on t.gift_tag_id = g.id
-    where t.flag = 1
+    where t.flag = 1 and t.type = 1
      order by t.sort
   </select>
   <select id="getGiftByUserId" parameterType="java.lang.Long" resultType="java.util.Map">
     select
-     t.id,t.gift_name giftName,t.animation_type animationtype, t.animation_url animationUrl,sum(d.num) numTotal,sum(d.amount) amountTotal
+     t.id,t.type,t.gift_name giftName,t.animation_type animationtype, t.animation_url animationUrl,sum(d.num) numTotal,sum(d.amount) amountTotal
      ,t.original_price originalPrice, t.activity_price activityprice,t.image_url imageUrl
     from t_funtime_gift t inner join t_funtime_user_account_gifttrans_record d on t.id = d.gift_id
     where d.user_id = #{userId}
     group by t.id
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from t_funtime_gift
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
 
-  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeGift">
-    insert into t_funtime_gift
-    <trim prefix="(" suffix=")" suffixOverrides=",">
 
-      <if test="giftTagId != null">
-        gift_tag_id,
-      </if>
-      <if test="giftName != null">
-        gift_name,
-      </if>
-      <if test="originalPrice != null">
-        original_price,
-      </if>
-      <if test="activityPrice != null">
-        activity_price,
-      </if>
-      <if test="specialEffect != null">
-        special_effect,
-      </if>
-      <if test="bestowed != null">
-        bestowed,
-      </if>
-      <if test="animationType != null">
-        animation_type,
-      </if>
-      <if test="animationUrl != null">
-        animation_url,
-      </if>
-      <if test="imageUrl != null">
-        image_url,
-      </if>
-      <if test="animationLength != null">
-        animation_length,
-      </if>
-
-      <if test="sort != null">
-        sort,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-
-      <if test="giftTagId != null">
-        #{giftTagId,jdbcType=INTEGER},
-      </if>
-      <if test="giftName != null">
-        #{giftName,jdbcType=VARCHAR},
-      </if>
-      <if test="originalPrice != null">
-        #{originalPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="activityPrice != null">
-        #{activityPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="specialEffect != null">
-        #{specialEffect},
-      </if>
-      <if test="bestowed != null">
-        #{bestowed,jdbcType=INTEGER},
-      </if>
-      <if test="animationType != null">
-        #{animationType,jdbcType=VARCHAR},
-      </if>
-      <if test="animationUrl != null">
-        #{animationUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="imageUrl != null">
-        #{imageUrl},
-      </if>
-      <if test="animationLength != null">
-        #{animationLength,jdbcType=DECIMAL},
-      </if>
-
-      <if test="sort != null">
-        #{sort,jdbcType=INTEGER},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeGift">
-    update t_funtime_gift
-    <set>
-      <if test="giftTagId != null">
-        gift_tag_id = #{giftTagId,jdbcType=INTEGER},
-      </if>
-      <if test="giftName != null">
-        gift_name = #{giftName,jdbcType=VARCHAR},
-      </if>
-      <if test="originalPrice != null">
-        original_price = #{originalPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="activityPrice != null">
-        activity_price = #{activityPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="specialEffect != null">
-        special_effect = #{specialEffect},
-      </if>
-      <if test="bestowed != null">
-        bestowed = #{bestowed,jdbcType=INTEGER},
-      </if>
-      <if test="animationType != null">
-        animation_type = #{animationType,jdbcType=VARCHAR},
-      </if>
-      <if test="animationUrl != null">
-        animation_url = #{animationUrl,jdbcType=VARCHAR},
-      </if>
-      <if test="imageUrl != null">
-        image_url = #{imageUrl},
-      </if>
-      <if test="animationLength != null">
-        animation_length = #{animationLength,jdbcType=DECIMAL},
-      </if>
-
-      <if test="sort != null">
-        sort = #{sort,jdbcType=INTEGER},
-      </if>
-      <if test="flag != null">
-        flag = #{flag,jdbcType=INTEGER},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
 
 </mapper>

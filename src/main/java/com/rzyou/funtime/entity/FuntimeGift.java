@@ -11,6 +11,8 @@ public class FuntimeGift implements Serializable {
     private static final long serialVersionUID = -6899314288032003355L;
     private Integer id;
 
+    private Integer type;
+
     private Integer giftTagId;
 
     private String giftName;
