@@ -10,6 +10,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeBackgroundMapper {
 
+    String getBackgroundThumbnailById(Integer id);
+
     List<Map<String, Long>> getBackgroundForExpiry();
 
     Integer getBackgroundIdForType1();

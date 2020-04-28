@@ -133,4 +133,6 @@ public class FuntimeUser implements Serializable {
 
     private String appleUserId;
 
+    private String appVersion;
+
 }

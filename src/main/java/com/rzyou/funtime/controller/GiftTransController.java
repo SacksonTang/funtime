@@ -25,6 +25,47 @@ public class GiftTransController {
     @Autowired
     AccountService accountService;
 
+
+    /**
+     * 送礼物
+     * @param request
+     * @return
+     */
+    @PostMapping("sendGiftForKnapsack")
+    public ResultMsg<Object> sendGiftForKnapsack(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            String toUserIds = paramJson.getString("toUserIds");
+            Integer giftId = paramJson.getInteger("giftId");
+            Integer giftNum = paramJson.getInteger("giftNum");
+            Integer giveChannel = paramJson.getInteger("giveChannel");//1-房间2-单发
+            Long roomId = paramJson.getLong("roomId");
+            if (userId == null || StringUtils.isBlank(toUserIds)||giftId == null || giftNum == null || giveChannel == null
+                    ||(giveChannel.equals(GiveChannel.ROOM.getValue())&&roomId==null||giftNum<1)
+            ){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            return accountService.sendGiftForKnapsack(userId,toUserIds,giftId,giftNum,"送礼物",giveChannel,roomId);
+        } catch (BusinessException be) {
+            log.error("sendGift BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
     /**
      * 送礼物
      * @param request

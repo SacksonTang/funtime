@@ -10,11 +10,12 @@
     <result column="tag_name" jdbcType="VARCHAR" property="tagName" />
     <result column="product_id" jdbcType="VARCHAR" property="productId" />
     <result column="horn_num" jdbcType="INTEGER" property="hornNum" />
+    <result column="gold_num" jdbcType="INTEGER" property="goldNum" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="platform" jdbcType="INTEGER" property="platform" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, recharge_rmb, recharge_num, convertible_ratio, tag_colour, tag_name, horn_num, create_time,platform,product_id
+    id, recharge_rmb, recharge_num, convertible_ratio, tag_colour, tag_name, horn_num, create_time,platform,product_id,gold_num
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -30,104 +31,10 @@
   </select>
   <select id="getRechargeConf"  resultMap="BaseResultMap">
     select
-    id, recharge_rmb, recharge_num, tag_name, horn_num,tag_colour,product_id
+    id, recharge_rmb, recharge_num, tag_name, horn_num,tag_colour,product_id,gold_num
     from t_funtime_recharge_conf
     where platform = #{platform}
     order by id
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    delete from t_funtime_recharge_conf
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
-  <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeRechargeConf">
-    insert into t_funtime_recharge_conf (id, recharge_rmb, recharge_num, 
-      convertible_ratio, tag_colour, tag_name,
-      horn_num, create_time)
-    values (#{id,jdbcType=INTEGER}, #{rechargeRmb,jdbcType=DECIMAL}, #{rechargeNum,jdbcType=DECIMAL}, 
-      #{convertibleRatio,jdbcType=DECIMAL}, #{tagColour}, #{tagName,jdbcType=VARCHAR},
-      #{hornNum,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP})
-  </insert>
-  <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeRechargeConf">
-    insert into t_funtime_recharge_conf
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
-      <if test="rechargeRmb != null">
-        recharge_rmb,
-      </if>
-      <if test="rechargeNum != null">
-        recharge_num,
-      </if>
-      <if test="convertibleRatio != null">
-        convertible_ratio,
-      </if>
-      <if test="tagColour != null">
-          tag_colour,
-      </if>
-      <if test="tagName != null">
-        tag_name,
-      </if>
-      <if test="hornNum != null">
-        horn_num,
-      </if>
-      <if test="createTime != null">
-        create_time,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=INTEGER},
-      </if>
-      <if test="rechargeRmb != null">
-        #{rechargeRmb,jdbcType=DECIMAL},
-      </if>
-      <if test="rechargeNum != null">
-        #{rechargeNum,jdbcType=DECIMAL},
-      </if>
-      <if test="convertibleRatio != null">
-        #{convertibleRatio,jdbcType=DECIMAL},
-      </if>
-      <if test="tagColour != null">
-        #{tagColour},
-      </if>
-      <if test="tagName != null">
-        #{tagName,jdbcType=VARCHAR},
-      </if>
-      <if test="hornNum != null">
-        #{hornNum,jdbcType=INTEGER},
-      </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeRechargeConf">
-    update t_funtime_recharge_conf
-    <set>
-      <if test="rechargeRmb != null">
-        recharge_rmb = #{rechargeRmb,jdbcType=DECIMAL},
-      </if>
-      <if test="rechargeNum != null">
-        recharge_num = #{rechargeNum,jdbcType=DECIMAL},
-      </if>
-      <if test="convertibleRatio != null">
-        convertible_ratio = #{convertibleRatio,jdbcType=DECIMAL},
-      </if>
-      <if test="tagId != null">
-        tag_colour = #{tagColour},
-      </if>
-      <if test="tagName != null">
-        tag_name = #{tagName,jdbcType=VARCHAR},
-      </if>
-      <if test="hornNum != null">
-        horn_num = #{hornNum,jdbcType=INTEGER},
-      </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
 
 </mapper>

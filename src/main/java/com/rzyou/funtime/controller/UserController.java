@@ -2,6 +2,7 @@ package com.rzyou.funtime.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.cos.CosStsUtil;
 import com.rzyou.funtime.common.encryption.AESUtil;
@@ -39,6 +40,33 @@ public class UserController {
     AccountService accountService;
     @Autowired
     ParameterService parameterService;
+
+    @PostMapping("getUserKnapsackByUserId")
+    public ResultMsg<Object> getUserKnapsackByUserId(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            if (userId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            List<Map<String,Object>> knapsacks = accountService.getUserKnapsackByUserId(userId);
+            result.setData(JsonUtil.getMap("knapsacks",knapsacks));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
     /**
      * 心跳
      */
@@ -62,67 +90,6 @@ public class UserController {
         return result;
     }
 
-    /**
-     * 红包/摇摇乐显示控制
-     * @param request
-     * @return
-     */
-    @PostMapping("parameterReset")
-    public ResultMsg<Object> parameterReset(HttpServletRequest request){
-        ResultMsg<Object> result = new ResultMsg<>();
-        try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Integer type = paramJson.getInteger("type");
-            if (type == null) {
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
-            }
-            userService.parameterReset(type);
-            return result;
-        } catch (BusinessException be) {
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-            return result;
-        }catch (Exception e){
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-            return result;
-        }
-    }
-
-    /**
-     * 封禁用户
-     * @param request
-     * @return
-     */
-    @PostMapping("blockUser")
-    public ResultMsg<Object> blockUser(HttpServletRequest request){
-        ResultMsg<Object> result = new ResultMsg<>();
-        try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = paramJson.getLong("userId");
-            if (userId == null) {
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
-            }
-            userService.blockUser(userId);
-            return result;
-        } catch (BusinessException be) {
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-            return result;
-        }catch (Exception e){
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-            return result;
-        }
-    }
 
 
     /**

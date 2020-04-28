@@ -96,23 +96,8 @@ public class RateRandomNumber {
 
     public static void main(String[] args) {
 
-        Integer a = 0;
-        Integer temp = a;
-        a++;
-        System.out.println(temp);
-
-        List<Double> separates = new ArrayList<>();
-        separates.add(1.0);
-        separates.add(10.0);
-        List<Integer> percents = new ArrayList<>();
-        percents.add(90);
-        percents.add(9);
-        percents.add(1);
-        for(int i=0;i<100;i++) {
-            //double number = produceRateRandomNumber(0.1, 100, separates, percents);
-            //System.out.println(String.format("%.2f",number));
-
-            System.out.println(RandomUtils.nextInt(1,1400000));
+        for (int i =0;i<20;i++) {
+            System.out.println(RandomUtils.nextInt(1, 2));
         }
     }
 }

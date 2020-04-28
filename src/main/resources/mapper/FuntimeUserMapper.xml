@@ -422,6 +422,9 @@
       <if test="platform != null">
         platform,
       </if>
+      <if test="appVersion != null">
+        app_version,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="showId != null">
@@ -528,6 +531,9 @@
       </if>
       <if test="platform != null">
         #{platform},
+      </if>
+      <if test="appVersion != null">
+        #{appVersion},
       </if>
     </trim>
   </insert>

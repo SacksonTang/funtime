@@ -303,16 +303,11 @@ public interface RoomService {
     ResultMsg<Object> buyBackground(Integer backgroundId, Long userId);
 
     /**
-     * 封禁用户房间操作
+     * 游戏抽奖
+     * @param backgroundId
      * @param userId
      */
-    void blockUserForRoom(Long userId);
-
-    /**
-     * 封禁房间
-     * @param roomId
-     */
-    void blockRoom(Long roomId);
+    void drawBackground(Integer backgroundId, Long userId);
 
     /**
      * 设置背景
@@ -343,4 +338,11 @@ public interface RoomService {
      * @param roomId
      */
     void sendRoomInfoNotice(Long roomId);
+
+    /**
+     * 背景资源
+     * @param id
+     * @return
+     */
+    String getBackgroundThumbnailById(Integer id);
 }

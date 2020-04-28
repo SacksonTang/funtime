@@ -395,11 +395,10 @@ public interface AccountService {
 
     /**
      * 捕鱼排行榜
-     * @param startCount
      * @param endCount
      * @return
      */
-    List<Map<String, Object>> getFishRanklist(int startCount, int endCount);
+    List<Map<String, Object>> getFishRanklist(int endCount);
 
     /**
      * 增加子弹数
@@ -407,4 +406,50 @@ public interface AccountService {
      * @param bullet
      */
     void updateBulletForPlus(Long userId, int bullet);
+
+    /**
+     * 保存背包
+     */
+    void saveUserKnapsack(Long userId, int type, Integer drawId, int num);
+
+    /**
+     * 个人背包信息
+     * @param userId
+     * @return
+     */
+    List<Map<String, Object>> getUserKnapsackByUserId(Long userId);
+
+    /**
+     * 获取礼物
+     * @param id
+     * @return
+     */
+    FuntimeGift getGiftById(Integer id);
+
+    /**
+     * 获取座驾
+     * @param id
+     * @return
+     */
+    Map<String,Object> getCarInfoById(Integer id);
+
+    /**
+     * 中奖保存座驾
+
+     */
+    void drawCar(Map<String,Object> map);
+
+
+    /**
+     * 背包送礼
+     * @param userId
+     * @param toUserIds
+     * @param giftId
+     * @param giftNum
+     * @param desc
+     * @param giveChannel
+     * @param roomId
+     * @return
+     */
+    ResultMsg<Object> sendGiftForKnapsack(Long userId, String toUserIds, Integer giftId, Integer giftNum, String desc, Integer giveChannel, Long roomId);
 }

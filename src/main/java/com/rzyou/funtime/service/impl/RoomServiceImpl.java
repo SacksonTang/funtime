@@ -262,9 +262,9 @@ public class RoomServiceImpl implements RoomService {
 
         result.put("mic",micUser);
         result.put("isRedpacketShow",parameterService.getParameterValueByKey("is_redpacket_show"));
-        result.put("isFishShow",parameterService.getParameterValueByKey("is_fish_show"));
-        result.put("roomGameTag",parameterService.getParameterValueByKey("room_game_tag"));
-        result.put("roomGameIcon",parameterService.getParameterValueByKey("room_game_icon"));
+        result.put("isFishShow",2);
+        result.put("roomGameTag","");
+        result.put("roomGameIcon","");
         result.put("shareUrl",Constant.SHARE_URL);
         if (userId!=null) {
             boolean bool1 = gameService.getYaoyaoShowConf(1, userId);
@@ -1066,48 +1066,58 @@ public class RoomServiceImpl implements RoomService {
         return resultMsg;
     }
 
+    @Override
+    public void drawBackground(Integer backgroundId, Long userId) {
+
+        Map<String, Object> map = backgroundMapper.getBackgroundInfoById(backgroundId, userId);
+        if (map == null||map.isEmpty()){
+            return;
+        }
+        BigDecimal price = new BigDecimal(map.get("price").toString());
+        Integer type = Integer.parseInt(map.get("type").toString());
+        Integer days = Integer.parseInt(map.get("days").toString());
+
+        if (type == 1){
+            return;
+        }
+
+        FuntimeUserBackground userBackground = new FuntimeUserBackground();
+        userBackground.setBackgroundId(backgroundId);
+        userBackground.setUserId(userId);
+        if (type==3){
+            userBackground.setDays(days);
+            userBackground.setEndTime(DateUtils.addDays(new Date(),days));
+        }
+
+        userBackground.setBackgroundType(type);
+        userBackground.setPrice(price);
+        int k ;
+        if (map.get("ubId")==null){
+            //没买过
+            k = backgroundMapper.insertUserBackground(userBackground);
+            if(k!=1){
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+        }else{
+            Long ubId = Long.parseLong(map.get("ubId").toString());
+            userBackground.setId(ubId);
+            k = backgroundMapper.updateUserBackground(userBackground);
+            if(k!=1){
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+            userBackground.setId(null);
+        }
+        k = backgroundMapper.insertUserBackgroundRecord(userBackground);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
     public FuntimeChatroomMic getRoomUserInfoByUserId(Long userId){
         return chatroomMicMapper.getRoomUserInfoByUserId(userId);
     }
 
-    @Override
-    public void blockUserForRoom(Long userId) {
-        FuntimeChatroomMic chatroomMic = getRoomUserInfoByUserId(userId);
-        if (chatroomMic == null){
-            noticeService.notice24(userId);
-            return;
-        }
-        if (chatroomMic.getUserRole() == UserRole.ROOM_CREATER.getValue()){
-            //房主需解散房间
-            blockUserForCloseRoom(chatroomMic.getRoomId());
-            return;
-        }else{
-            roomExit(userId,chatroomMic.getRoomId());
-            noticeService.notice24(userId);
-            return;
-        }
-    }
 
-    @Override
-    @Transactional(rollbackFor = Throwable.class)
-    public void blockRoom(Long roomId) {
-        FuntimeChatroom chatroom = getChatroomById(roomId);
-        if (chatroom == null){
-            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
-        }
-        updateChatroomBlock(roomId,1);
-        if (chatroom.getOnlineNum()>0) {
-            List<String> userIds = getRoomUserByRoomIdAll(roomId);
-            chatroomMapper.deleteByRoomId(roomId);
-            deleteByRoomId(roomId);
-            //chatroomUserMapper.deleteByRoomId(roomId);
-
-            if (userIds!=null&&!userIds.isEmpty()) {
-                //发送通知
-                noticeService.notice23(roomId, userIds);
-            }
-        }
-    }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -1200,6 +1210,11 @@ public class RoomServiceImpl implements RoomService {
             List<Map<String, Object>> micUser = getMicUserByRoomId(roomId);
             noticeService.notice32(userIds, micUser,userIds.size());
         }
+    }
+
+    @Override
+    public String getBackgroundThumbnailById(Integer id) {
+        return backgroundMapper.getBackgroundThumbnailById(id);
     }
 
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){

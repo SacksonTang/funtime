@@ -58,36 +58,7 @@ public class RoomController {
         }
     }
 
-    /**
-     * 封禁房间
-     * @param request
-     * @return
-     */
-    @PostMapping("blockRoom")
-    public ResultMsg<Object> blockRoom(HttpServletRequest request){
-        ResultMsg<Object> result = new ResultMsg<>();
-        try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long roomId = paramJson.getLong("roomId");
-            if (roomId==null){
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
-            }
-            roomService.blockRoom(roomId);
-            return result;
-        } catch (BusinessException be) {
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-            return result;
-        }catch (Exception e){
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-            return result;
-        }
-    }
+
 
     /**
      * 背景列表

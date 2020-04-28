@@ -25,8 +25,7 @@ import java.util.*;
 
 @Slf4j
 @Service
-public class AccountServiceImpl implements AccountService
-{
+public class AccountServiceImpl implements AccountService {
 
 
     @Value("${app.pay.notifyUrl}")
@@ -43,6 +42,8 @@ public class AccountServiceImpl implements AccountService
     @Autowired
     SmsService smsService;
 
+    @Autowired
+    FuntimeCarMapper carMapper;
     @Autowired
     FuntimeUserAccountWithdrawalRecordMapper userAccountWithdrawalRecordMapper;
     @Autowired
@@ -121,7 +122,7 @@ public class AccountServiceImpl implements AccountService
     @Transactional(rollbackFor = Throwable.class)
     public void closeOrder(Long orderId, String orderNo, Integer payType){
         MyWxPay.closeOrder(orderNo,payType);
-        updateState(orderId,PayState.INVALID.getValue(),null, null);
+        updateState(orderId,PayState.INVALID.getValue(),null, null, null);
     }
 
     @Override
@@ -147,11 +148,13 @@ public class AccountServiceImpl implements AccountService
             throw new BusinessException(ErrorMsgEnum.RECHARGE_NUM_OUT.getValue(),ErrorMsgEnum.RECHARGE_NUM_OUT.getDesc());
         }
         Integer hornNum = rechargeConf.getHornNum();
-
+        Integer goldNum = rechargeConf.getGoldNum();
         //首充送三个
         if (isFirstRecharge(userId)){
             String first_recharge_horn = parameterService.getParameterValueByKey("first_recharge_horn");
-            hornNum +=  Integer.parseInt(first_recharge_horn==null?"3":first_recharge_horn);
+            String first_recharge_gold = parameterService.getParameterValueByKey("first_recharge_gold");
+            hornNum += Integer.parseInt(first_recharge_horn==null?"3":first_recharge_horn);
+            goldNum += Integer.parseInt(first_recharge_gold==null?"100":first_recharge_gold);
         }
 
         String blue_to_level = parameterService.getParameterValueByKey("blue_to_level");
@@ -167,6 +170,7 @@ public class AccountServiceImpl implements AccountService
         record.setRmb(rechargeConf.getRechargeRmb());
         record.setRechargeCardId(transactionId);
         record.setHornNum(hornNum);
+        record.setGoldNum(goldNum);
         record.setAmount(rechargeConf.getRechargeNum());
         record.setLevelVal(levelVal);
         record.setWealthVal(wealthVal);
@@ -186,10 +190,10 @@ public class AccountServiceImpl implements AccountService
         String levelUrl = userLevelMap.get("levelUrl")==null?"":userLevelMap.get("levelUrl").toString();
 
         if (!userLevel.equals(userAccount.getLevel())){
-            userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),record.getHornNum(),levelVal,wealthVal);
+            userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),record.getHornNum(),levelVal,wealthVal, goldNum);
             updateLevelExtr(userId,userLevel,levelUrl);
         }else{
-            userAccountMapper.updateUserAccountLevel(record.getUserId(),null,record.getAmount(),record.getHornNum(),levelVal,wealthVal);
+            userAccountMapper.updateUserAccountLevel(record.getUserId(),null,record.getAmount(),record.getHornNum(),levelVal,wealthVal, goldNum);
         }
 
         //记录日志
@@ -201,6 +205,10 @@ public class AccountServiceImpl implements AccountService
 
         if(record.getHornNum()!=null&&record.getHornNum()>0){
             saveUserAccountHornLog(record.getUserId(),record.getHornNum(),record.getId()
+                    , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
+        }
+        if(record.getGoldNum()!=null&&record.getGoldNum()>0){
+            saveUserAccountGoldLog(record.getUserId(),new BigDecimal(record.getGoldNum()),record.getId()
                     , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
         }
 
@@ -257,6 +265,7 @@ public class AccountServiceImpl implements AccountService
 
         record.setRmb(rechargeConf.getRechargeRmb());
         record.setHornNum(rechargeConf.getHornNum());
+        record.setGoldNum(rechargeConf.getGoldNum());
         record.setAmount(rechargeConf.getRechargeNum());
         record.setLevelVal(levelVal);
         record.setWealthVal(wealthVal);
@@ -313,7 +322,7 @@ public class AccountServiceImpl implements AccountService
             return;
         }else if (PayState.START.getValue().equals(record.getState())||PayState.PAYING.getValue().equals(record.getState())) {
             //状态变更
-            updateState(orderId, PayState.FAIL.getValue(),transaction_id, null);
+            updateState(orderId, PayState.FAIL.getValue(),transaction_id, null, null);
         }else{
             return;
         }
@@ -338,14 +347,17 @@ public class AccountServiceImpl implements AccountService
                 return;
             }
             Integer hornNum = null;
+            Integer goldNum = null;
             //首充送三个
             if (isFirstRecharge(record.getUserId())){
                 String first_recharge_horn = parameterService.getParameterValueByKey("first_recharge_horn");
+                String first_recharge_gold = parameterService.getParameterValueByKey("first_recharge_gold");
                 hornNum = record.getHornNum()==null?0:record.getHornNum()
                         + Integer.parseInt(first_recharge_horn==null?"3":first_recharge_horn);
+                goldNum = record.getGoldNum() == null?0:record.getGoldNum()+Integer.parseInt(first_recharge_gold==null?"100":first_recharge_horn);
             }
             //状态变更
-            updateState(recordId, PayState.PAIED.getValue(),transaction_id,hornNum);
+            updateState(recordId, PayState.PAIED.getValue(),transaction_id,hornNum,goldNum);
 
             //用户总充值数(等级值)
             int total = userAccount.getLevelVal()+record.getLevelVal();
@@ -361,10 +373,10 @@ public class AccountServiceImpl implements AccountService
             int levelVal = record.getLevelVal();
             int wealthVal = record.getWealthVal();
             if (!userLevel.equals(userAccount.getLevel())){
-                userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),record.getHornNum(),levelVal, wealthVal);
+                userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),record.getHornNum(),levelVal, wealthVal,goldNum);
                 updateLevelExtr(record.getUserId(),userLevel,levelUrl);
             }else{
-                userAccountMapper.updateUserAccountLevel(record.getUserId(),null,record.getAmount(),record.getHornNum(),levelVal, wealthVal);
+                userAccountMapper.updateUserAccountLevel(record.getUserId(),null,record.getAmount(),record.getHornNum(),levelVal, wealthVal, goldNum);
             }
             //记录日志
             saveUserAccountBlueLog(record.getUserId(),record.getAmount(),record.getId()
@@ -375,6 +387,10 @@ public class AccountServiceImpl implements AccountService
 
             if(record.getHornNum()!=null&&record.getHornNum()>0){
                 saveUserAccountHornLog(record.getUserId(),record.getHornNum(),record.getId()
+                        , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
+            }
+            if(record.getGoldNum()!=null&&record.getGoldNum()>0){
+                saveUserAccountGoldLog(record.getUserId(),new BigDecimal(record.getGoldNum()),record.getId()
                         , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
             }
 
@@ -782,6 +798,105 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
+    public ResultMsg<Object> sendGiftForKnapsack(Long userId, String toUserIds, Integer giftId, Integer giftNum, String desc, Integer giveChannel, Long roomId) {
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+        String[] toUserIdArray = toUserIds.split(",");
+
+        if (Arrays.asList(toUserIdArray).contains(userId.toString())){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getDesc());
+        }
+
+        FuntimeUser user = getUserById(userId);
+
+        FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
+        if (funtimeGift==null){
+            throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
+        }
+
+        Integer userRole = roomService.getUserRole(roomId,userId);
+
+        userRole = userRole == null?4:userRole;
+
+        Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
+
+        Integer itemNum = userAccountMapper.getItemNumByUserId(userId, giftId, 1);
+        //背包礼物不足
+        if (itemNum<giftNum){
+            resultMsg.setCode(ErrorMsgEnum.USER_BAG_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_BAG_NOT_EN.getDesc());
+            return resultMsg;
+        }
+
+        int k = userAccountMapper.updateUserKnapsackSub(userAccountMapper.checkUserKnapsackExist(userId, giftId, 1),giftNum);
+
+        if (k!=1){
+            resultMsg.setCode(ErrorMsgEnum.DATA_ORER_ERROR.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            return resultMsg;
+        }
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
+        String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
+        for (String toUserIdStr : toUserIdArray) {
+            Long toUserId = Long.valueOf(toUserIdStr);
+            FuntimeUser toUser = userService.queryUserById(toUserId);
+            if (toUser==null){
+                throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+            }
+            Long recordId = saveFuntimeUserAccountGifttransRecord(userId, desc, new BigDecimal(0)
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel);
+
+            Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
+            //用户收加上黑钻,魅力值
+            userService.updateUserAccountForPlusGift(toUserId, black, giftNum,charmVal);
+            saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
+
+            //用户收的日志
+            saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFT.getAction()
+                    , OperationType.RECEIVEGIFT.getOperationType());
+
+            if (giveChannel.equals(GiveChannel.ROOM.getValue())) {
+
+                RoomGiftNotice notice = new RoomGiftNotice();
+                notice.setCount(giftNum);
+                notice.setSpecialEffect(funtimeGift.getSpecialEffect());
+                notice.setGiftName(funtimeGift.getGiftName());
+                notice.setFromImg(user.getPortraitAddress());
+                notice.setFromName(user.getNickname());
+                notice.setFromUid(String.valueOf(userId));
+                notice.setGid(String.valueOf(giftId));
+                notice.setGiftImg(funtimeGift.getAnimationUrl());
+                notice.setRid(String.valueOf(roomId));
+                notice.setToImg(toUser.getPortraitAddress());
+                notice.setToName(toUser.getNickname());
+                notice.setToUid(String.valueOf(toUserId));
+                notice.setFromSex(user.getSex());
+                notice.setToSex(toUser.getSex());
+                notice.setUserRole(userRole);
+                int type = funtimeGift.getSpecialEffect();
+                if (type == SpecialEffectType.E_4.getValue()) {
+                    type = SpecialEffectType.E_3.getValue();
+                    notice.setType(Constant.ROOM_GIFT_SEND_ROOM_ALL);
+                    //发送通知全服
+                    notice.setSpecialEffect(type);
+                    noticeService.notice21(notice);
+
+                }
+                List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+                if (userIds == null || userIds.isEmpty()) {
+                    throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+                }
+                notice.setSpecialEffect(type);
+                notice.setType(Constant.ROOM_GIFT_SEND);
+                //发送通知
+                noticeService.notice8(notice, userIds);
+            }
+        }
+        return resultMsg;
+
+    }
+
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
 
@@ -806,7 +921,9 @@ public class AccountServiceImpl implements AccountService
 
         userRole = userRole == null?4:userRole;
 
-        Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
+        BigDecimal price = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
+
+        Integer amount= price.intValue()*giftNum;
         //账户余额不足
         if (userAccount.getBlueDiamond().intValue()<amount*toUserIdArray.length){
             resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
@@ -899,8 +1016,9 @@ public class AccountServiceImpl implements AccountService
         if (funtimeGift==null){
             throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
         }
+        BigDecimal price = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
 
-        Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
+        Integer amount= price.intValue()*giftNum;
         //账户余额不足
         if (userAccount.getBlueDiamond().intValue()<amount){
             resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
@@ -1006,7 +1124,9 @@ public class AccountServiceImpl implements AccountService
 
         int userNum = toUserIdArray.size();
 
-        Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
+        BigDecimal price = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
+
+        Integer amount= price.intValue()*giftNum;
         //账户余额不足
         if (userAccount.getBlueDiamond().intValue()<amount*userNum){
             resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
@@ -1840,8 +1960,8 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public List<Map<String, Object>> getFishRanklist(int startCount, int endCount) {
-        return userAccountMapper.getFishRanklist(startCount,endCount);
+    public List<Map<String, Object>> getFishRanklist(int endCount) {
+        return userAccountMapper.getFishRanklist(endCount);
     }
 
     @Override
@@ -1850,6 +1970,66 @@ public class AccountServiceImpl implements AccountService
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
     }
+
+    @Override
+    public void saveUserKnapsack(Long userId, int type, Integer drawId, int num) {
+        Long knapsackId = userAccountMapper.checkUserKnapsackExist(userId, drawId, type);
+        int k;
+        if (knapsackId == null){
+            k = userAccountMapper.insertUserKnapsack(userId, type, drawId, num, System.currentTimeMillis());
+            if (k!=1){
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+        }else{
+            k = userAccountMapper.updateUserKnapsackPlus(knapsackId,num);
+            if (k!=1){
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+        }
+
+    }
+
+    @Override
+    public List<Map<String, Object>> getUserKnapsackByUserId(Long userId) {
+        List<Map<String, Object>> list = giftMapper.getGiftByKnapsack(userId);
+
+        return list;
+
+    }
+
+    @Override
+    public FuntimeGift getGiftById(Integer id) {
+        return giftMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public Map<String,Object> getCarInfoById(Integer id) {
+        return carMapper.getCarInfoById(id);
+    }
+
+    @Override
+    public void drawCar(Map<String,Object> map) {
+        Integer days = Integer.parseInt(map.get("days").toString());
+
+        Long userCarId = carMapper.getUserCarIdBy(Long.parseLong(map.get("userId").toString()), Integer.parseInt(map.get("carId").toString()));
+        int k;
+        if (userCarId == null){
+            map.put("endTime",DateUtils.addDays(new Date(),days));
+
+            k = carMapper.insertUserCar(map);
+
+        }else{
+            map.put("userCarId",userCarId);
+            k = carMapper.updateUserCar(map);
+
+        }
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+
+    }
+
+
 
     @Override
     public void saveUserAccountGoldLog(Long userId, BigDecimal amount,Long recordId,String actionType,String operationType){
@@ -1921,7 +2101,7 @@ public class AccountServiceImpl implements AccountService
         return rechargeRecord.getId();
     }
 
-    public void updateState(Long id, Integer state, String transaction_id, Integer hornNum){
+    public void updateState(Long id, Integer state, String transaction_id, Integer hornNum, Integer goldNum){
         FuntimeUserAccountRechargeRecord record = new FuntimeUserAccountRechargeRecord();
         record.setId(id);
         record.setState(state);

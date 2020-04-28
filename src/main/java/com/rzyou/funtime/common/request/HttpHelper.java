@@ -16,6 +16,7 @@ import java.nio.charset.Charset;
 @Slf4j
 public class HttpHelper {
     private static ThreadLocal<Long> context  = new ThreadLocal<>();
+    public static String ver;
 
     public static void setUserId(Long id){
         context .set(id);
@@ -38,6 +39,8 @@ public class HttpHelper {
         }
         JSONObject obj = JSONObject.parseObject(str);
 
+        ver = obj.getString("version");
+
         JSONObject paramJson = obj.getJSONObject("param");
 
         return paramJson;
@@ -52,6 +55,8 @@ public class HttpHelper {
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
         JSONObject obj = JSONObject.parseObject(str);
+
+        ver = obj.getString("version");
 
         JSONObject paramJson = obj.getJSONObject("param");
 

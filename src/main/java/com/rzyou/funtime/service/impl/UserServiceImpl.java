@@ -767,7 +767,6 @@ public class UserServiceImpl implements UserService {
         resultMap.put("is_ranklist_show",parameterService.getParameterValueByKey("is_ranklist_show"));
         String count = parameterService.getParameterValueByKey("ranking_list_count");
         resultMap.put("rankCount",count);
-        int startCount = 1;
         int endCount = Integer.parseInt(count);
 
         String startDate;
@@ -826,9 +825,9 @@ public class UserServiceImpl implements UserService {
         }
 
         if (type == 1){
-            list = userMapper.getCharmList(startDate,endDate,startCount,endCount);
+            list = userMapper.getCharmList(startDate,endDate,endCount);
         }else{
-            list = userMapper.getContributionList(startDate,endDate,startCount,endCount);
+            list = userMapper.getContributionList(startDate,endDate,endCount);
         }
 
         if (list==null||list.isEmpty()){
@@ -1247,39 +1246,6 @@ public class UserServiceImpl implements UserService {
             result.put("qqNickname",userThird.getNickname());
         }
         return result;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class)
-    public void blockUser(Long userId) {
-        if(checkUserExists(userId)){
-            updateOnlineState(userId,2);
-            roomService.blockUserForRoom(userId);
-
-        }else{
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-        }
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class)
-    public void parameterReset(Integer type) {
-        if (type == 1){
-            parameterService.updateValueByKey("is_redpacket_show","1");
-            noticeService.notice26();
-        }
-        if (type == 2){
-            parameterService.updateValueByKey("is_redpacket_show","2");
-            noticeService.notice27();
-        }
-        if (type == 3){
-            parameterService.updateValueByKey("yaoyao_show","1");
-            noticeService.notice28();
-        }
-        if (type == 4){
-            parameterService.updateValueByKey("yaoyao_show","2");
-            noticeService.notice29();
-        }
     }
 
     @Override

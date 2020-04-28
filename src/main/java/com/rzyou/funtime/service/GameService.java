@@ -1,5 +1,6 @@
 package com.rzyou.funtime.service;
 
+import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.entity.FuntimeGameYaoyaoPool;
 
 import java.util.List;
@@ -12,12 +13,33 @@ import java.util.Map;
 public interface GameService {
 
     /**
-     * 是否显示
+     * 摇摇乐是否显示
      * @param type
      * @param userId
      * @return
      */
     boolean getYaoyaoShowConf(int type, Long userId);
+    /**
+     * 捕鱼是否显示
+     * @param type
+     * @param userId
+     * @return
+     */
+    boolean getFishShowConf(int type, Long userId);
+    /**
+     * 砸蛋是否显示
+     * @param type
+     * @param userId
+     * @return
+     */
+    boolean getSmasheggShowConf(int type, Long userId);
+    /**
+     * 转盘抽奖是否显示
+     * @param type
+     * @param userId
+     * @return
+     */
+    boolean getCircleShowConf(int type, Long userId);
 
     /**
      * 初始化摇摇乐
@@ -60,7 +82,7 @@ public interface GameService {
      * @param bullet
      * @param type
      */
-    void buyBullet(Long userId, Integer bullet, Integer type);
+    ResultMsg<Object> buyBullet(Long userId, Integer bullet, Integer type);
 
     /**
      * 捕鱼排行榜
@@ -68,4 +90,42 @@ public interface GameService {
      * @return
      */
     Map<String,Object> getFishRanklist(Long curUserId);
+
+    /**
+     * 获取游戏配置
+     * @param userId
+     * @return
+     */
+    List<Map<String,Object>> getGameList(Long userId);
+
+    /**
+     * 砸蛋配置
+     * @param userId
+     * @return
+     */
+    Map<String,Object> getSmashEggConf(Long userId);
+
+    /**
+     * 砸蛋
+     * @param userId
+     * @param counts
+     * @param type
+     * @return
+     */
+    ResultMsg<Object> eggDrawing(Long userId, Integer counts, Integer type);
+
+    /**
+     * 转盘配置
+     * @param userId
+     * @return
+     */
+    Map<String,Object> getCircleConf(Long userId);
+
+    /**
+     * 转盘
+     * @param userId
+     * @param counts
+     * @return
+     */
+    ResultMsg<Object> circleDrawing(Long userId, Integer counts);
 }

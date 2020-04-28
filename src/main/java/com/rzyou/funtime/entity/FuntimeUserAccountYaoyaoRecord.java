@@ -11,6 +11,7 @@ import java.io.Serializable;
 @Data
 public class FuntimeUserAccountYaoyaoRecord implements Serializable {
 
+    private static final long serialVersionUID = -1596142179731088574L;
     private Long id;
     private Long userId;
     private Integer type;

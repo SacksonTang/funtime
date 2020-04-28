@@ -34,6 +34,16 @@
     from t_funtime_gift
     where bestowed = #{bestowed} and flag = 1 order by sort
   </select>
+  <select id="getGiftByKnapsack"  resultType="java.util.Map">
+    select
+    t.id, t.type ,t.gift_tag_id giftTagId ,g.tag_name tagName , t.gift_name giftName, t.special_effect specialEffect,
+     t.original_price originalPrice, t.activity_price activityPrice,t.image_url imageUrl,
+     t.animation_type animationType, t.animation_url animationUrl, t.animation_length animationLength,
+     k.item_num itemNum
+    from t_funtime_gift t inner join t_funtime_tag g on t.gift_tag_id = g.id
+    inner join t_funtime_user_knapsack k on k.item_id = t.id and k.type = 1
+    where k.user_id = #{userId}
+  </select>
   <select id="getGiftList"  resultType="java.util.Map">
     select
     t.id, t.type ,t.gift_tag_id giftTagId ,g.tag_name tagName , t.gift_name giftName, t.special_effect specialEffect,

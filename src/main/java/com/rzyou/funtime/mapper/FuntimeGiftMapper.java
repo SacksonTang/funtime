@@ -17,5 +17,6 @@ public interface FuntimeGiftMapper {
 
     FuntimeGift selectByPrimaryKey(Integer id);
 
+    List<Map<String,Object>> getGiftByKnapsack(Long userId);
 
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeCarMapper">
+
+  <select id="getCarInfoById" parameterType="java.lang.Integer" resultType="java.util.Map">
+      select car_number as carId,days,ifnull(activity_price,original_price) as price,
+      thumbnail_url as thumbnailUrl,car_name as carName from t_funtime_car where id = #{id}
+  </select>
+    <select id="getUserCarIdBy"  resultType="java.lang.Long">
+      select id  from t_funtime_user_car where user_id = #{userId} and car_id = #{carId}
+  </select>
+
+  <insert id="insertUserCar">
+    insert into t_funtime_user_car(user_id,car_id,price,end_time)
+    values (#{userId},#{carId},#{price},#{endTime})
+  </insert>
+
+    <update id="updateUserCar">
+        update t_funtime_user_car set price = #{price},end_time = date_add(IF(end_time>NOW(),end_time,NOW()), interval ${days} day)
+        where id = #{userCarId}
+    </update>
+
+</mapper>

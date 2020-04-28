@@ -63,13 +63,30 @@
        inner join (t_funtime_user_account t
        inner join t_funtime_user_level_conf l on t.level = l.level) on f.user_id = t.user_id
     order by f.score desc
-    limit ${startCount},${endCount}
+    limit ${endCount}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_account
     where id = #{id,jdbcType=BIGINT}
   </delete>
 
+  <select id="getItemNumByUserId" resultType="java.lang.Integer" >
+    select item_num from t_funtime_user_knapsack where user_id = #{userId} and item_id = #{itemId} and type = #{type} limit 1
+  </select>
+
+  <select id="checkUserKnapsackExist" resultType="java.lang.Long" >
+    select id from t_funtime_user_knapsack where user_id = #{userId} and item_id = #{itemId} and type = #{type} limit 1
+  </select>
+  <insert id="insertUserKnapsack" >
+    insert into t_funtime_user_knapsack (user_id,type,item_id,item_num,version)
+    values (#{userId},#{type},#{itemId},#{itemNum},#{version})
+  </insert>
+  <update id="updateUserKnapsackPlus">
+    update t_funtime_user_knapsack set item_num = item_num+#{num} where id = #{id}
+  </update>
+  <update id="updateUserKnapsackSub">
+    update t_funtime_user_knapsack set item_num = item_num-#{num} where id = #{id} and item_num-#{num}>=0
+  </update>
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccount">
     insert into t_funtime_user_account
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -195,6 +212,9 @@
       </if>
       <if test="hornNumber != null">
         horn_number = horn_number+#{hornNumber,jdbcType=INTEGER},
+      </if>
+      <if test="goldNum != null">
+        gold_coin = gold_coin+#{goldNum},
       </if>
       <if test="level != null">
         level = #{level},

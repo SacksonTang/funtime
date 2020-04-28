@@ -105,6 +105,7 @@ public class LoginController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
+            user.setAppVersion(HttpHelper.ver);
             user.setIp(HttpHelper.getClientIpAddr(request));
             user.setLastLoginTime(new Date());
             LoginStrategy strategy = StaticData.context.get(user.getLoginType());
@@ -381,19 +382,20 @@ public class LoginController {
 
             //是否显示红包
             data.put("isRedpacketShow",parameterService.getParameterValueByKey("is_redpacket_show"));
-            data.put("isFishShow",parameterService.getParameterValueByKey("is_fish_show"));
+            //data.put("isFishShow",parameterService.getParameterValueByKey("is_fish_show"));
             //cos信息
             data.put("cosBucket",Constant.TENCENT_YUN_COS_BUCKET);
             data.put("cosRegion",Constant.TENCENT_YUN_COS_REGION);
             //音乐url
             data.put("musicUrl",Constant.TENCENT_YUN_MUSIC_URL);
-            data.put("yaoyaoNeedLevel",parameterService.getParameterValueByKey("yaoyao_need_level"));
-            data.put("yaoyaoShow",parameterService.getParameterValueByKey("yaoyao_show"));
+            //data.put("yaoyaoNeedLevel",parameterService.getParameterValueByKey("yaoyao_need_level"));
+            //data.put("yaoyaoShow",parameterService.getParameterValueByKey("yaoyao_show"));
             data.put("heartRate",parameterService.getParameterValueByKey("heart_rate"));
             data.put("hornLength",parameterService.getParameterValueByKey("horn_length"));
             data.put("isEncrypt",parameterService.getParameterValueByKey("is_encrypt"));
-            data.put("roomGameTag",parameterService.getParameterValueByKey("room_game_tag"));
-            data.put("roomGameIcon",parameterService.getParameterValueByKey("room_game_icon"));
+            //data.put("roomGameTag",parameterService.getParameterValueByKey("room_game_tag"));
+            //data.put("roomGameIcon",parameterService.getParameterValueByKey("room_game_icon"));
+            data.put("roomGameEggUrl",parameterService.getParameterValueByKey("room_game_egg_url"));
             data.put("sysIcon",parameterService.getParameterValueByKey("sys_icon"));
             data.put("staticResource",parameterService.getStaticResource());
             data.put("userUrl",Constant.COS_URL_PREFIX+Constant.AGREEMENT_USER);

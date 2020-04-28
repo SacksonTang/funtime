@@ -11,6 +11,7 @@
     <result column="recharge_channel_id" jdbcType="INTEGER" property="rechargeChannelId" />
     <result column="recharge_conf_id" jdbcType="INTEGER" property="rechargeConfId" />
     <result column="horn_num" jdbcType="INTEGER" property="hornNum" />
+    <result column="gold_num" jdbcType="INTEGER" property="goldNum" />
     <result column="os" jdbcType="VARCHAR" property="os" />
     <result column="phone_type" jdbcType="VARCHAR" property="phoneType" />
     <result column="imei" jdbcType="VARCHAR" property="imei" />
@@ -25,7 +26,7 @@
     <result column="wealth_val"  property="wealthVal" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, user_id, amount, rmb, recharge_card_id, recharge_channel_id, recharge_conf_id,
+    id, user_id, amount, rmb, recharge_card_id, recharge_channel_id, recharge_conf_id,gold_num,
     horn_num, os, phone_type, imei, state, create_time, version, complete_time,order_no,pay_type,level_val,wealth_val
   </sql>
 
@@ -67,7 +68,7 @@
   <select id="getRechargeDetailForPage"  resultMap="BaseResultMap">
     select
     d.id, d.user_id, d.pay_type,d.amount, d.rmb, d.recharge_card_id, d.recharge_channel_id,
-    d.horn_num,  d.state, d.create_time,
+    d.horn_num,  d.state, d.create_time,d.gold_num,
 
     case when d.pay_type = 1 and t.tag_name = 'WX' then '微信'
          when d.pay_type = 1 and t.tag_name = 'ALIPAY' then '支付宝'
@@ -122,6 +123,9 @@
       </if>
       <if test="hornNum != null">
         horn_num,
+      </if>
+      <if test="goldNum != null">
+        gold_num,
       </if>
       <if test="levelVal != null">
         level_val,
@@ -180,6 +184,9 @@
       <if test="hornNum != null">
         #{hornNum,jdbcType=INTEGER},
       </if>
+      <if test="goldNum != null">
+        #{goldNum,jdbcType=INTEGER},
+      </if>
       <if test="levelVal != null">
         #{levelVal},
       </if>
@@ -232,6 +239,9 @@
       </if>
       <if test="hornNum != null">
         horn_num = #{hornNum,jdbcType=INTEGER},
+      </if>
+      <if test="goldNum != null">
+        gold_num = #{goldNum,jdbcType=INTEGER},
       </if>
       <if test="os != null">
         os = #{os,jdbcType=VARCHAR},

@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.rzyou.funtime.mapper.FuntimeGameYaoyaoMapper">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeGameMapper">
 
-  <select id="getYaoyaoShowConf" parameterType="java.lang.Integer" resultType="java.lang.Integer">
-    SELECT count(id) FROM `t_funtime_game_yaoyao_show_conf`
-    where type = #{type} and flag = 1
+  <select id="getGameShowConf"  resultType="java.lang.Integer">
+    SELECT count(id) FROM `t_funtime_game_show_conf`
+    where type = #{type} and flag = 1 and game_code = #{gameCode}
      and DATE_FORMAT(NOW(),'%Y%m%d')+0 BETWEEN day_start AND day_end
     and if(hour_start>hour_end,DATE_FORMAT(NOW(),'%H%i')+0>hour_start or hour_end>DATE_FORMAT(NOW(),'%H%i')+0,DATE_FORMAT(NOW(),'%H%i')+0 BETWEEN hour_start AND hour_end)
   </select>
+
+  <select id="getGameShowConf2" resultType="java.lang.Integer">
+    SELECT is_date FROM `t_funtime_game` where game_code = #{gameCode} and #{myLevel}>=need_level and is_show = 1 limit 1
+  </select>
+
+    <select id="getGameList" resultType="java.util.Map" >
+        select game_code as gameCode,name,icon,is_date as isDate,redirect_type as type,resource_url as url,landscape
+        from t_funtime_game where location = #{location} and is_show = 1 and #{myLevel}>=need_level
+        order by sort asc
+    </select>
 
   <select id="getYaoyaoConf" parameterType="java.lang.Integer" resultType="com.rzyou.funtime.entity.FuntimeGameYaoyaoConf">
     select
@@ -30,6 +40,15 @@
     from
     t_funtime_game_yaoyao_pool
     where id = #{id}
+  </select>
+
+  <select id="getSmashEggConfs" parameterType="java.lang.Integer" resultType="com.rzyou.funtime.entity.FuntimeGameSmashEggConf">
+    select id,draw_number as drawNumber,draw_url as drawUrl,type,draw_type as drawType,draw_id as drawId,draw_val as drawVal,probability,broadcast
+    from t_funtime_game_smash_egg_conf where type = #{type}
+  </select>
+  <select id="getCircleConfs"  resultType="com.rzyou.funtime.entity.FuntimeGameCircleConf">
+    select id,draw_number as drawNumber,draw_url as drawUrl,draw_type as drawType,draw_id as drawId,draw_val as drawVal,probability,broadcast
+    from t_funtime_game_smash_egg_conf
   </select>
 
   <update id="updateActualPoolForPlus">
@@ -67,4 +86,12 @@
       #{basicAmount},#{userAmont},#{poolAmount},#{poolPercent},#{userExchangeAmount})
   </insert>
 
+  <insert id="insertSmashEggRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountSmashEggRecord" keyProperty="id" useGeneratedKeys="true">
+    insert into t_funtime_user_account_smash_egg_record (user_id,blue_amount,draw_random,draw_number,type,draw_type,draw_id,draw_val)
+    values (#{userId},#{blueAmount},#{drawRandom},#{drawNumber},#{type},#{drawType},#{drawId},#{drawVal})
+  </insert>
+  <insert id="insertCircleRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountCircleRecord" keyProperty="id" useGeneratedKeys="true">
+    insert into t_funtime_user_account_circle_record (user_id,blue_amount,draw_random,draw_number,draw_type,draw_id,draw_val)
+    values (#{userId},#{blueAmount},#{drawRandom},#{drawNumber},#{drawType},#{drawId},#{drawVal})
+  </insert>
 </mapper>

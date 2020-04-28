@@ -7,11 +7,6 @@ import java.util.List;
 
 @Mapper
 public interface FuntimeRechargeConfMapper {
-    int deleteByPrimaryKey(Integer id);
-
-    int insert(FuntimeRechargeConf record);
-
-    int insertSelective(FuntimeRechargeConf record);
 
     FuntimeRechargeConf selectByPrimaryKey(Integer id);
 
@@ -19,6 +14,5 @@ public interface FuntimeRechargeConfMapper {
 
     List<FuntimeRechargeConf> getRechargeConf(Integer platform);
 
-    int updateByPrimaryKeySelective(FuntimeRechargeConf record);
 
 }

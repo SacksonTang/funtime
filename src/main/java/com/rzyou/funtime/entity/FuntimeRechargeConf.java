@@ -29,5 +29,7 @@ public class FuntimeRechargeConf implements Serializable {
 
     private String productId;
 
+    private Integer goldNum;
+
 
 }

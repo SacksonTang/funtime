@@ -72,13 +72,15 @@
     m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
     m.online_num onlineNum,u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
-    (select GROUP_CONCAT(g.tag_name) from t_funtime_tag g where FIND_IN_SET(g.id,m.tags) >0 order by g.sort asc) tagNames,
+    g.tag_name  tagNames,
+    g.tag_color tagColor,
     count(u1.id) maleCount,
     (m.online_num - count(u1.id)) femaleCount
     from t_funtime_chatroom m
          inner join t_funtime_user u on m.user_id = u.id
          left join (t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id and u1.sex = 1)
                    on m.id = cu.room_id
+         left join t_funtime_tag g on g.id = m.tags
     where m.is_block = 2 and m.state = 1
 
        <if test="tagId!=null and tagId!='' and tagId!=0">
@@ -98,7 +100,8 @@
     m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
     m.online_num onlineNum,u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
-    (select GROUP_CONCAT(g.tag_name) from t_funtime_tag g where FIND_IN_SET(g.id,m.tags) >0 order by g.sort asc) tagNames,
+    g.tag_name tagNames,
+    g.tag_color tagColor,
     count(u1.id) maleCount,
     (m.online_num - count(u1.id)) femaleCount
     from t_funtime_chatroom m
@@ -106,6 +109,7 @@
     inner join t_funtime_user u on m.user_id = u.id
     inner join (t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id and u1.sex = 1)
     on m.id = cu.room_id
+    left join t_funtime_tag g on g.id = m.tags
     where m.is_block = 2 and m.state = 1
      and l.user_id = #{userId}
     group by m.id

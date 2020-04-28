@@ -24,7 +24,7 @@ public interface FuntimeUserAccountMapper {
             , @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber
             , @Param("version") Long version,@Param("newVersion") Long newVersion);
 
-    int updateUserAccountLevel(@Param("id") Long id, @Param("level") Integer level, @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber, @Param("levelVal") Integer levelVal, @Param("wealthVal") Integer wealthVal);
+    int updateUserAccountLevel(@Param("id") Long id, @Param("level") Integer level, @Param("blueDiamond") BigDecimal blueDiamond, @Param("hornNumber") Integer hornNumber, @Param("levelVal") Integer levelVal, @Param("wealthVal") Integer wealthVal,@Param("goldNum") Integer goldNum);
 
     int updateUserAccountForConvert(@Param("id") Long id, @Param("level") Integer level, @Param("blueDiamond") BigDecimal blueDiamond, @Param("blackDiamond") BigDecimal blackDiamond, @Param("levelVal") Integer levelVal, @Param("wealthVal") Integer wealthVal);
 
@@ -48,5 +48,15 @@ public interface FuntimeUserAccountMapper {
 
     int insertFishAccountRecord(FuntimeUserAccountFishRecord record);
 
-    List<Map<String, Object>> getFishRanklist(@Param("startCount") int startCount,@Param("endCount") int endCount);
+    List<Map<String, Object>> getFishRanklist(int endCount);
+
+    Long checkUserKnapsackExist(@Param("userId") Long userId, @Param("itemId") Integer itemId,@Param("type") int type);
+
+    Integer getItemNumByUserId(@Param("userId") Long userId, @Param("itemId") Integer itemId,@Param("type") int type);
+
+    int updateUserKnapsackPlus(@Param("id") Long id,@Param("num") int num);
+
+    int updateUserKnapsackSub(@Param("id") Long id,@Param("num") int num);
+
+    int insertUserKnapsack(@Param("userId") Long userId, @Param("type") int type,  @Param("itemId") Integer itemId, @Param("itemNum") int itemNum,@Param("version") Long version);
 }

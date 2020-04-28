@@ -34,6 +34,39 @@ public class GameController {
     UserService userService;
 
     /**
+     * 游戏列表
+     * @param request
+     * @return
+     */
+    @PostMapping("getGameList")
+    public ResultMsg<Object> getGameList(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            if (userId == null ){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String, Object> map = JsonUtil.getMap("gameList", gameService.getGameList(userId));
+            result.setData(map);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 奖池信息
      * @param request
      * @return
@@ -241,8 +274,7 @@ public class GameController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            gameService.buyBullet(userId,bullet,type);
-            return result;
+            return gameService.buyBullet(userId,bullet,type);
 
         } catch (BusinessException be) {
             log.error("buyBullet BusinessException==========>{}",be.getMsg());
@@ -277,6 +309,137 @@ public class GameController {
             }
             result.setData(gameService.getFishRanklist(userId));
             return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 获取砸蛋配置
+     * @param request
+     * @return
+     */
+    @PostMapping("getSmashEggConf")
+    public ResultMsg<Object> getSmashEggConf(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            if (userId == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            result.setData(gameService.getSmashEggConf(userId));
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 砸蛋
+     * @param request
+     * @return
+     */
+    @PostMapping("eggDrawing")
+    public ResultMsg<Object> eggDrawing(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer counts = paramJson.getInteger("counts");
+            Integer type = paramJson.getInteger("type");
+            Long userId = HttpHelper.getUserId();
+            if (userId == null||counts == null||type == null||counts<1){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            return gameService.eggDrawing(userId,counts,type);
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 获取转盘配置
+     * @param request
+     * @return
+     */
+    @PostMapping("getCircleConf")
+    public ResultMsg<Object> getCircleConf(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            if (userId == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            result.setData(gameService.getCircleConf(userId));
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 砸蛋
+     * @param request
+     * @return
+     */
+    @PostMapping("circleDrawing")
+    public ResultMsg<Object> circleDrawing(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer counts = paramJson.getInteger("counts");
+            Long userId = HttpHelper.getUserId();
+            if (userId == null||counts == null||counts<1){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            return gameService.circleDrawing(userId,counts);
 
         } catch (BusinessException be) {
             be.printStackTrace();
