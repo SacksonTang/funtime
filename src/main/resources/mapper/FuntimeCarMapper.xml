@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.rzyou.funtime.mapper.FuntimeCarMapper">
 
+
   <select id="getCarInfoById" parameterType="java.lang.Integer" resultType="java.util.Map">
       select car_number as carId,days,ifnull(activity_price,original_price) as price,
       thumbnail_url as thumbnailUrl,car_name as carName from t_funtime_car where id = #{id}
@@ -9,7 +10,13 @@
     <select id="getUserCarIdBy"  resultType="java.lang.Long">
       select id  from t_funtime_user_car where user_id = #{userId} and car_id = #{carId}
   </select>
-
+   <select id="getCarInfoByUserId"  resultType="java.util.Map">
+      select u.id as userCarId,u.car_id as carId,c.car_url as carUrl  from t_funtime_user_car u inner join t_funtime_car c on u.car_id = c.car_number
+       where user_id = #{userId} and  is_current = 1 limit 1
+  </select>
+    <select id="getCarInfoForExpire" resultType="java.util.Map">
+        select id ,user_id as userId ,is_current as isCurrent from t_funtime_user_car where  now()>end_time
+    </select>
   <insert id="insertUserCar">
     insert into t_funtime_user_car(user_id,car_id,price,end_time)
     values (#{userId},#{carId},#{price},#{endTime})
@@ -19,5 +26,13 @@
         update t_funtime_user_car set price = #{price},end_time = date_add(IF(end_time>NOW(),end_time,NOW()), interval ${days} day)
         where id = #{userCarId}
     </update>
+
+    <update id="updateUserCarIsCurrent">
+        update t_funtime_user_car set is_current = #{isCurrent} where id = #{id}
+    </update>
+
+    <delete id="deleteUserCarFById">
+        delete from t_funtime_user_car where  id = #{id}
+    </delete>
 
 </mapper>

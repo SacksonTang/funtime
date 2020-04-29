@@ -225,6 +225,16 @@ public interface AccountService {
      * @param roomId
      */
     ResultMsg<Object> sendGiftForRoom(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
+    /**
+     * 全房送礼物
+     * @param userId
+     * @param giftId
+     * @param giftNum
+     * @param operationDesc
+     * @param giveChannel
+     * @param roomId
+     */
+    ResultMsg<Object> sendGiftForRoom2(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
 
     /**
      * 全麦送礼物
@@ -237,6 +247,18 @@ public interface AccountService {
      * @return
      */
     ResultMsg<Object> sendGiftForMic(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
+
+    /**
+     * 全麦送礼物
+     * @param userId
+     * @param giftId
+     * @param giftNum
+     * @param operationDesc
+     * @param giveChannel
+     * @param roomId
+     * @return
+     */
+    ResultMsg<Object> sendGiftForMic2(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
 
     /**
      * 获取充值配置
@@ -434,6 +456,13 @@ public interface AccountService {
     Map<String,Object> getCarInfoById(Integer id);
 
     /**
+     * 获取用户座驾
+     * @param userId
+     * @return
+     */
+    Map<String,Object> getCarInfoByUserId(Long userId);
+
+    /**
      * 中奖保存座驾
 
      */
@@ -452,4 +481,9 @@ public interface AccountService {
      * @return
      */
     ResultMsg<Object> sendGiftForKnapsack(Long userId, String toUserIds, Integer giftId, Integer giftNum, String desc, Integer giveChannel, Long roomId);
+
+    /**
+     * 定时设置过期座驾
+     */
+    void setCarTask();
 }

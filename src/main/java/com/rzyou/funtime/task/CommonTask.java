@@ -43,6 +43,20 @@ public class CommonTask {
     }
 
     /**
+     * 设置座驾
+     */
+    @Scheduled(fixedRate = 1000*5*60)
+    public void setCarTask(){
+        log.debug("背景资源过去设置 setCarTask:{}",DateUtil.getCurrentDateTimeExtr());
+        try {
+            accountService.setCarTask();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
      * 摇摇乐奖池重置
      */
     @Scheduled(cron = "1 0 0 ? * MON")

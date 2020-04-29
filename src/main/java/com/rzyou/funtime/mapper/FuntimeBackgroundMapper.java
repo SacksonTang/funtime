@@ -31,4 +31,6 @@ public interface FuntimeBackgroundMapper {
     int updateUserBackground(FuntimeUserBackground userBackground);
 
     int deleteUserBackgroundById(Long id);
+
+    Integer getBackgroundDaysById(Integer id);
 }

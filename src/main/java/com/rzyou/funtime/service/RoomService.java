@@ -345,4 +345,11 @@ public interface RoomService {
      * @return
      */
     String getBackgroundThumbnailById(Integer id);
+
+    /**
+     * 背景天数
+     * @param id
+     * @return
+     */
+    Integer getBackgroundDaysById(Integer id);
 }

@@ -14,6 +14,7 @@ import com.rzyou.funtime.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.http.message.LineFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -827,6 +828,7 @@ public class AccountServiceImpl implements AccountService {
             return resultMsg;
         }
 
+
         int k = userAccountMapper.updateUserKnapsackSub(userAccountMapper.checkUserKnapsackExist(userId, giftId, 1),giftNum);
 
         if (k!=1){
@@ -843,17 +845,19 @@ public class AccountServiceImpl implements AccountService {
             if (toUser==null){
                 throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
             }
-            Long recordId = saveFuntimeUserAccountGifttransRecord(userId, desc, new BigDecimal(0)
+            Long recordId = saveFuntimeUserAccountGifttransRecord(userId, desc, new BigDecimal(amount)
                     , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel);
 
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
             //用户收加上黑钻,魅力值
             userService.updateUserAccountForPlusGift(toUserId, black, giftNum,charmVal);
             saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
-
+            //用户送的日志
+            saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+                    , OperationType.GIVEGIFTBAG.getAction(), OperationType.GIVEGIFTBAG.getOperationType());
             //用户收的日志
-            saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFT.getAction()
-                    , OperationType.RECEIVEGIFT.getOperationType());
+            saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEBAGGIFT.getAction()
+                    , OperationType.RECEIVEBAGGIFT.getOperationType());
 
             if (giveChannel.equals(GiveChannel.ROOM.getValue())) {
 
@@ -892,8 +896,30 @@ public class AccountServiceImpl implements AccountService {
                 noticeService.notice8(notice, userIds);
             }
         }
+        resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum));
         return resultMsg;
 
+    }
+
+    @Override
+    public void setCarTask() {
+        List<Map<String,Object>> list = carMapper.getCarInfoForExpire();
+        if (list!=null&&!list.isEmpty()){
+            Map<String,Object> carMap;
+            for (Map<String,Object> map : list){
+                Long id = Long.parseLong(map.get("id").toString());
+                Long userId = Long.parseLong(map.get("userId").toString());
+                int isCurrent = Integer.parseInt(map.get("isCurrent").toString());
+                carMapper.deleteUserCarFById(id);
+                if (isCurrent == 1){
+                    carMap = carMapper.getCarInfoByUserId(userId);
+                    if (carMap!=null){
+                        Long userCarId = Long.parseLong(carMap.get("userCarId").toString());
+                        carMapper.updateUserCarIsCurrent(userCarId,1);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -1203,6 +1229,113 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public ResultMsg<Object> sendGiftForRoom2(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
+
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+
+        FuntimeUser user = getUserById(userId);
+
+        FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
+        if (funtimeGift==null){
+            throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
+        }
+
+        FuntimeChatroom chatroom = roomService.getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        List<Long> toUserIdArray = roomService.getRoomUserByRoomId(roomId,userId);
+        if (toUserIdArray==null||toUserIdArray.isEmpty()){
+            if (userId.equals(chatroom.getUserId())) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_USER_IS_EMPTY.getValue(), ErrorMsgEnum.ROOM_USER_IS_EMPTY.getDesc());
+            }else{
+                toUserIdArray = new ArrayList<>(1);
+                toUserIdArray.add(chatroom.getUserId());
+            }
+        }
+
+        int userNum = toUserIdArray.size();
+
+        BigDecimal price = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
+
+        Integer amount= price.intValue()*giftNum;
+        Integer itemNum = userAccountMapper.getItemNumByUserId(userId, giftId, 1);
+        //背包礼物不足
+        if (itemNum<giftNum*userNum){
+            resultMsg.setCode(ErrorMsgEnum.USER_BAG_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_BAG_NOT_EN.getDesc());
+            return resultMsg;
+        }
+        int k = userAccountMapper.updateUserKnapsackSub(userAccountMapper.checkUserKnapsackExist(userId, giftId, 1),giftNum*userNum);
+        if (k!=1){
+            resultMsg.setCode(ErrorMsgEnum.DATA_ORER_ERROR.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            return resultMsg;
+        }
+        Integer userRole = roomService.getUserRole(roomId,userId);
+
+        userRole = userRole == null?4:userRole;
+        String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
+        for (Long toUserId : toUserIdArray) {
+
+            Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel);
+
+            Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
+            //用户收加上黑钻
+            userService.updateUserAccountForPlusGift(toUserId, black, giftNum, charmVal);
+            saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
+            //用户送的日志
+            saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+                    , OperationType.GIVEGIFTBAG.getAction(), OperationType.GIVEGIFTBAG.getOperationType());
+
+            //用户收的日志
+            saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEBAGGIFT.getAction()
+                    , OperationType.RECEIVEBAGGIFT.getOperationType());
+
+        }
+
+        RoomGiftNotice notice = new RoomGiftNotice();
+        notice.setCount(giftNum);
+
+        notice.setGiftName(funtimeGift.getGiftName());
+        notice.setFromImg(user.getPortraitAddress());
+        notice.setFromName(user.getNickname());
+        notice.setFromUid(String.valueOf(userId));
+        notice.setGid(String.valueOf(giftId));
+        notice.setGiftImg(funtimeGift.getAnimationUrl());
+        notice.setRid(String.valueOf(roomId));
+        notice.setToImg(chatroom.getAvatarUrl());
+        notice.setToName(chatroom.getName());
+        notice.setFromSex(user.getSex());
+        notice.setUserRole(userRole);
+        int type = funtimeGift.getSpecialEffect();
+        if (type == SpecialEffectType.E_4.getValue()) {
+            type = SpecialEffectType.E_3.getValue();
+            notice.setType(Constant.ROOM_GIFT_SEND_ROOM_ALL);
+            //发送通知全服
+            notice.setSpecialEffect(type);
+            noticeService.notice21(notice);
+
+        }
+        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+        if (userIds == null || userIds.isEmpty()) {
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        notice.setSpecialEffect(type);
+        notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
+        //发送通知
+
+        noticeService.notice19(notice, userIds);
+        resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum*userNum));
+
+        return resultMsg;
+
+    }
+
+    @Override
     public ResultMsg<Object> sendGiftForMic(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
 
@@ -1298,6 +1431,107 @@ public class AccountServiceImpl implements AccountService {
         notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
         //发送通知
         noticeService.notice19(notice, userIds);
+        return resultMsg;
+    }
+
+
+    @Override
+    public ResultMsg<Object> sendGiftForMic2(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+        FuntimeUser user = getUserById(userId);
+        FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
+        if (funtimeGift==null){
+            throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
+        }
+        FuntimeChatroom chatroom = roomService.getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        List<Long> toUserIdArray = roomService.getMicUserIdByRoomId(roomId,userId);
+        if (toUserIdArray==null||toUserIdArray.isEmpty()){
+            if (userId.equals(chatroom.getUserId())) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_MICUSER_IS_EMPTY.getValue(), ErrorMsgEnum.ROOM_MICUSER_IS_EMPTY.getDesc());
+            }else{
+                toUserIdArray = new ArrayList<>(1);
+                toUserIdArray.add(chatroom.getUserId());
+            }
+        }
+
+        int userNum = toUserIdArray.size();
+
+        Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
+        Integer itemNum = userAccountMapper.getItemNumByUserId(userId, giftId, 1);
+        //背包礼物不足
+        if (itemNum<giftNum*userNum){
+            resultMsg.setCode(ErrorMsgEnum.USER_BAG_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_BAG_NOT_EN.getDesc());
+            return resultMsg;
+        }
+        int k = userAccountMapper.updateUserKnapsackSub(userAccountMapper.checkUserKnapsackExist(userId, giftId, 1),giftNum*userNum);
+        if (k!=1){
+            resultMsg.setCode(ErrorMsgEnum.DATA_ORER_ERROR.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            return resultMsg;
+        }
+
+        Integer userRole = roomService.getUserRole(roomId,userId);
+
+        userRole = userRole == null?4:userRole;
+        String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
+        for (Long toUserId : toUserIdArray) {
+
+            Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel);
+
+            Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
+            //用户收加上黑钻
+            userService.updateUserAccountForPlusGift(toUserId, black, giftNum, charmVal);
+
+            saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
+            //用户送的日志
+            saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+                    , OperationType.GIVEGIFTBAG.getAction(), OperationType.GIVEGIFTBAG.getOperationType());
+
+            //用户收的日志
+            saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEBAGGIFT.getAction()
+                    , OperationType.RECEIVEBAGGIFT.getOperationType());
+
+        }
+
+        RoomGiftNotice notice = new RoomGiftNotice();
+        notice.setCount(giftNum);
+
+        notice.setGiftName(funtimeGift.getGiftName());
+        notice.setFromImg(user.getPortraitAddress());
+        notice.setFromName(user.getNickname());
+        notice.setFromUid(String.valueOf(userId));
+        notice.setGid(String.valueOf(giftId));
+        notice.setGiftImg(funtimeGift.getAnimationUrl());
+        notice.setRid(String.valueOf(roomId));
+        notice.setToImg(chatroom.getAvatarUrl());
+        notice.setToName(chatroom.getName());
+        notice.setFromSex(user.getSex());
+        notice.setUserRole(userRole);
+        int type = funtimeGift.getSpecialEffect();
+        if (type == SpecialEffectType.E_4.getValue()) {
+            type = SpecialEffectType.E_3.getValue();
+            notice.setType(Constant.ROOM_GIFT_SEND_ROOM_ALL);
+            //发送通知全服
+            notice.setSpecialEffect(type);
+            noticeService.notice21(notice);
+
+        }
+        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+        if (userIds == null || userIds.isEmpty()) {
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        notice.setSpecialEffect(type);
+        notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
+        //发送通知
+        noticeService.notice19(notice, userIds);
+        resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum*userNum));
         return resultMsg;
     }
 
@@ -2005,6 +2239,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Map<String,Object> getCarInfoById(Integer id) {
         return carMapper.getCarInfoById(id);
+    }
+
+    @Override
+    public Map<String, Object> getCarInfoByUserId(Long userId) {
+        return carMapper.getCarInfoByUserId(userId);
     }
 
     @Override

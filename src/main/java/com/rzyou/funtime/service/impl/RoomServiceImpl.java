@@ -217,7 +217,13 @@ public class RoomServiceImpl implements RoomService {
 
         //用户进入房间日志
         saveUserRoomLog(1,userId,roomId,null);
-        roomJoinNotice(roomId,userId,user.getNickname(),chatroom.getOnlineNum()+1);
+
+        Map<String, Object> carInfoMap = accountService.getCarInfoByUserId(userId);
+        String carUrl = null;
+        if (carInfoMap !=null&&carInfoMap.get("carUrl")!=null){
+            carUrl = carInfoMap.get("carUrl").toString();
+        }
+        roomJoinNotice(roomId,userId,user.getNickname(),carUrl);
         sendRoomInfoNotice(roomId);
         result.put("isOwer",chatroom.getUserId().equals(userId));
         return result;
@@ -227,12 +233,12 @@ public class RoomServiceImpl implements RoomService {
         return chatroomMicMapper.getMicLocationUser(roomId,micLocation);
     }
 
-    public void roomJoinNotice(Long roomId,Long userId,String nickname,Integer onlineNum){
+    public void roomJoinNotice(Long roomId,Long userId,String nickname,String carUrl){
         //全房消息
         List<String> userIds = getRoomUserByRoomIdAll(roomId);
         if (userIds!=null&&userIds.size()>1) {
             //发送通知
-            noticeService.notice12(roomId, userId, nickname, userIds);
+            noticeService.notice12(roomId, userId, nickname, userIds,carUrl);
             //人数通知
             //noticeService.notice20(roomId, userIds, onlineNum);
         }
@@ -695,7 +701,6 @@ public class RoomServiceImpl implements RoomService {
 
         chatroomMapper.deleteByRoomId(roomId);
         deleteByRoomId(roomId);
-        //chatroomUserMapper.deleteByRoomId(roomId);
 
         if (userIds!=null&&!userIds.isEmpty()) {
             //发送通知
@@ -712,18 +717,6 @@ public class RoomServiceImpl implements RoomService {
     }
 
 
-    public void blockUserForCloseRoom(Long roomId){
-        List<String> userIds = getRoomUserByRoomIdAll(roomId);
-        chatroomMapper.deleteByRoomId(roomId);
-        deleteByRoomId(roomId);
-        //chatroomUserMapper.deleteByRoomId(roomId);
-
-        if (userIds!=null&&!userIds.isEmpty()) {
-            //发送通知
-            noticeService.notice30(roomId,userIds);
-
-        }
-    }
 
     @Override
     public PageInfo<Map<String, Object>> getRoomList(Integer startPage, Integer pageSize, Integer tagId) {
@@ -1215,6 +1208,11 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public String getBackgroundThumbnailById(Integer id) {
         return backgroundMapper.getBackgroundThumbnailById(id);
+    }
+
+    @Override
+    public Integer getBackgroundDaysById(Integer id) {
+        return backgroundMapper.getBackgroundDaysById(id);
     }
 
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){

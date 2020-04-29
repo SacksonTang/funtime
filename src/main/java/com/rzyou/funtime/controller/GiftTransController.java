@@ -26,45 +26,7 @@ public class GiftTransController {
     AccountService accountService;
 
 
-    /**
-     * 送礼物
-     * @param request
-     * @return
-     */
-    @PostMapping("sendGiftForKnapsack")
-    public ResultMsg<Object> sendGiftForKnapsack(HttpServletRequest request){
 
-        ResultMsg<Object> result = new ResultMsg<>();
-        try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = HttpHelper.getUserId();
-            String toUserIds = paramJson.getString("toUserIds");
-            Integer giftId = paramJson.getInteger("giftId");
-            Integer giftNum = paramJson.getInteger("giftNum");
-            Integer giveChannel = paramJson.getInteger("giveChannel");//1-房间2-单发
-            Long roomId = paramJson.getLong("roomId");
-            if (userId == null || StringUtils.isBlank(toUserIds)||giftId == null || giftNum == null || giveChannel == null
-                    ||(giveChannel.equals(GiveChannel.ROOM.getValue())&&roomId==null||giftNum<1)
-            ){
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
-            }
-
-            return accountService.sendGiftForKnapsack(userId,toUserIds,giftId,giftNum,"送礼物",giveChannel,roomId);
-        } catch (BusinessException be) {
-            log.error("sendGift BusinessException==========>{}",be.getMsg());
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-            return result;
-        }catch (Exception e){
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-            return result;
-        }
-    }
 
     /**
      * 送礼物
@@ -80,6 +42,7 @@ public class GiftTransController {
             Long userId = paramJson.getLong("userId");
             String toUserIds = paramJson.getString("toUserIds");
             Integer giftId = paramJson.getInteger("giftId");
+            Integer type = paramJson.getInteger("type");
             Integer giftNum = paramJson.getInteger("giftNum");
             Integer giveChannel = paramJson.getInteger("giveChannel");//1-房间2-单发
             Long roomId = paramJson.getLong("roomId");
@@ -90,8 +53,16 @@ public class GiftTransController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-
-            return accountService.createGiftTrans(userId,toUserIds,giftId,giftNum,"送礼物",giveChannel,roomId);
+            if (type == null || type == 1) {
+                return accountService.createGiftTrans(userId, toUserIds, giftId, giftNum, "送礼物", giveChannel, roomId);
+            }
+            else if (type == 2){
+                return accountService.sendGiftForKnapsack(userId, toUserIds, giftId, giftNum, "送礼物-背包", giveChannel, roomId);
+            }else{
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
         } catch (BusinessException be) {
             log.error("sendGift BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
@@ -120,13 +91,23 @@ public class GiftTransController {
             Long userId = paramJson.getLong("userId");
             Integer giftId = paramJson.getInteger("giftId");
             Integer giftNum = paramJson.getInteger("giftNum");
+            Integer type = paramJson.getInteger("type");
             Long roomId = paramJson.getLong("roomId");
             if (userId == null || giftId == null || giftNum == null || roomId == null||giftNum<1){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            return accountService.sendGiftForMic(userId,giftId,giftNum,"送礼物",1,roomId);
+            if (type == null||type == 1) {
+                return accountService.sendGiftForMic(userId, giftId, giftNum, "送礼物", 1, roomId);
+            }
+            else if (type == 2){
+                return accountService.sendGiftForMic2(userId, giftId, giftNum, "送礼物-背包", 1, roomId);
+            }else{
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
 
         } catch (BusinessException be) {
             log.error("sendGiftForMic BusinessException==========>{}",be.getMsg());
@@ -142,6 +123,7 @@ public class GiftTransController {
         }
     }
 
+
     /**
      * 全房送礼物
      * @param request
@@ -156,13 +138,23 @@ public class GiftTransController {
             Long userId = paramJson.getLong("userId");
             Integer giftId = paramJson.getInteger("giftId");
             Integer giftNum = paramJson.getInteger("giftNum");
+            Integer type = paramJson.getInteger("type");
             Long roomId = paramJson.getLong("roomId");
             if (userId == null || giftId == null || giftNum == null || roomId == null||giftNum<1){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            return accountService.sendGiftForRoom(userId,giftId,giftNum,"送礼物",1,roomId);
+            if (type == null||type == 1) {
+                return accountService.sendGiftForRoom(userId, giftId, giftNum, "送礼物", 1, roomId);
+            }
+            else if (type == 2){
+                return accountService.sendGiftForRoom2(userId, giftId, giftNum, "送礼物-背包", 1, roomId);
+            }else{
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
 
         } catch (BusinessException be) {
             log.error("sendGiftForRoom BusinessException==========>{}",be.getMsg());

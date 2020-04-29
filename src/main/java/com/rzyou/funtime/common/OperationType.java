@@ -6,6 +6,7 @@ public enum OperationType {
     ,GRABREDPACKET("IN","GRABREDPACKET","抢红包")
     ,REDPACKETINVALID("IN","REDPACKETINVALID","红包过期退回")
     ,RECEIVEGIFT("IN","RECEIVEGIFT","收礼物")
+    ,RECEIVEBAGGIFT("IN","RECEIVEBAGGIFT","收背包礼物")
     ,GAMEIN("IN","GAMEIN","游戏收入")
     ,BLACK_BLUE_IN("IN","BLACK_BLUE_IN","黑钻兑换蓝钻")
     ,WITHDRAWAL_RETURN("IN","WITHDRAWAL_RETURN","提现退回")

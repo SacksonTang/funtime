@@ -54,6 +54,12 @@
     from  t_funtime_background t
     where t.id = #{id} and t.flag = 1
   </select>
+  <select id="getBackgroundDaysById"  resultType="java.lang.Integer" >
+    select
+    t.days
+    from  t_funtime_background t
+    where t.id = #{id} and t.flag = 1
+  </select>
   <select id="getBackgroundForExpiry"  resultType="java.util.Map" >
     select
     distinct m.id,m.user_id as userId,d.id as ubId

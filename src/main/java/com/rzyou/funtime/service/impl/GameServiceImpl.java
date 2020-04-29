@@ -579,7 +579,7 @@ public class GameServiceImpl implements GameService {
                     throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
                 }
                 drawMap.put("drawUrl",gift.getImageUrl());
-                drawMap.put("drawName",gift.getGiftName());
+                drawMap.put("drawName",gift.getGiftName()+"x"+1);
                 accountService.saveUserKnapsack(userId, 1, drawId, 1);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
@@ -587,7 +587,7 @@ public class GameServiceImpl implements GameService {
                 //蓝钻
             } else if (conf.getDrawType() == 2) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
-                drawMap.put("drawName","蓝钻");
+                drawMap.put("drawName","蓝钻x"+conf.getDrawVal());
                 if (price - conf.getDrawVal().intValue() > 0) {
                     userService.updateUserAccountForSub(userId, null, new BigDecimal(price - conf.getDrawVal().intValue()), null);
                     accountService.saveUserAccountBlueLog(userId, new BigDecimal(price - conf.getDrawVal().intValue()), recordId
@@ -601,7 +601,7 @@ public class GameServiceImpl implements GameService {
                 //金币
             } else if (conf.getDrawType() == 3) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
-                drawMap.put("drawName","金币");
+                drawMap.put("drawName","金币x"+conf.getDrawVal());
                 //蓝钻减少
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
@@ -618,7 +618,7 @@ public class GameServiceImpl implements GameService {
                     throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
                 }
                 drawMap.put("drawUrl",thumbnailUrl);
-                drawMap.put("drawName","房间背景");
+                drawMap.put("drawName","房间背景x"+roomService.getBackgroundDaysById(drawId)+"天");
                 roomService.drawBackground(drawId, userId);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
@@ -626,7 +626,7 @@ public class GameServiceImpl implements GameService {
                 //喇叭
             } else if (conf.getDrawType() == 5) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
-                drawMap.put("drawName","喇叭");
+                drawMap.put("drawName","喇叭x"+conf.getDrawVal());
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
                         , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType());
@@ -640,7 +640,7 @@ public class GameServiceImpl implements GameService {
                     throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
                 }
                 drawMap.put("drawUrl",map.get("thumbnailUrl"));
-                drawMap.put("drawName",map.get("carName"));
+                drawMap.put("drawName",map.get("carName").toString()+"x"+map.get("days").toString()+"天");
                 map.put("userId",userId);
                 accountService.drawCar(map);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
@@ -724,7 +724,7 @@ public class GameServiceImpl implements GameService {
                     throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
                 }
                 drawMap.put("drawUrl",gift.getImageUrl());
-                drawMap.put("drawName",gift.getGiftName());
+                drawMap.put("drawName",gift.getGiftName()+"x"+1);
                 accountService.saveUserKnapsack(userId, 1, drawId, 1);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
@@ -732,7 +732,7 @@ public class GameServiceImpl implements GameService {
                 //蓝钻
             } else if (conf.getDrawType() == 2) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
-                drawMap.put("drawName","蓝钻");
+                drawMap.put("drawName","蓝钻x"+conf.getDrawVal());
                 if (price - conf.getDrawVal().intValue() > 0) {
                     userService.updateUserAccountForSub(userId, null, new BigDecimal(price - conf.getDrawVal().intValue()), null);
                     accountService.saveUserAccountBlueLog(userId, new BigDecimal(price - conf.getDrawVal().intValue()), recordId
@@ -746,7 +746,7 @@ public class GameServiceImpl implements GameService {
                 //金币
             } else if (conf.getDrawType() == 3) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
-                drawMap.put("drawName","金币");
+                drawMap.put("drawName","金币x"+conf.getDrawVal());
                 //蓝钻减少
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
@@ -763,7 +763,7 @@ public class GameServiceImpl implements GameService {
                     throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
                 }
                 drawMap.put("drawUrl",thumbnailUrl);
-                drawMap.put("drawName","房间背景");
+                drawMap.put("drawName","房间背景x"+roomService.getBackgroundDaysById(drawId)+"天");
                 roomService.drawBackground(drawId, userId);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
@@ -771,7 +771,7 @@ public class GameServiceImpl implements GameService {
                 //喇叭
             } else if (conf.getDrawType() == 5) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
-                drawMap.put("drawName","喇叭");
+                drawMap.put("drawName","喇叭x"+conf.getDrawVal());
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
                         , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType());
@@ -785,7 +785,7 @@ public class GameServiceImpl implements GameService {
                     throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
                 }
                 drawMap.put("drawUrl",map.get("thumbnailUrl"));
-                drawMap.put("drawName",map.get("carName"));
+                drawMap.put("drawName",map.get("carName").toString()+"x"+map.get("days").toString()+"天");
                 map.put("userId",userId);
                 accountService.drawCar(map);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
