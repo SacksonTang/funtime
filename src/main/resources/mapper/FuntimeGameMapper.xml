@@ -48,7 +48,7 @@
   </select>
   <select id="getCircleConfs"  resultType="com.rzyou.funtime.entity.FuntimeGameCircleConf">
     select id,draw_number as drawNumber,draw_url as drawUrl,draw_type as drawType,draw_id as drawId,draw_val as drawVal,probability,broadcast
-    from t_funtime_game_smash_egg_conf
+    from t_funtime_game_circle_conf
   </select>
 
   <update id="updateActualPoolForPlus">

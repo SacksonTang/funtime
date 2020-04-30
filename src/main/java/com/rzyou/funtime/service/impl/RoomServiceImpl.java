@@ -220,10 +220,15 @@ public class RoomServiceImpl implements RoomService {
 
         Map<String, Object> carInfoMap = accountService.getCarInfoByUserId(userId);
         String carUrl = null;
+        String carName ;
+        String msg = "进入房间";
         if (carInfoMap !=null&&carInfoMap.get("carUrl")!=null){
             carUrl = carInfoMap.get("carUrl").toString();
+            carName = carInfoMap.get("carName").toString();
+            msg = "坐着"+carName+"进来了";
         }
-        roomJoinNotice(roomId,userId,user.getNickname(),carUrl);
+
+        roomJoinNotice(roomId,userId,user.getNickname(),carUrl,msg);
         sendRoomInfoNotice(roomId);
         result.put("isOwer",chatroom.getUserId().equals(userId));
         return result;
@@ -233,12 +238,12 @@ public class RoomServiceImpl implements RoomService {
         return chatroomMicMapper.getMicLocationUser(roomId,micLocation);
     }
 
-    public void roomJoinNotice(Long roomId,Long userId,String nickname,String carUrl){
+    public void roomJoinNotice(Long roomId, Long userId, String nickname, String carUrl, String msg){
         //全房消息
         List<String> userIds = getRoomUserByRoomIdAll(roomId);
-        if (userIds!=null&&userIds.size()>1) {
+        if (userIds!=null&&userIds.size()>0) {
             //发送通知
-            noticeService.notice12(roomId, userId, nickname, userIds,carUrl);
+            noticeService.notice12(roomId, userId, nickname, userIds,carUrl,msg);
             //人数通知
             //noticeService.notice20(roomId, userIds, onlineNum);
         }
@@ -271,6 +276,18 @@ public class RoomServiceImpl implements RoomService {
         result.put("isFishShow",2);
         result.put("roomGameTag","");
         result.put("roomGameIcon","");
+        Map<String, Object> carInfoMap = accountService.getCarInfoByUserId(userId);
+
+        String carUrl = null;
+        String carName ;
+        String msg = "进入房间";
+        if (carInfoMap !=null&&carInfoMap.get("carUrl")!=null){
+            carUrl = carInfoMap.get("carUrl").toString();
+            carName = carInfoMap.get("carName").toString();
+            msg = "坐着"+carName+"进来了";
+        }
+        result.put("carUrl",carUrl);
+        result.put("msg",msg);
         result.put("shareUrl",Constant.SHARE_URL);
         if (userId!=null) {
             boolean bool1 = gameService.getYaoyaoShowConf(1, userId);
@@ -1213,6 +1230,11 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Integer getBackgroundDaysById(Integer id) {
         return backgroundMapper.getBackgroundDaysById(id);
+    }
+
+    @Override
+    public List<FuntimeGift> getGiftListInit() {
+        return giftMapper.getGiftListInit();
     }
 
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){

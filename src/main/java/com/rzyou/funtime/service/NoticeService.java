@@ -140,8 +140,9 @@ public interface NoticeService {
      * @param nickname
      * @param userIds
      * @param carUrl
+     * @param msg
      */
-    void notice12(Long roomId, Long userId, String nickname, List<String> userIds, String carUrl);
+    void notice12(Long roomId, Long userId, String nickname, List<String> userIds, String carUrl, String msg);
 
     /**
      * 发红包

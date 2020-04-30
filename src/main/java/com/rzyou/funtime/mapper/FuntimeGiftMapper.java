@@ -19,4 +19,6 @@ public interface FuntimeGiftMapper {
 
     List<Map<String,Object>> getGiftByKnapsack(Long userId);
 
+    List<FuntimeGift> getGiftListInit();
+
 }

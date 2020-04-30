@@ -486,4 +486,11 @@ public interface AccountService {
      * 定时设置过期座驾
      */
     void setCarTask();
+
+    /**
+     * 用户座驾
+     * @param userId
+     * @return
+     */
+    List<Map<String, Object>> getUserCarByUserId(Long userId);
 }

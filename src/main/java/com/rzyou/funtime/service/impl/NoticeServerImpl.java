@@ -334,12 +334,13 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    public void notice12(Long roomId, Long userId, String nickname, List<String> userIds, String carUrl) {
+    public void notice12(Long roomId, Long userId, String nickname, List<String> userIds, String carUrl, String msg) {
         JSONObject object = new JSONObject();
         object.put("rid",roomId);
         object.put("uid",userId);
         object.put("name",nickname);
         object.put("carUrl",carUrl);
+        object.put("msg",msg);
         object.put("type",Constant.ROOM_ENTER);
         String data = StringEscapeUtils.unescapeJava(object.toJSONString());
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);

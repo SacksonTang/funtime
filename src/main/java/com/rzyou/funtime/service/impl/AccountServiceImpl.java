@@ -923,6 +923,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public List<Map<String, Object>> getUserCarByUserId(Long userId) {
+        return carMapper.getUserCarByUserId(userId);
+    }
+
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
 

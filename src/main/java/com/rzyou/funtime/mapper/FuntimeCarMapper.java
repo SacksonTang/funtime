@@ -23,4 +23,6 @@ public interface FuntimeCarMapper {
     List<Map<String,Object>> getCarInfoForExpire();
 
     int deleteUserCarFById(Long id);
+
+    List<Map<String, Object>> getUserCarByUserId(Long userId);
 }

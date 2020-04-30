@@ -352,4 +352,10 @@ public interface RoomService {
      * @return
      */
     Integer getBackgroundDaysById(Integer id);
+
+    /**
+     * 礼物资源列表
+     * @return
+     */
+    List<FuntimeGift> getGiftListInit();
 }

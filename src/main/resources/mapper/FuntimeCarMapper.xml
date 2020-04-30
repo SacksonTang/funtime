@@ -10,9 +10,23 @@
     <select id="getUserCarIdBy"  resultType="java.lang.Long">
       select id  from t_funtime_user_car where user_id = #{userId} and car_id = #{carId}
   </select>
+    <select id="getUserCarByUserId" resultType="java.util.Map">
+        SELECT DISTINCT
+            c.car_number AS carNumber,
+            car_name AS carName,
+            c.thumbnail_url AS thumbnailUrl,
+            c.car_url AS carUrl
+        FROM
+            t_funtime_user_car u
+            INNER JOIN t_funtime_car c ON u.car_id = c.car_number
+        WHERE
+            u.user_id = #{userId}
+        ORDER BY
+            c.car_number DESC
+    </select>
    <select id="getCarInfoByUserId"  resultType="java.util.Map">
-      select u.id as userCarId,u.car_id as carId,c.car_url as carUrl  from t_funtime_user_car u inner join t_funtime_car c on u.car_id = c.car_number
-       where user_id = #{userId} and  is_current = 1 limit 1
+      select u.id as userCarId,c.car_name as carName,u.car_id as carId,c.car_url as carUrl  from t_funtime_user_car u inner join t_funtime_car c on u.car_id = c.car_number
+       where u.user_id = #{userId} and  u.is_current = 1 limit 1
   </select>
     <select id="getCarInfoForExpire" resultType="java.util.Map">
         select id ,user_id as userId ,is_current as isCurrent from t_funtime_user_car where  now()>end_time

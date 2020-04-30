@@ -671,6 +671,7 @@ public class GameServiceImpl implements GameService {
         resultMap.put("userBlueAmount",userAccount.getBlueDiamond().intValue());
         //转盘价格
         resultMap.put("circlePrice",parameterService.getParameterValueByKey("room_game_circle_price"));
+
         return resultMap;
     }
 
@@ -717,6 +718,7 @@ public class GameServiceImpl implements GameService {
 
             Long recordId = saveCircleRecord(userId,price, random, conf.getDrawNumber()
                     , conf.getDrawType(), drawId, conf.getDrawVal());
+            drawMap.put("drawNumber",conf.getDrawNumber());
             //礼物
             if (conf.getDrawType() == 1) {
                 FuntimeGift gift = accountService.getGiftById(drawId);

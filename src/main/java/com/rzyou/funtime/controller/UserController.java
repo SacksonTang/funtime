@@ -41,6 +41,42 @@ public class UserController {
     @Autowired
     ParameterService parameterService;
 
+    /**
+     * 用户座驾信息
+     * @param request
+     * @return
+     */
+    @PostMapping("getUserCarByUserId")
+    public ResultMsg<Object> getUserCarByUserId(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            if (userId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            List<Map<String,Object>> cars = accountService.getUserCarByUserId(userId);
+            result.setData(JsonUtil.getMap("cars",cars));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 用户背包信息
+     * @param request
+     * @return
+     */
     @PostMapping("getUserKnapsackByUserId")
     public ResultMsg<Object> getUserKnapsackByUserId(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
