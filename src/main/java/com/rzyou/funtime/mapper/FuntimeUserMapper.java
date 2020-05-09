@@ -11,6 +11,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserMapper {
 
+    int updateUserCar(@Param("id") Long id,@Param("carId") Integer carId);
+
     List<Map<String,Object>> getRankRewardConf(Integer dateType);
 
     int saveUserInfoChangeLog(@Param("userId") Long userId,@Param("changeColumn") String changeColumn,@Param("changeVal") String changeVal);

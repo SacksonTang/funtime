@@ -278,9 +278,9 @@ public class UserServiceImpl implements UserService {
             user.setBirthday(Integer.parseInt(DateUtil.getCurrentYearAdd(new Date(),-18)));
         }
 
-        if (user.getPortraitAddress()==null&&funtimeUser.getPortraitAddress()==null){
+        if (user.getNewUser()!=null){
             if (user.getSex()!=null) {
-                List<String> userImageDefaultUrls = userMapper.getUserImageDefaultUrls(user.getSex());
+                List<String> userImageDefaultUrls = getUserImageDefaultUrls(user.getSex());
                 if (userImageDefaultUrls==null||userImageDefaultUrls.isEmpty()) {
                     if (user.getSex() == 1) {
                         user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
@@ -290,6 +290,23 @@ public class UserServiceImpl implements UserService {
                     }
                 }else{
                     user.setPortraitAddress(userImageDefaultUrls.get(RandomUtils.nextInt(0, userImageDefaultUrls.size())));
+                }
+            }
+        }else {
+
+            if (user.getPortraitAddress() == null && funtimeUser.getPortraitAddress() == null) {
+                if (user.getSex() != null) {
+                    List<String> userImageDefaultUrls = getUserImageDefaultUrls(user.getSex());
+                    if (userImageDefaultUrls == null || userImageDefaultUrls.isEmpty()) {
+                        if (user.getSex() == 1) {
+                            user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
+                        }
+                        if (user.getSex() == 2) {
+                            user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_FEMALE_HEAD_PORTRAIT);
+                        }
+                    } else {
+                        user.setPortraitAddress(userImageDefaultUrls.get(RandomUtils.nextInt(0, userImageDefaultUrls.size())));
+                    }
                 }
             }
         }
@@ -308,6 +325,11 @@ public class UserServiceImpl implements UserService {
         }
 
         return true;
+    }
+
+    @Override
+    public List<String> getUserImageDefaultUrls(Integer sex){
+        return userMapper.getUserImageDefaultUrls(sex);
     }
 
     public void updateTagsByUserId(List<Integer> tags,Long userId){
@@ -1266,6 +1288,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateImHeartSync(Long userId) {
         userMapper.updateImHeartSync(userId);
+    }
+
+    @Override
+    public void updateUserCar(Long userId, Integer carId) {
+        int k = userMapper.updateUserCar(userId,carId);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
     }
 
 

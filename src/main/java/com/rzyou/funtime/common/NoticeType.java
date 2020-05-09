@@ -34,6 +34,8 @@ public enum NoticeType {
     ,BLOCK_USER_ROOM(Constant.BLOCK_USER_ROOM,"封禁用户房间","")
     ,SET_BACKGROUND(Constant.SET_BACKGROUND,"设置背景","")
     ,REFRESH_MICINFO(Constant.REFRESH_MICINFO,"刷新麦位信息","")
+    ,ROOM_LIST_MSG_GAME(Constant.ROOM_LIST_MSG_GAME,"加号游戏消息","")
+    ,ROOM_LIST_MSG_YYL(Constant.ROOM_LIST_MSG_YYL,"摇摇乐消息","")
 
     ,SERVICE_MSG(Constant.SERVICE_MSG,"全服大喇叭","")
     ;

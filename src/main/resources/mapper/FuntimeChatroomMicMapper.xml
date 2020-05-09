@@ -47,6 +47,12 @@
     where mic_user_id is not null
     group by mic_user_id
   </select>
+  <select id="getAllRoomUserByLevel" resultType="java.lang.String">
+    select
+    mic_user_id
+    from t_funtime_chatroom_mic m inner join t_funtime_user_account u on m.mic_user_id = u.user_id
+    where u.level>=#{level}
+  </select>
 
   <select id="getRoomUserInfoByUserId"  resultMap="BaseResultMap">
     select

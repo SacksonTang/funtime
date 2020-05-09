@@ -48,6 +48,8 @@ public class FuntimeUser implements Serializable {
 
     private String token;
 
+    private Integer carId;
+
     private Integer onlineState;
 
     private Integer createRoom;

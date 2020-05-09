@@ -4,18 +4,47 @@
 
 
   <select id="getCarInfoById" parameterType="java.lang.Integer" resultType="java.util.Map">
-      select car_number as carId,days,ifnull(activity_price,original_price) as price,
+      select car_number as carId,days,ifnull(activity_price,original_price) as price,animation_type as animationType,car_url AS carUrl,
       thumbnail_url as thumbnailUrl,car_name as carName from t_funtime_car where id = #{id}
   </select>
-    <select id="getUserCarIdBy"  resultType="java.lang.Long">
+    <select id="getCarInfoByCarId" parameterType="java.lang.Integer" resultType="java.util.Map">
+      select car_number as carId,ifnull(activity_price,original_price) as price,animation_type as animationType,car_url AS carUrl,
+      thumbnail_url as thumbnailUrl,car_name as carName from t_funtime_car where car_number = #{carId} limit 1
+  </select>
+    <select id="getUserCarById"  resultType="java.lang.Long">
       select id  from t_funtime_user_car where user_id = #{userId} and car_id = #{carId}
   </select>
+    <select id="getCarList" resultType="java.util.Map">
+    SELECT
+        c.carNumber,
+        c.carName,
+        c.thumbnailUrl,
+        c.carUrl,
+        c.animationType,
+        IF(u.user_id is null,0,1) isOwer,
+        0 isCurrent
+    FROM
+        ( SELECT DISTINCT car_number AS carNumber, car_name AS carName, thumbnail_url AS thumbnailUrl, car_url AS carUrl, animation_type AS animationType FROM t_funtime_car where flag = 1 ) c
+        left join t_funtime_user_car u on c.carNumber = u.car_id and u.user_id = #{userId}
+    </select>
+    <select id="getPriceTagByCarNumber" resultType="java.util.Map">
+        SELECT
+            id,
+            days,
+            original_price as originalPrice,
+            activity_price as activityPrice
+        FROM
+            t_funtime_car
+        WHERE
+            car_number =#{carNumber}
+    </select>
     <select id="getUserCarByUserId" resultType="java.util.Map">
         SELECT DISTINCT
             c.car_number AS carNumber,
-            car_name AS carName,
+            c.car_name AS carName,
             c.thumbnail_url AS thumbnailUrl,
-            c.car_url AS carUrl
+            c.car_url AS carUrl,
+            c.animation_type as animationType
         FROM
             t_funtime_user_car u
             INNER JOIN t_funtime_car c ON u.car_id = c.car_number
@@ -24,16 +53,23 @@
         ORDER BY
             c.car_number DESC
     </select>
-   <select id="getCarInfoByUserId"  resultType="java.util.Map">
-      select u.id as userCarId,c.car_name as carName,u.car_id as carId,c.car_url as carUrl  from t_funtime_user_car u inner join t_funtime_car c on u.car_id = c.car_number
-       where u.user_id = #{userId} and  u.is_current = 1 limit 1
-  </select>
+    <select id="getUserCarIdByUserId" resultType="java.lang.Integer">
+        SELECT car_id
+        FROM
+            t_funtime_user_car
+        WHERE
+            user_id = #{userId} limit 1
+
+    </select>
+
     <select id="getCarInfoForExpire" resultType="java.util.Map">
-        select id ,user_id as userId ,is_current as isCurrent from t_funtime_user_car where  now()>end_time
+        select u.id ,u.user_id as userId,u.car_id as carId
+        from t_funtime_user_car u
+         where  now()>u.end_time
     </select>
   <insert id="insertUserCar">
     insert into t_funtime_user_car(user_id,car_id,price,end_time)
-    values (#{userId},#{carId},#{price},#{endTime})
+    values (#{userId},#{carId},#{price},date_add(NOW(), interval ${days} day))
   </insert>
 
     <update id="updateUserCar">
@@ -41,12 +77,13 @@
         where id = #{userCarId}
     </update>
 
-    <update id="updateUserCarIsCurrent">
-        update t_funtime_user_car set is_current = #{isCurrent} where id = #{id}
-    </update>
-
-    <delete id="deleteUserCarFById">
+    <delete id="deleteUserCarById">
         delete from t_funtime_user_car where  id = #{id}
     </delete>
+
+    <insert id="insertCarRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountCarRecord">
+        insert into t_funtime_user_account_car_record (user_id,car_id,price,days)
+        values (#{userId},#{carId},#{price},#{days})
+    </insert>
 
 </mapper>

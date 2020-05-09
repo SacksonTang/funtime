@@ -32,6 +32,8 @@ public class GameServiceImpl implements GameService {
     @Autowired
     RoomService roomService;
     @Autowired
+    NoticeService noticeService;
+    @Autowired
     FuntimeGameMapper gameMapper;
 
     public List<FuntimeGameYaoyaoConf> getYaoyaoConf(int id){
@@ -142,6 +144,7 @@ public class GameServiceImpl implements GameService {
         if (userAccount == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        FuntimeUser user = userService.queryUserById(userId);
 
         int type = poolInfo.getType();
         if (!getYaoyaoShowConf(type, userId)){
@@ -229,6 +232,7 @@ public class GameServiceImpl implements GameService {
         BigDecimal drawAmount = conf.getDrawType()==1?new BigDecimal(poolInfo.getActualPool()).multiply(conf.getDrawVal()).setScale(0,BigDecimal.ROUND_HALF_UP)
                 :new BigDecimal(poolInfo.getQuota()).multiply(conf.getDrawVal()).setScale(0,BigDecimal.ROUND_HALF_UP);
         result.put("drawAmount",drawAmount.intValue());
+        sendNotice(GameCodeEnum.YAOYAOLE.getValue(),user.getNickname(),null,drawAmount.intValue());
         //中奖减去奖池增加的就是奖池需要减去的
         BigDecimal actualAmount = drawAmount.subtract(subActualPool);
         if (poolInfo.getActualPool()-actualAmount.intValue()<0){
@@ -284,6 +288,45 @@ public class GameServiceImpl implements GameService {
         }
 
         return result;
+    }
+
+    private void sendNotice(Integer gameCode,String nickname,String giftName,Integer price){
+
+        String val = parameterService.getParameterValueByKey("game_notice_amount");
+        if (price<new BigDecimal(val).intValue()){
+            return;
+        }
+        Map<String, Object> gameInfoMap = gameMapper.getGameInfoByCode(gameCode);
+        String name = gameInfoMap.get("name").toString();
+        String icon = gameInfoMap.get("icon").toString();
+        String resourceUrl = gameInfoMap.get("resourceUrl").toString();
+        Integer needLevel = Integer.parseInt(gameInfoMap.get("needLevel").toString());
+        String content = "";
+        if (gameCode.equals(GameCodeEnum.YAOYAOLE.getValue())){
+            content = nickname+"在"+GameCodeEnum.YAOYAOLE.getDesc()+"中摇到"+price+"钻，运气爆表,活动限时开放,立即参与>";
+        }else if (gameCode.equals(GameCodeEnum.EGG.getValue())){
+            if (giftName == null) {
+                content = nickname + "在"+GameCodeEnum.EGG.getDesc()+"中砸到" + price + "钻,运气爆表，活动限时开放,立即参与>";
+            }else{
+                content = nickname + "在"+GameCodeEnum.EGG.getDesc()+"中砸到"+giftName+"/" + price + "钻，运气爆表，活动限时开放,立即参与>";
+            }
+        }else if (gameCode.equals(GameCodeEnum.CIRCLE.getValue())){
+            if (giftName == null) {
+                content = nickname + "在"+GameCodeEnum.CIRCLE.getDesc()+"中抽到" + price + "钻,运气爆表，活动限时开放,立即参与>";
+            }else{
+                content = nickname + "在"+GameCodeEnum.CIRCLE.getDesc()+"中抽到"+giftName+"/" + price + "钻，运气爆表，活动限时开放,立即参与>";
+            }
+        }
+        List<String> userIds = roomService.getAllRoomUserByLevel(needLevel);
+
+        if (userIds!=null&&!userIds.isEmpty()) {
+            name = name+"喜讯";
+            if (gameCode.equals(GameCodeEnum.YAOYAOLE.getValue())) {
+                noticeService.notice34(userIds, icon, name, content, "#FF97BA", resourceUrl);
+            }else{
+                noticeService.notice33(userIds, icon, name, content, "#FF97BA", resourceUrl);
+            }
+        }
     }
 
     private FuntimeGameYaoyaoConf getConf(Map<String,FuntimeGameYaoyaoConf> map,int random){
@@ -528,6 +571,7 @@ public class GameServiceImpl implements GameService {
         if (userAccount == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        FuntimeUser user = userService.queryUserById(userId);
         if (!getSmasheggShowConf(2, userId)){
             throw new BusinessException(ErrorMsgEnum.DRAW_TIME_OUT.getValue(),ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
         }
@@ -573,6 +617,8 @@ public class GameServiceImpl implements GameService {
             Long recordId = saveSmashEggRecord(userId,price, random, conf.getDrawNumber()
                     , type, conf.getDrawType(), drawId, conf.getDrawVal());
             //礼物
+            String noticeGiftName = null;
+            Integer noticePrice = 0;
             if (conf.getDrawType() == 1) {
                 FuntimeGift gift = accountService.getGiftById(drawId);
                 if (gift == null){
@@ -580,6 +626,8 @@ public class GameServiceImpl implements GameService {
                 }
                 drawMap.put("drawUrl",gift.getImageUrl());
                 drawMap.put("drawName",gift.getGiftName()+"x"+1);
+                noticeGiftName = gift.getGiftName();
+                noticePrice = gift.getActivityPrice().intValue();
                 accountService.saveUserKnapsack(userId, 1, drawId, 1);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
@@ -588,6 +636,7 @@ public class GameServiceImpl implements GameService {
             } else if (conf.getDrawType() == 2) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
                 drawMap.put("drawName","蓝钻x"+conf.getDrawVal());
+                noticePrice = conf.getDrawVal().intValue();
                 if (price - conf.getDrawVal().intValue() > 0) {
                     userService.updateUserAccountForSub(userId, null, new BigDecimal(price - conf.getDrawVal().intValue()), null);
                     accountService.saveUserAccountBlueLog(userId, new BigDecimal(price - conf.getDrawVal().intValue()), recordId
@@ -613,12 +662,14 @@ public class GameServiceImpl implements GameService {
 
                 //背景
             } else if (conf.getDrawType() == 4) {
-                String thumbnailUrl = roomService.getBackgroundThumbnailById(drawId);
-                if (thumbnailUrl == null){
+                Map<String, Object> map = roomService.getBackgroundThumbnailById(drawId);
+                if (map == null){
                     throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
                 }
-                drawMap.put("drawUrl",thumbnailUrl);
+                drawMap.put("drawUrl",map.get("thumbnailUrl"));
                 drawMap.put("drawName","房间背景x"+roomService.getBackgroundDaysById(drawId)+"天");
+                noticeGiftName = "房间背景";
+                noticePrice = new BigDecimal(map.get("activityPrice").toString()).intValue();
                 roomService.drawBackground(drawId, userId);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
@@ -641,6 +692,8 @@ public class GameServiceImpl implements GameService {
                 }
                 drawMap.put("drawUrl",map.get("thumbnailUrl"));
                 drawMap.put("drawName",map.get("carName").toString()+"x"+map.get("days").toString()+"天");
+                noticeGiftName = map.get("carName").toString();
+                noticePrice = new BigDecimal(map.get("price").toString()).intValue();
                 map.put("userId",userId);
                 accountService.drawCar(map);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
@@ -651,6 +704,7 @@ public class GameServiceImpl implements GameService {
                 return null;
             }
             drawList.add(drawMap);
+            sendNotice(GameCodeEnum.EGG.getValue(),user.getNickname(),noticeGiftName,noticePrice);
         }
 
         Map<String,Object> resultMap = new HashMap<>();
@@ -682,6 +736,7 @@ public class GameServiceImpl implements GameService {
         if (userAccount == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        FuntimeUser user = userService.queryUserById(userId);
         if (!getSmasheggShowConf(2, userId)){
             throw new BusinessException(ErrorMsgEnum.DRAW_TIME_OUT.getValue(),ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
         }
@@ -719,6 +774,8 @@ public class GameServiceImpl implements GameService {
             Long recordId = saveCircleRecord(userId,price, random, conf.getDrawNumber()
                     , conf.getDrawType(), drawId, conf.getDrawVal());
             drawMap.put("drawNumber",conf.getDrawNumber());
+            String noticeGiftName = null;
+            Integer noticePrice = 0;
             //礼物
             if (conf.getDrawType() == 1) {
                 FuntimeGift gift = accountService.getGiftById(drawId);
@@ -727,6 +784,8 @@ public class GameServiceImpl implements GameService {
                 }
                 drawMap.put("drawUrl",gift.getImageUrl());
                 drawMap.put("drawName",gift.getGiftName()+"x"+1);
+                noticeGiftName = gift.getGiftName();
+                noticePrice = gift.getActivityPrice().intValue();
                 accountService.saveUserKnapsack(userId, 1, drawId, 1);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
@@ -735,6 +794,7 @@ public class GameServiceImpl implements GameService {
             } else if (conf.getDrawType() == 2) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
                 drawMap.put("drawName","蓝钻x"+conf.getDrawVal());
+                noticePrice = conf.getDrawVal().intValue();
                 if (price - conf.getDrawVal().intValue() > 0) {
                     userService.updateUserAccountForSub(userId, null, new BigDecimal(price - conf.getDrawVal().intValue()), null);
                     accountService.saveUserAccountBlueLog(userId, new BigDecimal(price - conf.getDrawVal().intValue()), recordId
@@ -760,12 +820,14 @@ public class GameServiceImpl implements GameService {
 
                 //背景
             } else if (conf.getDrawType() == 4) {
-                String thumbnailUrl = roomService.getBackgroundThumbnailById(drawId);
-                if (thumbnailUrl == null){
+                Map<String,Object> map = roomService.getBackgroundThumbnailById(drawId);
+                if (map == null){
                     throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
                 }
-                drawMap.put("drawUrl",thumbnailUrl);
+                drawMap.put("drawUrl",map.get("thumbnailUrl"));
                 drawMap.put("drawName","房间背景x"+roomService.getBackgroundDaysById(drawId)+"天");
+                noticeGiftName = "房间背景";
+                noticePrice = new BigDecimal(map.get("activityPrice").toString()).intValue();
                 roomService.drawBackground(drawId, userId);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
@@ -788,6 +850,8 @@ public class GameServiceImpl implements GameService {
                 }
                 drawMap.put("drawUrl",map.get("thumbnailUrl"));
                 drawMap.put("drawName",map.get("carName").toString()+"x"+map.get("days").toString()+"天");
+                noticeGiftName = map.get("carName").toString();
+                noticePrice = new BigDecimal(map.get("price").toString()).intValue();
                 map.put("userId",userId);
                 accountService.drawCar(map);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
@@ -798,6 +862,7 @@ public class GameServiceImpl implements GameService {
             }
             drawMap.put("drawNumber",conf.getDrawNumber());
             drawList.add(drawMap);
+            sendNotice(GameCodeEnum.CIRCLE.getValue(),user.getNickname(),noticeGiftName,noticePrice);
         }
 
         Map<String,Object> resultMap = new HashMap<>();

@@ -141,8 +141,9 @@ public interface NoticeService {
      * @param userIds
      * @param carUrl
      * @param msg
+     * @param animationType
      */
-    void notice12(Long roomId, Long userId, String nickname, List<String> userIds, String carUrl, String msg);
+    void notice12(Long roomId, Long userId, String nickname, List<String> userIds, String carUrl, String msg, String animationType);
 
     /**
      * 发红包
@@ -300,6 +301,27 @@ public interface NoticeService {
      * @param roomUserCount
      */
     void notice32(List<String> userIds, List<Map<String, Object>> micUser, int roomUserCount);
+
+    /**
+     * 加号游戏通知
+     * @param userIds
+     * @param imgUrl
+     * @param name
+     * @param msg
+     * @param nameColor
+     * @param toUrl
+     */
+    void notice33(List<String> userIds,String imgUrl,String name,String msg,String nameColor,String toUrl);
+    /**
+     * 摇摇乐游戏通知
+     * @param userIds
+     * @param imgUrl
+     * @param name
+     * @param msg
+     * @param nameColor
+     * @param toUrl
+     */
+    void notice34(List<String> userIds,String imgUrl,String name,String msg,String nameColor,String toUrl);
 
     /**
      * 系统通知

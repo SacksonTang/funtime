@@ -24,6 +24,7 @@ public enum OperationType {
     ,SMASHEGG_OUT("OUT","SMASHEGG_OUT","砸蛋消耗")
     ,CIRCLE_OUT("OUT","CIRCLE_OUT","砸蛋消耗")
     ,BUY_BACKGROUND("OUT","BUY_BACKGROUND","购买背景资源")
+    ,BUY_CAR("OUT","BUY_CAR","购买坐骑")
     ,BUY_HORN("OUT","BUY_HORN","购买喇叭")
     ,HORN_CONSUME("OUT","HORN_CONSUME","发送大喇叭")
     ,BUY_BULLET("OUT","BUY_BULLET","捕鱼购买子弹")

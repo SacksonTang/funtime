@@ -30,6 +30,9 @@ public interface FuntimeChatroomMicMapper {
      */
     List<String> getAllRoomUser();
 
+    List<String>getAllRoomUserByLevel(Integer level);
+
+
     FuntimeChatroomMic getMicLocationByRoomIdAndUser(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
     FuntimeChatroomMic getInfoByRoomIdAndUser(@Param("roomId") Long roomId, @Param("userId") Long userId);

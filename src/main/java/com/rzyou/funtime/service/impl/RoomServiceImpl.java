@@ -217,18 +217,21 @@ public class RoomServiceImpl implements RoomService {
 
         //用户进入房间日志
         saveUserRoomLog(1,userId,roomId,null);
-
-        Map<String, Object> carInfoMap = accountService.getCarInfoByUserId(userId);
         String carUrl = null;
         String carName ;
         String msg = "进入房间";
-        if (carInfoMap !=null&&carInfoMap.get("carUrl")!=null){
-            carUrl = carInfoMap.get("carUrl").toString();
-            carName = carInfoMap.get("carName").toString();
-            msg = "坐着"+carName+"进来了";
+        String animationType = null;
+        if (user.getCarId()!=null){
+            Map<String, Object> carInfoMap = accountService.getCarInfoByCarId(user.getCarId());
+            if (carInfoMap !=null&&carInfoMap.get("carUrl")!=null){
+                carUrl = carInfoMap.get("carUrl").toString();
+                carName = carInfoMap.get("carName").toString();
+                msg = "坐着"+carName+"进来了";
+                animationType = carInfoMap.get("animationType").toString();
+            }
         }
 
-        roomJoinNotice(roomId,userId,user.getNickname(),carUrl,msg);
+        roomJoinNotice(roomId,userId,user.getNickname(),carUrl,msg,animationType);
         sendRoomInfoNotice(roomId);
         result.put("isOwer",chatroom.getUserId().equals(userId));
         return result;
@@ -238,12 +241,12 @@ public class RoomServiceImpl implements RoomService {
         return chatroomMicMapper.getMicLocationUser(roomId,micLocation);
     }
 
-    public void roomJoinNotice(Long roomId, Long userId, String nickname, String carUrl, String msg){
+    public void roomJoinNotice(Long roomId, Long userId, String nickname, String carUrl, String msg, String animationType){
         //全房消息
         List<String> userIds = getRoomUserByRoomIdAll(roomId);
         if (userIds!=null&&userIds.size()>0) {
             //发送通知
-            noticeService.notice12(roomId, userId, nickname, userIds,carUrl,msg);
+            noticeService.notice12(roomId, userId, nickname, userIds,carUrl,msg,animationType);
             //人数通知
             //noticeService.notice20(roomId, userIds, onlineNum);
         }
@@ -265,6 +268,10 @@ public class RoomServiceImpl implements RoomService {
         if (chatroom==null){
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
+        FuntimeUser user = userService.queryUserById(userId);
+        if (user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("chatroom",chatroom);
@@ -276,18 +283,20 @@ public class RoomServiceImpl implements RoomService {
         result.put("isFishShow",2);
         result.put("roomGameTag","");
         result.put("roomGameIcon","");
-        Map<String, Object> carInfoMap = accountService.getCarInfoByUserId(userId);
-
-        String carUrl = null;
-        String carName ;
-        String msg = "进入房间";
-        if (carInfoMap !=null&&carInfoMap.get("carUrl")!=null){
-            carUrl = carInfoMap.get("carUrl").toString();
-            carName = carInfoMap.get("carName").toString();
-            msg = "坐着"+carName+"进来了";
+        if (user.getCarId()!=null){
+            Map<String, Object> carInfoMap = accountService.getCarInfoByCarId(user.getCarId());
+            String carUrl = null;
+            String carName ;
+            String msg = "进入房间";
+            if (carInfoMap !=null&&carInfoMap.get("carUrl")!=null){
+                carUrl = carInfoMap.get("carUrl").toString();
+                carName = carInfoMap.get("carName").toString();
+                msg = "坐着"+carName+"进来了";
+            }
+            result.put("carUrl",carUrl);
+            result.put("msg",msg);
         }
-        result.put("carUrl",carUrl);
-        result.put("msg",msg);
+
         result.put("shareUrl",Constant.SHARE_URL);
         if (userId!=null) {
             boolean bool1 = gameService.getYaoyaoShowConf(1, userId);
@@ -742,7 +751,6 @@ public class RoomServiceImpl implements RoomService {
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
-
             return new PageInfo<>(list);
         }
     }
@@ -960,6 +968,11 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<String> getAllRoomUser() {
         return chatroomMicMapper.getAllRoomUser();
+    }
+
+    @Override
+    public List<String> getAllRoomUserByLevel(Integer level) {
+        return chatroomMicMapper.getAllRoomUserByLevel(level);
     }
 
     public Integer getUserRole(Long roomId,Long userId){
@@ -1223,7 +1236,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public String getBackgroundThumbnailById(Integer id) {
+    public Map<String, Object> getBackgroundThumbnailById(Integer id) {
         return backgroundMapper.getBackgroundThumbnailById(id);
     }
 

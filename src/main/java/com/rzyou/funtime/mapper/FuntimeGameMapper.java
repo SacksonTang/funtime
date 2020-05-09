@@ -14,6 +14,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeGameMapper {
 
+    Map<String,Object> getGameInfoByCode(Integer gameCode);
+
     int updateYaoyaoPoolTask();
 
     int insertYaoyaoPoolHisotry(@Param("startDate") String startDate,@Param("endDate") String endDate);

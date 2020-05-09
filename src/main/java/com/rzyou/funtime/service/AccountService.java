@@ -457,10 +457,10 @@ public interface AccountService {
 
     /**
      * 获取用户座驾
-     * @param userId
+     * @param carId
      * @return
      */
-    Map<String,Object> getCarInfoByUserId(Long userId);
+    Map<String,Object> getCarInfoByCarId(Integer carId);
 
     /**
      * 中奖保存座驾
@@ -493,4 +493,26 @@ public interface AccountService {
      * @return
      */
     List<Map<String, Object>> getUserCarByUserId(Long userId);
+
+    /**
+     * 座驾列表
+     * @param userId
+     * @return
+     */
+    List<Map<String, Object>> getCarList(Long userId);
+
+    /**
+     * 购买坐骑
+     * @param userId
+     * @param id
+     * @return
+     */
+    ResultMsg<Object> buyCar(Long userId, Integer id);
+
+    /**
+     * 设置坐骑
+     * @param userId
+     * @param carId
+     */
+    void setCar(Long userId, Integer carId);
 }

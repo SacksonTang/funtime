@@ -171,5 +171,7 @@ public class Constant {
     public static final int BLOCK_USER_ROOM = 30;
     public static final int SET_BACKGROUND = 31;
     public static final int REFRESH_MICINFO = 32;
+    public static final int ROOM_LIST_MSG_GAME = 33;
+    public static final int ROOM_LIST_MSG_YYL = 34;
     public static final int SERVICE_MSG = 10001;
 }

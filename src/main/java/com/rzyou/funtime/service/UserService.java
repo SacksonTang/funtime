@@ -38,6 +38,13 @@ public interface UserService {
     FuntimeUser queryUserById(Long id);
 
     /**
+     * 获取默认头像
+     * @param sex
+     * @return
+     */
+    List<String> getUserImageDefaultUrls(Integer sex);
+
+    /**
      * 获取用户信息
      * @param phone
      * @return
@@ -482,5 +489,11 @@ public interface UserService {
      */
     void updateImHeartSync(Long userId);
 
+    /**
+     * 修改当前坐骑
+     * @param userId
+     * @param carId
+     */
+    void updateUserCar(Long userId,Integer carId);
 
 }

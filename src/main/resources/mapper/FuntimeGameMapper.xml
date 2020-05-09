@@ -9,6 +9,9 @@
     and if(hour_start>hour_end,DATE_FORMAT(NOW(),'%H%i')+0>hour_start or hour_end>DATE_FORMAT(NOW(),'%H%i')+0,DATE_FORMAT(NOW(),'%H%i')+0 BETWEEN hour_start AND hour_end)
   </select>
 
+  <select id="getGameInfoByCode" resultType="java.util.Map">
+    select name,icon,resource_url as resourceUrl,need_level as needLevel from t_funtime_game where game_code = #{gameCode}
+  </select>
   <select id="getGameShowConf2" resultType="java.lang.Integer">
     SELECT is_date FROM `t_funtime_game` where game_code = #{gameCode} and #{myLevel}>=need_level and is_show = 1 limit 1
   </select>

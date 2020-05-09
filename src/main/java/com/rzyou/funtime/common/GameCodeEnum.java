@@ -1,7 +1,7 @@
 package com.rzyou.funtime.common;
 
 public enum GameCodeEnum {
-    YAOYAOLE(1001,"摇摇乐"),FISH(1002,"捕鱼"),EGG(1003,"砸蛋"),CIRCLE(1004,"转盘");
+    YAOYAOLE(1001,"摇摇乐"),FISH(1002,"捕鱼"),EGG(1003,"砸蛋"),CIRCLE(1004,"轮盘夺宝");
     private int value;
     private String desc;
 

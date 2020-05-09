@@ -48,9 +48,9 @@
            on d.background_id = t.id and d.user_id = #{userId}
     where t.id = #{id} and t.flag = 1
   </select>
-  <select id="getBackgroundThumbnailById"  resultType="java.lang.String" >
+  <select id="getBackgroundThumbnailById"  resultType="java.util.Map" >
     select
-    t.thumbnail_url
+    t.thumbnail_url as thumbnailUrl ,activity_price as activityPrice
     from  t_funtime_background t
     where t.id = #{id} and t.flag = 1
   </select>

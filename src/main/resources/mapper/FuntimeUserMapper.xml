@@ -42,6 +42,7 @@
     <result column="isLock"  property="isLock" />
     <result column="isBlock"  property="isBlock" />
     <result column="roomState"  property="roomState" />
+    <result column="car_id"  property="carId" />
 
   </resultMap>
   <sql id="Base_Column_List">
@@ -49,7 +50,7 @@
     phone_imei, drainage_channel, portrait_address, sex, birthday, height, sign_text,
     state, realname_authentication_flag, token, online_state, create_room, registration_time,
     update_time, last_login_time, concerns, fans, ip, flag, version,longitude,latitude,location_desc,
-    province,city,district,guild_id,platform,channel,show_id
+    province,city,district,guild_id,platform,channel,show_id,car_id
   </sql>
   <select id="getAllUserId" resultType="java.lang.String">
     select
@@ -67,7 +68,7 @@
     id, username, fullname, nickname, password, phone_number,
     drainage_channel,token, portrait_address, sex, birthday, height, sign_text,version,
     state, realname_authentication_flag, online_state, create_room, registration_time,
-    update_time, last_login_time, concerns, fans, ip, flag, guild_id,platform,channel,show_id
+    update_time, last_login_time, concerns, fans, ip, flag, guild_id,platform,channel,show_id,car_id
     from t_funtime_user
     where id = #{id,jdbcType=BIGINT} and flag = 1
   </select>
@@ -76,7 +77,7 @@
     id, username, fullname, nickname, password, phone_number,
     drainage_channel, portrait_address, sex, birthday, height, sign_text,
     state, realname_authentication_flag, online_state, create_room, registration_time,
-    update_time, last_login_time, concerns, fans, ip, flag, guild_id,platform,channel,show_id
+    update_time, last_login_time, concerns, fans, ip, flag, guild_id,platform,channel,show_id,car_id
     from t_funtime_user
     where show_id = #{showId} and flag = 1
   </select>
@@ -723,5 +724,9 @@
     select rank_type as rankType,ranking,reward from t_funtime_rank_reward_conf where  date_type = #{dateType}
     order by ranking asc
   </select>
+
+  <update id="updateUserCar">
+    update t_funtime_user set car_id = #{carId} where id = #{id}
+  </update>
 
 </mapper>

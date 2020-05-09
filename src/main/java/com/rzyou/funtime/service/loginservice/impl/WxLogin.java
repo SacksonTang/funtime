@@ -17,6 +17,7 @@ import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.StringUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @Service("wxLogin")
@@ -68,6 +70,17 @@ public class WxLogin implements LoginStrategy {
             user.setNickname(nickName);
             user.setPortraitAddress(userJson.getString("headimgurl"));
             user.setSex(userJson.getInteger("sex")==null?1:userJson.getInteger("sex"));
+            List<String> userImageDefaultUrls = userService.getUserImageDefaultUrls(user.getSex());
+            if (userImageDefaultUrls==null||userImageDefaultUrls.isEmpty()) {
+                if (user.getSex() == 1) {
+                    user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
+                }
+                if (user.getSex() == 2) {
+                    user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_FEMALE_HEAD_PORTRAIT);
+                }
+            }else{
+                user.setPortraitAddress(userImageDefaultUrls.get(RandomUtils.nextInt(0, userImageDefaultUrls.size())));
+            }
             if (user.getBirthday()==null){
                 user.setBirthday(Integer.parseInt(DateUtil.getCurrentYearAdd(new Date(),-18)));
             }

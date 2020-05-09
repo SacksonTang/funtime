@@ -241,6 +241,13 @@ public interface RoomService {
     List<String> getAllRoomUser();
 
     /**
+     * 获取符合等级的房间用户
+     * @param level
+     * @return
+     */
+    List<String>getAllRoomUserByLevel(Integer level);
+
+    /**
      * 用戶房間角色
      * @param roomId
      * @param userId
@@ -344,7 +351,7 @@ public interface RoomService {
      * @param id
      * @return
      */
-    String getBackgroundThumbnailById(Integer id);
+    Map<String, Object> getBackgroundThumbnailById(Integer id);
 
     /**
      * 背景天数

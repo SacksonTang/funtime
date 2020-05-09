@@ -334,13 +334,14 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    public void notice12(Long roomId, Long userId, String nickname, List<String> userIds, String carUrl, String msg) {
+    public void notice12(Long roomId, Long userId, String nickname, List<String> userIds, String carUrl, String msg, String animationType) {
         JSONObject object = new JSONObject();
         object.put("rid",roomId);
         object.put("uid",userId);
         object.put("name",nickname);
         object.put("carUrl",carUrl);
         object.put("msg",msg);
+        object.put("animationType",animationType);
         object.put("type",Constant.ROOM_ENTER);
         String data = StringEscapeUtils.unescapeJava(object.toJSONString());
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
@@ -595,6 +596,36 @@ public class NoticeServerImpl implements NoticeService {
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         sendRoomUserNotice(userSig,data,userIds);
     }
+
+    @Override
+    public void notice33(List<String> userIds,String imgUrl,String name,String msg,String nameColor,String toUrl) {
+        JSONObject object = new JSONObject();
+        object.put("imgUrl",imgUrl);
+        object.put("name",name);
+        object.put("msg",msg);
+        object.put("nameColor",nameColor);
+        object.put("toUrl",toUrl);
+        object.put("type",Constant.ROOM_LIST_MSG_GAME);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public void notice34(List<String> userIds,String imgUrl,String name,String msg,String nameColor,String toUrl) {
+        JSONObject object = new JSONObject();
+        object.put("imgUrl",imgUrl);
+        object.put("name",name);
+        object.put("msg",msg);
+        object.put("nameColor",nameColor);
+        object.put("toUrl",toUrl);
+        object.put("type",Constant.ROOM_LIST_MSG_YYL);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+
 
     @Override
     public Map<String, Object> getSystemNoticeList(Integer startPage, Integer pageSie, Long userId) {

@@ -14,7 +14,6 @@ import com.rzyou.funtime.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.http.message.LineFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -904,19 +903,23 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void setCarTask() {
         List<Map<String,Object>> list = carMapper.getCarInfoForExpire();
+        FuntimeUser user;
         if (list!=null&&!list.isEmpty()){
             Map<String,Object> carMap;
             for (Map<String,Object> map : list){
                 Long id = Long.parseLong(map.get("id").toString());
                 Long userId = Long.parseLong(map.get("userId").toString());
-                int isCurrent = Integer.parseInt(map.get("isCurrent").toString());
-                carMapper.deleteUserCarFById(id);
-                if (isCurrent == 1){
-                    carMap = carMapper.getCarInfoByUserId(userId);
-                    if (carMap!=null){
-                        Long userCarId = Long.parseLong(carMap.get("userCarId").toString());
-                        carMapper.updateUserCarIsCurrent(userCarId,1);
-                    }
+                Integer carId = Integer.parseInt(map.get("carId").toString());
+                carMapper.deleteUserCarById(id);
+
+                user = userService.queryUserById(userId);
+                if (user == null){
+                    continue;
+                }
+
+                if (user.getCarId()==null||user.getCarId().equals(carId)){
+                    Integer carId2 = carMapper.getUserCarIdByUserId(userId);
+                    userService.updateUserCar(userId,carId2);
                 }
             }
         }
@@ -925,6 +928,91 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Map<String, Object>> getUserCarByUserId(Long userId) {
         return carMapper.getUserCarByUserId(userId);
+    }
+
+    @Override
+    public List<Map<String, Object>> getCarList(Long userId) {
+        FuntimeUser user = getUserById(userId);
+        List<Map<String, Object>> carList = carMapper.getCarList(userId);
+        if (carList!=null){
+            for (Map<String, Object> map : carList) {
+                Integer carNumber = Integer.parseInt(map.get("carNumber").toString());
+                if (user.getCarId()!=null&&user.getCarId().equals(carNumber)){
+                    map.put("isCurrent",1);
+                }
+                map.put("priceTag",carMapper.getPriceTagByCarNumber(carNumber));
+            }
+        }
+        return carList;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public ResultMsg<Object> buyCar(Long userId, Integer id) {
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+        if (userAccount==null){
+            resultMsg.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+            return resultMsg;
+        }
+        Map<String, Object> carInfoMap = getCarInfoById(id);
+        if (carInfoMap == null){
+            resultMsg.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+            return resultMsg;
+        }
+        BigDecimal price = new BigDecimal(carInfoMap.get("price").toString());
+        if (userAccount.getBlueDiamond().subtract(price).doubleValue()<0){
+            resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            Map<String, Object> map = new HashMap<>();
+            map.put("userBlueAmount",userAccount.getBlueDiamond().intValue());
+            map.put("price",price.intValue());
+            resultMsg.setData(map);
+            return resultMsg;
+        }
+
+
+        FuntimeUserAccountCarRecord record = new FuntimeUserAccountCarRecord();
+        record.setCarId(Integer.parseInt(carInfoMap.get("carId").toString()));
+        record.setDays(Integer.parseInt(carInfoMap.get("days").toString()));
+        record.setPrice(new BigDecimal(carInfoMap.get("price").toString()));
+        record.setUserId(userId);
+
+        int k = carMapper.insertCarRecord(record);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        userService.updateUserAccountForSub(userId,null,price,null);
+        saveUserAccountBlueLog(userId,price,record.getId(),OperationType.BUY_CAR.getAction(),OperationType.BUY_CAR.getOperationType());
+        Long userCarId = carMapper.getUserCarById(userId, Integer.parseInt(carInfoMap.get("carId").toString()));
+
+        carInfoMap.put("userId",userId);
+        if (userCarId == null){
+            k = carMapper.insertUserCar(carInfoMap);
+            if (k!=1){
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+        }else{
+            carInfoMap.put("userCarId",userCarId);
+            k = carMapper.updateUserCar(carInfoMap);
+            if (k!=1){
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+        }
+        return resultMsg;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void setCar(Long userId, Integer carId) {
+        Long userCarId = carMapper.getUserCarById(userId, carId);
+        if (userCarId == null){
+            throw new BusinessException(ErrorMsgEnum.USER_CAR_NOT_EXIST.getValue(),ErrorMsgEnum.USER_CAR_NOT_EXIST.getDesc());
+        }
+        checkUser(userId);
+        userService.updateUserCar(userId,carId);
     }
 
     @Override
@@ -2247,15 +2335,20 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Map<String, Object> getCarInfoByUserId(Long userId) {
-        return carMapper.getCarInfoByUserId(userId);
+    public Map<String, Object> getCarInfoByCarId(Integer carId) {
+        return carMapper.getCarInfoByCarId(carId);
     }
 
     @Override
     public void drawCar(Map<String,Object> map) {
         Integer days = Integer.parseInt(map.get("days").toString());
-
-        Long userCarId = carMapper.getUserCarIdBy(Long.parseLong(map.get("userId").toString()), Integer.parseInt(map.get("carId").toString()));
+        Integer carId = Integer.parseInt(map.get("carId").toString());
+        Long userId = Long.parseLong(map.get("userId").toString());
+        FuntimeUser user = getUserById(userId);
+        if (user.getCarId()==null){
+            userService.updateUserCar(userId,carId);
+        }
+        Long userCarId = carMapper.getUserCarById(Long.parseLong(map.get("userId").toString()), Integer.parseInt(map.get("carId").toString()));
         int k;
         if (userCarId == null){
             map.put("endTime",DateUtils.addDays(new Date(),days));

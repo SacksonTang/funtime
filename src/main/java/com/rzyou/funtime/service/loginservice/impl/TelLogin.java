@@ -16,12 +16,14 @@ import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.StringUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 
 @Service("telLogin")
 public class TelLogin implements LoginStrategy {
@@ -68,6 +70,17 @@ public class TelLogin implements LoginStrategy {
             }
             if (user.getSex()==null){
                 user.setSex(1);
+            }
+            List<String> userImageDefaultUrls = userService.getUserImageDefaultUrls(user.getSex());
+            if (userImageDefaultUrls==null||userImageDefaultUrls.isEmpty()) {
+                if (user.getSex() == 1) {
+                    user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
+                }
+                if (user.getSex() == 2) {
+                    user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_FEMALE_HEAD_PORTRAIT);
+                }
+            }else{
+                user.setPortraitAddress(userImageDefaultUrls.get(RandomUtils.nextInt(0, userImageDefaultUrls.size())));
             }
             user.setVersion(System.currentTimeMillis());
             user.setToken(uuid);

@@ -92,8 +92,8 @@
   </insert>
 
   <select id="getSystemNoticeList"  resultType="java.util.Map">
-    select title,content,redirect_url as redirectUrl,show_time as showTime
-    from t_funtime_system_notice where NOW()>=show_time
+    select title,content,redirect_url as redirectUrl,UNIX_TIMESTAMP(show_time) as showTime
+    from t_funtime_system_notice where NOW()>=show_time order by show_time desc
   </select>
   <select id="getIsReadByUserId" parameterType="java.lang.Long" resultType="java.lang.Integer">
     select f.is_read from t_funtime_user_system_notice f where f.user_id = #{userId}
