@@ -67,8 +67,8 @@ public class NoticeController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
-            Integer pageSie = paramJson.getInteger("pageSie")==null?10:paramJson.getInteger("startPage");
-            Long userId = paramJson.getLong("userId");
+            Integer pageSie = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
+            Long userId = HttpHelper.getUserId();
             if (userId == null){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());

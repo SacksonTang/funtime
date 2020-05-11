@@ -12,6 +12,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserAccountMapper {
 
+    List<Map<String, Object>> getLevelConf();
+
     int updateUserAccountGoldCoinPlus(@Param("id") Long id,@Param("goldCoin") Integer goldCoin);
 
     int updateUserAccountGoldCoinSub(@Param("id") Long id,@Param("goldCoin") Integer goldCoin);

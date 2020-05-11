@@ -13,6 +13,7 @@
     <result column="level_url"  property="levelUrl" />
     <result column="received_gift_num"  property="receivedGiftNum" />
     <result column="level_val"  property="levelVal" />
+    <result column="level_name"  property="levelName" />
     <result column="wealth_val"  property="wealthVal" />
     <result column="charm_val"  property="charmVal" />
 
@@ -23,9 +24,13 @@
   <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
     t.user_id, t.black_diamond, t.blue_diamond, t.horn_number, t.level,t.received_gift_num
-    ,l.level,l.level_url,t.level_val,t.wealth_val,t.charm_val
+    ,l.level,l.level_url,t.level_val,t.wealth_val,t.charm_val,l.level_name
     from t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level
     where t.user_id = #{userId} limit 1
+  </select>
+  <select id="getLevelConf" resultType="java.util.Map">
+    select level,level_name as levelName,level_url as levelUrl,show_url as showUrl,total_recharge_amount as totalRechargeAmount
+     from t_funtime_user_level_conf where level>0 order by level asc
   </select>
   <select id="getBulletOfFish" parameterType="java.lang.Long" resultType="java.util.Map">
     select bullet,score from t_funtime_user_account_fish where user_id = #{userId}
@@ -87,6 +92,7 @@
   <update id="updateUserKnapsackSub">
     update t_funtime_user_knapsack set item_num = item_num-#{num} where id = #{id} and item_num-#{num}>=0
   </update>
+
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccount">
     insert into t_funtime_user_account
     <trim prefix="(" suffix=")" suffixOverrides=",">

@@ -3,6 +3,7 @@ package com.rzyou.funtime.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
@@ -635,7 +636,7 @@ public class NoticeServerImpl implements NoticeService {
         read = read == null?1:2;
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("isRead",read);
-        resultMap.put("noticeList",noticeList);
+        resultMap.put("noticeList",new PageInfo<>(noticeList));
         return resultMap;
     }
 

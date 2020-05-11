@@ -37,6 +37,8 @@ public class FuntimeUserAccount implements Serializable {
 
     private String levelUrl;
 
+    private String levelName;
+
     private BigDecimal goldCoin;
 
     private Integer levelVal;

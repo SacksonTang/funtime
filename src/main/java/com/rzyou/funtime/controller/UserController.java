@@ -42,6 +42,38 @@ public class UserController {
     ParameterService parameterService;
 
     /**
+     * 等级配置
+     */
+    @PostMapping("getLevelConf")
+    public ResultMsg<Object> getLevelConf(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            if (userId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            List<Map<String,Object>> levelConfs = accountService.getLevelConf(userId);
+            Map<String, Object> map = JsonUtil.getMap("levelConfs", levelConfs);
+            map.put("userAccount",userService.getUserAccountInfoById(userId));
+            map.put("userPortraitAddress",userService.getUserBasicInfoById(userId).getPortraitAddress());
+            result.setData(map);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 座驾列表
      */
     @PostMapping("getCarList")

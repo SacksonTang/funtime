@@ -515,4 +515,11 @@ public interface AccountService {
      * @param carId
      */
     void setCar(Long userId, Integer carId);
+
+    /**
+     * 等级配置
+     * @param userId
+     * @return
+     */
+    List<Map<String, Object>> getLevelConf(Long userId);
 }

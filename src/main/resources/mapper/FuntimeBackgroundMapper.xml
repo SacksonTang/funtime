@@ -7,6 +7,8 @@
     t.id,t.type,t.background_url as backgroundUrl,t.background_url2 as backgroundUrl2,t.thumbnail_url as thumbnailUrl,
     t.original_price as originalPrice,t.activity_price as activityPrice,t.discount,
     t.show_price as showPrice,
+    DATE_FORMAT(d.end_time,'%Y-%m-%d %H:%i:%s') as endTime,
+    CONCAT('剩余',DATEDIFF(d.end_time,now()),'天') content,
     IF(d.background_id is null,0,1) isOwner,
     IF(m.background_id is null,0,1) isCurrentPage
     from  t_funtime_background t left join t_funtime_user_background d
