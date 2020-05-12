@@ -1188,15 +1188,18 @@ public class RoomServiceImpl implements RoomService {
                 Long roomId = roomMap.get("id");
                 Long userId = roomMap.get("userId");
                 Long ubId = roomMap.get("ubId");
-                Map<String, Object> map = backgroundMapper.getBackgroundUrlForType1();
-                String backgroundUrl = map.get("backgroundUrl").toString();
-                String backgroundUrl2 = map.get("backgroundUrl2").toString();
-                chatroomMapper.updateChatroomBackgroundId(roomId, Integer.parseInt(map.get("id").toString()));
+
                 backgroundMapper.deleteUserBackgroundById(ubId);
-                List<String> userIds = getRoomUserByRoomIdAll(roomId);
-                //发送通知
-                if (userIds!=null&&!userIds.isEmpty()) {
-                    noticeService.notice31(roomId, userId, backgroundUrl, userIds, backgroundUrl2);
+                if (roomId!=null) {
+                    Map<String, Object> map = backgroundMapper.getBackgroundUrlForType1();
+                    String backgroundUrl = map.get("backgroundUrl").toString();
+                    String backgroundUrl2 = map.get("backgroundUrl2").toString();
+                    chatroomMapper.updateChatroomBackgroundId(roomId, Integer.parseInt(map.get("id").toString()));
+                    List<String> userIds = getRoomUserByRoomIdAll(roomId);
+                    //发送通知
+                    if (userIds != null && !userIds.isEmpty()) {
+                        noticeService.notice31(roomId, userId, backgroundUrl, userIds, backgroundUrl2);
+                    }
                 }
             }
         }

@@ -38,6 +38,7 @@ public class Constant {
     public final static String DEFAULT_MALE_ROOM_AVATAR = "/default/room1.png";
     public final static String DEFAULT_FEMALE_ROOM_AVATAR = "/default/room2.png";
     public final static String DEFAULT_ROOM_PORTRAIT = "/default/room.png";
+    public final static String DEFAULT_BACKGROUND_ICON = "/default/background-icon.png";
     public final static String SHARE_URL = "https://a.app.qq.com/o/simple.jsp?pkgname=com.rzyou.funtime";
     public final static String REDISUSER_PREFIX = "userlogin-";
 

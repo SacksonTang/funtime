@@ -1001,6 +1001,7 @@ public class AccountServiceImpl implements AccountService {
                 throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
             }
         }
+        resultMsg.setData(JsonUtil.getMap("content","剩余"+record.getDays()+"天"));
         return resultMsg;
     }
 

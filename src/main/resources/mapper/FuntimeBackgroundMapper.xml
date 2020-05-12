@@ -65,7 +65,7 @@
   <select id="getBackgroundForExpiry"  resultType="java.util.Map" >
     select
     distinct m.id,m.user_id as userId,d.id as ubId
-    from  t_funtime_user_background d inner join t_funtime_chatroom m
+    from  t_funtime_user_background d left join t_funtime_chatroom m
            on d.background_id = m.background_id and d.user_id = m.user_id
     where d.background_type in (3,4) and now()>d.end_time
   </select>

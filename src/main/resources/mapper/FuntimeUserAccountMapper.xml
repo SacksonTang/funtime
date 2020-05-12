@@ -16,6 +16,7 @@
     <result column="level_name"  property="levelName" />
     <result column="wealth_val"  property="wealthVal" />
     <result column="charm_val"  property="charmVal" />
+    <result column="gold_coin"  property="goldCoin" />
 
   </resultMap>
   <sql id="Base_Column_List">
@@ -23,7 +24,7 @@
   </sql>
   <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
-    t.user_id, t.black_diamond, t.blue_diamond, t.horn_number, t.level,t.received_gift_num
+    t.user_id, t.black_diamond, t.blue_diamond, t.horn_number, t.gold_coin,t.level,t.received_gift_num
     ,l.level,l.level_url,t.level_val,t.wealth_val,t.charm_val,l.level_name
     from t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level
     where t.user_id = #{userId} limit 1
