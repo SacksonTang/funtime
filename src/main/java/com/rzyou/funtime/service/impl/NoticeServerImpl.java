@@ -469,7 +469,7 @@ public class NoticeServerImpl implements NoticeService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void notice10001(String content, Long userId, Long roomId) {
+    public void notice10001(String content, Long userId, Long roomId, String hornLength) {
         FuntimeUserAccount userAccountInfo = userService.getUserAccountInfoById(userId);
         if (userAccountInfo==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
@@ -492,12 +492,51 @@ public class NoticeServerImpl implements NoticeService {
         object.put("rid",roomId);
         object.put("uid",userId);
         object.put("name",user.getNickname());
+        object.put("hornLength",hornLength);
         object.put("msg",content);
         object.put("sex",user.getSex());
         object.put("imgUrl", user.getPortraitAddress());
         String objectStr = JSONObject.toJSONString(object);
         String parameterHandler = StringEscapeUtils.unescapeJava(objectStr);
         saveNotice(Constant.SERVICE_MSG, parameterHandler,0);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void notice10002(String content, Long userId, Long roomId, String nickname, Integer sex, String portraitAddress, String giftName, Integer giftNum, String hornLength) {
+
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.SERVICE_GIFT_MSG);
+        object.put("rid",roomId);
+        object.put("uid",userId);
+        object.put("name",nickname);
+        object.put("msg",content);
+        object.put("sex",sex);
+        object.put("giftName",giftName);
+        object.put("hornLength",hornLength);
+        object.put("giftNum",giftNum);
+        object.put("imgUrl", portraitAddress);
+        String objectStr = JSONObject.toJSONString(object);
+        String parameterHandler = StringEscapeUtils.unescapeJava(objectStr);
+        saveNotice(Constant.SERVICE_GIFT_MSG, parameterHandler,0);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void notice10003(String content, Long userId, Long roomId, String nickname, Integer sex, String portraitAddress, String hornLength) {
+
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.SERVICE_REDPACKET_MSG);
+        object.put("rid",roomId);
+        object.put("uid",userId);
+        object.put("name",nickname);
+        object.put("hornLength",hornLength);
+        object.put("msg",content);
+        object.put("sex",sex);
+        object.put("imgUrl", portraitAddress);
+        String objectStr = JSONObject.toJSONString(object);
+        String parameterHandler = StringEscapeUtils.unescapeJava(objectStr);
+        saveNotice(Constant.SERVICE_REDPACKET_MSG, parameterHandler,0);
     }
 
     @Override

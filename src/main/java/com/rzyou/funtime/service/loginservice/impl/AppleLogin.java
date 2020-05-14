@@ -46,7 +46,7 @@ public class AppleLogin implements LoginStrategy {
             user.setOnlineState(1);
             user.setState(1);
             if (StringUtils.isBlank(user.getFullname())){
-                user.setNickname(Constant.DEFAULT_NICKNAME);
+                user.setNickname(userService.getDefaultNameBySex(1));
             }else {
                 user.setNickname(user.getFullname());
             }

@@ -298,6 +298,8 @@ public class RoomServiceImpl implements RoomService {
         }
 
         result.put("shareUrl",Constant.SHARE_URL);
+        result.put("shareTitle",Constant.SHARE_Title);
+        result.put("shareText",Constant.share_Text);
         if (userId!=null) {
             boolean bool1 = gameService.getYaoyaoShowConf(1, userId);
             boolean bool2 = gameService.getYaoyaoShowConf(2, userId);

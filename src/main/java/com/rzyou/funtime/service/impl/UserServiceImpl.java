@@ -296,6 +296,7 @@ public class UserServiceImpl implements UserService {
 
             if (user.getPortraitAddress() == null && funtimeUser.getPortraitAddress() == null) {
                 if (user.getSex() != null) {
+                    user.setNickname(getDefaultNameBySex(user.getSex()));
                     List<String> userImageDefaultUrls = getUserImageDefaultUrls(user.getSex());
                     if (userImageDefaultUrls == null || userImageDefaultUrls.isEmpty()) {
                         if (user.getSex() == 1) {
@@ -1296,6 +1297,12 @@ public class UserServiceImpl implements UserService {
         if (k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+    }
+
+    @Override
+    public String getDefaultNameBySex(Integer sex) {
+        List<String> names = userMapper.getDefaultNameBySex(sex);
+        return names.get(RandomUtils.nextInt(0,names.size()-1));
     }
 
 

@@ -40,6 +40,8 @@ public class Constant {
     public final static String DEFAULT_ROOM_PORTRAIT = "/default/room.png";
     public final static String DEFAULT_BACKGROUND_ICON = "/default/background-icon.png";
     public final static String SHARE_URL = "https://a.app.qq.com/o/simple.jsp?pkgname=com.rzyou.funtime";
+    public final static String share_Text = "我在这里等你，你快点进来，一起语音说！";
+    public final static String SHARE_Title = "我有事情和你说";
     public final static String REDISUSER_PREFIX = "userlogin-";
 
 
@@ -175,4 +177,6 @@ public class Constant {
     public static final int ROOM_LIST_MSG_GAME = 33;
     public static final int ROOM_LIST_MSG_YYL = 34;
     public static final int SERVICE_MSG = 10001;
+    public static final int SERVICE_GIFT_MSG = 10002;
+    public static final int SERVICE_REDPACKET_MSG = 10003;
 }

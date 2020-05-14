@@ -31,7 +31,7 @@
     select
     <include refid="Base_Column_List" />
     from t_funtime_notice
-    where notice_type in (10001) and  state in (0,2) and 3 >= operation_num order by id desc limit 1
+    where notice_type in (10001,10002,10003) and  state in (0,2) and 3 >= operation_num order by id desc limit 1
   </select>
   <select id="getSingleFailNoticeNoRoom"  resultMap="BaseResultMap">
     select

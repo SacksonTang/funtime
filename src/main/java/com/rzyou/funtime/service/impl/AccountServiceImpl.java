@@ -482,6 +482,11 @@ public class AccountServiceImpl implements AccountService {
                 throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
             }
             noticeService.notice13(redpacket.getRoomId(), userIds,user.getNickname());
+            String noticeAmount = parameterService.getParameterValueByKey("redpacket_notice_amount");
+            String hornLength = parameterService.getParameterValueByKey("redpacket_horn_length");
+            if (noticeAmount!=null&&redpacket.getAmount().intValue()>=new BigDecimal(noticeAmount).intValue()){
+                noticeService.notice10003("发了一个"+redpacket.getAmount().intValue()+"红包等你来抢!",redpacket.getUserId(),redpacket.getRoomId(),user.getNickname(),user.getSex(),user.getPortraitAddress(),hornLength);
+            }
         }else{
             checkUser(redpacket.getToUserId());
             //单发
@@ -818,7 +823,7 @@ public class AccountServiceImpl implements AccountService {
         userRole = userRole == null?4:userRole;
 
         Integer amount= funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice().intValue()*giftNum:funtimeGift.getActivityPrice().intValue()*giftNum;
-
+        Integer total = amount*toUserIdArray.length;
         Integer itemNum = userAccountMapper.getItemNumByUserId(userId, giftId, 1);
         //背包礼物不足
         if (itemNum<giftNum){
@@ -835,6 +840,8 @@ public class AccountServiceImpl implements AccountService {
             resultMsg.setMsg(ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
             return resultMsg;
         }
+        String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
+        String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
@@ -893,6 +900,11 @@ public class AccountServiceImpl implements AccountService {
                 notice.setType(Constant.ROOM_GIFT_SEND);
                 //发送通知
                 noticeService.notice8(notice, userIds);
+                if (noticeAmount!=null){
+                    if (total>=new BigDecimal(noticeAmount).intValue()){
+                        noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
+                    }
+                }
             }
         }
         resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum));
@@ -1049,16 +1061,18 @@ public class AccountServiceImpl implements AccountService {
         BigDecimal price = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
 
         Integer amount= price.intValue()*giftNum;
+        Integer total = amount*toUserIdArray.length;
         //账户余额不足
-        if (userAccount.getBlueDiamond().intValue()<amount*toUserIdArray.length){
+        if (userAccount.getBlueDiamond().intValue()<total){
             resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
             resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
-            resultMsg.setData(JsonUtil.getMap("amount",amount*toUserIdArray.length));
+            resultMsg.setData(JsonUtil.getMap("amount",total));
             return resultMsg;
         }
         //用户送减去蓝钻
-        userService.updateUserAccountForSub(userId, null, new BigDecimal(amount*toUserIdArray.length), null);
-
+        userService.updateUserAccountForSub(userId, null, new BigDecimal(total), null);
+        String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
+        String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
@@ -1118,8 +1132,14 @@ public class AccountServiceImpl implements AccountService {
                 notice.setType(Constant.ROOM_GIFT_SEND);
                 //发送通知
                 noticeService.notice8(notice, userIds);
+                if (noticeAmount!=null){
+                    if (total>=new BigDecimal(noticeAmount).intValue()){
+                        noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
+                    }
+                }
             }
         }
+
         return resultMsg;
     }
 
@@ -1155,7 +1175,8 @@ public class AccountServiceImpl implements AccountService {
         Integer userRole = roomService.getUserRole(roomId,userId);
 
         userRole = userRole == null?4:userRole;
-
+        String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
+        String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
 
@@ -1213,6 +1234,11 @@ public class AccountServiceImpl implements AccountService {
             notice.setType(Constant.ROOM_GIFT_SEND);
             //发送通知
             noticeService.notice8(notice, userIds);
+            if (noticeAmount!=null){
+                if (amount>=new BigDecimal(noticeAmount).intValue()){
+                    noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
+                }
+            }
         }
 
         resultMsg.setData(recordId);
@@ -1265,6 +1291,8 @@ public class AccountServiceImpl implements AccountService {
         Integer userRole = roomService.getUserRole(roomId,userId);
 
         userRole = userRole == null?4:userRole;
+        String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
+        String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
@@ -1321,7 +1349,14 @@ public class AccountServiceImpl implements AccountService {
         //发送通知
 
         noticeService.notice19(notice, userIds);
-
+        if (noticeAmount!=null) {
+            if (amount * userNum >= new BigDecimal(noticeAmount).intValue()) {
+                for (Long toUserId : toUserIdArray) {
+                    FuntimeUser toUser = getUserById(toUserId);
+                    noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
+                }
+            }
+        }
 
         return resultMsg;
 
@@ -1374,6 +1409,8 @@ public class AccountServiceImpl implements AccountService {
         Integer userRole = roomService.getUserRole(roomId,userId);
 
         userRole = userRole == null?4:userRole;
+        String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
+        String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
@@ -1428,6 +1465,15 @@ public class AccountServiceImpl implements AccountService {
         //发送通知
 
         noticeService.notice19(notice, userIds);
+
+        if (noticeAmount!=null) {
+            if (amount * userNum >= new BigDecimal(noticeAmount).intValue()) {
+                for (Long toUserId : toUserIdArray) {
+                    FuntimeUser toUser = getUserById(toUserId);
+                    noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
+                }
+            }
+        }
         resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum*userNum));
 
         return resultMsg;
@@ -1476,6 +1522,8 @@ public class AccountServiceImpl implements AccountService {
         Integer userRole = roomService.getUserRole(roomId,userId);
 
         userRole = userRole == null?4:userRole;
+        String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
+        String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
@@ -1530,6 +1578,14 @@ public class AccountServiceImpl implements AccountService {
         notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
         //发送通知
         noticeService.notice19(notice, userIds);
+        if (noticeAmount!=null) {
+            if (amount * userNum >= new BigDecimal(noticeAmount).intValue()) {
+                for (Long toUserId : toUserIdArray) {
+                    FuntimeUser toUser = getUserById(toUserId);
+                    noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
+                }
+            }
+        }
         return resultMsg;
     }
 
@@ -1576,6 +1632,8 @@ public class AccountServiceImpl implements AccountService {
         Integer userRole = roomService.getUserRole(roomId,userId);
 
         userRole = userRole == null?4:userRole;
+        String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
+        String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
@@ -1630,6 +1688,14 @@ public class AccountServiceImpl implements AccountService {
         notice.setType(Constant.ROOM_GIFT_SEND_ROOM);
         //发送通知
         noticeService.notice19(notice, userIds);
+        if (noticeAmount!=null) {
+            if (amount * userNum >= new BigDecimal(noticeAmount).intValue()) {
+                for (Long toUserId : toUserIdArray) {
+                    FuntimeUser toUser = getUserById(toUserId);
+                    noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
+                }
+            }
+        }
         resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum*userNum));
         return resultMsg;
     }

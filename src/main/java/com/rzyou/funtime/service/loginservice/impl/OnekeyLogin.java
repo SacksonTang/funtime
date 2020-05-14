@@ -64,7 +64,7 @@ public class OnekeyLogin implements LoginStrategy {
             if (user.getBirthday()==null){
                 user.setBirthday(Integer.parseInt(DateUtil.getCurrentYearAdd(new Date(),-18)));
             }
-            user.setNickname(Constant.DEFAULT_NICKNAME);
+            user.setNickname(userService.getDefaultNameBySex(1));
 
             user.setSignText("这个人很懒,什么都没有留下");
             user.setVersion(System.currentTimeMillis());

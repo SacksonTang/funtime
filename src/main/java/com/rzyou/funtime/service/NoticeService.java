@@ -229,9 +229,35 @@ public interface NoticeService {
      * @param content
      * @param userId
      * @param roomId
+     * @param hornLength
      */
-    void notice10001(String content, Long userId, Long roomId);
+    void notice10001(String content, Long userId, Long roomId, String hornLength);
 
+    /**
+     * 送礼全服大喇叭
+     * @param content
+     * @param userId
+     * @param roomId
+     * @param nickname
+     * @param sex
+     * @param portraitAddress
+     * @param giftName
+     * @param giftNum
+     * @param hornLength
+     */
+    void notice10002(String content, Long userId, Long roomId, String nickname, Integer sex, String portraitAddress, String giftName, Integer giftNum, String hornLength);
+
+    /**
+     * 红包全服大喇叭
+     * @param content
+     * @param userId
+     * @param roomId
+     * @param nickname
+     * @param sex
+     * @param portraitAddress
+     * @param hornLength
+     */
+    void notice10003(String content, Long userId, Long roomId, String nickname, Integer sex, String portraitAddress, String hornLength);
     /**
      * 用户等级变更
      * @param userId

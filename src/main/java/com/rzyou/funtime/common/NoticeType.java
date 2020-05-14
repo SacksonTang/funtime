@@ -38,6 +38,8 @@ public enum NoticeType {
     ,ROOM_LIST_MSG_YYL(Constant.ROOM_LIST_MSG_YYL,"摇摇乐消息","")
 
     ,SERVICE_MSG(Constant.SERVICE_MSG,"全服大喇叭","")
+    ,SERVICE_GIFT_MSG(Constant.SERVICE_GIFT_MSG,"送礼大喇叭","")
+    ,SERVICE_REDPACKET_MSG(Constant.SERVICE_REDPACKET_MSG,"红包大喇叭","")
     ;
     private int value;
     private String desc;

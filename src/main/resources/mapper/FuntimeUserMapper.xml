@@ -52,6 +52,9 @@
     update_time, last_login_time, concerns, fans, ip, flag, version,longitude,latitude,location_desc,
     province,city,district,guild_id,platform,channel,show_id,car_id
   </sql>
+  <select id="getDefaultNameBySex" resultType="java.lang.String">
+    select name from t_funtime_default_name where sex = #{sex}
+  </select>
   <select id="getAllUserId" resultType="java.lang.String">
     select
     id

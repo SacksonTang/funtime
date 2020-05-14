@@ -496,4 +496,12 @@ public interface UserService {
      */
     void updateUserCar(Long userId,Integer carId);
 
+    /**
+     * 获取默认名字
+     * @param sex
+     * @return
+     */
+    String getDefaultNameBySex(Integer sex);
+
+
 }

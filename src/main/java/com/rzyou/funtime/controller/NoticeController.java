@@ -6,6 +6,7 @@ import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.service.NoticeService;
+import com.rzyou.funtime.service.ParameterService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ public class NoticeController {
 
     @Autowired
     NoticeService noticeService;
+    @Autowired
+    ParameterService parameterService;
 
     /**
      * 大喇叭
@@ -40,7 +43,7 @@ public class NoticeController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            noticeService.notice10001(content,userId,roomId);
+            noticeService.notice10001(content,userId,roomId,parameterService.getParameterValueByKey("horn_length"));
             return result;
         } catch (BusinessException be) {
             log.error("sendHorn BusinessException==========>{}",be.getMsg());
