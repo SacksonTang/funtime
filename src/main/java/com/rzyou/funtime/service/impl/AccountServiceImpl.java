@@ -902,7 +902,7 @@ public class AccountServiceImpl implements AccountService {
                 noticeService.notice8(notice, userIds);
                 if (noticeAmount!=null){
                     if (total>=new BigDecimal(noticeAmount).intValue()){
-                        noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
+                        noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
                     }
                 }
             }
@@ -1134,7 +1134,7 @@ public class AccountServiceImpl implements AccountService {
                 noticeService.notice8(notice, userIds);
                 if (noticeAmount!=null){
                     if (total>=new BigDecimal(noticeAmount).intValue()){
-                        noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
+                        noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
                     }
                 }
             }
@@ -1236,7 +1236,7 @@ public class AccountServiceImpl implements AccountService {
             noticeService.notice8(notice, userIds);
             if (noticeAmount!=null){
                 if (amount>=new BigDecimal(noticeAmount).intValue()){
-                    noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
+                    noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
                 }
             }
         }
@@ -1353,7 +1353,7 @@ public class AccountServiceImpl implements AccountService {
             if (amount * userNum >= new BigDecimal(noticeAmount).intValue()) {
                 for (Long toUserId : toUserIdArray) {
                     FuntimeUser toUser = getUserById(toUserId);
-                    noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
+                    noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
                 }
             }
         }
@@ -1470,7 +1470,7 @@ public class AccountServiceImpl implements AccountService {
             if (amount * userNum >= new BigDecimal(noticeAmount).intValue()) {
                 for (Long toUserId : toUserIdArray) {
                     FuntimeUser toUser = getUserById(toUserId);
-                    noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
+                    noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
                 }
             }
         }
@@ -1582,7 +1582,7 @@ public class AccountServiceImpl implements AccountService {
             if (amount * userNum >= new BigDecimal(noticeAmount).intValue()) {
                 for (Long toUserId : toUserIdArray) {
                     FuntimeUser toUser = getUserById(toUserId);
-                    noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
+                    noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
                 }
             }
         }
@@ -1692,7 +1692,7 @@ public class AccountServiceImpl implements AccountService {
             if (amount * userNum >= new BigDecimal(noticeAmount).intValue()) {
                 for (Long toUserId : toUserIdArray) {
                     FuntimeUser toUser = getUserById(toUserId);
-                    noticeService.notice10002(user.getNickname()+"送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
+                    noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum, giftHornLength);
                 }
             }
         }
