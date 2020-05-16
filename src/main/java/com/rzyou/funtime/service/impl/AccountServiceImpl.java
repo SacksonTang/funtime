@@ -354,7 +354,7 @@ public class AccountServiceImpl implements AccountService {
                 String first_recharge_gold = parameterService.getParameterValueByKey("first_recharge_gold");
                 hornNum = record.getHornNum()==null?0:record.getHornNum()
                         + Integer.parseInt(first_recharge_horn==null?"3":first_recharge_horn);
-                goldNum = record.getGoldNum() == null?0:record.getGoldNum()+Integer.parseInt(first_recharge_gold==null?"100":first_recharge_horn);
+                goldNum = record.getGoldNum() == null?0:record.getGoldNum()+Integer.parseInt(first_recharge_gold==null?"100":first_recharge_gold);
             }
             //状态变更
             updateState(recordId, PayState.PAIED.getValue(),transaction_id,hornNum,goldNum);
@@ -373,10 +373,10 @@ public class AccountServiceImpl implements AccountService {
             int levelVal = record.getLevelVal();
             int wealthVal = record.getWealthVal();
             if (!userLevel.equals(userAccount.getLevel())){
-                userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),record.getHornNum(),levelVal, wealthVal,goldNum);
+                userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),hornNum,levelVal, wealthVal,goldNum);
                 updateLevelExtr(record.getUserId(),userLevel,levelUrl);
             }else{
-                userAccountMapper.updateUserAccountLevel(record.getUserId(),null,record.getAmount(),record.getHornNum(),levelVal, wealthVal, goldNum);
+                userAccountMapper.updateUserAccountLevel(record.getUserId(),null,record.getAmount(),hornNum,levelVal, wealthVal, goldNum);
             }
             //记录日志
             saveUserAccountBlueLog(record.getUserId(),record.getAmount(),record.getId()
@@ -2515,6 +2515,7 @@ public class AccountServiceImpl implements AccountService {
         record.setId(id);
         record.setState(state);
         record.setHornNum(hornNum);
+        record.setGoldNum(goldNum);
         record.setRechargeCardId(transaction_id);
         record.setCompleteTime(new Date());
         int k = userAccountRechargeRecordMapper.updateByPrimaryKeySelective(record);

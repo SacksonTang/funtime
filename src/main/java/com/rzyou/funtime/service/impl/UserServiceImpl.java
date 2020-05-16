@@ -280,16 +280,20 @@ public class UserServiceImpl implements UserService {
 
         if (user.getNewUser()!=null){
             if (user.getSex()!=null) {
-                List<String> userImageDefaultUrls = getUserImageDefaultUrls(user.getSex());
-                if (userImageDefaultUrls==null||userImageDefaultUrls.isEmpty()) {
-                    if (user.getSex() == 1) {
-                        user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
+                if (user.getLoginType() != null && (user.getLoginType().equals(Constant.LOGIN_WX)
+                        || Constant.LOGIN_QQ.equals(user.getLoginType())
+                        || Constant.LOGIN_WEIBO.equals(user.getLoginType()))) {
+                    List<String> userImageDefaultUrls = getUserImageDefaultUrls(user.getSex());
+                    if (userImageDefaultUrls == null || userImageDefaultUrls.isEmpty()) {
+                        if (user.getSex() == 1) {
+                            user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
+                        }
+                        if (user.getSex() == 2) {
+                            user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_FEMALE_HEAD_PORTRAIT);
+                        }
+                    } else {
+                        user.setPortraitAddress(userImageDefaultUrls.get(RandomUtils.nextInt(0, userImageDefaultUrls.size())));
                     }
-                    if (user.getSex() == 2) {
-                        user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_FEMALE_HEAD_PORTRAIT);
-                    }
-                }else{
-                    user.setPortraitAddress(userImageDefaultUrls.get(RandomUtils.nextInt(0, userImageDefaultUrls.size())));
                 }
             }
         }else {

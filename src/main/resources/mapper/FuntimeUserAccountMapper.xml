@@ -68,6 +68,7 @@
        inner join t_funtime_user u on f.user_id = u.id
        inner join (t_funtime_user_account t
        inner join t_funtime_user_level_conf l on t.level = l.level) on f.user_id = t.user_id
+       where f.score>0
     order by f.score desc
     limit ${endCount}
   </select>

@@ -16,15 +16,15 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from t_funtime_user_account_black_log
+    from t_funtime_user_account_gold_log
     where id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from t_funtime_user_account_black_log
+    delete from t_funtime_user_account_gold_log
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountGoldLog">
-    insert into t_funtime_user_account_black_log (id, user_id, relation_id, 
+    insert into t_funtime_user_account_gold_log (id, user_id, relation_id,
       action_type, operation_type, amount, 
       create_time)
     values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{relationId,jdbcType=BIGINT}, 
@@ -32,7 +32,7 @@
       #{createTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountGoldLog">
-    insert into t_funtime_user_account_black_log
+    insert into t_funtime_user_account_gold_log
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -81,7 +81,7 @@
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountGoldLog">
-    update t_funtime_user_account_black_log
+    update t_funtime_user_account_gold_log
     <set>
       <if test="userId != null">
         user_id = #{userId,jdbcType=BIGINT},
@@ -105,7 +105,7 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountGoldLog">
-    update t_funtime_user_account_black_log
+    update t_funtime_user_account_gold_log
     set user_id = #{userId,jdbcType=BIGINT},
       relation_id = #{relationId,jdbcType=BIGINT},
       action_type = #{actionType,jdbcType=VARCHAR},
