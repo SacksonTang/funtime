@@ -280,9 +280,9 @@ public class UserServiceImpl implements UserService {
 
         if (user.getNewUser()!=null){
             if (user.getSex()!=null) {
-                if (user.getLoginType() != null && (user.getLoginType().equals(Constant.LOGIN_WX)
-                        || Constant.LOGIN_QQ.equals(user.getLoginType())
-                        || Constant.LOGIN_WEIBO.equals(user.getLoginType()))) {
+                if (user.getLoginType() != null && (user.getLoginType().equals(Constant.LOGIN_APPLE)
+                        || Constant.LOGIN_ONEKEY.equals(user.getLoginType())
+                        || Constant.LOGIN_TEL.equals(user.getLoginType()))) {
                     List<String> userImageDefaultUrls = getUserImageDefaultUrls(user.getSex());
                     if (userImageDefaultUrls == null || userImageDefaultUrls.isEmpty()) {
                         if (user.getSex() == 1) {
