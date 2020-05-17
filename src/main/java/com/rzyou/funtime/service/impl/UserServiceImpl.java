@@ -278,7 +278,7 @@ public class UserServiceImpl implements UserService {
             user.setBirthday(Integer.parseInt(DateUtil.getCurrentYearAdd(new Date(),-18)));
         }
 
-        if (user.getNewUser()!=null){
+        if (user.getNewUser()!=null&&user.getNewUser()){
             if (user.getSex()!=null) {
                 if (user.getLoginType() != null && (user.getLoginType().equals(Constant.LOGIN_APPLE)
                         || Constant.LOGIN_ONEKEY.equals(user.getLoginType())
@@ -1207,10 +1207,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public String bindWeixin(Long userId, String code, Integer type) {
-        if (!checkUserExists(userId)){
+        FuntimeUser user = queryUserById(userId);
+        if (user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
         if (type == 3){
+            if (StringUtils.isBlank(user.getPhoneNumber())){
+                throw new BusinessException(ErrorMsgEnum.USER_PHONE_NOT_BIND.getValue(),ErrorMsgEnum.USER_PHONE_NOT_BIND.getDesc());
+            }
             unBindWeixin(userId);
             return null;
         }

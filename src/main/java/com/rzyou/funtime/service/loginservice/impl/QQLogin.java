@@ -70,16 +70,18 @@ public class QQLogin implements LoginStrategy {
             }
             user.setPortraitAddress(url);
             user.setSex("男".equals(userJson.getString("gender"))?1:2);
-            List<String> userImageDefaultUrls = userService.getUserImageDefaultUrls(user.getSex());
-            if (userImageDefaultUrls==null||userImageDefaultUrls.isEmpty()) {
-                if (user.getSex() == 1) {
-                    user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
+            if (StringUtils.isBlank(user.getPortraitAddress())) {
+                List<String> userImageDefaultUrls = userService.getUserImageDefaultUrls(user.getSex());
+                if (userImageDefaultUrls == null || userImageDefaultUrls.isEmpty()) {
+                    if (user.getSex() == 1) {
+                        user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
+                    }
+                    if (user.getSex() == 2) {
+                        user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_FEMALE_HEAD_PORTRAIT);
+                    }
+                } else {
+                    user.setPortraitAddress(userImageDefaultUrls.get(RandomUtils.nextInt(0, userImageDefaultUrls.size())));
                 }
-                if (user.getSex() == 2) {
-                    user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_FEMALE_HEAD_PORTRAIT);
-                }
-            }else{
-                user.setPortraitAddress(userImageDefaultUrls.get(RandomUtils.nextInt(0, userImageDefaultUrls.size())));
             }
             user.setVersion(System.currentTimeMillis());
             user.setSignText("这个人很懒,什么都没有留下");
