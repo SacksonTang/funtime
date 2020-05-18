@@ -826,7 +826,7 @@ public class AccountServiceImpl implements AccountService {
         Integer total = amount*toUserIdArray.length;
         Integer itemNum = userAccountMapper.getItemNumByUserId(userId, giftId, 1);
         //背包礼物不足
-        if (itemNum<giftNum){
+        if (itemNum<giftNum*toUserIdArray.length){
             resultMsg.setCode(ErrorMsgEnum.USER_BAG_NOT_EN.getValue());
             resultMsg.setMsg(ErrorMsgEnum.USER_BAG_NOT_EN.getDesc());
             return resultMsg;
