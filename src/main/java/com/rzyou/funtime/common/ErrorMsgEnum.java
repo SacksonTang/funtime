@@ -87,6 +87,7 @@ public enum ErrorMsgEnum {
     REDPACKET_IS_NOT_EXISTS("50003","红包不存在"),
     REDPACKET_IS_NOT_SELF("50004","自己不能给自己发"),
     REDPACKET_IS_NOT_YOURS("50005","没有权限抢该红包"),
+    REDPACKET_IS_EMPIRE("50006","红包已过期"),
 
     GIFT_NOT_EXISTS("60001","礼物不存在"),
 

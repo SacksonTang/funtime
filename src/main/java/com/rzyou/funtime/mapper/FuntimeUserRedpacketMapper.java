@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface FuntimeUserRedpacketMapper {
 
-    int updateStateForInvalid();
+    int updateStateForInvalid(Long id);
 
     int updateStateById(@Param("state") Integer state,@Param("id") Long id);
 

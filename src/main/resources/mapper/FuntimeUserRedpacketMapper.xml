@@ -215,7 +215,7 @@
 
         set state = 3
 
-    where   NOW()>invalid_time and state = 1
+    where   id = #{id}
   </update>
 
 </mapper>

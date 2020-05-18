@@ -513,6 +513,12 @@ public class AccountServiceImpl implements AccountService {
         if (redpacket==null){
             throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_EXISTS.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_EXISTS.getDesc());
         }
+        if (redpacket.getState() == 2){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_OVER.getValue(),ErrorMsgEnum.REDPACKET_IS_OVER.getDesc());
+        }
+        if (redpacket.getState() == 3||redpacket.getInvalidTime().before(new Date())){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_EMPIRE.getValue(),ErrorMsgEnum.REDPACKET_IS_EMPIRE.getDesc());
+        }
         //个人
         if (redpacket.getType()==2){
             if (!userId.equals(redpacket.getToUserId())){
@@ -1765,9 +1771,8 @@ public class AccountServiceImpl implements AccountService {
             for (FuntimeUserRedpacket redpacket : redpacketListInvalid){
                 userService.updateUserAccountForPlus(redpacket.getUserId(),null,redpacket.getGrabAmount(),null);
                 saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getGrabAmount(),redpacket.getId(),OperationType.REDPACKETINVALID.getAction(),OperationType.REDPACKETINVALID.getOperationType());
+                userRedpacketMapper.updateStateForInvalid(redpacket.getId());
             }
-
-            userRedpacketMapper.updateStateForInvalid();
         }
 
 
