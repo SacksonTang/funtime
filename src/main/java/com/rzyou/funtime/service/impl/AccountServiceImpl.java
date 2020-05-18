@@ -833,7 +833,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
 
-        int k = userAccountMapper.updateUserKnapsackSub(userAccountMapper.checkUserKnapsackExist(userId, giftId, 1),giftNum);
+        int k = userAccountMapper.updateUserKnapsackSub(userAccountMapper.checkUserKnapsackExist(userId, giftId, 1),giftNum*toUserIdArray.length);
 
         if (k!=1){
             resultMsg.setCode(ErrorMsgEnum.DATA_ORER_ERROR.getValue());
