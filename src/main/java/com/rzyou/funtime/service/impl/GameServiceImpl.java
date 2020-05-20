@@ -291,9 +291,17 @@ public class GameServiceImpl implements GameService {
     }
 
     private void sendNotice(Integer gameCode,String nickname,String giftName,Integer price){
-
-        String val = parameterService.getParameterValueByKey("game_notice_amount");
-        if (price<new BigDecimal(val).intValue()){
+        String val ;
+        if (gameCode.equals(GameCodeEnum.YAOYAOLE.getValue())) {
+            val = parameterService.getParameterValueByKey("game_notice_amount");
+        }else if (gameCode.equals(GameCodeEnum.EGG.getValue())){
+            val = parameterService.getParameterValueByKey("game_notice_amount_egg");
+        }else if (gameCode.equals(GameCodeEnum.CIRCLE.getValue())){
+            val = parameterService.getParameterValueByKey("game_notice_amount_circle");
+        }else{
+            return;
+        }
+        if (price < new BigDecimal(val).intValue()) {
             return;
         }
         Map<String, Object> gameInfoMap = gameMapper.getGameInfoByCode(gameCode);
