@@ -245,6 +245,9 @@
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
 
     where u.online_state = 1 and u.flag = 1 and u.state = 1
+      <if test="userId!=null">
+        and u.id!=#{userId}
+      </if>
       <if test="sex!=null">
         and u.sex = #{sex}
       </if>
@@ -268,6 +271,9 @@
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
 
     where  u.flag = 1 and u.state = 1 and m.is_block = 2
+    <if test="userId!=null">
+      and u.id!=#{userId}
+    </if>
     <if test="content!=null and content!=''">
       and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%') or m.name like concat('%',#{content},'%'))
     </if>

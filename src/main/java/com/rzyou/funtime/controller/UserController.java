@@ -714,8 +714,9 @@ public class UserController {
             Integer sex = paramJson.getInteger("sex");
             Integer ageType = paramJson.getInteger("ageType");
 
+            Long userId = HttpHelper.getUserId();
 
-            result.setData(JsonUtil.getMap("pageInfo",userService.queryUserInfoByOnline(startPage,pageSize,sex,ageType)));
+            result.setData(JsonUtil.getMap("pageInfo",userService.queryUserInfoByOnline(startPage,pageSize,sex,ageType,userId)));
 
             return result;
         } catch (BusinessException be) {
@@ -746,8 +747,9 @@ public class UserController {
             Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             String content = paramJson.getString("content");
 
+            Long userId = HttpHelper.getUserId();
 
-            result.setData(JsonUtil.getMap("pageInfo",userService.queryUserInfoByIndex(startPage,pageSize,content)));
+            result.setData(JsonUtil.getMap("pageInfo",userService.queryUserInfoByIndex(startPage,pageSize,content,userId)));
 
             return result;
         } catch (BusinessException be) {

@@ -32,7 +32,7 @@ public interface FuntimeUserMapper {
 
     FuntimeUser queryUserInfoByPhone(String phone);
 
-    List<FuntimeUser> queryUserInfoByOnline(@Param("sex") Integer sex,@Param("startAge") String startAge,@Param("endAge") String endAge);
+    List<FuntimeUser> queryUserInfoByOnline(@Param("sex") Integer sex, @Param("startAge") String startAge, @Param("endAge") String endAge, @Param("userId") Long userId);
 
     int deleteByPrimaryKey(Long id);
 
@@ -85,7 +85,7 @@ public interface FuntimeUserMapper {
 
     List<Map<String, Object>> getBanners();
 
-    List<FuntimeUser> queryUserInfoByIndex(String content);
+    List<FuntimeUser> queryUserInfoByIndex(@Param("content") String content, @Param("userId") Long userId);
 
     /**
      * 在房间的离线用户

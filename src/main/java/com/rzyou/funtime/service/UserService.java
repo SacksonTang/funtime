@@ -1,7 +1,6 @@
 package com.rzyou.funtime.service;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.entity.*;
 
@@ -253,9 +252,10 @@ public interface UserService {
      * @param pageSize
      * @param sex
      * @param ageType
+     * @param userId
      * @return
      */
-    PageInfo<FuntimeUser> queryUserInfoByOnline(Integer startPage, Integer pageSize, Integer sex, Integer ageType);
+    PageInfo<FuntimeUser> queryUserInfoByOnline(Integer startPage, Integer pageSize, Integer sex, Integer ageType, Long userId);
 
     /**
      * 用户礼物列表
@@ -376,9 +376,10 @@ public interface UserService {
      * @param startPage
      * @param pageSize
      * @param content
+     * @param userId
      * @return
      */
-    PageInfo<FuntimeUser> queryUserInfoByIndex(Integer startPage, Integer pageSize, String content);
+    PageInfo<FuntimeUser> queryUserInfoByIndex(Integer startPage, Integer pageSize, String content, Long userId);
 
     /**
      * 客服

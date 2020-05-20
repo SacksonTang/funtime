@@ -629,7 +629,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageInfo<FuntimeUser> queryUserInfoByOnline(Integer startPage, Integer pageSize, Integer sex, Integer ageType) {
+    public PageInfo<FuntimeUser> queryUserInfoByOnline(Integer startPage, Integer pageSize, Integer sex, Integer ageType, Long userId) {
         PageHelper.startPage(startPage,pageSize);
         String startAge = null;
         String endAge = null;
@@ -654,7 +654,7 @@ public class UserServiceImpl implements UserService {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
             }
         }
-        List<FuntimeUser> list = userMapper.queryUserInfoByOnline(sex,startAge,endAge);
+        List<FuntimeUser> list = userMapper.queryUserInfoByOnline(sex,startAge,endAge,userId);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
@@ -985,9 +985,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageInfo<FuntimeUser> queryUserInfoByIndex(Integer startPage, Integer pageSize, String content) {
+    public PageInfo<FuntimeUser> queryUserInfoByIndex(Integer startPage, Integer pageSize, String content, Long userId) {
         PageHelper.startPage(startPage,pageSize);
-        List<FuntimeUser> list = userMapper.queryUserInfoByIndex(content);
+        List<FuntimeUser> list = userMapper.queryUserInfoByIndex(content,userId);
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }else{
