@@ -505,4 +505,27 @@ public interface UserService {
     String getDefaultNameBySex(Integer sex);
 
 
+    /**
+     * 用户绑定信息
+     * @param userId
+     * @return
+     */
+    Map<String, Object> getUserBindInfo(Long userId);
+
+    /**
+     * 实名认证信息
+     * @param userId
+     * @return
+     */
+    Map<String, Object> getUserValidInfo(Long userId);
+
+    /**
+     * 修改实名认证
+     * @param userId
+     * @param fullname
+     * @param identityCard
+     * @param depositCard
+     * @param code
+     */
+    void updateUserValid(Long userId, String fullname, String identityCard, String depositCard, String code);
 }

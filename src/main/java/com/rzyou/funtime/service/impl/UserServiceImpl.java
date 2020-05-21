@@ -517,6 +517,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void saveUserValid(Long userId, String fullname, String identityCard, String depositCard, String code) {
         FuntimeUser user = queryUserById(userId);
         if(user==null){
@@ -549,6 +550,36 @@ public class UserServiceImpl implements UserService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void updateUserValid(Long userId, String fullname, String identityCard, String depositCard, String code) {
+        FuntimeUser user = queryUserById(userId);
+        if(user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        FuntimeUserValid userValid = queryValidInfoByUserId(userId);
+        if(userValid==null){
+            throw new BusinessException(ErrorMsgEnum.USERVALID_IS_NOT_VALID.getValue(),ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
+        }
+        String isSend = parameterService.getParameterValueByKey("is_send");
+        if (isSend!=null&&isSend.equals("1")) {
+            smsService.validateSms(SmsType.REAL_VALID.getValue(),user.getPhoneNumber(),code);
+        }
+
+        BankCardVerificationUtil.bankCardVerification(depositCard,fullname,identityCard);
+
+
+        userValid.setDepositCard(depositCard);
+        userValid.setFullname(fullname);
+        userValid.setIdentityCard(identityCard);
+        userValid.setUserId(userId);
+        int k = userValidMapper.updateByPrimaryKeySelective(userValid);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+
     }
 
     @Override
@@ -1031,6 +1062,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Map<String, Object> getUserValidInfo(Long userId) {
+        Map<String,Object> result = new HashMap<>();
+        FuntimeUserValid userValid = queryValidInfoByUserId(userId);
+        result.put("userValid",userValid);
+        return result;
+    }
+
+    @Override
     public Map<String, Object> getWithdralInfo(Long userId) {
         Map<String,Object> result = new HashMap<>();
         FuntimeUserValid userValid = queryValidInfoByUserId(userId);
@@ -1276,6 +1315,30 @@ public class UserServiceImpl implements UserService {
             result.put("bindQq",true);
             result.put("qqNickname",userThird.getNickname());
         }
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> getUserBindInfo(Long userId) {
+        Map<String,Object> result = new HashMap<>();
+        FuntimeUser user = queryUserById(userId);
+        if (user == null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if (StringUtils.isNotBlank(user.getPhoneNumber())){
+            result.put("bindPhone",true);
+            result.put("phoneNumber",user.getPhoneNumber());
+        }else{
+            result.put("bindPhone",false);
+        }
+        FuntimeUserThird userThird = queryUserThirdIdByType(userId,Constant.LOGIN_WX);
+        if (userThird == null){
+            result.put("bindWx",false);
+        }else{
+            result.put("bindWx",true);
+            result.put("wxNickname",userThird.getNickname());
+        }
+
         return result;
     }
 

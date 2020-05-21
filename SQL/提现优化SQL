@@ -1,0 +1,1 @@
+INSERT INTO `funtime_test`.`t_funtime_parameter`(`id`, `key_type`, `parameter_key`, `parameter_value`, `key_name`, `parameter_desc`, `flag`, `create_time`) VALUES (46, 'withdrawal', 'withdrawal_valid_amount', '20', '提现需要实名认证的限额', '提现需要实名认证的限额', 1, '2020-05-09 14:37:47');

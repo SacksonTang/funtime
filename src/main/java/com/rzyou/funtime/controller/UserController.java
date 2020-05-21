@@ -961,9 +961,77 @@ public class UserController {
             return result;
         }
     }
+    /**
+     * 实名认证信息修改
+     */
+    @PostMapping("updateUserValid")
+    public ResultMsg<Object> updateUserValid(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            String fullname = paramJson.getString("fullname");
+            String identityCard = paramJson.getString("identityCard");
+            String depositCard = paramJson.getString("depositCard");
+            String code = paramJson.getString("code");
+
+            if (StringUtils.isBlank(fullname)||StringUtils.isBlank(identityCard)
+                    ||StringUtils.isBlank(depositCard)||StringUtils.isBlank(code)) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            userService.updateUserValid(userId,fullname,identityCard,depositCard,code);
+
+            return result;
+        } catch (BusinessException be) {
+            log.error("updateUserValid BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
     /**
      * 获取实名认证信息
+     */
+    @PostMapping("getUserValidInfo")
+    public ResultMsg<Object> getUserValidInfo(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            if (userId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String,Object> data = userService.getUserValidInfo(userId);
+            result.setData(data);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 获取提现配置信息
      */
     @PostMapping("getWithdralInfo")
     public ResultMsg<Object> getWithdralInfo(HttpServletRequest request){
@@ -1034,7 +1102,37 @@ public class UserController {
         }
     }
 
-
+    /**
+     * 用户绑定信息
+     * @param request
+     * @return
+     */
+    @PostMapping("getUserBindInfo")
+    public ResultMsg<Object> getUserBindInfo(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            if (userId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String,Object> data = userService.getUserBindInfo(userId);
+            result.setData(data);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
 
     /**

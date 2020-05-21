@@ -1916,14 +1916,16 @@ public class AccountServiceImpl implements AccountService {
         if (userThird==null){
             throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_WX_NOT_BIND.getValue(),ErrorMsgEnum.WITHDRAWAL_WX_NOT_BIND.getDesc());
         }
-        //是否实名认证
-        FuntimeUserValid userValid = userService.queryValidInfoByUserId(userId);
-        if (userValid==null){
-            throw new BusinessException(ErrorMsgEnum.USERVALID_IS_NOT_VALID.getValue(),ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
-        }
         //检查实际提现金额限制
         checkWithdrawalConf(userId,amount);
-
+        FuntimeUserValid userValid = new FuntimeUserValid();
+        if(checkRmbAmountValid(preRmbAmount)) {
+            //是否实名认证
+            userValid = userService.queryValidInfoByUserId(userId);
+            if (userValid == null) {
+                throw new BusinessException(ErrorMsgEnum.USERVALID_IS_NOT_VALID.getValue(), ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
+            }
+        }
         //获取配置表中渠道费
         BigDecimal channelAmount = getServiceAmount(preRmbAmount.intValue());
 
@@ -1983,6 +1985,18 @@ public class AccountServiceImpl implements AccountService {
         }
 
         //smsService.updateSmsInfoById(smsId,1);
+    }
+
+    private boolean checkRmbAmountValid(BigDecimal preRmbAmount) {
+        String withdrawal_valid_amount = parameterService.getParameterValueByKey("withdrawal_valid_amount");
+        if (withdrawal_valid_amount == null){
+            return true;
+        }
+        if (preRmbAmount.subtract(new BigDecimal(withdrawal_valid_amount)).intValue()>=0){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     private String getNickname(Integer withdrawalType, String nickname, String depositCard) {

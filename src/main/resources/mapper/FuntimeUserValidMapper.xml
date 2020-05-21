@@ -84,9 +84,7 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.rzyou.funtime.entity.FuntimeUserValid">
     update t_funtime_user_valid
     <set>
-      <if test="userId != null">
-        user_id = #{userId,jdbcType=BIGINT},
-      </if>
+
       <if test="fullname != null">
         fullname = #{fullname,jdbcType=VARCHAR},
       </if>
@@ -96,15 +94,7 @@
       <if test="depositCard != null">
         deposit_card = #{depositCard,jdbcType=VARCHAR},
       </if>
-      <if test="alipayNo != null">
-        alipay_no = #{alipayNo,jdbcType=VARCHAR},
-      </if>
-      <if test="wxNo != null">
-        wx_no = #{wxNo,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
+
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
