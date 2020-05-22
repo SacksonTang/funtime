@@ -172,8 +172,8 @@ public class RoomController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
-            Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             Integer tagId = paramJson.getInteger("tagId");
 
             Map<String,Object> map = new HashMap<>();
@@ -204,8 +204,8 @@ public class RoomController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
-            Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             Long userId = paramJson.getLong("userId");
 
             Map<String,Object> map = new HashMap<>();
@@ -275,7 +275,7 @@ public class RoomController {
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             Long roomId = paramJson.getLong("roomId");
 
@@ -311,7 +311,7 @@ public class RoomController {
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             Long roomId = paramJson.getLong("roomId");
 

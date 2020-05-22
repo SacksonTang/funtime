@@ -522,10 +522,8 @@ public interface UserService {
     /**
      * 修改实名认证
      * @param userId
-     * @param fullname
-     * @param identityCard
      * @param depositCard
      * @param code
      */
-    void updateUserValid(Long userId, String fullname, String identityCard, String depositCard, String code);
+    void updateUserValid(Long userId, String depositCard, String code);
 }

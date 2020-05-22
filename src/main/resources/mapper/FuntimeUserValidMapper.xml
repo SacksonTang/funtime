@@ -19,6 +19,7 @@
     select
     fullname,
     deposit_card as deposit_card_real,
+    identity_card,
     concat('收取赏金银行卡号: 尾号',RIGHT(deposit_card,4)) deposit_card,
     concat('收取赏金微信号: ',wx_no) wx_no,
     concat('收取赏金支付宝号: ',alipay_no) alipay_no
@@ -85,12 +86,6 @@
     update t_funtime_user_valid
     <set>
 
-      <if test="fullname != null">
-        fullname = #{fullname,jdbcType=VARCHAR},
-      </if>
-      <if test="identityCard != null">
-        identity_card = #{identityCard,jdbcType=VARCHAR},
-      </if>
       <if test="depositCard != null">
         deposit_card = #{depositCard,jdbcType=VARCHAR},
       </if>

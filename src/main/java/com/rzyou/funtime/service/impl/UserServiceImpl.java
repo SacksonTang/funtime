@@ -554,7 +554,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void updateUserValid(Long userId, String fullname, String identityCard, String depositCard, String code) {
+    public void updateUserValid(Long userId, String depositCard, String code) {
         FuntimeUser user = queryUserById(userId);
         if(user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
@@ -568,12 +568,10 @@ public class UserServiceImpl implements UserService {
             smsService.validateSms(SmsType.REAL_VALID.getValue(),user.getPhoneNumber(),code);
         }
 
-        BankCardVerificationUtil.bankCardVerification(depositCard,fullname,identityCard);
+        BankCardVerificationUtil.bankCardVerification(depositCard,userValid.getFullname(),userValid.getIdentityCard());
 
 
         userValid.setDepositCard(depositCard);
-        userValid.setFullname(fullname);
-        userValid.setIdentityCard(identityCard);
         userValid.setUserId(userId);
         int k = userValidMapper.updateByPrimaryKeySelective(userValid);
         if(k!=1){
@@ -1065,6 +1063,12 @@ public class UserServiceImpl implements UserService {
     public Map<String, Object> getUserValidInfo(Long userId) {
         Map<String,Object> result = new HashMap<>();
         FuntimeUserValid userValid = queryValidInfoByUserId(userId);
+        if (userValid!=null){
+            userValid.setIdentityCard(userValid.getIdentityCard().substring(0,6)+"************");
+            int len = userValid.getDepositCardReal().length();
+            userValid.setDepositCard("************"+userValid.getDepositCardReal().substring(len-4,len));
+            userValid.setDepositCardReal(null);
+        }
         result.put("userValid",userValid);
         return result;
     }
@@ -1295,6 +1299,7 @@ public class UserServiceImpl implements UserService {
         if (user == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        result.put("realnameAuthenticationFlag",user.getRealnameAuthenticationFlag());
         if (StringUtils.isNotBlank(user.getPhoneNumber())){
             result.put("bindPhone",true);
             result.put("phoneNumber",user.getPhoneNumber());

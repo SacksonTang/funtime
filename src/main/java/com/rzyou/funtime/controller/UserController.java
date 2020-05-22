@@ -383,8 +383,8 @@ public class UserController {
     public ResultMsg<Object> getUserAccountInfoById(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = paramJson.getLong("userId");
+            //JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -671,8 +671,8 @@ public class UserController {
     public ResultMsg<Object> logout(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = paramJson.getLong("userId");
+            //JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
             if (userId==null) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
@@ -709,7 +709,7 @@ public class UserController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
             Integer sex = paramJson.getInteger("sex");
             Integer ageType = paramJson.getInteger("ageType");
@@ -898,7 +898,7 @@ public class UserController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
             String queryDate = paramJson.getString("queryDate");
             Long userId = paramJson.getLong("userId");
@@ -969,21 +969,20 @@ public class UserController {
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = paramJson.getLong("userId");
-            String fullname = paramJson.getString("fullname");
-            String identityCard = paramJson.getString("identityCard");
+            Long userId = HttpHelper.getUserId();
+            //String fullname = paramJson.getString("fullname");
+            //String identityCard = paramJson.getString("identityCard");
             String depositCard = paramJson.getString("depositCard");
             String code = paramJson.getString("code");
 
-            if (StringUtils.isBlank(fullname)||StringUtils.isBlank(identityCard)
-                    ||StringUtils.isBlank(depositCard)||StringUtils.isBlank(code)) {
+            if (StringUtils.isBlank(depositCard)||StringUtils.isBlank(code)) {
 
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
 
-            userService.updateUserValid(userId,fullname,identityCard,depositCard,code);
+            userService.updateUserValid(userId,depositCard,code);
 
             return result;
         } catch (BusinessException be) {
@@ -1007,8 +1006,8 @@ public class UserController {
     public ResultMsg<Object> getUserValidInfo(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = paramJson.getLong("userId");
+            //JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -1037,8 +1036,8 @@ public class UserController {
     public ResultMsg<Object> getWithdralInfo(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = paramJson.getLong("userId");
+            //JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -1079,8 +1078,8 @@ public class UserController {
     public ResultMsg<Object> getInstallInfo(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = paramJson.getLong("userId");
+            //JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -1111,8 +1110,8 @@ public class UserController {
     public ResultMsg<Object> getUserBindInfo(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = paramJson.getLong("userId");
+            //JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -1217,7 +1216,7 @@ public class UserController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
             Integer onlineState = paramJson.getInteger("onlineState");
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
@@ -1252,7 +1251,7 @@ public class UserController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
@@ -1324,8 +1323,8 @@ public class UserController {
     public ResultMsg<Object> getGiftByUserId(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = paramJson.getLong("userId");
+            //JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
 
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
@@ -1393,8 +1392,8 @@ public class UserController {
     public ResultMsg<Object> getPhotoByUserId(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = paramJson.getLong("userId");
+            //JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
 
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());

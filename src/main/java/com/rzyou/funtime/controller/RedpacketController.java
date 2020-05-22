@@ -71,7 +71,7 @@ public class RedpacketController {
         ResultMsg<Object> result = new ResultMsg<>();
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
             Long roomId = paramJson.getLong("roomId");
             Long userId = paramJson.getLong("userId");
@@ -177,7 +177,7 @@ public class RedpacketController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
             String queryDate = paramJson.getString("queryDate");
             Integer type = paramJson.getInteger("type");

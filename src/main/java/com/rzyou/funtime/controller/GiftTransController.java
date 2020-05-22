@@ -181,7 +181,7 @@ public class GiftTransController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             String queryDate = paramJson.getString("queryDate");
             Integer type = paramJson.getInteger("type");
@@ -224,7 +224,7 @@ public class GiftTransController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             Long userId = paramJson.getLong("userId");
             if(userId==null){

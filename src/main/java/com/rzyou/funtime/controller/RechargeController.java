@@ -122,8 +122,8 @@ public class RechargeController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
-            Integer startPage = paramJson.getInteger("startPage")==null?0:paramJson.getInteger("startPage");
-            Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             String queryDate = paramJson.getString("queryDate");
             Integer state = paramJson.getInteger("state");
             Long userId = paramJson.getLong("userId");
