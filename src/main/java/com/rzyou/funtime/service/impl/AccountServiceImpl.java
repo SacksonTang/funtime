@@ -128,10 +128,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void iosRecharge(Long userId, String transactionId, String payload, String productId){
-        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
-        if (userAccount==null){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-        }
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
         FuntimeRechargeConf rechargeConf = rechargeConfMapper.getRechargeConfByProductId(productId);
         if (rechargeConf==null){
             throw new BusinessException(ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getValue(),ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getDesc());
@@ -1040,6 +1037,47 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Map<String, Object> getGoldConvertConf(Long userId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+        resultMap.put("userGoldAmount",userAccount.getGoldCoin().intValue());
+        resultMap.put("userBlueAmount",userAccount.getBlueDiamond());
+        resultMap.put("conf",userConvertRecordMapper.getGoldConvertConf(null));
+        return resultMap;
+    }
+
+    @Override
+    public void goldConvert(Long userId, Integer id) {
+        List<Map<String,Object>> confs = userConvertRecordMapper.getGoldConvertConf(id);
+        if (confs == null || confs.isEmpty()){
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
+        }
+        Map<String,Object> conf = confs.get(0);
+        Integer blueAmount = Integer.parseInt(conf.get("blueAmount").toString());
+        Integer goldAmount = Integer.parseInt(conf.get("goldAmount").toString());
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+        if (userAccount.getBlueDiamond().intValue()-blueAmount<0){
+            throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+        }
+        BigDecimal convertRatio = new BigDecimal(goldAmount/blueAmount).setScale(2,BigDecimal.ROUND_HALF_UP);
+        Long recordId = saveFuntimeUserConvertRecord(userId,convertRatio,ConvertType.BLUE_GOLD.getValue(),new BigDecimal(blueAmount),new BigDecimal(goldAmount));
+
+        int k = userAccountMapper.updateUserAccountGoldConvert(userId,goldAmount,new BigDecimal(blueAmount));
+
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        //用户减的日志
+        saveUserAccountBlueLog(userId,new BigDecimal(blueAmount),recordId
+                ,OperationType.GOLD_CONVERT_OUT.getAction(),OperationType.GOLD_CONVERT_OUT.getOperationType());
+
+        //用户加的日志
+        saveUserAccountGoldLog(userId,new BigDecimal(goldAmount),recordId,OperationType.GOLD_CONVERT_IN.getAction()
+                ,OperationType.GOLD_CONVERT_IN.getOperationType());
+
+    }
+
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
 
@@ -1815,11 +1853,11 @@ public class AccountServiceImpl implements AccountService {
             userAccountMapper.updateUserAccountForConvert(userId,null,toAmount,amount,levelVal,wealthVal);
         }
 
-        //用户减的日志
+        //用户加的日志
         saveUserAccountBlueLog(userId,toAmount,recordId
                 ,OperationType.BLACK_BLUE_IN.getAction(),OperationType.BLACK_BLUE_IN.getOperationType());
 
-        //用户加的日志
+        //用户减的日志
         saveUserAccountBlackLog(userId,amount,recordId,OperationType.BLACK_BLUE_OUT.getAction()
                 ,OperationType.BLACK_BLUE_OUT.getOperationType());
 
@@ -1904,10 +1942,8 @@ public class AccountServiceImpl implements AccountService {
         if (StringUtils.isBlank(user.getPhoneNumber())){
             throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_PHONE_NOT_BIND.getValue(),ErrorMsgEnum.WITHDRAWAL_PHONE_NOT_BIND.getDesc());
         }
-        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(userId);
-        if (userAccount==null){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-        }
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+
         if (userAccount.getBlackDiamond().subtract(blackAmount).doubleValue()<0){
             throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLACK_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLACK_NOT_EN.getDesc());
         }

@@ -6,6 +6,7 @@ public enum ConvertType {
     ,BLACK_BLUE(2,"黑钻兑换蓝钻")
     ,BLACK_RMB(3,"黑钻兑换人民币")
     ,RMB_BLUE(4,"人民币兑换蓝钻")
+    ,BLUE_GOLD(5,"蓝钻兑换金币")
     ;
     private int value;
     private String desc;

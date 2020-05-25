@@ -14,6 +14,8 @@ public interface FuntimeUserAccountMapper {
 
     List<Map<String, Object>> getLevelConf();
 
+    int updateUserAccountGoldConvert(@Param("id") Long id,@Param("goldCoin") Integer goldCoin,@Param("blueDiamond") BigDecimal blueDiamond);
+
     int updateUserAccountGoldCoinPlus(@Param("id") Long id,@Param("goldCoin") Integer goldCoin);
 
     int updateUserAccountGoldCoinSub(@Param("id") Long id,@Param("goldCoin") Integer goldCoin);

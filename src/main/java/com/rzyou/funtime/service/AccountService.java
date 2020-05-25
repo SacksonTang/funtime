@@ -522,4 +522,18 @@ public interface AccountService {
      * @return
      */
     List<Map<String, Object>> getLevelConf(Long userId);
+
+    /**
+     * 金币兑换配置
+     * @param userId
+     * @return
+     */
+    Map<String,Object> getGoldConvertConf(Long userId);
+
+    /**
+     * 金币兑换
+     * @param userId
+     * @param id
+     */
+    void goldConvert(Long userId, Integer id);
 }

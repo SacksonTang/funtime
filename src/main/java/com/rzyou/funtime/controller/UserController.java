@@ -902,12 +902,16 @@ public class UserController {
             Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
             String queryDate = paramJson.getString("queryDate");
             Long userId = paramJson.getLong("userId");
+            Integer convertType = paramJson.getInteger("convertType");
             if(StringUtils.isBlank(queryDate)||userId==null){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            result.setData(JsonUtil.getMap("pageInfo",accountService.getUserConvertRecordForPage(startPage,pageSize,userId,queryDate,ConvertType.BLACK_BLUE.getValue())));
+            if (convertType == null){
+                convertType = ConvertType.BLACK_BLUE.getValue();
+            }
+            result.setData(JsonUtil.getMap("pageInfo",accountService.getUserConvertRecordForPage(startPage,pageSize,userId,queryDate,convertType)));
 
             return result;
         } catch (BusinessException be) {
@@ -922,6 +926,73 @@ public class UserController {
             return result;
         }
     }
+
+    /**
+     * 金币兑换配置
+     * @param request
+     * @return
+     */
+    @PostMapping("getGoldConvertConf")
+    public ResultMsg<Object> getGoldConvertConf(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            if(userId==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            result.setData(accountService.getGoldConvertConf(userId));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 金币兑换
+     * @param request
+     * @return
+     */
+    @PostMapping("goldConvert")
+    public ResultMsg<Object> goldConvert(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Integer id = paramJson.getInteger("id");
+            if(userId==null||id == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            accountService.goldConvert(userId,id);
+
+            return result;
+        } catch (BusinessException be) {
+            log.error("goldConvert BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+
 
     /**
      * 实名认证

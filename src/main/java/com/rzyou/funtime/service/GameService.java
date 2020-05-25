@@ -30,16 +30,18 @@ public interface GameService {
      * 砸蛋是否显示
      * @param type
      * @param userId
+     * @param level
      * @return
      */
-    boolean getSmasheggShowConf(int type, Long userId);
+    boolean getSmasheggShowConf(int type, Long userId, Integer level);
     /**
      * 转盘抽奖是否显示
      * @param type
      * @param userId
+     * @param level
      * @return
      */
-    boolean getCircleShowConf(int type, Long userId);
+    boolean getCircleShowConf(int type, Long userId, Integer level);
 
     /**
      * 初始化摇摇乐

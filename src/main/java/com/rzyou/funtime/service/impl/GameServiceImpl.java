@@ -78,12 +78,9 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public boolean getSmasheggShowConf(int type, Long userId) {
-        FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
-        if (userAccount == null){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-        }
-        Integer isDate = gameMapper.getGameShowConf2(userAccount.getLevel(), GameCodeEnum.EGG.getValue());
+    public boolean getSmasheggShowConf(int type, Long userId, Integer level) {
+
+        Integer isDate = gameMapper.getGameShowConf2(level, GameCodeEnum.EGG.getValue());
         if(isDate == null){
             return false;
         }
@@ -97,12 +94,9 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public boolean getCircleShowConf(int type, Long userId) {
-        FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
-        if (userAccount == null){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
-        }
-        Integer isDate = gameMapper.getGameShowConf2(userAccount.getLevel(), GameCodeEnum.CIRCLE.getValue());
+    public boolean getCircleShowConf(int type, Long userId, Integer level) {
+
+        Integer isDate = gameMapper.getGameShowConf2(level, GameCodeEnum.CIRCLE.getValue());
         if(isDate == null){
             return false;
         }
@@ -480,9 +474,11 @@ public class GameServiceImpl implements GameService {
             if (userAccount.getGoldCoin().subtract(amount).intValue() < 0) {
                 resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_GOLD_NOT_EN.getValue());
                 resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_GOLD_NOT_EN.getDesc());
+                boolean bool = getCircleShowConf(1,userId,userAccount.getLevel());
                 map = new HashMap<>();
                 map.put("userBlueAmount",userAccount.getBlueDiamond().intValue());
                 map.put("price",amount.intValue());
+                map.put("isCircleShow",bool);
                 resultMsg.setData(map);
                 return resultMsg;
             }
@@ -580,7 +576,7 @@ public class GameServiceImpl implements GameService {
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
         FuntimeUser user = userService.queryUserById(userId);
-        if (!getSmasheggShowConf(2, userId)){
+        if (!getSmasheggShowConf(2, userId,userAccount.getLevel())){
             throw new BusinessException(ErrorMsgEnum.DRAW_TIME_OUT.getValue(),ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
         }
         Integer price ;
@@ -751,7 +747,7 @@ public class GameServiceImpl implements GameService {
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
         FuntimeUser user = userService.queryUserById(userId);
-        if (!getSmasheggShowConf(2, userId)){
+        if (!getSmasheggShowConf(2, userId, userAccount.getLevel())){
             throw new BusinessException(ErrorMsgEnum.DRAW_TIME_OUT.getValue(),ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
         }
         Integer price = Integer.parseInt(parameterService.getParameterValueByKey("room_game_circle_price"));

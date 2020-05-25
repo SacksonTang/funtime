@@ -1,1 +1,15 @@
 INSERT INTO `funtime_test`.`t_funtime_parameter`(`id`, `key_type`, `parameter_key`, `parameter_value`, `key_name`, `parameter_desc`, `flag`, `create_time`) VALUES (46, 'withdrawal', 'withdrawal_valid_amount', '20', '提现需要实名认证的限额', '提现需要实名认证的限额', 1, '2020-05-09 14:37:47');
+
+--更改注释
+ALTER TABLE `funtime_test`.`t_funtime_user_convert_record`
+MODIFY COLUMN `convert_type` int(4) NULL DEFAULT NULL COMMENT '兑换类型1-蓝对黑2-黑对蓝3-黑对人民币4-人民币对蓝钻5-蓝钻兑换金币' AFTER `user_id`;
+--金币兑换配置表
+CREATE TABLE `t_funtime_gold_convert_conf` (
+  `id` int(16) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `blue_amount` int(32) DEFAULT NULL COMMENT '蓝钻',
+  `gold_amount` int(32) DEFAULT NULL COMMENT '兑换金币数',
+  `tag_colour` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '标签颜色',
+  `tag_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '标签名',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='金币兑换配置表';

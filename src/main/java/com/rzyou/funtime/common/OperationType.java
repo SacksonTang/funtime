@@ -13,6 +13,7 @@ public enum OperationType {
     ,YAOYAOLE_IN("IN","YAOYAOLE_IN","摇摇乐中奖")
     ,SMASHEGG_IN("IN","SMASHEGG_IN","砸蛋中奖")
     ,CIRCLE_IN("IN","CIRCLE_IN","转盘中奖")
+    ,GOLD_CONVERT_IN("IN","GOLD_CONVERT_IN","金币兑换")
 
     ,WITHDRAWAL("OUT","WITHDRAWAL","提现")
     ,GIVEREDPACKET("OUT","GIVEREDPACKET","发红包")
@@ -28,6 +29,7 @@ public enum OperationType {
     ,BUY_HORN("OUT","BUY_HORN","购买喇叭")
     ,HORN_CONSUME("OUT","HORN_CONSUME","发送大喇叭")
     ,BUY_BULLET("OUT","BUY_BULLET","捕鱼购买子弹")
+    ,GOLD_CONVERT_OUT("OUT","GOLD_CONVERT_OUT","金币兑换")
     ;
 
      private String action;
