@@ -64,7 +64,7 @@
     select
     m.mic_user_id
     from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
-    where room_id = #{roomId} and u.online_state = 1
+    where room_id = #{roomId}
 
   </select>
   <select id="getMicUserIdByRoomId"  resultType="java.lang.Long" >

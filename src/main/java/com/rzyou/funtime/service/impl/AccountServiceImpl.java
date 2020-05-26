@@ -1934,10 +1934,7 @@ public class AccountServiceImpl implements AccountService {
         if (user.getState()==2){
             throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
         }
-        //用户未实名
-        if (user.getRealnameAuthenticationFlag()==2){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_REALNAME_VALID.getValue(),ErrorMsgEnum.USER_NOT_REALNAME_VALID.getDesc());
-        }
+
         //未绑定手机
         if (StringUtils.isBlank(user.getPhoneNumber())){
             throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_PHONE_NOT_BIND.getValue(),ErrorMsgEnum.WITHDRAWAL_PHONE_NOT_BIND.getDesc());
@@ -1959,7 +1956,7 @@ public class AccountServiceImpl implements AccountService {
             //是否实名认证
             userValid = userService.queryValidInfoByUserId(userId);
             if (userValid == null) {
-                throw new BusinessException(ErrorMsgEnum.USERVALID_IS_NOT_VALID.getValue(), ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
+                throw new BusinessException(ErrorMsgEnum.USER_NOT_REALNAME_VALID.getValue(), ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
             }
         }
         //获取配置表中渠道费

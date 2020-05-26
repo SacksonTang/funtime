@@ -85,7 +85,7 @@
 
        <if test="tagId!=null and tagId!='' and tagId!=0">
           <if test="tagId == -1">
-            and hot > 0
+            and m.hot > 0
           </if>
          <if test="tagId != -1">
            and FIND_IN_SET(#{tagId},tags)>0
