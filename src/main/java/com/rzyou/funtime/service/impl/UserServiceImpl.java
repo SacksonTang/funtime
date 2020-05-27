@@ -563,6 +563,9 @@ public class UserServiceImpl implements UserService {
         if(userValid==null){
             throw new BusinessException(ErrorMsgEnum.USERVALID_IS_NOT_VALID.getValue(),ErrorMsgEnum.USERVALID_IS_NOT_VALID.getDesc());
         }
+        if (userValid.getDepositCardReal().equals(depositCard)){
+            throw new BusinessException(ErrorMsgEnum.USER_VALID_CARD_SAME.getValue(),ErrorMsgEnum.USER_VALID_CARD_SAME.getDesc());
+        }
         String isSend = parameterService.getParameterValueByKey("is_send");
         if (isSend!=null&&isSend.equals("1")) {
             smsService.validateSms(SmsType.REAL_VALID.getValue(),user.getPhoneNumber(),code);

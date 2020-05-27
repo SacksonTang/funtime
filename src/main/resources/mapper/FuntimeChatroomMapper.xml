@@ -33,8 +33,11 @@
   </sql>
   <select id="getAllRoom" resultType="java.lang.Long" >
     select
-    id
-    from t_funtime_chatroom where online_num>0 and state = 1 and is_block = 2
+    m.id
+    from t_funtime_chatroom m inner join t_funtime_chatroom_mic c on m.id = c.room_id
+		inner join t_funtime_user u on c.mic_user_id = u.id
+		where   m.state = 1 and m.is_block = 2 and u.online_state = 1
+     group by m.id
 
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -51,8 +54,11 @@
   </select>
   <select id="getRoomInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
-     m.* ,u.portrait_address,u.nickname,u.sex,u.show_id,l.level_url,l.level
-     ,k.background_url,k.background_url2
+     m.id, m.name, m.tags, m.exam_desc, m.is_block, m.is_lock, m.hot, m.state, m.create_time,
+     m.chat_message_file,m.user_id,m.password,m.exam_url,m.avatar_url,m.background_id
+     ,u.portrait_address,u.nickname,u.sex,u.show_id,l.level_url,l.level
+     ,k.background_url,k.background_url2,
+     (select count(u1.id) from t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id where  u1.online_state = 1 and m.id = cu.room_id) online_num
     from t_funtime_chatroom m inner join
         (t_funtime_user u
         inner join t_funtime_user_account t on u.id = t.user_id
@@ -70,17 +76,20 @@
   <select id="getRoomList" parameterType="java.lang.Integer" resultType="java.util.Map">
     select
     m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
-    m.online_num onlineNum,u.sex,u.show_id showId,
+    u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
     g.tag_name  tagNames,
     g.tag_color tagColor,
-    count(u1.id) maleCount,
-    (m.online_num - count(u1.id)) femaleCount
+    (select count(u1.id) from t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id where u1.sex = 1 and u1.online_state = 1 and m.id = cu.room_id) maleCount,
+    (select count(u2.id) from t_funtime_chatroom_mic cu inner join t_funtime_user u2 on cu.mic_user_id = u2.id where u2.sex = 2 and u2.online_state = 1 and m.id = cu.room_id) femaleCount,
+    (select count(u1.id) from t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id where u1.sex = 1 and u1.online_state = 1 and m.id = cu.room_id)
+    +
+    (select count(u2.id) from t_funtime_chatroom_mic cu inner join t_funtime_user u2 on cu.mic_user_id = u2.id where u2.sex = 2 and u2.online_state = 1 and m.id = cu.room_id)
+    onlineNum
     from t_funtime_chatroom m
-         inner join t_funtime_user u on m.user_id = u.id
-         left join (t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id and u1.sex = 1)
-                   on m.id = cu.room_id
-         left join t_funtime_tag g on g.id = m.tags
+    inner join t_funtime_user u on m.user_id = u.id
+
+    left join t_funtime_tag g on g.id = m.tags
     where m.is_block = 2 and m.state = 1
 
        <if test="tagId!=null and tagId!='' and tagId!=0">
@@ -92,7 +101,7 @@
          </if>
       </if>
      group by m.id
-     order by m.hot desc,m.online_num desc ,m.id desc
+     order by m.hot desc,onlineNum desc ,m.id desc
   </select>
 
   <select id="getRoomLogList" parameterType="java.lang.Long" resultType="java.util.Map">

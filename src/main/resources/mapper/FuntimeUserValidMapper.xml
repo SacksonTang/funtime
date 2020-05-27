@@ -17,6 +17,7 @@
   </sql>
   <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
+    id,
     fullname,
     deposit_card as deposit_card_real,
     identity_card,

@@ -64,7 +64,7 @@
     select
     m.mic_user_id
     from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
-    where room_id = #{roomId}
+    where room_id = #{roomId} and u.online_state = 1
 
   </select>
   <select id="getMicUserIdByRoomId"  resultType="java.lang.Long" >
@@ -100,7 +100,7 @@
     from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
 
-    where m.room_id = #{roomId}
+    where m.room_id = #{roomId} and u.online_state = 1
     <if test="nickname!=null and nickname!=''">
       and BINARY u.nickname like concat('%',#{nickname},'%')
     </if>

@@ -86,7 +86,7 @@ public class CommonTask {
     /**
      * 同步房间用户数
      */
-    @Scheduled(fixedRate = 1000*5*60)
+    //@Scheduled(fixedRate = 1000*5*60)
     public void updateOnlineNumTask(){
         log.debug("同步房间用户数 updateOnlineNumTask:{}",DateUtil.getCurrentDateTimeExtr());
         roomService.updateOnlineNumTask();

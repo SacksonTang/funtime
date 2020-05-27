@@ -57,6 +57,7 @@ public enum ErrorMsgEnum {
     USER_BAG_NOT_EN("10044","用户背包礼物不足"),
     USER_CAR_NOT_EXIST("10045","用户无此坐骑"),
     USER_PHONE_NOT_BIND("10046","请先绑定手机号"),
+    USER_VALID_CARD_SAME("10047","银行卡已存在"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
