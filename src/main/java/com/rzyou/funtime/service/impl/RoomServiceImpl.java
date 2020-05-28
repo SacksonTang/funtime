@@ -906,7 +906,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public void sendNotice(Long userId, String imgUrl, String msg, Long roomId, Integer type) {
+    public void sendNotice(Long userId, String imgUrl, String msg, Long roomId, Integer type, Integer playLenth) {
         FuntimeUser user = userService.getUserBasicInfoById(userId);
         if (user == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
@@ -917,7 +917,7 @@ public class RoomServiceImpl implements RoomService {
         Integer userRole = getUserRole(roomId,userId);
         userRole = userRole == null?4:userRole;
         List<String> userIds = getRoomUserByRoomIdAll(roomId);
-        noticeService.notice11Or14(userId,imgUrl,msg,roomId,type,userIds,userRole);
+        noticeService.notice11Or14(userId,imgUrl,msg,roomId,type,userIds,userRole,playLenth);
     }
 
     @Override

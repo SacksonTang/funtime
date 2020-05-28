@@ -1,6 +1,5 @@
 package com.rzyou.funtime.service;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.ResultMsg;
@@ -201,8 +200,9 @@ public interface RoomService {
      * @param msg
      * @param roomId
      * @param type
+     * @param playLenth
      */
-    void sendNotice(Long userId, String imgUrl, String msg, Long roomId, Integer type);
+    void sendNotice(Long userId, String imgUrl, String msg, Long roomId, Integer type, Integer playLenth);
 
     /**
      * 我的足迹

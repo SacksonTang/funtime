@@ -470,7 +470,7 @@ public class GameServiceImpl implements GameService {
         BigDecimal amount;
         Map<String, Object> map;
         if (type == 1) {
-            amount = new BigDecimal((bullet / 1000) * Integer.parseInt(bulletPriceGold));
+            amount = new BigDecimal(bullet  * Integer.parseInt(bulletPriceGold)/1000);
             if (userAccount.getGoldCoin().subtract(amount).intValue() < 0) {
                 resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_GOLD_NOT_EN.getValue());
                 resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_GOLD_NOT_EN.getDesc());
@@ -483,7 +483,7 @@ public class GameServiceImpl implements GameService {
                 return resultMsg;
             }
         }else{
-            amount = new BigDecimal((bullet / 100) * Integer.parseInt(bulletPrice));
+            amount = new BigDecimal(bullet * Integer.parseInt(bulletPrice)/100);
             if (userAccount.getBlueDiamond().subtract(amount).intValue() < 0) {
                 resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
                 resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());

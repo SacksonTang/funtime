@@ -1010,10 +1010,11 @@ public class RoomController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
             String imgUrl = paramJson.getString("imgUrl");
+            Integer playLenth = paramJson.getInteger("playLength");
             String msg = paramJson.getString("msg");
             Long roomId = paramJson.getLong("roomId");
             Integer type = paramJson.getInteger("type");
-            roomService.sendNotice(userId,imgUrl,msg,roomId,type);
+            roomService.sendNotice(userId,imgUrl,msg,roomId,type,playLenth);
 
 
         } catch (BusinessException be) {

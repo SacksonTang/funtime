@@ -414,7 +414,7 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    public void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type, List<String> userIds, Integer userRole) {
+    public void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type, List<String> userIds, Integer userRole, Integer playLenth) {
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         FuntimeUser user = userService.queryUserById(userId);
         if (user == null){
@@ -423,6 +423,7 @@ public class NoticeServerImpl implements NoticeService {
         JSONObject object = new JSONObject();
         object.put("type",type);
         object.put("rid",roomId);
+        object.put("playLength",playLenth);
         object.put("uid",userId);
         object.put("userRole",userRole);
         object.put("name",user.getNickname());

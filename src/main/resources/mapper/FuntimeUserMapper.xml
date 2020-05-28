@@ -294,7 +294,7 @@
 
   </select>
   <select id="getExpression"  resultType="java.util.Map">
-    select expression_no expressionNo,expression_desc expressionDesc,expression_url expressionUrl,sort
+    select expression_no expressionNo,expression_desc expressionDesc,expression_url expressionUrl,sort,play_length playLength
     from t_funtime_expression
     where flag = 1
        order by sort
