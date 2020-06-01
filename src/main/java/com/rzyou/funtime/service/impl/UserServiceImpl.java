@@ -960,19 +960,19 @@ public class UserServiceImpl implements UserService {
     public void makeAccusation(FuntimeAccusation accusation) {
         accusation.setState(1);
         if (accusation.getImg1()!=null){
-            accusation.setImg1(CosUtil.generatePresignedUrl(accusation.getImg1()));
+            accusation.setImg1(Constant.COS_URL_PREFIX+"/"+accusation.getImg1());
         }
         if (accusation.getImg2()!=null){
-            accusation.setImg2(CosUtil.generatePresignedUrl(accusation.getImg2()));
+            accusation.setImg2(Constant.COS_URL_PREFIX+"/"+accusation.getImg2());
         }
         if (accusation.getImg3()!=null){
-            accusation.setImg3(CosUtil.generatePresignedUrl(accusation.getImg3()));
+            accusation.setImg3(Constant.COS_URL_PREFIX+"/"+accusation.getImg3());
         }
         if (accusation.getImg4()!=null){
-            accusation.setImg4(CosUtil.generatePresignedUrl(accusation.getImg4()));
+            accusation.setImg4(Constant.COS_URL_PREFIX+"/"+accusation.getImg4());
         }
         if (accusation.getImg5()!=null){
-            accusation.setImg5(CosUtil.generatePresignedUrl(accusation.getImg5()));
+            accusation.setImg5(Constant.COS_URL_PREFIX+"/"+accusation.getImg5());
         }
         if (accusationMapper.insertSelective(accusation)!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());

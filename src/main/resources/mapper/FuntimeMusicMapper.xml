@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeMusicMapper">
+
+  <select id="getLocalMusics" resultType="java.util.Map">
+    select * from t_funtime_music where 1=1
+    <if test="tagId!=null">
+      and tag_id = #{tagId}
+    </if>
+    <if test="content !=null">
+      and BINARY  search_name like concat('%',#{content},'%')
+    </if>
+     order by hot desc
+  </select>
+</mapper>

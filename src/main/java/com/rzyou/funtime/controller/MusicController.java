@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * 2020/3/4
@@ -27,6 +28,40 @@ public class MusicController {
 
     @Autowired
     MusicService musicService;
+
+    /**
+     * 获取本地列表时使用
+     * @param request
+     * @return
+     */
+    @PostMapping("getLocalMusics")
+    public ResultMsg<Object> getLocalMusics(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer startPage = paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize");
+            Integer tagId = paramJson.getInteger("tagId");
+            String content = paramJson.getString("content");
+            startPage = startPage == null?1:startPage;
+            pageSize = pageSize == null?20:pageSize;
+            Map<String, Object> data = musicService.getLocalMusics(startPage,pageSize,tagId,content);
+            result.setData(data);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
     /**
      * 获取素材库列表时使用

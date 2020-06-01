@@ -5,6 +5,8 @@ import com.tencentcloudapi.ame.v20190916.models.DescribeLyricResponse;
 import com.tencentcloudapi.ame.v20190916.models.DescribeMusicResponse;
 import com.tencentcloudapi.ame.v20190916.models.DescribeStationsResponse;
 
+import java.util.Map;
+
 /**
  * 2020/3/4
  * LLP-LX
@@ -45,4 +47,14 @@ public interface MusicService {
      * @return
      */
     DescribeMusicResponse describeMusic(String itemId, String subItemType, String identityId, String ssl) throws Exception;
+
+    /**
+     * 获取本地音乐列表
+     * @param startPage
+     * @param pageSize
+     * @param tagId
+     * @param content
+     * @return
+     */
+    Map<String, Object> getLocalMusics(Integer startPage, Integer pageSize, Integer tagId, String content);
 }
