@@ -66,7 +66,7 @@ app:
     appleUrl: https://buy.itunes.apple.com/verifyReceipt
   logpath: /var/local/logs/funtimelogs
   im:
-    imSdkAppId: 1400323798
-    imSdkAppSecret: fe86b9de3bc8f83e011c39286c2977250e4dc7a793e77938a39f0817733109b1
-    iosPushCertDevId: 18791
-    iosPushCertProdId: 18790
+    imSdkAppId: 1400308918
+    imSdkAppSecret: 2a299506bb7b6db78f00b8b4c8a16c298e2839eede5f305cad7ab222cec04ca6
+    iosPushCertDevId: 18793
+    iosPushCertProdId: 18792

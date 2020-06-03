@@ -68,7 +68,7 @@ public class MusicController {
      * @param request
      * @return
      */
-    @PostMapping("describeStations")
+    //@PostMapping("describeStations")
     public ResultMsg<Object> describeStations(HttpServletRequest request){
 
         ResultMsg<Object> result = new ResultMsg<>();
@@ -98,7 +98,7 @@ public class MusicController {
      * @param request
      * @return
      */
-    @PostMapping("describeItems")
+    //@PostMapping("describeItems")
     public ResultMsg<Object> describeItems(HttpServletRequest request){
 
         ResultMsg<Object> result = new ResultMsg<>();
@@ -130,7 +130,7 @@ public class MusicController {
      * @param request
      * @return
      */
-    @PostMapping("describeLyric")
+    //@PostMapping("describeLyric")
     public ResultMsg<Object> describeLyric(HttpServletRequest request){
 
         ResultMsg<Object> result = new ResultMsg<>();
@@ -160,7 +160,7 @@ public class MusicController {
      * @param request
      * @return
      */
-    @PostMapping("describeMusic")
+    //@PostMapping("describeMusic")
     public ResultMsg<Object> describeMusic(HttpServletRequest request){
 
         ResultMsg<Object> result = new ResultMsg<>();

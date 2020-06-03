@@ -470,7 +470,7 @@ public class GameServiceImpl implements GameService {
         BigDecimal amount;
         Map<String, Object> map;
         if (type == 1) {
-            amount = new BigDecimal(bullet  * Integer.parseInt(bulletPriceGold)/1000);
+            amount = new BigDecimal(bullet  *1000/Integer.parseInt(bulletPriceGold));
             if (userAccount.getGoldCoin().subtract(amount).intValue() < 0) {
                 resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_GOLD_NOT_EN.getValue());
                 resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_GOLD_NOT_EN.getDesc());
@@ -483,7 +483,7 @@ public class GameServiceImpl implements GameService {
                 return resultMsg;
             }
         }else{
-            amount = new BigDecimal(bullet * Integer.parseInt(bulletPrice)/100);
+            amount = new BigDecimal(bullet *100/Integer.parseInt(bulletPrice));
             if (userAccount.getBlueDiamond().subtract(amount).intValue() < 0) {
                 resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
                 resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
@@ -509,12 +509,12 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Map<String, Object> getFishRanklist(Long curUserId) {
+    public Map<String, Object> getFishRanklist(Long curUserId, Integer type) {
         Map<String, Object> resultMap = new HashMap<>();
         String count = parameterService.getParameterValueByKey("fish_rank_count");
         resultMap.put("rankCount",count);
         int endCount = Integer.parseInt(count);
-        List<Map<String, Object>> list = accountService.getFishRanklist(endCount);
+        List<Map<String, Object>> list = accountService.getFishRanklist(endCount,type);
         if (list==null||list.isEmpty()){
             resultMap.put("rankingList",null);
             return resultMap;

@@ -12,6 +12,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +93,7 @@ public class MusicServiceImpl implements MusicService {
     }
 
     @Override
-    public Map<String, Object> getLocalMusics(Integer startPage, Integer pageSize, Integer tagId, String content) {
+    public Map<String, Object> getLocalMusics(Integer startPage, Integer pageSize, Integer tagId, String content) throws Exception {
         Map<String,Object> result = new HashMap<>();
         PageHelper.startPage(startPage,pageSize);
         if (StringUtils.isNotBlank(content)){
@@ -98,6 +103,15 @@ public class MusicServiceImpl implements MusicService {
         if (musics == null){
             result.put("musics",new PageInfo<>());
         }else{
+            for (Map<String, Object> map : musics){
+                String urlStr = map.get("url").toString();
+
+                URL url = new URL(urlStr);
+                URI uri = new URI(url.getProtocol(),  url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+                url = uri.toURL();
+
+                map.put("url", url);
+            }
             result.put("musics",new PageInfo<>(musics));
         }
         return result;

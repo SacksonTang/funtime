@@ -89,9 +89,10 @@ public interface GameService {
     /**
      * 捕鱼排行榜
      * @param curUserId
+     * @param type
      * @return
      */
-    Map<String,Object> getFishRanklist(Long curUserId);
+    Map<String,Object> getFishRanklist(Long curUserId, Integer type);
 
     /**
      * 获取游戏配置

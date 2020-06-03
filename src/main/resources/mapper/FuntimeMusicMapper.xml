@@ -7,7 +7,7 @@
     <if test="tagId!=null">
       and tag_id = #{tagId}
     </if>
-    <if test="content !=null">
+    <if test="content !=null and content!=''">
       and BINARY  search_name like concat('%',#{content},'%')
     </if>
      order by hot desc

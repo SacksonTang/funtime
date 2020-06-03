@@ -238,6 +238,9 @@ public class GameController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
+            if (score < 1||bullet < 1){
+                return result;
+            }
             gameService.saveScoreOfFish(userId,score,bullet);
             return result;
 
@@ -302,12 +305,14 @@ public class GameController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = HttpHelper.getUserId();
+            Integer type = paramJson.getInteger("type"); //1-总榜2-月榜3-周榜
             if (userId == null){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            result.setData(gameService.getFishRanklist(userId));
+            type = type == null?1:type;
+            result.setData(gameService.getFishRanklist(userId,type));
             return result;
 
         } catch (BusinessException be) {

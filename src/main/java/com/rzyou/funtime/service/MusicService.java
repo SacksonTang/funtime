@@ -56,5 +56,5 @@ public interface MusicService {
      * @param content
      * @return
      */
-    Map<String, Object> getLocalMusics(Integer startPage, Integer pageSize, Integer tagId, String content);
+    Map<String, Object> getLocalMusics(Integer startPage, Integer pageSize, Integer tagId, String content) throws Exception;
 }

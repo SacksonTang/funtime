@@ -2411,8 +2411,21 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Map<String, Object>> getFishRanklist(int endCount) {
-        return userAccountMapper.getFishRanklist(endCount);
+    public List<Map<String, Object>> getFishRanklist(int endCount, Integer type) {
+        String startDate = null;
+        String endDate = null;
+        if (type == 3){
+            startDate = DateUtil.getCurrentWeekStart();
+            endDate = DateUtil.getCurrentWeekEnd();
+        }else if (type == 2){
+            startDate = DateUtil.getCurrentMonthStart();
+            endDate = DateUtil.getCurrentMonthEnd();
+        }
+        if (type == 1) {
+            return userAccountMapper.getFishRanklist(endCount);
+        }else {
+            return userAccountMapper.getFishRanklist2(endCount,startDate,endDate);
+        }
     }
 
     @Override

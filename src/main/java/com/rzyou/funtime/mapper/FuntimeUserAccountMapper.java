@@ -54,6 +54,8 @@ public interface FuntimeUserAccountMapper {
 
     List<Map<String, Object>> getFishRanklist(int endCount);
 
+    List<Map<String, Object>> getFishRanklist2( @Param("endCount") Integer endCount,@Param("startDate") String startDate,@Param("endDate") String endDate);
+
     Long checkUserKnapsackExist(@Param("userId") Long userId, @Param("itemId") Integer itemId,@Param("type") int type);
 
     Integer getItemNumByUserId(@Param("userId") Long userId, @Param("itemId") Integer itemId,@Param("type") int type);

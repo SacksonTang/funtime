@@ -418,9 +418,10 @@ public interface AccountService {
     /**
      * 捕鱼排行榜
      * @param endCount
+     * @param type
      * @return
      */
-    List<Map<String, Object>> getFishRanklist(int endCount);
+    List<Map<String, Object>> getFishRanklist(int endCount, Integer type);
 
     /**
      * 增加子弹数

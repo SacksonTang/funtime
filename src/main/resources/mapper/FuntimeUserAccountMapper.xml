@@ -72,6 +72,26 @@
     order by f.score desc
     limit ${endCount}
   </select>
+  <select id="getFishRanklist2" resultType="java.util.Map">
+    select f.user_id as userId,sum(f.score) score ,
+          u.nickname,
+          u.portrait_address as portraitAddress,
+          u.show_id as showId,
+          u.sex,
+          t.level,
+          l.level_url as levelUrl
+    from t_funtime_user_fish_record f
+       inner join t_funtime_user u on f.user_id = u.id
+       inner join (t_funtime_user_account t
+       inner join t_funtime_user_level_conf l on t.level = l.level) on f.user_id = t.user_id
+       where f.score>0
+       <if test="startDate !=null and endDate!=null">
+         and f.create_time BETWEEN #{startDate} AND #{endDate}
+       </if>
+    GROUP BY f.user_id
+    order by score desc
+    limit ${endCount}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_user_account
     where id = #{id,jdbcType=BIGINT}
