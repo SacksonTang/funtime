@@ -171,7 +171,9 @@ public class UserController {
     public ResultMsg<Object> getUserCarByUserId(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            Long userId = HttpHelper.getUserId();
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+
             if (userId == null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -1463,8 +1465,8 @@ public class UserController {
     public ResultMsg<Object> getPhotoByUserId(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-            //JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userId = HttpHelper.getUserId();
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
 
             if (userId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
