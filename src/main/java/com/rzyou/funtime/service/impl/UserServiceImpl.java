@@ -1159,7 +1159,7 @@ public class UserServiceImpl implements UserService {
         Map<String, Integer> curVer = appVersionMapper.getVersionInfoByVerAndPlatform(platform, appVersion);
         //当前版本信息缺失,直接更新最新版本
         if (curVer==null){
-            result.put("state",2);
+            result.put("state",4);
             result.put("versionInfo",appVersionMapper.getNewVersionInfoByPlatform(platform));
             return result;
         }

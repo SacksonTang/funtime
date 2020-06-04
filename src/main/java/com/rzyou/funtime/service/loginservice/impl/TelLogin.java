@@ -44,7 +44,7 @@ public class TelLogin implements LoginStrategy {
         if (StringUtils.isBlank(user.getPhoneNumber())){
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
-        if (!user.getPhoneNumber().equals("00000000000")||!user.getPhoneNumber().equals("11111111111")) {
+        if (!user.getPhoneNumber().equals("00000000000")&&!user.getPhoneNumber().equals("11111111111")) {
             String isSend = parameterService.getParameterValueByKey("is_send");
             if (isSend != null && isSend.equals("1")) {
                 //校验验证码

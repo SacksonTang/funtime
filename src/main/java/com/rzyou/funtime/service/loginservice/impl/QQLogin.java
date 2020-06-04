@@ -64,7 +64,7 @@ public class QQLogin implements LoginStrategy {
             String nickName = userJson.getString("nickname");
 
             user.setNickname(nickName);
-            String url = userJson.getString("figureurl_qq_1");
+            String url = StringUtils.isBlank(userJson.getString("figureurl_qq_2"))?userJson.getString("figureurl_qq_1"):userJson.getString("figureurl_qq_2") ;
             if (url !=null&&url.startsWith("http:")){
                 url = url.replace("http:","https:");
             }
