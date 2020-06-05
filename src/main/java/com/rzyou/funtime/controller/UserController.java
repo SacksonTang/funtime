@@ -41,6 +41,39 @@ public class UserController {
     @Autowired
     ParameterService parameterService;
 
+
+
+    /**
+     * 签到
+     */
+    @PostMapping("doSign")
+    public ResultMsg<Object> doSign(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            if (userId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            accountService.doSign(userId);
+            result.setData(JsonUtil.getMap("goldAmount",parameterService.getParameterValueByKey("sign_val")));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+
+
     /**
      * 等级配置
      */

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeSignMapper">
+
+    <select id="getSignCheck" resultType="java.lang.Long">
+        select id from t_funtime_user_sign_record where user_id = #{userId} and sign_date = #{date} limit 1
+    </select>
+
+    <insert id="saveSignRecord" parameterType="com.rzyou.funtime.entity.FuntimeSignRecord" keyProperty="id" useGeneratedKeys="true">
+        insert into t_funtime_user_sign_record  (user_id,sign_date) values (#{userId},#{signDate})
+    </insert>
+
+
+</mapper>

@@ -10,6 +10,14 @@ import java.util.Map;
 
 public interface AccountService {
 
+
+
+    /**
+     * 签到
+     * @param userId
+     */
+    void doSign(Long userId);
+
     /**
      * 是否首次充值
      * @param userId

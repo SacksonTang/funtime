@@ -14,6 +14,7 @@ public enum OperationType {
     ,SMASHEGG_IN("IN","SMASHEGG_IN","砸蛋中奖")
     ,CIRCLE_IN("IN","CIRCLE_IN","转盘中奖")
     ,GOLD_CONVERT_IN("IN","GOLD_CONVERT_IN","金币兑换")
+    ,GOLD_SIGN_IN("IN","GOLD_SIGN_IN","签到")
 
     ,WITHDRAWAL("OUT","WITHDRAWAL","提现")
     ,GIVEREDPACKET("OUT","GIVEREDPACKET","发红包")

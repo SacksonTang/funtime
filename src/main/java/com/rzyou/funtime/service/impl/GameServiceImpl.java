@@ -438,6 +438,7 @@ public class GameServiceImpl implements GameService {
 
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Map<String, Object> getBulletOfFish(Long userId) {
         Map<String, Object> map = accountService.getBulletOfFish(userId);
         FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);

@@ -78,6 +78,8 @@ public class AccountServiceImpl implements AccountService {
     FuntimeGiftMapper giftMapper;
     @Autowired
     FuntimeWithdrawalConfMapper withdrawalConfMapper;
+    @Autowired
+    FuntimeSignMapper signMapper;
 
 
     @Override
@@ -2071,6 +2073,29 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void doSign(Long userId) {
+        int currentDate = DateUtil.getCurrentInt();
+        Long id = signMapper.getSignCheck(currentDate,userId);
+        if (id != null){
+            throw new BusinessException(ErrorMsgEnum.USER_SIGN_ERROR.getValue(),ErrorMsgEnum.USER_SIGN_ERROR.getDesc());
+        }
+        FuntimeSignRecord record = new FuntimeSignRecord();
+        record.setSignDate(currentDate);
+        record.setUserId(userId);
+        int k = signMapper.saveSignRecord(record);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        String signVal = parameterService.getParameterValueByKey("sign_val");
+        userService.updateUserAccountGoldCoinPlus(userId,Integer.parseInt(signVal));
+        saveUserAccountGoldLog(userId,new BigDecimal(signVal),record.getId(),OperationType.GOLD_SIGN_IN.getAction(),OperationType.GOLD_SIGN_IN.getOperationType());
+
+    }
+
     @Override
     public boolean checkWithdrawalRecordIsFirst(Long userId){
         int count = userAccountWithdrawalRecordMapper.getWithdrawalRecordCountBySucc(userId);
@@ -2364,12 +2389,13 @@ public class AccountServiceImpl implements AccountService {
     public Map<String, Object> getBulletOfFish(Long userId) {
         Map<String, Object> fish = userAccountMapper.getBulletOfFish(userId);
         if(fish==null||fish.isEmpty()){
-            int k = userAccountMapper.insertFishAccount(userId,0,0);
+            int k = userAccountMapper.insertFishAccount(userId,0,10);
             if (k!=1){
                 throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
             }
+            insertFishAccountRecord(userId,10,0);
             fish = new HashMap<>();
-            fish.put("bullet",0);
+            fish.put("bullet",10);
             fish.put("score",0);
         }
         return fish;
