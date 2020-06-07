@@ -1374,7 +1374,7 @@ public class AccountServiceImpl implements AccountService {
         notice.setGiftImg(funtimeGift.getAnimationUrl());
         notice.setRid(String.valueOf(roomId));
         notice.setToImg(chatroom.getAvatarUrl());
-        notice.setToName(chatroom.getName());
+        notice.setToName("全房");
         notice.setFromSex(user.getSex());
         notice.setUserRole(userRole);
         int type = funtimeGift.getSpecialEffect();
@@ -1490,7 +1490,7 @@ public class AccountServiceImpl implements AccountService {
         notice.setGiftImg(funtimeGift.getAnimationUrl());
         notice.setRid(String.valueOf(roomId));
         notice.setToImg(chatroom.getAvatarUrl());
-        notice.setToName(chatroom.getName());
+        notice.setToName("全房");
         notice.setFromSex(user.getSex());
         notice.setUserRole(userRole);
         int type = funtimeGift.getSpecialEffect();
@@ -2077,11 +2077,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void doSign(Long userId) {
+    public ResultMsg<Object> doSign(Long userId) {
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
         int currentDate = DateUtil.getCurrentInt();
         Long id = signMapper.getSignCheck(currentDate,userId);
         if (id != null){
-            throw new BusinessException(ErrorMsgEnum.USER_SIGN_ERROR.getValue(),ErrorMsgEnum.USER_SIGN_ERROR.getDesc());
+            log.error("用户{}已签到",userId);
+            resultMsg.setCode(ErrorMsgEnum.USER_SIGN_ERROR.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_SIGN_ERROR.getValue());
+            return resultMsg;
         }
         FuntimeSignRecord record = new FuntimeSignRecord();
         record.setSignDate(currentDate);
@@ -2094,6 +2098,8 @@ public class AccountServiceImpl implements AccountService {
         userService.updateUserAccountGoldCoinPlus(userId,Integer.parseInt(signVal));
         saveUserAccountGoldLog(userId,new BigDecimal(signVal),record.getId(),OperationType.GOLD_SIGN_IN.getAction(),OperationType.GOLD_SIGN_IN.getOperationType());
 
+        resultMsg.setData(JsonUtil.getMap("goldAmount",signVal));
+        return resultMsg;
     }
 
     @Override

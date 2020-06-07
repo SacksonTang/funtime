@@ -88,7 +88,7 @@
        <if test="startDate !=null and endDate!=null">
          and f.create_time BETWEEN #{startDate} AND #{endDate}
        </if>
-    GROUP BY f.user_id
+    GROUP BY f.user_id,t.level
     order by score desc
     limit ${endCount}
   </select>

@@ -16,7 +16,7 @@ public interface AccountService {
      * 签到
      * @param userId
      */
-    void doSign(Long userId);
+    ResultMsg<Object> doSign(Long userId);
 
     /**
      * 是否首次充值

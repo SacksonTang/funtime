@@ -56,9 +56,7 @@ public class UserController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            accountService.doSign(userId);
-            result.setData(JsonUtil.getMap("goldAmount",parameterService.getParameterValueByKey("sign_val")));
-            return result;
+            return accountService.doSign(userId);
         } catch (BusinessException be) {
             be.printStackTrace();
             result.setCode(be.getCode());
