@@ -152,15 +152,17 @@
       limit ${endCount}
   </select>
 
-  <select id="getConcernUserList" resultType="java.util.Map">
+  <select id="getConcernUserList" resultMap="BaseResultMap">
+
     select
-     u.id,u.nickname,u.portrait_address as portraitAddress,u.sign_text as  signText,u.sex,u.birthday,u.show_id as showId
-     ,u.online_state onlineState
-    from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.to_user_id
-    where c.user_id = #{userId}
-    <if test="onlineState!=null and onlineState!=''">
-      and u.online_state = #{onlineState}
-    </if>
+    u.id , u.nickname, u.portrait_address , u.sex, u.birthday,u.height, u.sign_text ,
+    u.state,  u.online_state  , u.create_room  , u.concerns, u.fans,u.guild_id ,u.show_id ,
+    m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState,
+    l.level,l.level_url as levelUrl
+    from t_funtime_user_concern c inner join t_funtime_user u on c.to_user_id = u.id
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id )on u.id = cm.mic_user_id
+    where  c.user_id=#{userId} and u.flag = 1
     order by u.online_state asc,c.id desc
   </select>
   <select id="getInvitationUserList" resultType="java.util.Map">
@@ -205,13 +207,20 @@
     order by u.online_state asc, u.id desc
   </select>
 
-  <select id="getFansList" resultType="java.util.Map">
+  <select id="getFansList" resultMap="BaseResultMap">
+
     select
-     u.id,u.nickname,u.portrait_address as portraitAddress,u.sign_text as  signText,u.sex,u.birthday,u.show_id as showId
-     ,u.online_state onlineState
-    from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.user_id
-    where c.to_user_id = #{userId}
+          u.id , u.nickname, u.portrait_address , u.sex, u.birthday,u.height, u.sign_text ,
+          u.state,  u.online_state  , u.create_room  , u.concerns, u.fans,u.guild_id ,u.show_id ,
+          m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState,
+          l.level,l.level_url as levelUrl
+    from t_funtime_user_concern c inner join t_funtime_user u on c.user_id = u.id
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id )on u.id = cm.mic_user_id
+    where  c.to_user_id=#{userId} and u.flag = 1
     order by u.online_state asc,c.id desc
+
+
   </select>
 
 
@@ -241,9 +250,9 @@
           u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
           m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState,
           l.level,l.level_url as levelUrl
-    from t_funtime_user u left join t_funtime_chatroom m on u.id = m.user_id
+    from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
-
+    left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id )on u.id = cm.mic_user_id
     where u.online_state = 1 and u.flag = 1 and u.state = 1
       <if test="userId!=null">
         and u.id!=#{userId}
@@ -267,10 +276,10 @@
     u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
     m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState,
     l.level,l.level_url as levelUrl
-    from t_funtime_user u left join t_funtime_chatroom m on u.id = m.user_id
+    from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
-
-    where  u.flag = 1 and u.state = 1 and m.is_block = 2
+    left join t_funtime_chatroom m on u.id = m.user_id and m.is_block = 2
+    where  u.flag = 1 and u.state = 1
     <if test="userId!=null">
       and u.id!=#{userId}
     </if>

@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
-import com.rzyou.funtime.common.cos.CosUtil;
 import com.rzyou.funtime.common.im.BankCardVerificationUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
@@ -784,40 +783,86 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageInfo<Map<String, Object>> getConcernUserList(Integer startPage, Integer pageSize, Long userId, Integer onlineState) {
+    public PageInfo<FuntimeUser> getConcernUserList(Integer startPage, Integer pageSize, Long userId) {
         PageHelper.startPage(startPage,pageSize);
-        List<Map<String, Object>> list = userMapper.getConcernUserList(userId,onlineState);
-        if (list==null||list.isEmpty()){
+        List<FuntimeUser> list = userMapper.getConcernUserList(userId);
+
+        if(list==null||list.isEmpty()){
             return new PageInfo<>();
-        }
-        for (Map<String, Object> map:list){
+        }else{
+            for (FuntimeUser user:list){
+                if (user.getBirthday()!=null) {
+                    Integer birthday = user.getBirthday();
+                    user.setAge(DateUtil.getAgeByBirthday(birthday));
+                    user.setConstellation(DateUtil.getConstellationByBirthday(birthday));
+                }
+                if (user.getSex()!=null){
+                    if (user.getSex() == 1){
+                        user.setSexColor(Constant.SEX_MALE_COLOR);
+                    }else {
+                        user.setSexColor(Constant.SEX_FEMALE_COLOR);
+                    }
+                }
+                if (user.getHeight()!=null){
+                    user.setHeightColor(Constant.HEIGHT_COLOR);
+                }
 
-            if (map.get("birthday")!=null) {
+                List<Map<String, Object>> tagNames = tagMapper.queryTagNamesByUserId(user.getId());
+                if (tagNames!=null&&!tagNames.isEmpty()){
+                    for (Map<String, Object> map : tagNames){
+                        if (map.get("tagType").toString()!=null){
+                            map.put("tagColor", TagColorEnmu.getDescByValue(map.get("tagType").toString()));
+                        }
 
-                Integer birthday = Integer.valueOf(map.get("birthday").toString());
-                map.put("age",DateUtil.getAgeByBirthday(birthday));
-                map.put("constellation",DateUtil.getConstellationByBirthday(birthday));
+                    }
+                }
+                user.setTagNames(tagNames);
+
             }
+
+            return new PageInfo<>(list);
         }
-        return new PageInfo<>(list);
     }
 
     @Override
-    public PageInfo<Map<String, Object>> getFansList(Integer startPage, Integer pageSize, Long userId) {
+    public PageInfo<FuntimeUser> getFansList(Integer startPage, Integer pageSize, Long userId) {
         PageHelper.startPage(startPage,pageSize);
-        List<Map<String, Object>> list = userMapper.getFansList(userId);
-        if (list==null||list.isEmpty()){
+        List<FuntimeUser> list = userMapper.getFansList(userId);
+        if(list==null||list.isEmpty()){
             return new PageInfo<>();
-        }
-        for (Map<String, Object> map:list){
+        }else{
+            for (FuntimeUser user:list){
+                if (user.getBirthday()!=null) {
+                    Integer birthday = user.getBirthday();
+                    user.setAge(DateUtil.getAgeByBirthday(birthday));
+                    user.setConstellation(DateUtil.getConstellationByBirthday(birthday));
+                }
+                if (user.getSex()!=null){
+                    if (user.getSex() == 1){
+                        user.setSexColor(Constant.SEX_MALE_COLOR);
+                    }else {
+                        user.setSexColor(Constant.SEX_FEMALE_COLOR);
+                    }
+                }
+                if (user.getHeight()!=null){
+                    user.setHeightColor(Constant.HEIGHT_COLOR);
+                }
 
-            if (map.get("birthday")!=null) {
-                Integer birthday = Integer.valueOf(map.get("birthday").toString());
-                map.put("age",DateUtil.getAgeByBirthday(birthday));
-                map.put("constellation",DateUtil.getConstellationByBirthday(birthday));
+                List<Map<String, Object>> tagNames = tagMapper.queryTagNamesByUserId(user.getId());
+                if (tagNames!=null&&!tagNames.isEmpty()){
+                    for (Map<String, Object> map : tagNames){
+                        if (map.get("tagType").toString()!=null){
+                            map.put("tagColor", TagColorEnmu.getDescByValue(map.get("tagType").toString()));
+                        }
+
+                    }
+                }
+                user.setTagNames(tagNames);
+
             }
+
+            return new PageInfo<>(list);
         }
-        return new PageInfo<>(list);
     }
 
     @Override

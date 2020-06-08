@@ -299,10 +299,9 @@ public interface UserService {
      * @param startPage
      * @param pageSize
      * @param userId
-     * @param onlineState
      * @return
      */
-    PageInfo<Map<String,Object>> getConcernUserList(Integer startPage, Integer pageSize, Long userId, Integer onlineState);
+    PageInfo<FuntimeUser> getConcernUserList(Integer startPage, Integer pageSize, Long userId);
 
     /**
      * 粉丝列表
@@ -311,7 +310,7 @@ public interface UserService {
      * @param userId
      * @return
      */
-    PageInfo<Map<String, Object>> getFansList(Integer startPage, Integer pageSize, Long userId);
+    PageInfo<FuntimeUser> getFansList(Integer startPage, Integer pageSize, Long userId);
 
     /**
      * 排行榜

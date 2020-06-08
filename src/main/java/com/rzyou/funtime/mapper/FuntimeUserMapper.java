@@ -71,9 +71,9 @@ public interface FuntimeUserMapper {
 
     Integer checkAuthorityForUserRole(@Param("userRole") Integer userRole,@Param("authority") Integer authority);
 
-    List<Map<String, Object>> getConcernUserList(@Param("userId") Long userId, @Param("onlineState") Integer onlineState);
+    List<FuntimeUser> getConcernUserList(Long userId);
 
-    List<Map<String, Object>> getFansList(Long userId);
+    List<FuntimeUser> getFansList(Long userId);
 
     List<Map<String, Object>> getContributionList(@Param("startDate") String startDate, @Param("endDate") String endDate,@Param("endCount") int endCount);
 

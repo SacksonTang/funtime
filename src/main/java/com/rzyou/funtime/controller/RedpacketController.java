@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -99,6 +100,7 @@ public class RedpacketController {
         try {
             JSONObject paramJson;
             String flag = parameterService.getParameterValueByKey("is_encrypt");
+            String min = parameterService.getParameterValueByKey("redpacket_min_amount");
             if (flag!=null&&flag.equals("1")){
                 paramJson = HttpHelper.getParamterJsonDecrypt(request);
             }else{
@@ -106,12 +108,26 @@ public class RedpacketController {
             }
 
             FuntimeUserRedpacket redpacket = JSONObject.toJavaObject(paramJson, FuntimeUserRedpacket.class);
-            if (redpacket==null||redpacket.getAmount().intValue()<=0||(redpacket.getType() == 1&&redpacket.getRedpacketNum()<5)
-                ||(redpacket.getType()==2&&redpacket.getToUserId()==null)) {
+            if (redpacket==null||(redpacket.getType()==2&&redpacket.getToUserId()==null)) {
 
                     result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                     result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                     return result;
+            }
+            if (redpacket.getRedpacketNum()<1){
+                result.setCode(ErrorMsgEnum.REDPACKET_NUM_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.REDPACKET_NUM_ERROR.getDesc());
+                return result;
+            }
+            if (redpacket.getAmount().subtract(new BigDecimal(min)).intValue()<0){
+                result.setCode(ErrorMsgEnum.REDPACKET_AMOUNT_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.REDPACKET_AMOUNT_ERROR.getDesc());
+                return result;
+            }
+            if (redpacket.getRedpacketNum()>redpacket.getAmount().intValue()){
+                result.setCode(ErrorMsgEnum.REDPACKET_AMOUNT_NUM_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.REDPACKET_AMOUNT_NUM_ERROR.getDesc());
+                return result;
             }
 
             Long id = accountService.createRedpacket(redpacket);
