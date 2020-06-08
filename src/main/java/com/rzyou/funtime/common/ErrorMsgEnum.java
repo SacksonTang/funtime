@@ -104,7 +104,7 @@ public enum ErrorMsgEnum {
     WITHDRAWAL_PRERMBAMOUNT_ERROR("70006","试算金额不符,请重试"),
     WITHDRAWAL_RMBAMOUNT_ERROR("70007","实际提现金额不符,请重试"),
     WITHDRAWAL_WX_NOT_BIND("70008","微信没有绑定"),
-    WITHDRAWAL_PRERMBAMOUNT_100_ERROR("70009","非首次提现\"提现红钻\"必须为1000的倍数"),
+    WITHDRAWAL_PRERMBAMOUNT_100_ERROR("70009","提现\"提现红钻\"必须为10的倍数"),
     WITHDRAWAL_PHONE_NOT_BIND("70010","手机没有绑定"),
 
     ROOM_CREATE_ERROR("80001","房间创建失败"),

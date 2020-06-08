@@ -1151,10 +1151,10 @@ public class UserController {
             boolean isFirst = accountService.checkWithdrawalRecordIsFirst(userId);
             if(isFirst){
                 data.put("rule",1);//1-首次规则2-100的倍数
-                data.put("multiple",1);
+                data.put("multiple",10);
             }else{
                 data.put("rule",2);
-                data.put("multiple",100);
+                data.put("multiple",10);
             }
             data.put("isFirst",isFirst);
 

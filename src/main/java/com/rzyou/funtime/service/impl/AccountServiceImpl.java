@@ -1973,15 +1973,16 @@ public class AccountServiceImpl implements AccountService {
         checkWithdrawalRecordPendingTrial(userId);
 
         //是否首次提现
-        boolean firstTime = checkWithdrawalRecordIsFirst(userId);
 
-        if (!firstTime){
-            //非首次试算金额必须未100倍数
-            if(preRmbAmount.subtract(new BigDecimal(100)).doubleValue()<0
-                    ||preRmbAmount.intValue()%100>0){
-                throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_PRERMBAMOUNT_100_ERROR.getValue(),ErrorMsgEnum.WITHDRAWAL_PRERMBAMOUNT_100_ERROR.getDesc());
-            }
+        //boolean firstTime = checkWithdrawalRecordIsFirst(userId);
+
+
+        //非首次试算金额必须未100倍数
+        if(preRmbAmount.subtract(new BigDecimal(10)).doubleValue()<0
+                ||preRmbAmount.intValue()%10>0){
+            throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_PRERMBAMOUNT_100_ERROR.getValue(),ErrorMsgEnum.WITHDRAWAL_PRERMBAMOUNT_100_ERROR.getDesc());
         }
+
 
         //黑对RMB比例
         BigDecimal ratio = convert("black", "rmb");
