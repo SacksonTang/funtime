@@ -136,7 +136,7 @@
     from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
 
-    where m.room_id = #{roomId}  and m.user_role = 4
+    where m.room_id = #{roomId} and u.id!=#{userId} and m.user_role = 4
     <if test="nickname!=null and nickname!=''">
       and BINARY u.nickname like concat('%',#{nickname},'%')
     </if>

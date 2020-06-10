@@ -52,6 +52,12 @@
     from t_funtime_chatroom
     where id = #{id}
   </select>
+  <select id="getRoomCloseTask"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_chatroom
+    where online_num = 0 and is_block = 2 and state = 1
+  </select>
   <select id="getRoomInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
      m.id, m.name, m.tags, m.exam_desc, m.is_block, m.is_lock, m.hot, m.state, m.create_time,

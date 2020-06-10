@@ -43,7 +43,7 @@ public interface FuntimeChatroomMicMapper {
 
     List<Long> getRoomUserByRoomId(@Param("roomId") Long roomId,@Param("userId") Long userId);
 
-    List<Map<String, Object>> getRoomUserById(@Param("roomId") Long roomId,@Param("nickname") String nickname);
+    List<Map<String, Object>> getRoomUserById(@Param("roomId") Long roomId, @Param("nickname") String nickname,@Param("userId") Long userId);
 
     List<Map<String, Object>> getRoomUserByIdAll(@Param("roomId") Long roomId,@Param("nickname") String nickname);
 

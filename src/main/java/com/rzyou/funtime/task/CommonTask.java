@@ -28,6 +28,19 @@ public class CommonTask {
     GameService gameService;
 
     /**
+     * 定时解散房间
+     */
+    @Scheduled(fixedRate = 1000*60*30)
+    public void roomCloseTask(){
+        try {
+            roomService.roomCloseTask();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
      * 管理员过期删除
      */
     @Scheduled(fixedRate = 1000*60)

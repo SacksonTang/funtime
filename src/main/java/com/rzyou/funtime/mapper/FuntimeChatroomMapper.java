@@ -9,6 +9,9 @@ import java.util.Map;
 
 @Mapper
 public interface FuntimeChatroomMapper {
+
+    List<FuntimeChatroom> getRoomCloseTask();
+
     int deleteByPrimaryKey(Long id);
 
     List<Long> getAllRoom();

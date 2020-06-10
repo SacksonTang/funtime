@@ -775,9 +775,9 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public PageInfo<Map<String, Object>> getRoomUserById(Integer startPage,Integer pageSize,Long roomId,String nickname) {
+    public PageInfo<Map<String, Object>> getRoomUserById(Integer startPage, Integer pageSize, Long roomId, String nickname, Long userId) {
         PageHelper.startPage(startPage,pageSize);
-        List<Map<String, Object>> list = chatroomMicMapper.getRoomUserById(roomId, nickname);
+        List<Map<String, Object>> list = chatroomMicMapper.getRoomUserById(roomId, nickname,userId);
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }else {
@@ -1416,6 +1416,19 @@ public class RoomServiceImpl implements RoomService {
                 noticeService.notice32(userIds, micUser, userIds.size());
             }
         }
+    }
+
+    @Override
+    public void roomCloseTask() {
+        List<FuntimeChatroom> chatrooms = chatroomMapper.getRoomCloseTask();
+        for (FuntimeChatroom chatroom : chatrooms){
+            try {
+                roomClose(chatroom.getUserId(), chatroom.getId());
+            }catch (Exception e){
+                log.error("定时清理空房出错 房间ID:{}",chatroom.getId());
+            }
+        }
+
     }
 
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){

@@ -142,9 +142,10 @@ public interface RoomService {
      * @param pageSize
      * @param roomId
      * @param nickname
+     * @param userId
      * @return
      */
-    PageInfo<Map<String, Object>> getRoomUserById(Integer startPage,Integer pageSize,Long roomId,String nickname);
+    PageInfo<Map<String, Object>> getRoomUserById(Integer startPage, Integer pageSize, Long roomId, String nickname, Long userId);
     /**
      * 获取聊天室用户信息
      * @param startPage
@@ -423,4 +424,9 @@ public interface RoomService {
      * @param micLocation
      */
     void cancelMusicAuth(Long roomId, Integer micLocation);
+
+    /**
+     * 定时清理0人房间
+     */
+    void roomCloseTask();
 }

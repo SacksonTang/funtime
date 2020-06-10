@@ -465,7 +465,7 @@ public class RoomController {
             Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             Long roomId = paramJson.getLong("roomId");
-
+            Long userId = HttpHelper.getUserId();
             String nickname = paramJson.getString("nickname");
             if (roomId==null) {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
@@ -473,7 +473,7 @@ public class RoomController {
                 return result;
             }
 
-            result.setData(JsonUtil.getMap("userList",roomService.getRoomUserById(startPage,pageSize,roomId,nickname)));
+            result.setData(JsonUtil.getMap("userList",roomService.getRoomUserById(startPage,pageSize,roomId,nickname,userId)));
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();
