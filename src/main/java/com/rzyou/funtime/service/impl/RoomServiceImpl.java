@@ -159,21 +159,21 @@ public class RoomServiceImpl implements RoomService {
                 log.info("roomJoin==========> {}",ErrorMsgEnum.ROOM_IS_CLOSE.getDesc());
                 throw new BusinessException(ErrorMsgEnum.ROOM_IS_CLOSE.getValue(),ErrorMsgEnum.ROOM_IS_CLOSE.getDesc());
             }
-            if (type == null||type !=1) {
+            //if (type == null||type !=1) {
                 //上锁的房间
-                if (chatroom.getIsLock().intValue() == 1) {
-                    //不是房主
-                    //校验密码
-                    if (StringUtils.isEmpty(password) || StringUtils.isEmpty(chatroom.getPassword())) {
-                        log.info("roomJoin==========> {}", ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
-                        throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
-                    }
-                    if (!password.equals(chatroom.getPassword())) {
-                        log.info("roomJoin==========> {}", ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
-                        throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
-                    }
+            if (chatroom.getIsLock().intValue() == 1) {
+                //不是房主
+                //校验密码
+                if (StringUtils.isEmpty(password) || StringUtils.isEmpty(chatroom.getPassword())) {
+                    log.info("roomJoin==========> {}", ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
+                    throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_EMPTY.getDesc());
+                }
+                if (!password.equals(chatroom.getPassword())) {
+                    log.info("roomJoin==========> {}", ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
+                    throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getValue(), ErrorMsgEnum.ROOM_JOIN_PASS_ERROR.getDesc());
                 }
             }
+            //}
             //校验是否在踢出房间范围
             Integer count = chatroomKickedRecordMapper.checkUserIsKickedOrNot(roomId,userId);
 
