@@ -1296,6 +1296,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Map<String, Object> getUserInfoByShowId2(Long showId, Long userId) {
+        return userMapper.getUserInfoByShowId2(showId,userId);
+    }
+
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public String bindWeixin(Long userId, String code, Integer type) {
         FuntimeUser user = queryUserById(userId);

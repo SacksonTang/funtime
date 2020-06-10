@@ -92,6 +92,16 @@
     where id = #{id} and flag = 1
   </select>
 
+  <select id="getUserInfoByShowId2" resultType="java.util.Map">
+    select
+     u.id,u.nickname,u.portrait_address portraitAddress,u.sign_text as  signText,u.birthday,u.sex,u.show_id showId,
+     u.state,u.online_state as onlineState,
+     l.level,l.level_url as levelUrl
+    from t_funtime_user u
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    where u.show_id = #{showId} and u.id!=#{userId} and flag = 1
+  </select>
+
   <select id="queryUserByChatUser" resultType="java.util.Map">
     select
      u.nickname,u.portrait_address portraitAddress,u.sign_text as  signText,u.birthday,u.sex,u.show_id showId

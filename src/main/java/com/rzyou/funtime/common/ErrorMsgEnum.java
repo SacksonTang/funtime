@@ -59,6 +59,7 @@ public enum ErrorMsgEnum {
     USER_PHONE_NOT_BIND("10046","请先绑定手机号"),
     USER_VALID_CARD_SAME("10047","银行卡已存在"),
     USER_SIGN_ERROR("10048","已签到"),
+    USER_MANAGER_ERROR("10049","小可爱,不能添加自己为管理员喔"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -98,7 +99,7 @@ public enum ErrorMsgEnum {
 
     WITHDRAWAL_DAY_LIMIT("70001","当日已达到最高提现金额"),
     WITHDRAWAL_MONTH_LIMIT("70002","已达到每月最高提现次数"),
-    WITHDRAWAL_MIN_LIMIT("70003","未达到最低提现金额"),
+    WITHDRAWAL_MIN_LIMIT("70003","未达到最低提现要求,微信要求最低提现#元(@钻)"),
     WITHDRAWAL_OPERATION_LIMIT("70004","有处理中申请，待处理完成后再提交,请移步公众号查询进度"),
     WITHDRAWAL_CHANNELAMOUNT_ERROR("70005","渠道费用不符,请重试"),
     WITHDRAWAL_PRERMBAMOUNT_ERROR("70006","试算金额不符,请重试"),

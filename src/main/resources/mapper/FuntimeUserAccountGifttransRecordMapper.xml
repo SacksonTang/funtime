@@ -95,6 +95,9 @@
       <if test="userId != null">
         user_id,
       </if>
+      <if test="roomId != null">
+        room_id,
+      </if>
       <if test="orderNo != null">
         order_no,
       </if>
@@ -142,6 +145,9 @@
 
       <if test="userId != null">
         #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="roomId != null">
+        #{roomId},
       </if>
       <if test="orderNo != null">
         #{orderNo},

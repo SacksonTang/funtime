@@ -351,6 +351,36 @@ public interface NoticeService {
     void notice34(List<String> userIds,String imgUrl,String name,String msg,String nameColor,String toUrl);
 
     /**
+     * 设置管理员
+     * @param roomId
+     * @param userId
+     */
+    void notice35(Long roomId,Long userId);
+
+    /**
+     * 取消管理员
+     * @param roomId
+     * @param userId
+     */
+    void notice36(Long roomId,Long userId);
+
+    /**
+     * 开启音乐权限
+     * @param roomId
+     * @param userIds
+     * @param micLocation
+     */
+    void notice37(Integer micLocation,Long roomId,List<String> userIds);
+
+    /**
+     * 关闭音乐权限
+     * @param roomId
+     * @param userIds
+     * @param micLocation
+     */
+    void notice38(Integer micLocation,Long roomId,List<String> userIds);
+
+    /**
      * 系统通知
      * @param startPage
      * @param pageSie

@@ -154,6 +154,15 @@ public interface RoomService {
      * @return
      */
     PageInfo<Map<String, Object>> getRoomUserByIdAll(Integer startPage,Integer pageSize,Long roomId,String nickname);
+    /**
+     * 获取聊天室用户信息
+     * @param startPage
+     * @param pageSize
+     * @param roomId
+     * @param userId
+     * @return
+     */
+    PageInfo<Map<String, Object>> getRoomUserByIdAll2(Integer startPage, Integer pageSize, Long roomId, Long userId);
 
     /**
      * 获取聊天室对应腾讯聊天室的编号
@@ -365,4 +374,53 @@ public interface RoomService {
      * @return
      */
     List<FuntimeGift> getGiftListInit();
+
+    /**
+     * 设置管理员
+     * @param roomId
+     * @param tagId
+     * @param managerIds
+     * @param userId
+     */
+    String setRoomManager(Long roomId, Integer tagId, String managerIds, Long userId);
+
+    /**
+     * 管理员列表
+     * @param roomId
+     * @param startPage
+     * @param pageSize
+     * @return
+     */
+    PageInfo<Map<String, Object>> getRoomManagerList(Long roomId, Integer startPage, Integer pageSize);
+
+    /**
+     * 时长配置
+     * @return
+     */
+    List<Map<String, Object>> getDurationConfs();
+
+    /**
+     * 管理员过期
+     */
+    void deleteChatroomManagerTask();
+
+    /**
+     * 移除管理员
+     * @param id
+     */
+    void delRoomManager(Long id);
+
+    /**
+     * 开启音乐权限
+     * @param roomId
+     * @param micLocation
+     */
+    void startMusicAuth(Long roomId, Integer micLocation);
+
+    /**
+     * 关闭音乐权限
+     * @param roomId
+     * @param micLocation
+     */
+    void cancelMusicAuth(Long roomId, Integer micLocation);
 }

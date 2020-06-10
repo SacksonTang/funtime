@@ -20,20 +20,19 @@ public class MyWxPay {
      * @param partner_trade_no
      * @param ip
      * @param openid
-     * @param re_user_name
      * @param amount
      * @return
      */
     public static Map<String,String> mmpaymkttransfers(Integer payType,String partner_trade_no,String ip,
-                                                       String openid,String re_user_name,String amount){
+                                                       String openid,String amount){
         try {
             MyWxPayConfig config = new MyWxPayConfig(payType);
             WXPay wxpay = new WXPay(config, WXPayConstants.SignType.MD5);
 
             Map<String, String> data = new HashMap<>();
             data.put("partner_trade_no", partner_trade_no);
-            data.put("check_name", "FORCE_CHECK");
-            data.put("re_user_name", re_user_name);
+            data.put("check_name", "NO_CHECK");
+            //data.put("re_user_name", re_user_name);
             data.put("amount", amount);
             data.put("spbill_create_ip", ip);
             data.put("desc", "触娱提现");  //

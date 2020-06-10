@@ -13,6 +13,8 @@ public class FuntimeUserAccountGifttransRecord implements Serializable {
 
     private Long userId;
 
+    private Long roomId;
+
     private String actionType;
 
     private String operationType;

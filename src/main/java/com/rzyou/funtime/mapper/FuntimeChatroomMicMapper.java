@@ -23,7 +23,9 @@ public interface FuntimeChatroomMicMapper {
 
     int forbidWheat(Long id);
 
+    int startMusicAuth(Long id);
 
+    int cancelMusicAuth(Long id);
     /**
      * 获取全部腾讯聊天室
      * @return
@@ -45,9 +47,13 @@ public interface FuntimeChatroomMicMapper {
 
     List<Map<String, Object>> getRoomUserByIdAll(@Param("roomId") Long roomId,@Param("nickname") String nickname);
 
+    List<Map<String, Object>> getRoomUserByIdAll2(@Param("roomId") Long roomId,@Param("userId") Long userId);
+
     FuntimeChatroomMic getMicLocationUser(@Param("roomId") Long roomId, @Param("micLocation") Integer micLocation);
 
     List<String> getRoomUserByRoomIdAll(Long roomId);
+
+    List<String> getRoomManagerByRoomId(Long roomId);
 
     int insertBatch(@Param("mics") List<FuntimeChatroomMic> mics);
 

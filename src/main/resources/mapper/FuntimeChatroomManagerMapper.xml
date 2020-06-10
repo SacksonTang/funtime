@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeChatroomManagerMapper">
+
+  <select id="getChatroomManager" resultType="java.lang.Long">
+    select id from t_funtime_chatroom_manager where room_id = #{roomId} and user_id = #{userId}
+  </select>
+  <select id="getRoomManagerList" resultType="java.util.Map">
+    select m.id, m.room_id as roomId,m.user_id as userId,
+    case when m.duration = 0 then '永久'
+    else timediff(expire_time, now())
+     end expireSeconds,u.show_id as showId,
+    u.nickname,u.portrait_address as portraitAddress,l.level,l.level_url as levelUrl
+    from t_funtime_chatroom_manager m
+    inner join t_funtime_user u on m.user_id = u.id
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+     where m.room_id = #{roomId}
+  </select>
+
+  <select id="getDurationConfById" resultType="java.lang.Integer">
+    select duration from t_funtime_duration_conf where id = #{id}
+  </select>
+  <select id="getDurationConfs" resultType="java.util.Map">
+    select id,duration,duration_desc as durationDesc from t_funtime_duration_conf order by sort asc
+  </select>
+  <select id="getChatroomManagerTask" resultType="com.rzyou.funtime.entity.FuntimeChatroomManager">
+    select id,user_id as userId,room_id as roomId from t_funtime_chatroom_manager where  now() > expire_time
+  </select>
+  <select id="getChatroomManagerById" resultType="com.rzyou.funtime.entity.FuntimeChatroomManager">
+    select id,user_id as userId,room_id as roomId from t_funtime_chatroom_manager where  id = #{id}
+  </select>
+  <insert id="insertChatroomManager">
+    insert into t_funtime_chatroom_manager(room_id,user_id,duration,expire_time,update_time)
+    values (#{roomId},#{userId},#{duration},#{expireTime},now())
+  </insert>
+  <update id="updateChatroomManager">
+    update t_funtime_chatroom_manager set duration = #{duration},expire_time = #{expireTime},update_time = now()
+    where id = #{id}
+  </update>
+
+  <insert id="insertChatroomManagerRecord">
+    insert into t_funtime_chatroom_manager_record(room_id,user_id,duration,expire_time)
+    values (#{roomId},#{userId},#{duration},#{expireTime})
+  </insert>
+
+  <delete id="delRoomManager">
+    delete from t_funtime_chatroom_manager where id = #{id}
+  </delete>
+
+  <delete id="deleteChatroomManagerTask">
+    delete from t_funtime_chatroom_manager where  id = #{id}
+  </delete>
+
+
+</mapper>

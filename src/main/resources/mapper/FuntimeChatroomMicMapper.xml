@@ -8,12 +8,13 @@
     <result column="mic_user_id" jdbcType="BIGINT" property="micUserId" />
     <result column="state"  property="state" />
     <result column="user_role"  property="userRole" />
+    <result column="music_auth"  property="musicAuth" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
 
   </resultMap>
   <sql id="Base_Column_List">
-    id, room_id, mic_location, mic_user_id, create_time, update_time,state,user_role
+    id, room_id, mic_location, mic_user_id, create_time, update_time,state,user_role,music_auth
   </sql>
 
   <select id="getMicLocationUser"  resultMap="BaseResultMap">
@@ -64,7 +65,15 @@
     select
     m.mic_user_id
     from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
-    where room_id = #{roomId} and u.online_state = 1
+    where m.room_id = #{roomId} and u.online_state = 1
+
+  </select>
+  <select id="getRoomManagerByRoomId" resultType="java.lang.String" parameterType="java.lang.Long">
+    select
+    g.user_id
+    from t_funtime_chatroom_manager g inner join
+    t_funtime_chatroom_mic m  on m.mic_user_id = g.user_id and m.room_id = g.room_id
+    where g.room_id = #{roomId}
 
   </select>
   <select id="getMicUserIdByRoomId"  resultType="java.lang.Long" >
@@ -81,7 +90,7 @@
   </select>
     <select id="getMicUserByRoomId" parameterType="java.lang.Long" resultType="java.util.Map">
         select
-        m.mic_location micLocation,m.mic_user_id micUserId,m.user_role userRole,m.state,u.nickname
+        m.mic_location micLocation,m.mic_user_id micUserId,m.user_role userRole,m.state,m.music_auth musicAuth,u.nickname
         ,u.portrait_address portraitAddress,u.sex,u.show_id showId
         ,t.level,l.level_url as levelUrl
         from t_funtime_chatroom_mic m left join (t_funtime_user u
@@ -104,6 +113,20 @@
     <if test="nickname!=null and nickname!=''">
       and BINARY u.nickname like concat('%',#{nickname},'%')
     </if>
+    order by m.user_role asc, m.create_time desc
+  </select>
+  <select id="getRoomUserByIdAll2"  resultType="java.util.Map">
+    select
+    u.id id,u.nickname,u.portrait_address portraitAddress
+    ,u.sign_text signText,u.sex,u.show_id showId,m.user_role userRole
+    ,u.online_state as onlineState
+    ,l.level,l.level_url as levelUrl
+    from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+
+    where m.room_id = #{roomId} and u.online_state = 1 and u.id!=#{userId}
+    and u.id not in (select cr.user_id from t_funtime_chatroom_manager cr where cr.room_id = #{roomId})
+
     order by m.user_role asc, m.create_time desc
   </select>
   <select id="getRoomUserById"  resultType="java.util.Map">
@@ -162,6 +185,15 @@
   </update>
   <update id="roomManageCancel" >
     update t_funtime_chatroom_mic set user_role = 3,update_time = NOW()
+    where id = #{id}
+  </update>
+
+  <update id="startMusicAuth" >
+    update t_funtime_chatroom_mic set music_auth = 1,update_time = NOW()
+    where id = #{id}
+  </update>
+  <update id="cancelMusicAuth" >
+    update t_funtime_chatroom_mic set music_auth = 2,update_time = NOW()
     where id = #{id}
   </update>
   <insert id="insertBatch" >

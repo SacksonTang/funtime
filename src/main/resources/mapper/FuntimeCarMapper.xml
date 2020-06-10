@@ -83,7 +83,7 @@
         delete from t_funtime_user_car where  id = #{id}
     </delete>
 
-    <insert id="insertCarRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountCarRecord">
+    <insert id="insertCarRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountCarRecord" useGeneratedKeys="true" keyProperty="id">
         insert into t_funtime_user_account_car_record (user_id,car_id,price,days)
         values (#{userId},#{carId},#{price},#{days})
     </insert>

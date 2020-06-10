@@ -459,6 +459,14 @@ public interface UserService {
     FuntimeUser getUserInfoByShowId(String showId);
 
     /**
+     * 根据showId获取用户信息（管理员）
+     * @param showId
+     * @param userId
+     * @return
+     */
+    Map<String, Object> getUserInfoByShowId2(Long showId, Long userId);
+
+    /**
      * 绑定微信
      * @param userId
      * @param code

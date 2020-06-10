@@ -27,6 +27,19 @@ public class CommonTask {
     @Autowired
     GameService gameService;
 
+    /**
+     * 管理员过期删除
+     */
+    @Scheduled(fixedRate = 1000*60)
+    public void deleteChatroomManagerTask(){
+        log.debug("管理员过期删除 deleteChatroomManagerTask:{}",DateUtil.getCurrentDateTimeExtr());
+        try {
+            roomService.deleteChatroomManagerTask();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
 
     /**
      * 背景资源过去设置

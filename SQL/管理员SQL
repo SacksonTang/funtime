@@ -1,0 +1,65 @@
+DROP TABLE IF EXISTS `t_funtime_admin_account_car_record`;
+CREATE TABLE `t_funtime_admin_account_car_record`  (
+  `id` bigint(64) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(64) NOT NULL COMMENT '用户',
+  `car_id` int(16) NULL DEFAULT NULL COMMENT '坐骑ID',
+  `price` decimal(10, 2) NULL DEFAULT NULL COMMENT '价格',
+  `days` int(10) NULL DEFAULT NULL COMMENT '购买天数',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `operate_id` int(32) NULL DEFAULT NULL COMMENT '操作用户',
+  `create_time` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '购买时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '后台坐骑购买记录表' ROW_FORMAT = Dynamic;
+
+
+DROP TABLE IF EXISTS `t_funtime_duration_conf`;
+CREATE TABLE `t_funtime_duration_conf`  (
+  `id` int(32) NOT NULL AUTO_INCREMENT,
+  `duration` int(8) NULL DEFAULT NULL COMMENT '小时数',
+  `duration_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
+  `sort` int(8) NULL DEFAULT NULL COMMENT '排序',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '管理员时长配置' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_funtime_duration_conf
+-- ----------------------------
+INSERT INTO `t_funtime_duration_conf` VALUES (1, 1, '1小时', 1);
+INSERT INTO `t_funtime_duration_conf` VALUES (2, 3, '3小时', 2);
+INSERT INTO `t_funtime_duration_conf` VALUES (3, 24, '24小时', 3);
+INSERT INTO `t_funtime_duration_conf` VALUES (4, 48, '48小时', 4);
+INSERT INTO `t_funtime_duration_conf` VALUES (5, 0, '永久', 5);
+
+DROP TABLE IF EXISTS `t_funtime_chatroom_manager`;
+CREATE TABLE `t_funtime_chatroom_manager`  (
+  `id` bigint(64) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(64) NULL DEFAULT NULL COMMENT '用户',
+  `room_id` bigint(64) NULL DEFAULT NULL COMMENT '房间',
+  `duration` int(8) NULL DEFAULT NULL COMMENT '小时数',
+  `expire_time` timestamp(0) NULL DEFAULT NULL COMMENT '到期时间',
+  `update_time` timestamp(0) NULL DEFAULT NULL COMMENT '变动日期',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `user_id`(`user_id`, `room_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '管理员实时表' ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `t_funtime_chatroom_manager_record`;
+CREATE TABLE `t_funtime_chatroom_manager_record`  (
+  `id` bigint(64) NOT NULL AUTO_INCREMENT,
+  `room_id` bigint(64) NULL DEFAULT NULL COMMENT '房间ID',
+  `user_id` bigint(64) NULL DEFAULT NULL COMMENT '用户ID',
+  `duration` int(8) NULL DEFAULT NULL COMMENT '时长(小时)',
+  `expire_time` timestamp(0) NULL DEFAULT NULL COMMENT '到期时间',
+  `create_time` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '房间管理员设置记录表' ROW_FORMAT = Dynamic;
+
+
+
+INSERT INTO `funtime`.`t_funtime_static_resource`(`id`, `type`, `name`, `url`, `desc`, `create_time`) VALUES (9, 7, '管理员', 'https://test.rzyou.com/home/h5/room/admin_list.html', '设置管理员', '2020-06-09 20:45:13');
+INSERT INTO `funtime`.`t_funtime_static_resource`(`id`, `type`, `name`, `url`, `desc`, `create_time`) VALUES (10, 8, '添加管理员', 'https://test.rzyou.com/home/h5/room/admin_add.html', '添加管理员', '2020-06-09 20:45:46');
+
+ALTER TABLE `funtime`.`t_funtime_user_account_gifttrans_record`
+ADD COLUMN `room_id` bigint(64) NULL COMMENT '房间ID' AFTER `order_no`;
+
+ALTER TABLE `funtime`.`t_funtime_chatroom_mic`
+ADD COLUMN `music_auth` int(2) NULL DEFAULT 2 COMMENT '是否开启音乐权限1-是2-否' AFTER `state`;

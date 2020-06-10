@@ -41,6 +41,38 @@ public class UserController {
     @Autowired
     ParameterService parameterService;
 
+    /**
+     * 根据showId获取用户信息（管理员）
+     * @return
+     */
+    @PostMapping("getUserInfoByShowId2")
+    public ResultMsg<Object> getUserInfoByShowId2(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long showId = paramJson.getLong("showId");
+            Long userId = HttpHelper.getUserId();
+            if (showId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String, Object> userMap = userService.getUserInfoByShowId2(showId,userId);
+
+            result.setData(JsonUtil.getMap("user",userMap));
+        }catch (BusinessException be){
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return result;
+
+    }
+
 
 
     /**
@@ -1151,10 +1183,10 @@ public class UserController {
             boolean isFirst = accountService.checkWithdrawalRecordIsFirst(userId);
             if(isFirst){
                 data.put("rule",1);//1-首次规则2-100的倍数
-                data.put("multiple",10);
+                data.put("multiple",1);
             }else{
                 data.put("rule",2);
-                data.put("multiple",10);
+                data.put("multiple",1);
             }
             data.put("isFirst",isFirst);
 

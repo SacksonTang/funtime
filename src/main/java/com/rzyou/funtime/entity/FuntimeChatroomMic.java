@@ -24,4 +24,6 @@ public class FuntimeChatroomMic implements Serializable {
 
     private Integer userRole;
 
+    private Integer musicAuth;
+
 }

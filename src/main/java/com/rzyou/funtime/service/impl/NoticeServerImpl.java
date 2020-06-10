@@ -666,6 +666,58 @@ public class NoticeServerImpl implements NoticeService {
         sendRoomUserNotice(userSig,data,userIds);
     }
 
+    @Override
+    public void notice35(Long roomId,Long userId) {
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        JSONObject object = new JSONObject();
+        object.put("rid",roomId);
+        object.put("uid",userId);
+        object.put("type",Constant.ROOM_SET_MANAGER);
+        List<String> toAccounts = new ArrayList<>();
+        toAccounts.add(String.valueOf(userId));
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        sendRoomUserNotice(userSig,data,toAccounts);
+
+
+    }
+
+    @Override
+    public void notice36(Long roomId,Long userId) {
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        JSONObject object = new JSONObject();
+        object.put("rid",roomId);
+        object.put("uid",userId);
+        object.put("type",Constant.ROOM_DEL_MANAGER);
+        List<String> toAccounts = new ArrayList<>();
+        toAccounts.add(String.valueOf(userId));
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        sendRoomUserNotice(userSig,data,toAccounts);
+
+
+    }
+
+    @Override
+    public void notice37(Integer micLocation,Long roomId, List<String> userIds) {
+        JSONObject object = new JSONObject();
+        object.put("pos",micLocation);
+        object.put("rid",roomId);
+        object.put("type",Constant.ROOM_START_MUSIC);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+
+    }
+
+    @Override
+    public void notice38(Integer micLocation,Long roomId, List<String> userIds) {
+        JSONObject object = new JSONObject();
+        object.put("pos",micLocation);
+        object.put("rid",roomId);
+        object.put("type",Constant.ROOM_CANCEL_MUSIC);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
 
 
     @Override
