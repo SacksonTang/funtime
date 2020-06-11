@@ -433,9 +433,9 @@ public class NoticeServerImpl implements NoticeService {
             object.put("imgUrl",imgUrl);
         }
         String objectStr = JSONObject.toJSONString(object);
-        String data = StringEscapeUtils.unescapeJava(objectStr);
+        //String data = StringEscapeUtils.escapeJava(objectStr);
         if (userIds!=null&&!userIds.isEmpty()){
-            sendRoomUserNotice(userSig,data,userIds);
+            sendRoomUserNotice(userSig,objectStr,userIds);
         }
 
     }
