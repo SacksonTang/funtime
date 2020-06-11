@@ -61,5 +61,6 @@ INSERT INTO `funtime`.`t_funtime_static_resource`(`id`, `type`, `name`, `url`, `
 ALTER TABLE `funtime`.`t_funtime_user_account_gifttrans_record`
 ADD COLUMN `room_id` bigint(64) NULL COMMENT '房间ID' AFTER `order_no`;
 
+--已
 ALTER TABLE `funtime`.`t_funtime_chatroom_mic`
 ADD COLUMN `music_auth` int(2) NULL DEFAULT 2 COMMENT '是否开启音乐权限1-是2-否' AFTER `state`;
