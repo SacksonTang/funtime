@@ -96,6 +96,7 @@ public enum ErrorMsgEnum {
     REDPACKET_AMOUNT_NUM_ERROR("50009","红包个数必须小于等于蓝钻数"),
 
     GIFT_NOT_EXISTS("60001","礼物不存在"),
+    BOX_NOT_EXISTS("60002","宝箱不存在"),
 
     WITHDRAWAL_DAY_LIMIT("70001","当日已达到最高提现金额"),
     WITHDRAWAL_MONTH_LIMIT("70002","已达到每月最高提现次数"),

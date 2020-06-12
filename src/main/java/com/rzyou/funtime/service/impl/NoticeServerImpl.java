@@ -739,6 +739,15 @@ public class NoticeServerImpl implements NoticeService {
         }
     }
 
+    @Override
+    public void notice39(JSONObject noticeMap, List<String> userIds) {
+
+        noticeMap.put("type",Constant.ROOM_BOX);
+        String data = StringEscapeUtils.unescapeJava(noticeMap.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
     private String parameterHandler2(String toAccount,String data){
         JSONObject paramMap = new JSONObject();
         Random random = new Random();

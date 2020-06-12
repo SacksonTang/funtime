@@ -1,5 +1,6 @@
 package com.rzyou.funtime.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.entity.FuntimeNotice;
 import com.rzyou.funtime.entity.RoomGiftNotice;
 
@@ -394,4 +395,11 @@ public interface NoticeService {
      * @param userId
      */
     void readNotice(Long userId);
+
+    /**
+     * 宝箱
+     * @param noticeMap
+     * @param userIds
+     */
+    void notice39(JSONObject noticeMap, List<String> userIds);
 }

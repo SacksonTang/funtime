@@ -15,6 +15,7 @@ public enum OperationType {
     ,CIRCLE_IN("IN","CIRCLE_IN","转盘中奖")
     ,GOLD_CONVERT_IN("IN","GOLD_CONVERT_IN","金币兑换")
     ,GOLD_SIGN_IN("IN","GOLD_SIGN_IN","签到")
+    ,GIFT_BOX_IN("IN","GIFT_BOX_IN","宝箱收")
 
     ,WITHDRAWAL("OUT","WITHDRAWAL","提现")
     ,GIVEREDPACKET("OUT","GIVEREDPACKET","发红包")
@@ -31,6 +32,7 @@ public enum OperationType {
     ,HORN_CONSUME("OUT","HORN_CONSUME","发送大喇叭")
     ,BUY_BULLET("OUT","BUY_BULLET","捕鱼购买子弹")
     ,GOLD_CONVERT_OUT("OUT","GOLD_CONVERT_OUT","金币兑换")
+    ,GIFT_BOX_OUT("OUT","GIFT_BOX_OUT","宝箱送")
     ;
 
      private String action;

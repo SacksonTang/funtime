@@ -58,7 +58,10 @@ public class GiftTransController {
             }
             else if (type == 2){
                 return accountService.sendGiftForKnapsack(userId, toUserIds, giftId, giftNum, "送礼物-背包", giveChannel, roomId);
-            }else{
+            }else if (type == 3){
+                return accountService.sendGiftForBox(userId, toUserIds, giftId, giftNum, "送礼物-宝箱", giveChannel, roomId);
+            }
+            else{
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
@@ -103,6 +106,8 @@ public class GiftTransController {
             }
             else if (type == 2){
                 return accountService.sendGiftForMic2(userId, giftId, giftNum, "送礼物-背包", 1, roomId);
+            }else if (type == 3){
+                return accountService.sendGiftForMicBox3(userId, giftId, giftNum, "送礼物-宝箱", 1, roomId);
             }else{
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -150,6 +155,8 @@ public class GiftTransController {
             }
             else if (type == 2){
                 return accountService.sendGiftForRoom2(userId, giftId, giftNum, "送礼物-背包", 1, roomId);
+            }else if (type == 3){
+                return accountService.sendGiftForRoomBox3(userId, giftId, giftNum, "送礼物-宝箱", 1, roomId);
             }else{
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -234,6 +241,33 @@ public class GiftTransController {
             }
 
             result.setData(JsonUtil.getMap("pageInfo",accountService.getGiftsByUserId(startPage, pageSize, userId)));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 礼物列表统计
+     * @param request
+     * @return
+     */
+    @PostMapping("getBoxList")
+    public ResultMsg<Object> getBoxList(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+
+
+            result.setData(JsonUtil.getMap("boxs",accountService.getBoxList()));
 
             return result;
         } catch (BusinessException be) {

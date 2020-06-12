@@ -141,6 +141,19 @@ public interface AccountService {
     ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId);
 
     /**
+     * 送宝箱
+     * @param userId
+     * @param toUserIds
+     * @param giftId
+     * @param giftNum
+     * @param operationDesc
+     * @param giveChannelId
+     * @param roomId
+     * @return
+     */
+    ResultMsg<Object> sendGiftForBox(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId);
+
+    /**
      * 红包失效更改
      */
     void updateStateForInvalid();
@@ -233,6 +246,18 @@ public interface AccountService {
      * @param roomId
      */
     ResultMsg<Object> sendGiftForRoom(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
+
+    /**
+     * 全房宝箱
+     * @param userId
+     * @param giftId
+     * @param giftNum
+     * @param operationDesc
+     * @param giveChannel
+     * @param roomId
+     * @return
+     */
+    ResultMsg<Object> sendGiftForRoomBox3(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
     /**
      * 全房送礼物
      * @param userId
@@ -255,6 +280,18 @@ public interface AccountService {
      * @return
      */
     ResultMsg<Object> sendGiftForMic(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
+
+    /**
+     * 麦上宝箱
+     * @param userId
+     * @param giftId
+     * @param giftNum
+     * @param operationDesc
+     * @param giveChannel
+     * @param roomId
+     * @return
+     */
+    ResultMsg<Object> sendGiftForMicBox3(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
 
     /**
      * 全麦送礼物
@@ -545,4 +582,10 @@ public interface AccountService {
      * @param id
      */
     void goldConvert(Long userId, Integer id);
+
+    /**
+     * 宝箱
+     * @return
+     */
+    List<Map<String,Object>> getBoxList();
 }

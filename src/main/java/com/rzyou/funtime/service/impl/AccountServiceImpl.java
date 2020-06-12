@@ -1,5 +1,6 @@
 package com.rzyou.funtime.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
@@ -12,6 +13,7 @@ import com.rzyou.funtime.service.*;
 import com.rzyou.funtime.utils.*;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +82,8 @@ public class AccountServiceImpl implements AccountService {
     FuntimeWithdrawalConfMapper withdrawalConfMapper;
     @Autowired
     FuntimeSignMapper signMapper;
+    @Autowired
+    FuntimeBoxMapper boxMapper;
 
 
     @Override
@@ -1081,6 +1085,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public List<Map<String,Object>> getBoxList() {
+        return boxMapper.getBoxList();
+    }
+
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
 
@@ -1190,6 +1199,184 @@ public class AccountServiceImpl implements AccountService {
         return resultMsg;
     }
 
+    private Map<Long,Map<Integer,Integer>> getDrawId(Integer boxNumber,String[] userIds,Integer num){
+        List<FuntimeBoxConf> list = boxMapper.getBoxConfByBoxNumber(boxNumber);
+        int probabilityTotal = 1;
+        Map<String, FuntimeBoxConf> probabilityMap = new HashMap<>();
+        for (FuntimeBoxConf boxConf : list) {
+            int temp = probabilityTotal;
+            probabilityTotal += boxConf.getProbability();
+            probabilityMap.put(temp + "-" + probabilityTotal, boxConf);
+
+        }
+        Map<Long,Map<Integer,Integer>> userGiftMap = new HashMap<>();
+        Map<Integer,Integer> giftToNumMap ;
+        for (String userId : userIds){
+            giftToNumMap = new HashMap<>();
+            for (int i = 0 ;i<num ;i++) {
+                int random = RandomUtils.nextInt(1, probabilityTotal);
+                FuntimeBoxConf conf = getBoxConf(probabilityMap, random);
+                Integer drawId = conf.getDrawId();
+
+                giftToNumMap.put(drawId, giftToNumMap.get(drawId)==null?1:giftToNumMap.get(drawId)+1);
+
+            }
+            userGiftMap.put(Long.parseLong(userId),giftToNumMap);
+        }
+
+        return userGiftMap;
+    }
+    private Map<Long,Map<Integer,Integer>> getDrawId(Integer boxNumber,List<Long> userIds,Integer num){
+        List<FuntimeBoxConf> list = boxMapper.getBoxConfByBoxNumber(boxNumber);
+        int probabilityTotal = 1;
+        Map<String, FuntimeBoxConf> probabilityMap = new HashMap<>();
+        for (FuntimeBoxConf boxConf : list) {
+            int temp = probabilityTotal;
+            probabilityTotal += boxConf.getProbability();
+            probabilityMap.put(temp + "-" + probabilityTotal, boxConf);
+
+        }
+        Map<Long,Map<Integer,Integer>> userGiftMap = new HashMap<>();
+        Map<Integer,Integer> giftToNumMap ;
+        for (Long userId : userIds){
+            giftToNumMap = new HashMap<>();
+            for (int i = 0 ;i<num ;i++) {
+                int random = RandomUtils.nextInt(1, probabilityTotal);
+                FuntimeBoxConf conf = getBoxConf(probabilityMap, random);
+                Integer drawId = conf.getDrawId();
+
+                giftToNumMap.put(drawId, giftToNumMap.get(drawId)==null?1:giftToNumMap.get(drawId)+1);
+
+            }
+            userGiftMap.put(userId,giftToNumMap);
+        }
+
+        return userGiftMap;
+    }
+    private FuntimeBoxConf getBoxConf(Map<String,FuntimeBoxConf> map,int random){
+        for (Map.Entry<String,FuntimeBoxConf> entry : map.entrySet()){
+            String key = entry.getKey();
+            String[] array = key.split("-");
+            int key1 = Integer.parseInt(array[0]);
+            int key2 = Integer.parseInt(array[1]);
+            if (random>=key1&&random<key2){
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public ResultMsg<Object> sendGiftForBox(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
+
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+
+        String[] toUserIdArray = toUserIds.split(",");
+
+        if (Arrays.asList(toUserIdArray).contains(userId.toString())){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getDesc());
+        }
+
+        FuntimeUser user = getUserById(userId);
+
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+
+        FuntimeBox box = boxMapper.getBoxInfoByBoxNumber(giftId);
+        //FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
+        if (box==null){
+            throw new BusinessException(ErrorMsgEnum.BOX_NOT_EXISTS.getValue(),ErrorMsgEnum.BOX_NOT_EXISTS.getDesc());
+        }
+
+        Integer userRole = roomService.getUserRole(roomId,userId);
+
+        userRole = userRole == null?4:userRole;
+
+        //BigDecimal price = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
+        BigDecimal price = box.getPrice();
+
+        Integer amount= price.intValue()*giftNum;
+        Integer total = amount*toUserIdArray.length;
+        //账户余额不足
+        if (userAccount.getBlueDiamond().intValue()<total){
+            resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            resultMsg.setData(JsonUtil.getMap("amount",total));
+            return resultMsg;
+        }
+        //用户送减去蓝钻
+        userService.updateUserAccountForSub(userId, null, new BigDecimal(total), null);
+        String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
+        String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
+        String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
+
+        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+
+        List<Map<String,Object>> noticeDatas = new ArrayList<>();
+        Map<String,Object> noticeData;
+        Map<Long,Map<Integer,Integer>> randomGiftsMap = getDrawId(giftId,toUserIdArray,giftNum);
+        for (Map.Entry<Long,Map<Integer,Integer>> entry : randomGiftsMap.entrySet()){
+            Long toUserId = entry.getKey();
+            FuntimeUser toUser = userService.queryUserById(toUserId);
+            if (toUser==null){
+                throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+            }
+
+            for (Map.Entry<Integer,Integer> entry2 : entry.getValue().entrySet()) {
+                noticeData = new HashMap<>();
+                Integer toGiftId = entry2.getKey();
+                Integer num = entry2.getValue();
+                FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(entry2.getKey());
+                if (funtimeGift == null){
+                    throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
+                }
+                BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
+                BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
+                Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
+                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId);
+
+                Integer charmVal = new BigDecimal(blue_to_charm).multiply(giftAmount).intValue();
+                BigDecimal black = new BigDecimal(blue_to_black).multiply(giftAmount).setScale(2, RoundingMode.DOWN);
+                //用户收加上黑钻,魅力值
+                userService.updateUserAccountForPlusGift(toUserId, black, num, charmVal);
+                saveUserAccountCharmRecord(toUserId, charmVal, recordId, 1);
+                //用户送的日志
+                saveUserAccountBlueLog(userId, new BigDecimal(num).multiply(price).setScale(2,BigDecimal.ROUND_HALF_DOWN), recordId
+                        , OperationType.GIFT_BOX_OUT.getAction(), OperationType.GIFT_BOX_OUT.getOperationType());
+
+                //用户收的日志
+                saveUserAccountBlackLog(toUserId, black, recordId, OperationType.GIFT_BOX_IN.getAction()
+                        , OperationType.GIFT_BOX_IN.getOperationType());
+
+                String msg = "送给"+toUser.getNickname()+num+"个"+funtimeGift.getGiftName()+"("+box.getBoxName()+")";
+
+                noticeData.put("giftImg",funtimeGift.getImageUrl());
+                noticeData.put("giftName",funtimeGift.getGiftName());
+                noticeData.put("giftNum",num);
+                noticeData.put("userImage",toUser.getPortraitAddress());
+                noticeDatas.add(noticeData);
+
+                noticeService.notice11Or14(userId,null,msg,roomId,Constant.ROOM_MSG_NORMAL,userIds,userRole,0);
+
+                if (noticeAmount!=null){
+                    if (total>=new BigDecimal(noticeAmount).intValue()){
+                        noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
+                    }
+                }
+            }
+
+        }
+
+        JSONObject noticeMap = new JSONObject();
+        noticeMap.put("list",noticeDatas);
+        noticeMap.put("boxUrl",box.getAnimationUrl());
+
+        noticeService.notice39(noticeMap,userIds);
+
+        return resultMsg;
+    }
+
     public ResultMsg<Object> createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
 
         ResultMsg<Object> resultMsg = new ResultMsg<>();
@@ -1293,6 +1480,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> sendGiftForRoom(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
 
         ResultMsg<Object> resultMsg = new ResultMsg<>();
@@ -1410,6 +1598,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> sendGiftForRoom2(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
 
         ResultMsg<Object> resultMsg = new ResultMsg<>();
@@ -1528,6 +1717,126 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public ResultMsg<Object> sendGiftForRoomBox3(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
+
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+        FuntimeChatroom chatroom = roomService.getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        List<Long> toUserIdArray = roomService.getRoomUserByRoomId(roomId,userId);
+        if (toUserIdArray==null||toUserIdArray.isEmpty()){
+            if (userId.equals(chatroom.getUserId())) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_USER_IS_EMPTY.getValue(), ErrorMsgEnum.ROOM_USER_IS_EMPTY.getDesc());
+            }else{
+                toUserIdArray = new ArrayList<>(1);
+                toUserIdArray.add(chatroom.getUserId());
+            }
+        }
+
+        int userNum = toUserIdArray.size();
+
+        FuntimeUser user = getUserById(userId);
+
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+
+        FuntimeBox box = boxMapper.getBoxInfoByBoxNumber(giftId);
+        //FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
+        if (box==null){
+            throw new BusinessException(ErrorMsgEnum.BOX_NOT_EXISTS.getValue(),ErrorMsgEnum.BOX_NOT_EXISTS.getDesc());
+        }
+
+        Integer userRole = roomService.getUserRole(roomId,userId);
+
+        userRole = userRole == null?4:userRole;
+
+        BigDecimal price = box.getPrice();
+
+        Integer amount= price.intValue()*giftNum;
+        Integer total = amount*userNum;
+        //账户余额不足
+        if (userAccount.getBlueDiamond().intValue()<total){
+            resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            resultMsg.setData(JsonUtil.getMap("amount",total));
+            return resultMsg;
+        }
+        //用户送减去蓝钻
+        userService.updateUserAccountForSub(userId, null, new BigDecimal(total), null);
+        String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
+        String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
+        String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
+
+        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+
+        List<Map<String,Object>> noticeDatas = new ArrayList<>();
+        Map<String,Object> noticeData;
+        Map<Long,Map<Integer,Integer>> randomGiftsMap = getDrawId(giftId,toUserIdArray,giftNum);
+        for (Map.Entry<Long,Map<Integer,Integer>> entry : randomGiftsMap.entrySet()){
+            Long toUserId = entry.getKey();
+            FuntimeUser toUser = userService.queryUserById(toUserId);
+            if (toUser==null){
+                throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+            }
+
+            for (Map.Entry<Integer,Integer> entry2 : entry.getValue().entrySet()) {
+                noticeData = new HashMap<>();
+                Integer toGiftId = entry2.getKey();
+                Integer num = entry2.getValue();
+                FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(entry2.getKey());
+                if (funtimeGift == null){
+                    throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
+                }
+                BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
+                BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
+                Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
+                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId);
+
+                Integer charmVal = new BigDecimal(blue_to_charm).multiply(giftAmount).intValue();
+                BigDecimal black = new BigDecimal(blue_to_black).multiply(giftAmount).setScale(2, RoundingMode.DOWN);
+                //用户收加上黑钻,魅力值
+                userService.updateUserAccountForPlusGift(toUserId, black, num, charmVal);
+                saveUserAccountCharmRecord(toUserId, charmVal, recordId, 1);
+                //用户送的日志
+                saveUserAccountBlueLog(userId, new BigDecimal(num).multiply(price).setScale(2,BigDecimal.ROUND_HALF_DOWN), recordId
+                        , OperationType.GIFT_BOX_OUT.getAction(), OperationType.GIFT_BOX_OUT.getOperationType());
+
+                //用户收的日志
+                saveUserAccountBlackLog(toUserId, black, recordId, OperationType.GIFT_BOX_IN.getAction()
+                        , OperationType.GIFT_BOX_IN.getOperationType());
+
+                String msg = "送给"+toUser.getNickname()+num+"个"+funtimeGift.getGiftName()+"("+box.getBoxName()+")";
+
+                noticeData.put("giftImg",funtimeGift.getImageUrl());
+                noticeData.put("giftName",funtimeGift.getGiftName());
+                noticeData.put("giftNum",num);
+                noticeData.put("userImage",toUser.getPortraitAddress());
+                noticeDatas.add(noticeData);
+
+                noticeService.notice11Or14(userId,null,msg,roomId,Constant.ROOM_MSG_NORMAL,userIds,userRole,0);
+
+                if (noticeAmount!=null){
+                    if (total>=new BigDecimal(noticeAmount).intValue()){
+                        noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
+                    }
+                }
+            }
+
+        }
+
+        JSONObject noticeMap = new JSONObject();
+        noticeMap.put("list",noticeDatas);
+        noticeMap.put("boxUrl",box.getAnimationUrl());
+
+        noticeService.notice39(noticeMap,userIds);
+
+        return resultMsg;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> sendGiftForMic(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
 
@@ -1638,6 +1947,7 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> sendGiftForMic2(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
         FuntimeUser user = getUserById(userId);
@@ -1746,6 +2056,125 @@ public class AccountServiceImpl implements AccountService {
         resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum*userNum));
         return resultMsg;
     }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public ResultMsg<Object> sendGiftForMicBox3(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId){
+
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+        FuntimeChatroom chatroom = roomService.getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        List<Long> toUserIdArray = roomService.getMicUserIdByRoomId(roomId,userId);
+        if (toUserIdArray==null||toUserIdArray.isEmpty()){
+            if (userId.equals(chatroom.getUserId())) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_USER_IS_EMPTY.getValue(), ErrorMsgEnum.ROOM_USER_IS_EMPTY.getDesc());
+            }else{
+                toUserIdArray = new ArrayList<>(1);
+                toUserIdArray.add(chatroom.getUserId());
+            }
+        }
+
+        int userNum = toUserIdArray.size();
+
+        FuntimeUser user = getUserById(userId);
+
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+
+        FuntimeBox box = boxMapper.getBoxInfoByBoxNumber(giftId);
+        if (box==null){
+            throw new BusinessException(ErrorMsgEnum.BOX_NOT_EXISTS.getValue(),ErrorMsgEnum.BOX_NOT_EXISTS.getDesc());
+        }
+
+        Integer userRole = roomService.getUserRole(roomId,userId);
+
+        userRole = userRole == null?4:userRole;
+
+        BigDecimal price = box.getPrice();
+
+        Integer amount= price.intValue()*giftNum;
+        Integer total = amount*userNum;
+        //账户余额不足
+        if (userAccount.getBlueDiamond().intValue()<total){
+            resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            resultMsg.setData(JsonUtil.getMap("amount",total));
+            return resultMsg;
+        }
+        //用户送减去蓝钻
+        userService.updateUserAccountForSub(userId, null, new BigDecimal(total), null);
+        String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
+        String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
+        String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
+
+        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+
+        List<Map<String,Object>> noticeDatas = new ArrayList<>();
+        Map<String,Object> noticeData;
+        Map<Long,Map<Integer,Integer>> randomGiftsMap = getDrawId(giftId,toUserIdArray,giftNum);
+        for (Map.Entry<Long,Map<Integer,Integer>> entry : randomGiftsMap.entrySet()){
+            Long toUserId = entry.getKey();
+            FuntimeUser toUser = userService.queryUserById(toUserId);
+            if (toUser==null){
+                throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+            }
+
+            for (Map.Entry<Integer,Integer> entry2 : entry.getValue().entrySet()) {
+                noticeData = new HashMap<>();
+                Integer toGiftId = entry2.getKey();
+                Integer num = entry2.getValue();
+                FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(entry2.getKey());
+                if (funtimeGift == null){
+                    throw new BusinessException(ErrorMsgEnum.PARAMETER_CONF_ERROR.getValue(),ErrorMsgEnum.PARAMETER_CONF_ERROR.getDesc());
+                }
+                BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
+                BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
+                Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
+                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId);
+
+                Integer charmVal = new BigDecimal(blue_to_charm).multiply(giftAmount).intValue();
+                BigDecimal black = new BigDecimal(blue_to_black).multiply(giftAmount).setScale(2, RoundingMode.DOWN);
+                //用户收加上黑钻,魅力值
+                userService.updateUserAccountForPlusGift(toUserId, black, num, charmVal);
+                saveUserAccountCharmRecord(toUserId, charmVal, recordId, 1);
+                //用户送的日志
+                saveUserAccountBlueLog(userId, new BigDecimal(num).multiply(price).setScale(2,BigDecimal.ROUND_HALF_DOWN), recordId
+                        , OperationType.GIFT_BOX_OUT.getAction(), OperationType.GIFT_BOX_OUT.getOperationType());
+
+                //用户收的日志
+                saveUserAccountBlackLog(toUserId, black, recordId, OperationType.GIFT_BOX_IN.getAction()
+                        , OperationType.GIFT_BOX_IN.getOperationType());
+
+                String msg = "送给"+toUser.getNickname()+num+"个"+funtimeGift.getGiftName()+"("+box.getBoxName()+")";
+
+                noticeData.put("giftImg",funtimeGift.getImageUrl());
+                noticeData.put("giftName",funtimeGift.getGiftName());
+                noticeData.put("giftNum",num);
+                noticeData.put("userImage",toUser.getPortraitAddress());
+                noticeDatas.add(noticeData);
+
+                noticeService.notice11Or14(userId,null,msg,roomId,Constant.ROOM_MSG_NORMAL,userIds,userRole,0);
+
+                if (noticeAmount!=null){
+                    if (total>=new BigDecimal(noticeAmount).intValue()){
+                        noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
+                    }
+                }
+            }
+
+        }
+
+        JSONObject noticeMap = new JSONObject();
+        noticeMap.put("list",noticeDatas);
+        noticeMap.put("boxUrl",box.getAnimationUrl());
+
+        noticeService.notice39(noticeMap,userIds);
+
+        return resultMsg;
+    }
+
 
     @Override
     public FuntimeUserAccount getUserAccountByUserId(Long userId){
