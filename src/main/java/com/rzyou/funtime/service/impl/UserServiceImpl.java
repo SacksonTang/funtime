@@ -7,6 +7,7 @@ import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.im.BankCardVerificationUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
+import com.rzyou.funtime.common.qqutils.QqLoginUtils;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
 import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.entity.*;
@@ -1346,6 +1347,49 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public String bindQQ(Long userId, String accessToken, Integer type) {
+        FuntimeUser user = queryUserById(userId);
+        if (user==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if (type == 3){
+            if (StringUtils.isBlank(user.getPhoneNumber())){
+                throw new BusinessException(ErrorMsgEnum.USER_PHONE_NOT_BIND.getValue(),ErrorMsgEnum.USER_PHONE_NOT_BIND.getDesc());
+            }
+            unBindQQ(userId);
+            return null;
+        }
+        String openid = QqLoginUtils.getOpenId(accessToken);
+        JSONObject userJson = WeixinLoginUtils.getUserInfo(accessToken,openid);
+        String nickName ;
+        try {
+            nickName = new String(userJson.getString("nickname").getBytes("ISO-8859-1"), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            nickName = Constant.DEFAULT_NICKNAME;
+        }
+        FuntimeUserThird userThird = queryUserInfoByOpenid(openid,Constant.LOGIN_QQ);
+        if (type==1){
+            if (userThird!=null){
+                throw new BusinessException(ErrorMsgEnum.USER_QQ_EXISTS.getValue(),ErrorMsgEnum.USER_QQ_EXISTS.getDesc());
+            }
+            saveUserThird(userId,Constant.LOGIN_QQ,openid,userJson.getString("unionid"),accessToken,nickName);
+
+        }else if (type == 2){
+            if (userThird==null){
+                throw new BusinessException(ErrorMsgEnum.WITHDRAWAL_QQ_NOT_BIND.getValue(),ErrorMsgEnum.WITHDRAWAL_QQ_NOT_BIND.getDesc());
+            }
+            updateUserThird(userThird.getId(),userJson.getString("unionid"),accessToken,openid,nickName);
+
+        }else{
+            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+        }
+        userMapper.saveUserInfoChangeLog(userId,"openid",Constant.LOGIN_QQ+"/"+openid);
+
+        return nickName;
+    }
+
+    @Override
     public Map<String, Object> getInstallInfo(Long userId) {
         Map<String,Object> result = new HashMap<>();
         FuntimeUser user = queryUserById(userId);
@@ -1445,6 +1489,18 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
         userMapper.saveUserInfoChangeLog(userId,"openid","weixin unbind");
+    }
+
+    private void unBindQQ(Long userId) {
+        FuntimeUserThird userThird = queryUserThirdIdByType(userId, Constant.LOGIN_QQ);
+        if (userThird == null){
+            throw new BusinessException(ErrorMsgEnum.USER_QQ_NOT_BIND.getValue(),ErrorMsgEnum.USER_QQ_NOT_BIND.getDesc());
+        }
+        int k = userThirdMapper.deleteByPrimaryKey(userThird.getId());
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        userMapper.saveUserInfoChangeLog(userId,"openid","QQ unbind");
     }
 
     public void updateUserThird(Long id,String unionId,String token,String openid,String nickname){

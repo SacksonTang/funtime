@@ -475,6 +475,14 @@ public interface UserService {
     String bindWeixin(Long userId, String code, Integer type);
 
     /**
+     * 绑定QQ
+     * @param userId
+     * @param code
+     * @param type
+     */
+    String bindQQ(Long userId, String accessToken, Integer type);
+
+    /**
      * 获取设置页信息
      * @param userId
      * @return

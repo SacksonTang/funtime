@@ -60,6 +60,8 @@ public enum ErrorMsgEnum {
     USER_VALID_CARD_SAME("10047","银行卡已存在"),
     USER_SIGN_ERROR("10048","已签到"),
     USER_MANAGER_ERROR("10049","小可爱,不能添加自己为管理员喔"),
+    USER_QQ_NOT_BIND("10050","没有用户QQ绑定信息"),
+    USER_QQ_EXISTS("10051","该QQ已被其它账号绑定"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -108,6 +110,7 @@ public enum ErrorMsgEnum {
     WITHDRAWAL_WX_NOT_BIND("70008","微信没有绑定"),
     WITHDRAWAL_PRERMBAMOUNT_100_ERROR("70009","提现\"提现红钻\"必须为10的倍数"),
     WITHDRAWAL_PHONE_NOT_BIND("70010","手机没有绑定"),
+    WITHDRAWAL_QQ_NOT_BIND("70011","QQ没有绑定"),
 
     ROOM_CREATE_ERROR("80001","房间创建失败"),
     ROOM_NOT_EXISTS("80002","房间不存在"),

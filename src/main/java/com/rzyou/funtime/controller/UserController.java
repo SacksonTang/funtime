@@ -693,6 +693,46 @@ public class UserController {
             return result;
         }
     }
+    /**
+     * 绑定QQ
+     * @param request
+     * @return
+     */
+    @PostMapping("bindQQ")
+    public ResultMsg<Object> bindQQ(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            String accessToken = paramJson.getString("accessToken");
+            Integer type = paramJson.getInteger("type");//1-绑定2-换绑3-解绑
+            if (userId==null||type==null) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            if(StringUtils.isBlank(accessToken)&&(type == 1||type == 2)){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            String nickname = userService.bindQQ(userId,accessToken,type);
+            result.setData(JsonUtil.getMap("qqNickname",nickname));
+            return result;
+        } catch (BusinessException be) {
+            log.error("bindQQ BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
     /**
      * 在线状态1-在线2-离线
