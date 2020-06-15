@@ -477,7 +477,7 @@ public interface UserService {
     /**
      * 绑定QQ
      * @param userId
-     * @param code
+     * @param accessToken
      * @param type
      */
     String bindQQ(Long userId, String accessToken, Integer type);

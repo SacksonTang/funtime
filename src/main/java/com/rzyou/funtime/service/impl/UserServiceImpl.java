@@ -1361,13 +1361,8 @@ public class UserServiceImpl implements UserService {
             return null;
         }
         String openid = QqLoginUtils.getOpenId(accessToken);
-        JSONObject userJson = WeixinLoginUtils.getUserInfo(accessToken,openid);
-        String nickName ;
-        try {
-            nickName = new String(userJson.getString("nickname").getBytes("ISO-8859-1"), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            nickName = Constant.DEFAULT_NICKNAME;
-        }
+        JSONObject userJson = QqLoginUtils.getUserInfo(accessToken,openid);
+        String nickName = userJson.getString("nickname");
         FuntimeUserThird userThird = queryUserInfoByOpenid(openid,Constant.LOGIN_QQ);
         if (type==1){
             if (userThird!=null){
