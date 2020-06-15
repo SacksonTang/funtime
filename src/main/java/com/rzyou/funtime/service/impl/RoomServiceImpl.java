@@ -949,7 +949,8 @@ public class RoomServiceImpl implements RoomService {
         Integer userRole = getUserRole(roomId,userId);
         userRole = userRole == null?4:userRole;
         List<String> userIds = getRoomUserByRoomIdAll(roomId);
-        noticeService.notice11Or14(userId,imgUrl,msg,roomId,type,userIds,userRole,playLenth,"#fff");
+        msg = "<font color='#FFDE00'>"+msg+"</font>";
+        noticeService.notice11Or14(userId,imgUrl,msg,roomId,type,userIds,userRole,playLenth);
     }
 
     @Override

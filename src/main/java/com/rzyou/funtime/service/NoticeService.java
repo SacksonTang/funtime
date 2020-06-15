@@ -202,9 +202,8 @@ public interface NoticeService {
      * @param type
      * @param userRole
      * @param playLenth
-     * @param color
      */
-    void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type, List<String> userIds, Integer userRole, Integer playLenth, String color);
+    void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type, List<String> userIds, Integer userRole, Integer playLenth);
 
     /**
      * 全房送普通礼物通知
