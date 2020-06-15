@@ -1357,7 +1357,7 @@ public class AccountServiceImpl implements AccountService {
                 noticeData.put("userImage",toUser.getPortraitAddress());
                 noticeDatas.add(noticeData);
 
-                noticeService.notice11Or14(userId,null,msg,roomId,Constant.ROOM_MSG_NORMAL,userIds,userRole,0);
+                noticeService.notice11Or14(userId,null,msg,roomId,Constant.ROOM_MSG_NORMAL,userIds,userRole,0, "#FFDE00");
 
                 if (noticeAmount!=null){
                     if (total>=new BigDecimal(noticeAmount).intValue()){
@@ -1815,7 +1815,7 @@ public class AccountServiceImpl implements AccountService {
                 noticeData.put("userImage",toUser.getPortraitAddress());
                 noticeDatas.add(noticeData);
 
-                noticeService.notice11Or14(userId,null,msg,roomId,Constant.ROOM_MSG_NORMAL,userIds,userRole,0);
+                noticeService.notice11Or14(userId,null,msg,roomId,Constant.ROOM_MSG_NORMAL,userIds,userRole,0, "#FFDE00");
 
                 if (noticeAmount!=null){
                     if (total>=new BigDecimal(noticeAmount).intValue()){
@@ -2155,7 +2155,7 @@ public class AccountServiceImpl implements AccountService {
                 noticeData.put("userImage",toUser.getPortraitAddress());
                 noticeDatas.add(noticeData);
 
-                noticeService.notice11Or14(userId,null,msg,roomId,Constant.ROOM_MSG_NORMAL,userIds,userRole,0);
+                noticeService.notice11Or14(userId,null,msg,roomId,Constant.ROOM_MSG_NORMAL,userIds,userRole,0, "#FFDE00");
 
                 if (noticeAmount!=null){
                     if (total>=new BigDecimal(noticeAmount).intValue()){

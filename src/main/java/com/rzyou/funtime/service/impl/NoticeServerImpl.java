@@ -414,7 +414,7 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    public void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type, List<String> userIds, Integer userRole, Integer playLenth) {
+    public void notice11Or14(Long userId, String imgUrl, String msg, Long roomId, Integer type, List<String> userIds, Integer userRole, Integer playLenth, String color) {
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         FuntimeUser user = userService.queryUserById(userId);
         if (user == null){
@@ -428,7 +428,7 @@ public class NoticeServerImpl implements NoticeService {
         object.put("userRole",userRole);
         object.put("name",user.getNickname());
         if (type == 11){
-            object.put("msg",msg);
+            object.put("msg","<font color='"+color+"'>"+msg+"</font>");
         }else{
             object.put("imgUrl",imgUrl);
         }
