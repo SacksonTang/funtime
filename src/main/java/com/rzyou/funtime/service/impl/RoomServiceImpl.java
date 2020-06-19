@@ -32,6 +32,8 @@ public class RoomServiceImpl implements RoomService {
     ParameterService parameterService;
     @Autowired
     GameService gameService;
+    @Autowired
+    Game21Service game21Service;
 
     @Autowired
     FuntimeBackgroundMapper backgroundMapper;
@@ -536,6 +538,9 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_EXIT_USER_NOT_EXISTS.getDesc());
         }
         if (chatroomMic2.getMicLocation()!=null){
+            if(game21Service.getUserByRoomAndMic(roomId,chatroomMic2.getMicLocation())!=null){
+                throw new BusinessException(ErrorMsgEnum.ROOM_GAME21_UPPER_ERROR.getValue(),ErrorMsgEnum.ROOM_GAME21_UPPER_ERROR.getDesc());
+            }
             chatroomMicMapper.lowerWheat(chatroomMic2.getId());
         }
 
@@ -592,6 +597,7 @@ public class RoomServiceImpl implements RoomService {
         }
         lowerWheat(roomId,micLocation,micUserId);
         saveRoomMic(roomId,micUserId,UserRole.ROOM_NORMAL.getValue());
+
 
         lowerWheatNotice(roomId,micLocation,micUserId,user.getNickname(),isMe);
         sendRoomInfoNotice(roomId);
@@ -1311,7 +1317,9 @@ public class RoomServiceImpl implements RoomService {
             }
             FuntimeChatroomManager chatroomManager = new FuntimeChatroomManager();
             chatroomManager.setDuration(duration);
-            chatroomManager.setExpireTime(DateUtils.addHours(new Date(), duration));
+            if (duration >0) {
+                chatroomManager.setExpireTime(DateUtils.addHours(new Date(), duration));
+            }
             chatroomManager.setRoomId(roomId);
             chatroomManager.setUserId(managerId);
             Long id = chatroomManagerMapper.getChatroomManager(roomId, managerId);
@@ -1387,6 +1395,11 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    public Long getChatroomManager(Long roomId, Long userId) {
+        return chatroomManagerMapper.getChatroomManager(roomId, userId);
+    }
+
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public void startMusicAuth(Long roomId, Integer micLocation) {
         FuntimeChatroomMic micLocationUser = getMicLocationUser(roomId, micLocation);
@@ -1432,6 +1445,11 @@ public class RoomServiceImpl implements RoomService {
 
     }
 
+    @Override
+    public List<Map<String, Object>> getMicInfoByRoomId(Long roomId) {
+        return chatroomMicMapper.getMicInfoByRoomId(roomId);
+    }
+
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){
         return chatroomMicMapper.getInfoByRoomIdAndUser(roomId,userId);
     }
@@ -1473,6 +1491,7 @@ public class RoomServiceImpl implements RoomService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        game21Service.delMicInfoForlowerWheat(roomId,micLocation);
 
 
     }

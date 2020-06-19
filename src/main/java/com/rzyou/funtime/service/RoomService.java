@@ -412,6 +412,14 @@ public interface RoomService {
     void delRoomManager(Long id);
 
     /**
+     * 查询管理员
+     * @param roomId
+     * @param userId
+     * @return
+     */
+    Long getChatroomManager(Long roomId, Long userId);
+
+    /**
      * 开启音乐权限
      * @param roomId
      * @param micLocation
@@ -429,4 +437,11 @@ public interface RoomService {
      * 定时清理0人房间
      */
     void roomCloseTask();
+
+    /**
+     * 房内有人的麦位
+     * @param roomId
+     * @return
+     */
+    List<Map<String, Object>> getMicInfoByRoomId(Long roomId);
 }

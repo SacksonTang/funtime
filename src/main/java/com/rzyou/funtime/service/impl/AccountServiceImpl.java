@@ -1362,7 +1362,7 @@ public class AccountServiceImpl implements AccountService {
 
                 if (noticeAmount!=null){
                     if (total>=new BigDecimal(noticeAmount).intValue()){
-                        noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
+                        noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName()+"("+box.getBoxName()+")",num,giftHornLength);
                     }
                 }
             }
@@ -1820,7 +1820,7 @@ public class AccountServiceImpl implements AccountService {
 
                 if (noticeAmount!=null){
                     if (total>=new BigDecimal(noticeAmount).intValue()){
-                        noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
+                        noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName()+"("+box.getBoxName()+")",num,giftHornLength);
                     }
                 }
             }
@@ -2160,7 +2160,7 @@ public class AccountServiceImpl implements AccountService {
 
                 if (noticeAmount!=null){
                     if (total>=new BigDecimal(noticeAmount).intValue()){
-                        noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
+                        noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName()+"("+box.getBoxName()+")",num,giftHornLength);
                     }
                 }
             }

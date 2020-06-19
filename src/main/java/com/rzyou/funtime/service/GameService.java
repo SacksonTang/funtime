@@ -97,9 +97,10 @@ public interface GameService {
     /**
      * 获取游戏配置
      * @param userId
+     * @param roomId
      * @return
      */
-    List<Map<String,Object>> getGameList(Long userId);
+    List<Map<String,Object>> getGameList(Long userId, Long roomId);
 
     /**
      * 砸蛋配置

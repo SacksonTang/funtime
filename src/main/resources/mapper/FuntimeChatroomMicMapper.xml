@@ -82,6 +82,12 @@
     from t_funtime_chatroom_mic
     where room_id = #{roomId} and mic_user_id !=#{userId} and mic_user_id is not null and mic_location>0
   </select>
+  <select id="getMicInfoByRoomId"  resultType="java.util.Map" >
+    select
+    m.mic_location as micLocation,m.mic_user_id as micUserId
+    from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
+    where m.room_id = #{roomId} and u.online_state = 1 and m.mic_location>0
+  </select>
   <select id="getRoomUserByRoomId"  resultType="java.lang.Long" >
     select
     mic_user_id

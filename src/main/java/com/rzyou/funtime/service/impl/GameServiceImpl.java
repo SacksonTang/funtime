@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 2020/2/27
@@ -305,18 +302,18 @@ public class GameServiceImpl implements GameService {
         Integer needLevel = Integer.parseInt(gameInfoMap.get("needLevel").toString());
         String content = "";
         if (gameCode.equals(GameCodeEnum.YAOYAOLE.getValue())){
-            content = nickname+"在"+GameCodeEnum.YAOYAOLE.getDesc()+"中摇到"+price+"钻，运气爆表,活动限时开放,立即参与>";
+            content = nickname+"在"+GameCodeEnum.YAOYAOLE.getDesc()+"中摇到"+price+"钻,运气爆表,活动限时开放,立即参与>";
         }else if (gameCode.equals(GameCodeEnum.EGG.getValue())){
             if (giftName == null) {
-                content = nickname + "在"+GameCodeEnum.EGG.getDesc()+"中砸到" + price + "钻,运气爆表，活动限时开放,立即参与>";
+                content = nickname + "在"+GameCodeEnum.EGG.getDesc()+"中砸到" + price + "钻,运气爆表,活动限时开放,立即参与>";
             }else{
-                content = nickname + "在"+GameCodeEnum.EGG.getDesc()+"中砸到"+giftName+"/" + price + "钻，运气爆表，活动限时开放,立即参与>";
+                content = nickname + "在"+GameCodeEnum.EGG.getDesc()+"中砸到"+giftName+"/" + price + "钻,运气爆表,活动限时开放,立即参与>";
             }
         }else if (gameCode.equals(GameCodeEnum.CIRCLE.getValue())){
             if (giftName == null) {
-                content = nickname + "在"+GameCodeEnum.CIRCLE.getDesc()+"中抽到" + price + "钻,运气爆表，活动限时开放,立即参与>";
+                content = nickname + "在"+GameCodeEnum.CIRCLE.getDesc()+"中抽到" + price + "钻,运气爆表,活动限时开放,立即参与>";
             }else{
-                content = nickname + "在"+GameCodeEnum.CIRCLE.getDesc()+"中抽到"+giftName+"/" + price + "钻，运气爆表，活动限时开放,立即参与>";
+                content = nickname + "在"+GameCodeEnum.CIRCLE.getDesc()+"中抽到"+giftName+"/" + price + "钻,运气爆表,活动限时开放,立即参与>";
             }
         }
         List<String> userIds = roomService.getAllRoomUserByLevel(needLevel);
@@ -526,7 +523,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public List<Map<String, Object>> getGameList(Long userId) {
+    public List<Map<String, Object>> getGameList(Long userId, Long roomId) {
         FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
         if (userAccount == null){
             return null;
@@ -534,16 +531,29 @@ public class GameServiceImpl implements GameService {
 
         List<Map<String, Object>> mapList = gameMapper.getGameList(userAccount.getLevel(),1);
         if (mapList!=null&&!mapList.isEmpty()){
-            for (Map<String, Object> map : mapList) {
+            Iterator it = mapList.iterator();
+            while (it.hasNext()){
+                Map<String, Object> map = (Map<String, Object>) it.next();
+                if (roomId!=null) {
+                    if ("1005".equals(map.get("gameCode").toString())) {
+                        FuntimeChatroom chatroom = roomService.getChatroomById(roomId);
+                        if (!chatroom.getUserId().equals(userId)) {
+                            if (roomService.getChatroomManager(roomId, userId) == null) {
+                                it.remove();
+                                continue;
+                            }
+                        }
+
+                    }
+                }
 
                 int isDate = Integer.parseInt(map.get("isDate").toString());
                 if (isDate == 1) {
                     int count = gameMapper.getGameShowConf(2, Integer.parseInt(map.get("gameCode").toString()));
                     if (count<1){
-                        mapList.remove(map);
+                        it.remove();
                     }
                 }
-
             }
         }
         return mapList;

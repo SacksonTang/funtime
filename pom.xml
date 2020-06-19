@@ -172,6 +172,13 @@
 		</dependency>
 
 
+		<!-- https://mvnrepository.com/artifact/org.yeauty/netty-websocket-spring-boot-starter -->
+		<dependency>
+			<groupId>org.yeauty</groupId>
+			<artifactId>netty-websocket-spring-boot-starter</artifactId>
+			<version>0.9.5</version>
+		</dependency>
+
 
 
 

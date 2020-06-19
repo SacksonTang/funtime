@@ -1,0 +1,11 @@
+CREATE TABLE `t_funtime_im_notice` (
+  `id` int(32) NOT NULL AUTO_INCREMENT,
+  `create_user_id` int(32) DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '标题',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '文本',
+  `show_time` timestamp NULL DEFAULT NULL COMMENT '发送时间',
+  `user_level` int(32) DEFAULT NULL COMMENT '用户等级',
+  `is_send` int(2) DEFAULT NULL COMMENT '1-未发送，2-已发送',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='系统IM表';

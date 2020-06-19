@@ -9,10 +9,7 @@ import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.OperationType;
 import com.rzyou.funtime.common.im.TencentUtil;
-import com.rzyou.funtime.entity.FuntimeNotice;
-import com.rzyou.funtime.entity.FuntimeUser;
-import com.rzyou.funtime.entity.FuntimeUserAccount;
-import com.rzyou.funtime.entity.RoomGiftNotice;
+import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.FuntimeNoticeMapper;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.NoticeService;
@@ -20,6 +17,7 @@ import com.rzyou.funtime.service.RoomService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.JsonUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Service
+@Slf4j
 public class NoticeServerImpl implements NoticeService {
 
     @Autowired
@@ -744,6 +743,76 @@ public class NoticeServerImpl implements NoticeService {
 
         noticeMap.put("type",Constant.ROOM_BOX);
         String data = StringEscapeUtils.unescapeJava(noticeMap.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public void notice20000(List<String> userIds) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME21_OPEN);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public void notice20001(List<String> userIds, List<FuntimeRoomGame21> list, int timestamp, int rounds, long stamp, List<FuntimeRoomGame21> totalmics, String timeZone) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME21_START);
+        object.put("timestamp",timestamp);
+        object.put("stamp",stamp);
+        object.put("timeZone",timeZone);
+        object.put("mics",list);
+        object.put("totalmics",totalmics);
+        object.put("rounds",rounds);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+
+    @Override
+    public void notice20002(List<String> userIds) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME21_END);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public void notice20003(List<String> userIds, Integer micLocation) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME21_GET_POKER);
+        object.put("pos",micLocation);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public void notice20004(List<String> userIds, Integer micLocation) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME21_STOP_POKER);
+        object.put("pos",micLocation);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public void notice20005(List<String> userIds, List<Map<String, Object>> wins, List<FuntimeRoomGame21> totalmics, List<FuntimeRoomGame21> mics, int rounds) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME21_WIN);
+        object.put("wins",wins);
+        object.put("rounds",rounds);
+        object.put("totalmics",totalmics);
+        if (mics != null) {
+            object.put("mics",mics);
+        }
+        log.info("notice20005  rounds:{}",rounds);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         sendRoomUserNotice(userSig,data,userIds);
     }

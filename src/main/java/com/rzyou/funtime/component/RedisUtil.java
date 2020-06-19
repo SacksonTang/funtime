@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -12,6 +13,21 @@ import java.util.concurrent.TimeUnit;
 public class RedisUtil {
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
+
+    /**
+     * 删除
+     * @param key
+     */
+    public void del(String... key) {
+        if (key != null && key.length > 0) {
+            if (key.length == 1) {
+                redisTemplate.delete(key[0]);
+            } else {
+                redisTemplate.delete(CollectionUtils.arrayToList(key));
+            }
+        }
+    }
+
 
     /**
      * 普通缓存获取
@@ -59,4 +75,39 @@ public class RedisUtil {
             return false;
         }
     }
+
+
+    /**
+     * 递增
+     * @param key 键
+     * @param delta 要增加几(大于0)
+     * @return
+     */
+    public long incr(String key, long delta) {
+        if (delta < 0) {
+            throw new RuntimeException("递增因子必须大于0");
+        }
+        return redisTemplate.opsForValue().increment(key, delta);
+    }
+        /**
+         * 递减
+         * @param key 键
+         * @param delta 要减少几(小于0)
+         * @return
+         */
+    public long decr(String key, long delta) {
+        if (delta < 0) {
+            throw new RuntimeException("递减因子必须大于0");
+        }
+        return redisTemplate.opsForValue().increment(key, -delta);
+    }
+
+    public boolean setIfAbsent(String key,Object value,long time){
+        if(time>0) {
+            return redisTemplate.opsForValue().setIfAbsent(key, value, time, TimeUnit.SECONDS);
+        }else{
+            return redisTemplate.opsForValue().setIfAbsent(key, value);
+        }
+    }
+
 }

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeRoomGame21Mapper">
+    <select id="getUserByRoomAndMic" resultType="java.lang.Long">
+
+        select  user_id
+         from t_funtime_room_game21_val where room_id = #{roomId} and mic_location = #{mic}
+    </select>
+
+    <select id="getGameInfoByRoomId" resultType="com.rzyou.funtime.entity.FuntimeRoomGame21">
+        select  id,mic_location as micLocation,user_id as userId,
+        poker_num as pokerNum, pokers,counts,state
+         from t_funtime_room_game21_val where room_id = #{roomId}
+    </select>
+    <select id="getGameInfoForStateByRoomId" resultType="com.rzyou.funtime.entity.FuntimeRoomGame21">
+        select  id,mic_location as micLocation,user_id as userId,
+        poker_num as pokerNum, pokers,counts,state
+         from t_funtime_room_game21_val where room_id = #{roomId} and state = 1
+    </select>
+    <select id="getGameWinUserByRoomId" resultType="java.util.Map">
+        select  g.counts,u.portrait_address as portraitAddress
+         from t_funtime_room_game21_val g inner join t_funtime_user u on g.user_id = u.id
+         where g.room_id = #{roomId}
+         and g.counts>0 and 21>=g.counts
+         and g.counts = (select max(counts) from t_funtime_room_game21_val where room_id = #{roomId} and counts>0 and 21>=counts)
+    </select>
+
+    <select id="getGameInfoByRoomIdAndMic" resultType="com.rzyou.funtime.entity.FuntimeRoomGame21">
+        select  id,mic_location as micLocation,user_id as userId,
+        poker_num as pokerNum, pokers,counts,state
+         from t_funtime_room_game21_val where room_id = #{roomId} and mic_location = #{mic}
+    </select>
+
+    <select id="getRoundsByRoomId" resultType="java.lang.Integer">
+        select rounds from t_funtime_room_game21 where room_id=#{roomId}
+    </select>
+    <select id="getGameInfo" resultType="java.util.Map">
+        select rounds,task_time as taskTime from t_funtime_room_game21 where room_id=#{roomId}
+    </select>
+    <select id="getTaskRoomId" resultType="com.rzyou.funtime.entity.FuntimeRoomGame21">
+        select b.mic_location as micLocation,b.user_id as userId,b.room_id as roomId from t_funtime_room_game21 a inner join t_funtime_room_game21_val b
+        where #{time}>=a.task_time and b.state = 0
+    </select>
+
+    <insert id="insertGame">
+        insert into t_funtime_room_game21(room_id,rounds,task_time)values (#{roomId},1,#{taskTime})
+    </insert>
+
+    <update id="updateGame">
+        update t_funtime_room_game21
+        <set>
+            <if test="rounds != null">
+                rounds = rounds+#{rounds},
+            </if>
+            <if test="taskTime != null ">
+                task_time = #{taskTime},
+            </if>
+        </set>
+        where room_id = #{roomId}
+    </update>
+
+    <insert id="insertBatch" >
+        insert into t_funtime_room_game21_val (room_id, mic_location,user_id,
+        poker_num, pokers,counts,state
+        )
+        values
+        <foreach collection="mics" item="mic" separator=",">
+            (#{mic.roomId}, #{mic.micLocation},#{mic.userId},
+            #{mic.pokerNum}, #{mic.pokers},#{mic.counts},#{mic.state}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteGame">
+        delete from t_funtime_room_game21_val where room_id = #{roomId}
+    </delete>
+    <delete id="deleteGameById">
+        delete from t_funtime_room_game21_val where id = #{id}
+    </delete>
+    <delete id="deleteGame2">
+        delete from t_funtime_room_game21 where room_id = #{roomId}
+    </delete>
+    <update id="updateGameInfo" parameterType="com.rzyou.funtime.entity.FuntimeRoomGame21">
+        update t_funtime_room_game21_val
+        <set>
+            <if test="pokerNum != null">
+                poker_num = #{pokerNum},
+            </if>
+            <if test="pokers != null ">
+                pokers = #{pokers},
+            </if>
+            <if test="counts!=null">
+                counts = #{counts},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+
+
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

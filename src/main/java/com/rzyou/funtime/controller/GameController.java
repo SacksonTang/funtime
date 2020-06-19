@@ -43,13 +43,15 @@ public class GameController {
 
         ResultMsg<Object> result = new ResultMsg<>();
         try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = HttpHelper.getUserId();
+            Long roomId = paramJson.getLong("roomId");
             if (userId == null ){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            Map<String, Object> map = JsonUtil.getMap("gameList", gameService.getGameList(userId));
+            Map<String, Object> map = JsonUtil.getMap("gameList", gameService.getGameList(userId,roomId));
             result.setData(map);
             return result;
 

@@ -2,6 +2,7 @@ package com.rzyou.funtime.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.entity.FuntimeNotice;
+import com.rzyou.funtime.entity.FuntimeRoomGame21;
 import com.rzyou.funtime.entity.RoomGiftNotice;
 
 import java.util.List;
@@ -402,4 +403,50 @@ public interface NoticeService {
      * @param userIds
      */
     void notice39(JSONObject noticeMap, List<String> userIds);
+
+    /**
+     * 21点开启游戏
+     * @param userIds
+     */
+    void notice20000(List<String> userIds);
+
+    /**
+     * 21点开始游戏
+     * @param userIds
+     * @param list
+     * @param timestamp
+     * @param rounds
+     * @param stamp
+     * @param totalmics
+     * @param timeZone
+     */
+    void notice20001(List<String> userIds, List<FuntimeRoomGame21> list, int timestamp, int rounds, long stamp, List<FuntimeRoomGame21> totalmics, String timeZone);
+    /**
+     * 21点结束游戏
+     * @param userIds
+     */
+    void notice20002(List<String> userIds);
+
+    /**
+     * 要牌
+     * @param userIds
+     * @param micLocation
+     */
+    void notice20003(List<String> userIds, Integer micLocation);
+    /**
+     * 停牌
+     * @param userIds
+     * @param micLocation
+     */
+    void notice20004(List<String> userIds, Integer micLocation);
+
+    /**
+     * 结局
+     * @param userIds
+     * @param wins
+     * @param totalmics
+     * @param mics
+     * @param rounds
+     */
+    void notice20005(List<String> userIds, List<Map<String, Object>> wins, List<FuntimeRoomGame21> totalmics, List<FuntimeRoomGame21> mics, int rounds);
 }

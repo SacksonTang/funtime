@@ -1,0 +1,22 @@
+INSERT INTO `funtime`.`t_funtime_game`(`game_code`, `name`, `icon`, `redirect_type`, `resource_url`, `need_level`, `is_show`, `is_date`, `landscape`, `location`, `sort`) VALUES (1005, '纸牌王', 'https://funtime-1300805214.cos.ap-shanghai.myqcloud.com/default/zhipaiwang.png', 3, NULL, 0, 1, 2, 2, 1, 4);
+CREATE TABLE `t_funtime_room_game21` (
+  `room_id` bigint(64) NOT NULL,
+  `rounds` int(8) DEFAULT NULL COMMENT '轮数',
+  `task_time` bigint(64) DEFAULT NULL COMMENT '定时时间',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`room_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `t_funtime_room_game21_val` (
+  `id` bigint(64) NOT NULL AUTO_INCREMENT,
+  `room_id` bigint(64) NOT NULL COMMENT '房间ID',
+  `user_id` bigint(64) DEFAULT NULL,
+  `mic_location` int(4) NOT NULL COMMENT '麦位',
+  `poker_num` int(8) DEFAULT NULL COMMENT '牌的张数',
+  `pokers` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '麦位上的牌',
+  `counts` int(8) DEFAULT '0' COMMENT '点数',
+  `state` int(4) DEFAULT '0' COMMENT '麦位状态0-正常1-要牌2-停牌3-爆牌',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `room_id` (`room_id`,`mic_location`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=891 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='21点麦位状态表';

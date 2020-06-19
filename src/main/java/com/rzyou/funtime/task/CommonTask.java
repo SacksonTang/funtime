@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -25,7 +26,24 @@ public class CommonTask {
     @Autowired
     UserService userService;
     @Autowired
+    Game21Service game21Service;
+    @Autowired
     GameService gameService;
+
+    /**
+     * 18秒后自动停牌
+     */
+    @Scheduled(fixedRate = 1000)
+    public void game21Task(){
+        long time = System.currentTimeMillis();
+        try {
+            game21Service.game21Task(time);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
 
     /**
      * 定时解散房间

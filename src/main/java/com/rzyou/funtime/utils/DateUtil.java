@@ -1,8 +1,10 @@
 package com.rzyou.funtime.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class DateUtil {
@@ -20,6 +22,10 @@ public class DateUtil {
     private final static String[] constellationArr = new String[] { "摩羯座", "水瓶座", "双鱼座", "白羊座", "金牛座", "双子座", "巨蟹座", "狮子座", "处女座", "天秤座", "天蝎座", "射手座", "摩羯座" };
     public static String getConstellation(int month, int day) {
         return day < dayArr[month - 1] ? constellationArr[month - 1] : constellationArr[month];
+    }
+
+    public static long getCurrentSecond(){
+        return LocalDateTime.now().getSecond();
     }
 
     public static String getCurrentDateTime() {
@@ -231,7 +237,8 @@ public class DateUtil {
 
     public static void main(String[] args) throws Exception{
 
-        System.out.println(getLastWeekStart()+"---"+getLastWeekEnd());
+        System.out.println(TimeZone.getDefault().getID());
+        System.out.println(TimeZone.getDefault());
     }
 
 }

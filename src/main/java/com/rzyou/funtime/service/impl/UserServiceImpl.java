@@ -531,15 +531,15 @@ public class UserServiceImpl implements UserService {
         if (isSend!=null&&isSend.equals("1")) {
             smsService.validateSms(SmsType.REAL_VALID.getValue(),user.getPhoneNumber(),code);
         }
-
-        BankCardVerificationUtil.bankCardVerification(depositCard,fullname,identityCard);
-
-
         userValid = new FuntimeUserValid();
         userValid.setDepositCard(depositCard);
         userValid.setFullname(fullname);
         userValid.setIdentityCard(identityCard);
         userValid.setUserId(userId);
+        if (userValidMapper.checkValidExist(userValid)==null) {
+            BankCardVerificationUtil.bankCardVerification(depositCard, fullname, identityCard);
+        }
+
         int k = userValidMapper.insertSelective(userValid);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());

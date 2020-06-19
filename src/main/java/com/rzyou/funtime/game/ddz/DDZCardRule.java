@@ -781,8 +781,6 @@ public class DDZCardRule {
     }
 
     public static void main(String[] args) {
-        Map<Integer, String> pooker = DdzStaticData.pooker;
-        System.out.println(pooker.size());
     }
 
 
