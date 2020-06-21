@@ -400,6 +400,7 @@ public class LoginController {
             data.put("staticResource",parameterService.getStaticResource());
             data.put("userUrl",Constant.COS_URL_PREFIX+Constant.AGREEMENT_USER);
             data.put("priveteUrl",Constant.COS_URL_PREFIX+Constant.AGREEMENT_PRIVACY);
+            data.put("boxRuleUrl",Constant.COS_URL_PREFIX+Constant.BOX_RULE);
 
             data.put("roomNotice",Constant.ROOM_NOTICE);
             result.setData(data);

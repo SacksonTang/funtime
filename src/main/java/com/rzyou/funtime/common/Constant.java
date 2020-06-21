@@ -34,6 +34,7 @@ public class Constant {
     public final static String AGREEMENT_WITHDRAL = "/agreement/withdral_protocol.html";
     public final static String AGREEMENT_RECHARGE = "/agreement/recharge_protocol.html";
     public final static String AGREEMENT_USER = "/agreement/user_protocol.html";
+    public final static String BOX_RULE = "/box/box_rule.png";
     public final static String DEFAULT_MALE_HEAD_PORTRAIT = "/default/head1.png";
     public final static String DEFAULT_FEMALE_HEAD_PORTRAIT = "/default/head2.png";
     public final static String DEFAULT_MALE_ROOM_AVATAR = "/default/room1.png";

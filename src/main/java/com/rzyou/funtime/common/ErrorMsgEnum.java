@@ -143,7 +143,7 @@ public enum ErrorMsgEnum {
     ROOM_BACKGROUND_NOBUY("80029","该资源免费,不需要购买"),
     ROOM_LOWER_OWER_ERROR("80030","房主不能下麦"),
     ROOM_GAME21_MIC_EMPTY("80031","麦位无人"),
-    ROOM_GAME21_EXISTS("80032","游戏已开始"),
+    ROOM_GAME21_EXISTS("80032","游戏正在进行中，需要游戏结束后才能发起"),
     ROOM_GAME21_MIC_ERROR("80033","麦位参数有误"),
     ROOM_GAME21_STATE_ERROR("80034","你已要牌"),
     ROOM_GAME21_UPPER_ERROR("80035","游戏中,不能跳麦"),
