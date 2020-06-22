@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
+import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
@@ -34,6 +35,8 @@ public class RoomServiceImpl implements RoomService {
     GameService gameService;
     @Autowired
     Game21Service game21Service;
+    @Autowired
+    RedisUtil redisUtil;
 
     @Autowired
     FuntimeBackgroundMapper backgroundMapper;
@@ -752,6 +755,7 @@ public class RoomServiceImpl implements RoomService {
 
         chatroomMapper.deleteByRoomId(roomId);
         deleteByRoomId(roomId);
+        game21Service.exitGameForRoomClose(roomId);
 
         if (userIds!=null&&!userIds.isEmpty()) {
             //发送通知

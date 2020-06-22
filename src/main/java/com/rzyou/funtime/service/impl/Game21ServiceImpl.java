@@ -254,6 +254,14 @@ public class Game21ServiceImpl implements Game21Service {
         }
     }
 
+    public void exitGameForRoomClose(Long roomId) {
+        roomGame21Mapper.deleteGame(roomId);
+        roomGame21Mapper.deleteGame2(roomId);
+        redisUtil.del(ROOM_MIC_NUM+roomId);
+        redisUtil.del(ROOM_POKER_NUM+roomId);
+        redisUtil.del(ROOM_POKER_STATE+roomId);
+    }
+
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Map<String, Object> doGetPoker(Long userId, Long roomId, Integer micLocation) {

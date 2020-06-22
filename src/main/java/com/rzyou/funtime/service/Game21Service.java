@@ -19,6 +19,12 @@ public interface Game21Service {
     void exitGame(Long roomId);
 
     /**
+     * 关闭房间退出游戏
+     * @param roomId
+     */
+    void exitGameForRoomClose(Long roomId);
+
+    /**
      * 要牌
      * @param userId
      * @param roomId
