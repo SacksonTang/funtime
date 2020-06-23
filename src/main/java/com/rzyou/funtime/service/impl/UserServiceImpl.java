@@ -1201,6 +1201,7 @@ public class UserServiceImpl implements UserService {
     public Map<String, Object> checkVersion(String platform, String appVersion) {
 
         Map<String, Object> result = new HashMap<>();
+        result.put("appUrl",Constant.SHARE_URL);
         //当前版本
         Map<String, Integer> curVer = appVersionMapper.getVersionInfoByVerAndPlatform(platform, appVersion);
         //当前版本信息缺失,直接更新最新版本
