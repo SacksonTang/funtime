@@ -57,4 +57,9 @@ public interface MusicService {
      * @return
      */
     Map<String, Object> getLocalMusics(Integer startPage, Integer pageSize, Integer tagId, String content) throws Exception;
+
+    /**
+     * 初始化音乐
+     */
+    void initMusics();
 }

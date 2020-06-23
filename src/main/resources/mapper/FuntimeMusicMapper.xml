@@ -12,4 +12,7 @@
     </if>
      order by hot desc
   </select>
+  <insert id="insertMusic" parameterType="java.util.Map">
+    insert into t_funtime_music (tag_id,url,name,search_name,type) values (#{tagId},#{url},#{name},#{searchName},#{type})
+  </insert>
 </mapper>

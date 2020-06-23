@@ -9,5 +9,7 @@ import java.util.Map;
 @Mapper
 public interface FuntimeMusicMapper {
 
+    int insertMusic(Map<String,Object> map);
+
     List<Map<String,Object>> getLocalMusics(@Param("startPage") Integer startPage, @Param("pageSize") Integer pageSize, @Param("tagId") Integer tagId,@Param("content")  String content);
 }
