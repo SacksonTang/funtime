@@ -84,8 +84,11 @@
     m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
     u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
+    m.hots,
     g.tag_name  tagNames,
     g.tag_color tagColor,
+    g.tag_url tagUrl,
+
     (select count(u1.id) from t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id where u1.sex = 1 and u1.online_state = 1 and m.id = cu.room_id) maleCount,
     (select count(u2.id) from t_funtime_chatroom_mic cu inner join t_funtime_user u2 on cu.mic_user_id = u2.id where u2.sex = 2 and u2.online_state = 1 and m.id = cu.room_id) femaleCount,
     (select count(u1.id) from t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id where u1.sex = 1 and u1.online_state = 1 and m.id = cu.room_id)
@@ -108,6 +111,32 @@
       </if>
      group by m.id
      order by m.hot desc,onlineNum desc ,m.id desc
+  </select>
+  <select id="getRoomList2" parameterType="java.lang.Integer" resultType="java.util.Map">
+    select
+    m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+    u.sex,u.show_id showId,
+    m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
+    m.hots,
+    g.tag_name  tagNames,
+    g.tag_color tagColor,
+    g.tag_url tagUrl
+    from t_funtime_chatroom m
+    inner join t_funtime_user u on m.user_id = u.id
+
+    left join t_funtime_tag g on g.id = m.tags
+    where m.is_block = 2 and m.state = 1
+
+    <if test="tagId!=null and tagId!='' and tagId!=0">
+      <if test="tagId == -1">
+        and m.hot > 0
+      </if>
+      <if test="tagId != -1">
+        and FIND_IN_SET(#{tagId},tags)>0
+      </if>
+    </if>
+    group by m.id
+    order by m.hot desc,m.hots desc ,m.id desc
   </select>
 
   <select id="getRoomLogList" parameterType="java.lang.Long" resultType="java.util.Map">

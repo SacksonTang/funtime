@@ -68,7 +68,7 @@
        inner join t_funtime_user u on f.user_id = u.id
        inner join (t_funtime_user_account t
        inner join t_funtime_user_level_conf l on t.level = l.level) on f.user_id = t.user_id
-       where f.score>0
+       where 1=1
     order by f.score desc
     limit ${endCount}
   </select>
@@ -84,7 +84,7 @@
        inner join t_funtime_user u on f.user_id = u.id
        inner join (t_funtime_user_account t
        inner join t_funtime_user_level_conf l on t.level = l.level) on f.user_id = t.user_id
-       where f.score>0
+       where 1=1
        <if test="startDate !=null and endDate!=null">
          and f.create_time BETWEEN #{startDate} AND #{endDate}
        </if>

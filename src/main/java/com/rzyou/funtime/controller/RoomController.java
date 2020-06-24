@@ -381,6 +381,36 @@ public class RoomController {
     }
 
     /**
+     * 房间列表2
+     */
+    @PostMapping("getRoomList2")
+    public ResultMsg<Object> getRoomList2(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
+            Integer tagId = paramJson.getInteger("tagId");
+
+            Map<String,Object> map = new HashMap<>();
+            map.put("pageInfo",roomService.getRoomList2(startPage, pageSize,tagId));
+            result.setData(map);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 我进入的房间列表
      * @param request
      * @return

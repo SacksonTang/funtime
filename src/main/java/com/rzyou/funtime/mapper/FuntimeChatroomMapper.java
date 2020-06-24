@@ -46,6 +46,8 @@ public interface FuntimeChatroomMapper {
 
     List<Map<String, Object>> getRoomList(Integer tagId);
 
+    List<Map<String, Object>> getRoomList2(Integer tagId);
+
     List<Map<String, Object>> getRoomLogList(Long userId);
 
 

@@ -135,6 +135,14 @@ public interface RoomService {
      * @return
      */
     PageInfo<Map<String,Object>> getRoomList(Integer startPage, Integer pageSize, Integer tagId);
+    /**
+     * 获取聊天室列表
+     * @param startPage
+     * @param pageSize
+     * @param tagId
+     * @return
+     */
+    PageInfo<Map<String,Object>> getRoomList2(Integer startPage, Integer pageSize, Integer tagId);
 
     /**
      * 获取聊天室用户信息
