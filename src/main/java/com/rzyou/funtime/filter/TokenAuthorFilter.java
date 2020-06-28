@@ -56,7 +56,7 @@ public class TokenAuthorFilter implements Filter {
 
         String uri = req.getRequestURI();
         log.info("访问URI!===========uri=========> {}",uri);
-        if (uri.startsWith("/login")||uri.startsWith("/druid")||uri.startsWith("/callback")){
+        if (uri.startsWith("/login")||uri.startsWith("/druid")||uri.startsWith("/callback")||uri.startsWith("/activity")){
             filterChain.doFilter(request, response);
             return;
         }

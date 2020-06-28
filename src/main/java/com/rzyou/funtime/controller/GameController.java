@@ -1,6 +1,7 @@
 package com.rzyou.funtime.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.ResultMsg;
@@ -163,6 +164,7 @@ public class GameController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = paramJson.getLong("userId");
+            Long roomId = paramJson.getLong("roomId");
             Integer id = paramJson.getInteger("id");
 
             if (userId == null || id == null ){
@@ -170,7 +172,7 @@ public class GameController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            result.setData(gameService.drawing(id,userId));
+            result.setData(gameService.drawing(id,userId,roomId));
             return result;
 
         } catch (BusinessException be) {
@@ -197,13 +199,17 @@ public class GameController {
 
         ResultMsg<Object> result = new ResultMsg<>();
         try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
             Long userId = HttpHelper.getUserId();
+
+            Long roomId = paramJson!=null?paramJson.getLong("roomId"):null;
+
             if (userId == null ){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            Map<String, Object> map = JsonUtil.getMap("fish", gameService.getBulletOfFish(userId));
+            Map<String, Object> map = JsonUtil.getMap("fish", gameService.getBulletOfFish(userId,roomId));
             result.setData(map);
             return result;
 
@@ -274,12 +280,13 @@ public class GameController {
             Long userId = HttpHelper.getUserId();
             Integer bullet = paramJson.getInteger("bullet");
             Integer type = paramJson.getInteger("type");
+            Long roomId = paramJson.getLong("roomId");
             if (userId == null||bullet==null||bullet<100||bullet%100!=0||type==null){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            return gameService.buyBullet(userId,bullet,type);
+            return gameService.buyBullet(userId,bullet,type,roomId);
 
         } catch (BusinessException be) {
             log.error("buyBullet BusinessException==========>{}",be.getMsg());
@@ -375,13 +382,14 @@ public class GameController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Integer counts = paramJson.getInteger("counts");
             Integer type = paramJson.getInteger("type");
+            Long roomId = paramJson.getLong("roomId");
             Long userId = HttpHelper.getUserId();
             if (userId == null||counts == null||type == null||counts<1){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            return gameService.eggDrawing(userId,counts,type);
+            return gameService.eggDrawing(userId,counts,type,roomId);
 
         } catch (BusinessException be) {
             be.printStackTrace();
@@ -429,7 +437,7 @@ public class GameController {
     }
 
     /**
-     * 砸蛋
+     * 夺宝
      * @param request
      * @return
      */
@@ -440,13 +448,14 @@ public class GameController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Integer counts = paramJson.getInteger("counts");
+            Long roomId = paramJson.getLong("roomId");
             Long userId = HttpHelper.getUserId();
             if (userId == null||counts == null||counts<1){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            return gameService.circleDrawing(userId,counts);
+            return gameService.circleDrawing(userId,counts,roomId);
 
         } catch (BusinessException be) {
             be.printStackTrace();

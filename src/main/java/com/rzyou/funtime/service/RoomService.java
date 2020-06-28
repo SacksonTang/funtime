@@ -452,4 +452,13 @@ public interface RoomService {
      * @return
      */
     List<Map<String, Object>> getMicInfoByRoomId(Long roomId);
+
+    void updateHotsPlus(Long roomId, int hots);
+
+    void updateHotsSub(Long roomId, int hots);
+
+    /**
+     * 定时重置热度
+     */
+    void resetRoomHotsTask();
 }

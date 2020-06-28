@@ -13,6 +13,7 @@
     <result column="is_block" jdbcType="INTEGER" property="isBlock" />
     <result column="is_lock" jdbcType="INTEGER" property="isLock" />
     <result column="hot" jdbcType="INTEGER" property="hot" />
+    <result column="hots" jdbcType="INTEGER" property="hots" />
     <result column="online_num" jdbcType="INTEGER" property="onlineNum" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
@@ -29,7 +30,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     id, name, tags, exam_desc, is_block, is_lock, hot, online_num, state, create_time,
-    chat_message_file,user_id,password,exam_url,avatar_url,background_id
+    chat_message_file,user_id,password,exam_url,avatar_url,background_id,hots
   </sql>
   <select id="getAllRoom" resultType="java.lang.Long" >
     select
@@ -212,6 +213,9 @@
       <if test="hot != null">
         hot,
       </if>
+      <if test="hots != null">
+        hots,
+      </if>
       <if test="onlineNum != null">
         online_num,
       </if>
@@ -257,6 +261,9 @@
       </if>
       <if test="hot != null">
         #{hot,jdbcType=INTEGER},
+      </if>
+      <if test="hots != null">
+        #{hots,jdbcType=INTEGER},
       </if>
       <if test="onlineNum != null">
         #{onlineNum,jdbcType=INTEGER},
@@ -339,15 +346,32 @@
       background_id = #{backgroundId}
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateOnlineNumPlus" parameterType="java.lang.Long">
+  <update id="updateOnlineNumPlus" >
     update t_funtime_chatroom
-    set online_num = online_num+1
+    set online_num = online_num+1,hots = hots+#{hots}
     where id = #{id}
   </update>
-  <update id="updateOnlineNumSub" parameterType="java.lang.Long">
+  <update id="updateOnlineNumSub" >
     update t_funtime_chatroom
-    set online_num = online_num-1
+    set online_num = online_num-1,hots = hots-#{hots}
     where id = #{id}
+  </update>
+  <update id="updateHotsPlus" >
+    update t_funtime_chatroom
+    set hots = hots+#{hots}
+    where id = #{id}
+  </update>
+  <update id="updateHotsSub" >
+    update t_funtime_chatroom
+    set hots = hots-#{hots}
+    where id = #{id}
+  </update>
+    <update id="resetRoomHotsTask" >
+    update t_funtime_chatroom a set a.hots = (
+         select ifnull(sum(if(b.user_role = 1,5,if(u.sex = 2,3,2))),0)
+         from t_funtime_chatroom_mic b inner join t_funtime_user u on b.mic_user_id = u.id
+         where u.online_state = 1 and b.room_id = a.id
+        )
   </update>
   <update id="updateOnlineNumTask">
     update  t_funtime_chatroom m

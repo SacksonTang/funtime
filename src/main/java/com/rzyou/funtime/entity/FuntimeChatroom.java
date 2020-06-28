@@ -30,6 +30,8 @@ public class FuntimeChatroom implements Serializable {
 
     private Integer hot;
 
+    private Integer hots;
+
     private Integer onlineNum;
 
     private Integer state;

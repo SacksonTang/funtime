@@ -31,6 +31,19 @@ public class CommonTask {
     GameService gameService;
 
     /**
+     * 房间热度重置
+     */
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void resetRoomHotsTask(){
+        log.info("房间热度重置 resetRoomHots:{}",DateUtil.getCurrentDateTimeExtr());
+        try {
+            roomService.resetRoomHotsTask();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 18秒后自动停牌
      */
     @Scheduled(fixedRate = 1000)

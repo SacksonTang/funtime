@@ -36,9 +36,15 @@ public interface FuntimeChatroomMapper {
 
     int updateChatroomBackgroundId(@Param("id") Long id, @Param("backgroundId") Integer backgroundId);
 
-    int updateOnlineNumPlus(Long id);
+    int updateOnlineNumPlus(@Param("id") Long id, @Param("hots") int hots);
 
-    int updateOnlineNumSub(Long id);
+    int updateOnlineNumSub(@Param("id") Long id, @Param("hots") int hots);
+
+    int updateHotsPlus(@Param("id") Long id, @Param("hots") int hots);
+
+    int updateHotsSub(@Param("id") Long id, @Param("hots") int hots);
+
+    int resetRoomHotsTask();
 
     int updateOnlineNumTask();
 

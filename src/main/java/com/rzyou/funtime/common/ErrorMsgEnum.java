@@ -149,7 +149,8 @@ public enum ErrorMsgEnum {
     ROOM_GAME21_UPPER_ERROR("80035","游戏中,不能跳麦"),
 
     DRAW_POOL_NOT_EN("90001","奖池余额不足"),
-    DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启")
+    DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启"),
+    DRAW_ACTIVITY_USER_EXIST("90003","每个用户只能抽奖一次")
 
     ;
 

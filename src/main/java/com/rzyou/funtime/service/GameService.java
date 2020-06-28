@@ -54,9 +54,10 @@ public interface GameService {
      * 摇摇乐抽奖
      * @param id
      * @param userId
+     * @param roomId
      * @return
      */
-    Map<String,Object> drawing(Integer id, Long userId);
+    Map<String,Object> drawing(Integer id, Long userId, Long roomId);
 
     /**
      * 修改摇摇乐配置
@@ -66,9 +67,10 @@ public interface GameService {
     /**
      * 获取捕鱼得分和子弹数
      * @param userId
+     * @param roomId
      * @return
      */
-    Map<String,Object> getBulletOfFish(Long userId);
+    Map<String,Object> getBulletOfFish(Long userId, Long roomId);
 
     /**
      * 保存捕鱼得分
@@ -83,8 +85,9 @@ public interface GameService {
      * @param userId
      * @param bullet
      * @param type
+     * @param roomId
      */
-    ResultMsg<Object> buyBullet(Long userId, Integer bullet, Integer type);
+    ResultMsg<Object> buyBullet(Long userId, Integer bullet, Integer type, Long roomId);
 
     /**
      * 捕鱼排行榜
@@ -114,9 +117,10 @@ public interface GameService {
      * @param userId
      * @param counts
      * @param type
+     * @param roomId
      * @return
      */
-    ResultMsg<Object> eggDrawing(Long userId, Integer counts, Integer type);
+    ResultMsg<Object> eggDrawing(Long userId, Integer counts, Integer type, Long roomId);
 
     /**
      * 转盘配置
@@ -126,10 +130,26 @@ public interface GameService {
     Map<String,Object> getCircleConf(Long userId);
 
     /**
+     * 活动转盘配置
+     * @return
+     */
+    Map<String, Object> getCircleActivityConf();
+
+    /**
      * 转盘
      * @param userId
      * @param counts
+     * @param roomId
      * @return
      */
-    ResultMsg<Object> circleDrawing(Long userId, Integer counts);
+    ResultMsg<Object> circleDrawing(Long userId, Integer counts, Long roomId);
+
+    /**
+     * 活动夺宝
+     * @param userId
+     * @param activityNo
+     * @param channelNo
+     * @return
+     */
+    ResultMsg<Object> circleActivityDrawing(Long userId, String activityNo, String channelNo);
 }

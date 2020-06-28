@@ -99,6 +99,7 @@ public class RoomServiceImpl implements RoomService {
         chatroom.setUserId(userId);
         chatroom.setName(nickname);
         chatroom.setAvatarUrl(avatarUrl);
+        chatroom.setHots(5);
         Integer tags = tagMapper.queryTagsByTypeAndName("game_list", "娱乐");
         chatroom.setTags(tags==null?null:tags.toString());
         chatroom.setBackgroundId(backgroundMapper.getBackgroundIdForType1());
@@ -209,6 +210,8 @@ public class RoomServiceImpl implements RoomService {
             if (chatroom.getState() == 2){
                 chatroomMapper.updateChatroomState(chatroom.getId(),1);
             }
+            //房间人数+1
+            updateOnlineNumPlus(roomId,5);
         }else {
             //用户角色
 
@@ -218,10 +221,9 @@ public class RoomServiceImpl implements RoomService {
             }
             //进入房间记录
             saveRoomMic(roomId,userId, userRole);
+            //房间人数+1
+            updateOnlineNumPlus(roomId,user.getSex() == 2?3:2);
         }
-
-        //房间人数+1
-        updateOnlineNumPlus(roomId);
 
         //用户进入房间日志
         saveUserRoomLog(1,userId,roomId,null);
@@ -363,7 +365,7 @@ public class RoomServiceImpl implements RoomService {
             }
         }
         //房间人数-1
-        updateOnlineNumSub(roomId);
+        updateOnlineNumSub(roomId,userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2);
 
         sendRoomInfoNotice(roomId);
     }
@@ -446,7 +448,7 @@ public class RoomServiceImpl implements RoomService {
         saveChatroomKickedRecord(kickIdUserId,userId,roomId);
 
         //房间人数-1
-        updateOnlineNumSub(roomId);
+        updateOnlineNumSub(roomId,userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2);
         //发送通知
         noticeService.notice16(micLocation, roomId, kickIdUserId);
 
@@ -1465,6 +1467,28 @@ public class RoomServiceImpl implements RoomService {
         return chatroomMicMapper.getMicInfoByRoomId(roomId);
     }
 
+    @Override
+    public void updateHotsPlus(Long roomId, int hots) {
+        int k = chatroomMapper.updateHotsPlus(roomId,hots);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public void updateHotsSub(Long roomId, int hots) {
+        int k = chatroomMapper.updateHotsSub(roomId,hots);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public void resetRoomHotsTask() {
+
+        chatroomMapper.resetRoomHotsTask();
+    }
+
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){
         return chatroomMicMapper.getInfoByRoomIdAndUser(roomId,userId);
     }
@@ -1511,15 +1535,15 @@ public class RoomServiceImpl implements RoomService {
 
     }
 
-    public void updateOnlineNumPlus(Long id){
-        int k = chatroomMapper.updateOnlineNumPlus(id);
+    public void updateOnlineNumPlus(Long id, int hots){
+        int k = chatroomMapper.updateOnlineNumPlus(id,hots);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
     }
 
-    public void updateOnlineNumSub(Long id){
-        int k = chatroomMapper.updateOnlineNumSub(id);
+    public void updateOnlineNumSub(Long id,Integer hots){
+        int k = chatroomMapper.updateOnlineNumSub(id,hots);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }

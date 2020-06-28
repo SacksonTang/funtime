@@ -12,4 +12,5 @@ public class FuntimeUserAccountFishRecord {
     private Long userId;
     private Integer bullet;
     private Integer bulletPrice;
+    private Long roomId;
 }

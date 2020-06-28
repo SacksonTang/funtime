@@ -53,8 +53,8 @@
     values (#{userId},#{bullet},#{score})
   </insert>
   <insert id="insertFishAccountRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountFishRecord" useGeneratedKeys="true" keyProperty="id">
-    insert into t_funtime_user_account_fish_record (user_id,bullet,bullet_price)
-    values (#{userId},#{bullet},#{bulletPrice})
+    insert into t_funtime_user_account_fish_record (user_id,bullet,bullet_price,room_id)
+    values (#{userId},#{bullet},#{bulletPrice},#{roomId})
   </insert>
   <select id="getFishRanklist" resultType="java.util.Map">
     select f.user_id as userId,f.score ,

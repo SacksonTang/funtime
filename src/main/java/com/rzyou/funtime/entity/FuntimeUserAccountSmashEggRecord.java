@@ -15,6 +15,7 @@ public class FuntimeUserAccountSmashEggRecord implements Serializable {
     private static final long serialVersionUID = 7800714632749617351L;
     private Long id;
     private Long userId;
+    private Long roomId;
     private Integer blueAmount;
     private Integer drawRandom;
     private Integer drawNumber;

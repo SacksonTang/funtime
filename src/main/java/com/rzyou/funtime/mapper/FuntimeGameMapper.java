@@ -14,6 +14,14 @@ import java.util.Map;
 @Mapper
 public interface FuntimeGameMapper {
 
+    Long getCircleActivityRecordByUserId(Long userId);
+
+    Integer getActivityInfo(@Param("userId") Long userId,@Param("activityNo") String activityNo,@Param("channelNo") String channelNo);
+
+    List<Map<String,Object>> getCircleActivityConfs();
+
+    List<FuntimeGameCircleConf> getCircleActivityConf();
+
     Map<String,Object> getGameInfoByCode(Integer gameCode);
 
     int updateYaoyaoPoolTask();
@@ -43,6 +51,8 @@ public interface FuntimeGameMapper {
     int insertSmashEggRecord(FuntimeUserAccountSmashEggRecord record);
 
     int insertCircleRecord(FuntimeUserAccountCircleRecord record);
+
+    int insertCircleActivityRecord(FuntimeUserAccountCircleRecord record);
 
     List<FuntimeGameCircleConf> getCircleConfs();
 }

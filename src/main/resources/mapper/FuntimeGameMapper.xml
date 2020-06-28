@@ -53,6 +53,26 @@
     select id,draw_number as drawNumber,draw_url as drawUrl,draw_type as drawType,draw_id as drawId,draw_val as drawVal,probability,broadcast
     from t_funtime_game_circle_conf
   </select>
+  <select id="getCircleActivityConf"  resultType="com.rzyou.funtime.entity.FuntimeGameCircleConf">
+    select id,draw_number as drawNumber,draw_url as drawUrl,draw_type as drawType,draw_id as drawId,draw_val as drawVal,probability
+    from t_funtime_game_circle_activity_conf
+  </select>
+  <select id="getCircleActivityConfs"  resultType="java.util.Map">
+    select id,draw_number as drawNumber,name,draw_url as drawUrl,draw_type as drawType,draw_id as drawId,draw_val as drawVal
+    from t_funtime_game_circle_activity_conf
+  </select>
+
+  <select id="getActivityInfo"  resultType="java.lang.Integer">
+    select id
+    from t_funtime_activity
+    where activity_no = #{activityNo} and channel_no = #{channelNo}
+    and (select registration_time from t_funtime_user where id = #{userId}) between user_start_time and user_end_time
+    and now() between activity_start_time and activity_end_time
+  </select>
+
+  <select id="getCircleActivityRecordByUserId" resultType="java.lang.Long">
+    select id from t_funtime_user_account_circle_activity_record where user_id = #{userId}
+  </select>
 
   <update id="updateActualPoolForPlus">
     update  t_funtime_game_yaoyao_pool
@@ -83,18 +103,22 @@
   <insert id="insertYaoyaoRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountYaoyaoRecord" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user_account_yaoyao_record (user_id, type,
       draw_random, draw_info, draw_amount,basic_amount,user_amont,pool_amount,
-      pool_percent,user_exchange_amount)
+      pool_percent,user_exchange_amount,room_id)
     values (#{userId}, #{type},
       #{drawRandom}, #{drawInfo}, #{drawAmount},
-      #{basicAmount},#{userAmont},#{poolAmount},#{poolPercent},#{userExchangeAmount})
+      #{basicAmount},#{userAmont},#{poolAmount},#{poolPercent},#{userExchangeAmount},#{roomId})
   </insert>
 
   <insert id="insertSmashEggRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountSmashEggRecord" keyProperty="id" useGeneratedKeys="true">
-    insert into t_funtime_user_account_smash_egg_record (user_id,blue_amount,draw_random,draw_number,type,draw_type,draw_id,draw_val)
-    values (#{userId},#{blueAmount},#{drawRandom},#{drawNumber},#{type},#{drawType},#{drawId},#{drawVal})
+    insert into t_funtime_user_account_smash_egg_record (user_id,blue_amount,draw_random,draw_number,type,draw_type,draw_id,draw_val,room_id)
+    values (#{userId},#{blueAmount},#{drawRandom},#{drawNumber},#{type},#{drawType},#{drawId},#{drawVal},#{roomId})
   </insert>
   <insert id="insertCircleRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountCircleRecord" keyProperty="id" useGeneratedKeys="true">
-    insert into t_funtime_user_account_circle_record (user_id,blue_amount,draw_random,draw_number,draw_type,draw_id,draw_val)
-    values (#{userId},#{blueAmount},#{drawRandom},#{drawNumber},#{drawType},#{drawId},#{drawVal})
+    insert into t_funtime_user_account_circle_record (user_id,blue_amount,draw_random,draw_number,draw_type,draw_id,draw_val,room_id)
+    values (#{userId},#{blueAmount},#{drawRandom},#{drawNumber},#{drawType},#{drawId},#{drawVal},#{roomId})
+  </insert>
+  <insert id="insertCircleActivityRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountCircleRecord" keyProperty="id" useGeneratedKeys="true">
+    insert into t_funtime_user_account_circle_activity_record (activity_id,user_id,draw_random,draw_number,draw_type,draw_id,draw_val)
+    values (#{activityId},#{userId},#{drawRandom},#{drawNumber},#{drawType},#{drawId},#{drawVal})
   </insert>
 </mapper>

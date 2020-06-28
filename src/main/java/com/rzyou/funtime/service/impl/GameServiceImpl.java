@@ -125,7 +125,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     @Transactional( rollbackFor = Throwable.class)
-    public Map<String,Object> drawing(Integer id,Long userId){
+    public Map<String,Object> drawing(Integer id, Long userId, Long roomId){
         FuntimeGameYaoyaoPool poolInfo = gameMapper.getPoolInfoById(id);
         if (poolInfo==null){
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -198,7 +198,7 @@ public class GameServiceImpl implements GameService {
             //奖池增加
             Long recordId = saveYaoyaoRecord(userId,type,random,drawInfo,0
                     ,poolInfo.getQuota(),userAmount,poolInfo.getActualPool()
-                    ,new BigDecimal(100).multiply(poolPer).intValue(),poolInfo.getQuota());
+                    ,new BigDecimal(100).multiply(poolPer).intValue(),poolInfo.getQuota(), roomId);
             updateActualPoolForPlus(id,subActualPool.intValue());
             if (type == 1) {
                 result.put("userAmount",userAccount.getGoldCoin().intValue()-poolInfo.getQuota());
@@ -238,7 +238,7 @@ public class GameServiceImpl implements GameService {
         Long recordId = saveYaoyaoRecord(userId,type,random,drawInfo,drawAmount.intValue()
                 ,poolInfo.getQuota(),userAmount,poolInfo.getActualPool()
                 ,new BigDecimal(100).multiply(poolPer).intValue()
-                ,userExchangeAmount);
+                ,userExchangeAmount,roomId);
         if (drawAmount.intValue()-poolInfo.getQuota()<0) {
             result.put("userAmount",userAmount-poolInfo.getQuota()+drawAmount.intValue());
 
@@ -278,6 +278,10 @@ public class GameServiceImpl implements GameService {
             }
         }
 
+        if (type == 2&&roomId!=null) {
+
+            roomService.updateHotsPlus(roomId,new BigDecimal(poolInfo.getQuota()/10).setScale(0,BigDecimal.ROUND_UP).intValue() );
+        }
         return result;
     }
 
@@ -377,9 +381,10 @@ public class GameServiceImpl implements GameService {
 
     }
 
-    private Long saveYaoyaoRecord(Long userId, int type, int random, String drawInfo, int drawAmount, Integer basicAmount, int userAmont, Integer poolAmount, int poolPercent, Integer userExchangeAmount) {
+    private Long saveYaoyaoRecord(Long userId, int type, int random, String drawInfo, int drawAmount, Integer basicAmount, int userAmont, Integer poolAmount, int poolPercent, Integer userExchangeAmount, Long roomId) {
         FuntimeUserAccountYaoyaoRecord record = new FuntimeUserAccountYaoyaoRecord();
         record.setUserId(userId);
+        record.setRoomId(roomId);
         record.setType(type);
         record.setDrawRandom(random);
         record.setDrawInfo(drawInfo);
@@ -396,10 +401,11 @@ public class GameServiceImpl implements GameService {
         return record.getId();
     }
 
-    private Long saveSmashEggRecord(Long userId,Integer blueAmount, Integer drawRandom, Integer drawNumber,
-            Integer type, Integer drawType, Integer drawId, BigDecimal drawVal){
+    private Long saveSmashEggRecord(Long userId, Integer blueAmount, Integer drawRandom, Integer drawNumber,
+                                    Integer type, Integer drawType, Integer drawId, BigDecimal drawVal, Long roomId){
         FuntimeUserAccountSmashEggRecord record = new FuntimeUserAccountSmashEggRecord();
         record.setUserId(userId);
+        record.setRoomId(roomId);
         record.setBlueAmount(blueAmount);
         record.setDrawId(drawId);
         record.setDrawNumber(drawNumber);
@@ -415,10 +421,11 @@ public class GameServiceImpl implements GameService {
 
     }
 
-    private Long saveCircleRecord(Long userId,Integer blueAmount, Integer drawRandom, Integer drawNumber,
-                                  Integer drawType, Integer drawId, BigDecimal drawVal){
+    private Long saveCircleRecord(Long userId, Integer blueAmount, Integer drawRandom, Integer drawNumber,
+                                  Integer drawType, Integer drawId, BigDecimal drawVal, Long roomId){
         FuntimeUserAccountCircleRecord record = new FuntimeUserAccountCircleRecord();
         record.setUserId(userId);
+        record.setRoomId(roomId);
         record.setBlueAmount(blueAmount);
         record.setDrawId(drawId);
         record.setDrawNumber(drawNumber);
@@ -432,12 +439,29 @@ public class GameServiceImpl implements GameService {
         return record.getId();
 
     }
+    private Long saveCircleActivityRecord(Long userId, Integer drawRandom, Integer drawNumber,
+                                          Integer drawType, Integer drawId, BigDecimal drawVal, Integer activityId){
+        FuntimeUserAccountCircleRecord record = new FuntimeUserAccountCircleRecord();
+        record.setUserId(userId);
+        record.setActivityId(activityId);
+        record.setDrawId(drawId);
+        record.setDrawNumber(drawNumber);
+        record.setDrawRandom(drawRandom);
+        record.setDrawType(drawType);
+        record.setDrawVal(drawVal);
+        int k = gameMapper.insertCircleActivityRecord(record);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        return record.getId();
+
+    }
 
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Map<String, Object> getBulletOfFish(Long userId) {
-        Map<String, Object> map = accountService.getBulletOfFish(userId);
+    public Map<String, Object> getBulletOfFish(Long userId, Long roomId) {
+        Map<String, Object> map = accountService.getBulletOfFish(userId,roomId);
         FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
         String bulletPrice = parameterService.getParameterValueByKey("bullet_price");
         String bulletPriceGold = parameterService.getParameterValueByKey("bullet_price_gold");
@@ -455,7 +479,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public ResultMsg<Object> buyBullet(Long userId, Integer bullet, Integer type) {
+    public ResultMsg<Object> buyBullet(Long userId, Integer bullet, Integer type, Long roomId) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
         String bulletPrice = parameterService.getParameterValueByKey("bullet_price");
         String bulletPriceGold = parameterService.getParameterValueByKey("bullet_price_gold");
@@ -492,7 +516,7 @@ public class GameServiceImpl implements GameService {
                 return resultMsg;
             }
         }
-        Long recordId = accountService.insertFishAccountRecord(userId,bullet,Integer.parseInt(bulletPrice));
+        Long recordId = accountService.insertFishAccountRecord(userId,bullet,Integer.parseInt(bulletPrice),roomId);
         accountService.updateBulletForPlus(userId,bullet);
         if (type == 1){
             userService.updateUserAccountGoldCoinSub(userId,amount.intValue());
@@ -502,7 +526,11 @@ public class GameServiceImpl implements GameService {
         }else {
             userService.updateUserAccountForSub(userId, null, amount, null);
             accountService.saveUserAccountBlueLog(userId,amount,recordId,OperationType.BUY_BULLET.getAction(),OperationType.BUY_BULLET.getOperationType());
+            if (roomId!=null&&roomId>0) {
+                roomService.updateHotsPlus(roomId,amount.divide(new BigDecimal(10)).setScale(0, BigDecimal.ROUND_UP).intValue());
+            }
         }
+
         return resultMsg;
     }
 
@@ -580,7 +608,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public ResultMsg<Object> eggDrawing(Long userId, Integer counts, Integer type) {
+    public ResultMsg<Object> eggDrawing(Long userId, Integer counts, Integer type, Long roomId) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
         FuntimeUserAccount userAccount = accountService.getUserAccountByUserId(userId);
         if (userAccount == null){
@@ -630,7 +658,7 @@ public class GameServiceImpl implements GameService {
             Integer drawId = conf.getDrawId();
 
             Long recordId = saveSmashEggRecord(userId,price, random, conf.getDrawNumber()
-                    , type, conf.getDrawType(), drawId, conf.getDrawVal());
+                    , type, conf.getDrawType(), drawId, conf.getDrawVal(),roomId);
             //礼物
             String noticeGiftName = null;
             Integer noticePrice = 0;
@@ -733,6 +761,12 @@ public class GameServiceImpl implements GameService {
         resultMap.put("drawInfo",drawList);
 
         resultMsg.setData(resultMap);
+
+        if (roomId!=null) {
+
+            roomService.updateHotsPlus(roomId,new BigDecimal(consumeAmount/10).setScale(0, BigDecimal.ROUND_UP).intValue());
+        }
+
         return resultMsg;
     }
 
@@ -751,7 +785,17 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public ResultMsg<Object> circleDrawing(Long userId, Integer counts) {
+    public Map<String, Object> getCircleActivityConf() {
+        Map<String,Object> resultMap = new HashMap<>();
+        //转盘价格
+        resultMap.put("list",gameMapper.getCircleActivityConfs());
+
+        return resultMap;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public ResultMsg<Object> circleDrawing(Long userId, Integer counts, Long roomId) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
         FuntimeUserAccount userAccount = accountService.getUserAccountByUserId(userId);
         if (userAccount == null){
@@ -793,7 +837,7 @@ public class GameServiceImpl implements GameService {
             Integer drawId = conf.getDrawId();
 
             Long recordId = saveCircleRecord(userId,price, random, conf.getDrawNumber()
-                    , conf.getDrawType(), drawId, conf.getDrawVal());
+                    , conf.getDrawType(), drawId, conf.getDrawVal(),roomId);
             drawMap.put("drawNumber",conf.getDrawNumber());
             String noticeGiftName = null;
             Integer noticePrice = 0;
@@ -897,11 +941,61 @@ public class GameServiceImpl implements GameService {
         resultMap.put("drawInfo",drawList);
 
         resultMsg.setData(resultMap);
+
+        if (roomId!=null) {
+
+            roomService.updateHotsPlus(roomId,new BigDecimal(consumeAmount/10).setScale(0, BigDecimal.ROUND_UP).intValue());
+        }
+        return resultMsg;
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public ResultMsg<Object> circleActivityDrawing(Long userId, String activityNo, String channelNo) {
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+
+        Integer activityId = gameMapper.getActivityInfo(userId, activityNo, channelNo);
+        if (activityId == null){
+            resultMsg.setCode(ErrorMsgEnum.DRAW_TIME_OUT.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
+            return resultMsg;
+        }
+
+        Long recordId = gameMapper.getCircleActivityRecordByUserId(userId);
+        if (recordId!=null){
+            resultMsg.setCode(ErrorMsgEnum.DRAW_ACTIVITY_USER_EXIST.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.DRAW_ACTIVITY_USER_EXIST.getDesc());
+            return resultMsg;
+        }
+
+        Map<String,Object> drawMap = new HashMap<>();
+        List<FuntimeGameCircleConf> list = getCircleActivityConf2();
+        int probabilityTotal = 1;
+        Map<String, FuntimeGameCircleConf> probabilityMap = new HashMap<>();
+        for (FuntimeGameCircleConf circleConf : list) {
+            int temp = probabilityTotal;
+            probabilityTotal += circleConf.getProbability();
+            probabilityMap.put(temp + "-" + probabilityTotal, circleConf);
+
+        }
+        int random = RandomUtils.nextInt(1, probabilityTotal);
+        FuntimeGameCircleConf conf = getCircleConf(probabilityMap, random);
+        Integer drawId = conf.getDrawId();
+
+        saveCircleActivityRecord(userId, random, conf.getDrawNumber()
+                , conf.getDrawType(), drawId, conf.getDrawVal(),activityId);
+        drawMap.put("drawNumber",conf.getDrawNumber());
+        resultMsg.setData(drawMap);
         return resultMsg;
     }
 
     private List<FuntimeGameCircleConf> getCircleConfs() {
         return gameMapper.getCircleConfs();
+    }
+
+    private List<FuntimeGameCircleConf> getCircleActivityConf2() {
+        return gameMapper.getCircleActivityConf();
     }
 
 

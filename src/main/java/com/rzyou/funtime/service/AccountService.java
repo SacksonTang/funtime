@@ -439,9 +439,10 @@ public interface AccountService {
     /**
      * 捕鱼子弹
      * @param userId
+     * @param roomId
      * @return
      */
-    Map<String, Object> getBulletOfFish(Long userId);
+    Map<String, Object> getBulletOfFish(Long userId, Long roomId);
 
     /**
      * 保存得分
@@ -456,9 +457,10 @@ public interface AccountService {
      * @param userId
      * @param bullet
      * @param parseInt
+     * @param roomId
      * @return
      */
-    Long insertFishAccountRecord(Long userId, Integer bullet, int parseInt);
+    Long insertFishAccountRecord(Long userId, Integer bullet, int parseInt, Long roomId);
 
     /**
      * 捕鱼排行榜
