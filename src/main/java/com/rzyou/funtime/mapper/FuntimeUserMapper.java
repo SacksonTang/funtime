@@ -121,4 +121,8 @@ public interface FuntimeUserMapper {
     void heartTask();
 
     int updateImHeartSync(Long userId);
+
+    Long getUserActivity(Long userId);
+
+    int insertUserActivity(@Param("userId") Long userId,@Param("activityId") Integer activityId);
 }

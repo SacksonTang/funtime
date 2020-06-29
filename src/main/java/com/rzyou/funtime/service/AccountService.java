@@ -248,6 +248,14 @@ public interface AccountService {
     ResultMsg<Object> sendGiftForRoom(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId);
 
     /**
+     * 活动赠送礼物
+     * @param userId
+     * @param toUserId
+     * @param giftId
+     * @param giftNum
+     */
+    void createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum);
+    /**
      * 全房宝箱
      * @param userId
      * @param giftId

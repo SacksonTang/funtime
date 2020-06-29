@@ -11,6 +11,13 @@ import java.util.Map;
 public interface UserService {
 
     /**
+     * 保存用户来源
+     * @param userId
+     * @param activityId
+     */
+    void insertUserActivity( Long userId, Integer activityId);
+
+    /**
      * 查询所有有效用户
      * @return
      */

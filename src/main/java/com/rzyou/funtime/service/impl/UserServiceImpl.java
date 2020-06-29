@@ -70,6 +70,13 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    public void insertUserActivity(Long userId, Integer activityId) {
+        if (userMapper.getUserActivity(userId)==null){
+            userMapper.insertUserActivity(userId,activityId);
+        }
+    }
+
+    @Override
     public List<String> getAllUserId() {
         return userMapper.getAllUserId();
     }

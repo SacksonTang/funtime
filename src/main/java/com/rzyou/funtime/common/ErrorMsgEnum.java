@@ -150,7 +150,9 @@ public enum ErrorMsgEnum {
 
     DRAW_POOL_NOT_EN("90001","奖池余额不足"),
     DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启"),
-    DRAW_ACTIVITY_USER_EXIST("90003","每个用户只能抽奖一次")
+    DRAW_ACTIVITY_USER_EXIST("90003","活动已经参与过，不能重复参与"),
+    DRAW_ACTIVITY_EMPIRE("90004","本活动仅对#至@注册用户开放喔~"),
+    DRAW_ACTIVITY_ID_ERROR("90005","触娱ID错误，请进入触娱App-我的-触娱ID中复制")
 
     ;
 

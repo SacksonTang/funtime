@@ -757,4 +757,12 @@
     update t_funtime_user set car_id = #{carId} where id = #{id}
   </update>
 
+  <select id="getUserActivity" resultType="java.lang.Long">
+    select user_id from t_funtime_user_activity where user_id = #{userId}
+  </select>
+
+  <insert id="insertUserActivity">
+    insert into t_funtime_user_activity (user_id,activity_id) values (#{userId},#{activityId})
+  </insert>
+
 </mapper>

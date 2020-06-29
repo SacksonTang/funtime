@@ -76,8 +76,8 @@ public class ActivityController {
             }
             FuntimeUser user = userService.getUserInfoByShowId(showId);
             if (user == null){
-                result.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());
-                result.setMsg(ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+                result.setCode(ErrorMsgEnum.DRAW_ACTIVITY_ID_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.DRAW_ACTIVITY_ID_ERROR.getDesc());
                 return result;
             }
             return gameService.circleActivityDrawing(user.getId(),activityNo,channelNo);

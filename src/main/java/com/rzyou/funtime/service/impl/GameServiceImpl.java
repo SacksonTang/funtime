@@ -5,7 +5,9 @@ import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.FuntimeGameMapper;
 import com.rzyou.funtime.service.*;
 import com.rzyou.funtime.utils.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import java.util.*;
  * LLP-LX
  */
 @Service
+@Slf4j
 public class GameServiceImpl implements GameService {
 
     @Autowired
@@ -215,7 +218,9 @@ public class GameServiceImpl implements GameService {
             } else {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
             }
-
+            if (type == 2&&roomId!=null) {
+                roomService.updateHotsPlus(roomId,new BigDecimal(poolInfo.getQuota()/10).setScale(0,BigDecimal.ROUND_UP).intValue() );
+            }
             result.put("actualPool",poolInfo.getActualPool()+subActualPool.intValue());
             return result;
         }
@@ -954,11 +959,20 @@ public class GameServiceImpl implements GameService {
     @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> circleActivityDrawing(Long userId, String activityNo, String channelNo) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
-
-        Integer activityId = gameMapper.getActivityInfo(userId, activityNo, channelNo);
-        if (activityId == null){
+        Map<String,Object> map = gameMapper.getActivityInfo(userId, activityNo, channelNo);
+        if (map == null||map.isEmpty()){
             resultMsg.setCode(ErrorMsgEnum.DRAW_TIME_OUT.getValue());
             resultMsg.setMsg(ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
+            return resultMsg;
+        }
+        if ("1".equals(map.get("activityFlag").toString())){
+            resultMsg.setCode(ErrorMsgEnum.DRAW_TIME_OUT.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
+            return resultMsg;
+        }
+        if ("1".equals(map.get("userFlag").toString())){
+            resultMsg.setCode(ErrorMsgEnum.DRAW_ACTIVITY_EMPIRE.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.DRAW_ACTIVITY_EMPIRE.getDesc().replace("#",map.get("startTime").toString()).replace("@",map.get("endTime").toString()));
             return resultMsg;
         }
 
@@ -968,6 +982,16 @@ public class GameServiceImpl implements GameService {
             resultMsg.setMsg(ErrorMsgEnum.DRAW_ACTIVITY_USER_EXIST.getDesc());
             return resultMsg;
         }
+        Integer activityId = Integer.parseInt(map.get("id").toString());
+        if (map.get("activityLimit")!=null){
+            Integer counts = gameMapper.getCircleActivityRecordCounts(activityId);
+            if (counts>Integer.parseInt(map.get("activityLimit").toString())){
+                resultMsg.setCode(ErrorMsgEnum.DRAW_TIME_OUT.getValue());
+                resultMsg.setMsg(ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
+                return resultMsg;
+            }
+        }
+
 
         Map<String,Object> drawMap = new HashMap<>();
         List<FuntimeGameCircleConf> list = getCircleActivityConf2();
@@ -985,6 +1009,12 @@ public class GameServiceImpl implements GameService {
 
         saveCircleActivityRecord(userId, random, conf.getDrawNumber()
                 , conf.getDrawType(), drawId, conf.getDrawVal(),activityId);
+        //礼物
+        if (conf.getDrawType() == 1) {
+
+            accountService.createGiftTrans(userService.getUserInfoByShowId("10000").getId(),userId,conf.getDrawId(),1);
+        }
+        userService.insertUserActivity(userId,activityId);
         drawMap.put("drawNumber",conf.getDrawNumber());
         resultMsg.setData(drawMap);
         return resultMsg;

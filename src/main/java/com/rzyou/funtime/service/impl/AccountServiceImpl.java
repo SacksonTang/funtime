@@ -1493,6 +1493,40 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
+    public void createGiftTrans(Long userId, Long toUserId, Integer giftId, Integer giftNum) {
+
+        FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
+        if (funtimeGift==null){
+            throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
+        }
+        BigDecimal price = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
+
+        Integer amount= price.intValue()*giftNum;
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
+        String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
+        Long recordId = saveFuntimeUserAccountGifttransRecord(userId, "送礼物-活动赠送", new BigDecimal(amount)
+                , giftNum, giftId, funtimeGift.getGiftName(), toUserId, 3, null, OperationType.GIVEGIFTACTIVITY.getOperationType());
+
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
+
+        //用户送减去蓝钻
+        //userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
+        Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
+        //用户收加上黑钻
+        userService.updateUserAccountForPlusGift(toUserId, black, giftNum, charmVal);
+        //saveUserAccountCharmRecord(userId,charmVal,recordId,1);
+        //用户送的日志
+        saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+                , OperationType.GIVEGIFTACTIVITY.getAction(), OperationType.GIVEGIFTACTIVITY.getOperationType());
+
+        //用户收的日志
+        saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFTACTIVITY.getAction()
+                , OperationType.RECEIVEGIFTACTIVITY.getOperationType());
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> sendGiftForRoom(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
 
         ResultMsg<Object> resultMsg = new ResultMsg<>();

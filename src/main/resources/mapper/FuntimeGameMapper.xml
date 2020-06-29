@@ -62,18 +62,21 @@
     from t_funtime_game_circle_activity_conf
   </select>
 
-  <select id="getActivityInfo"  resultType="java.lang.Integer">
-    select id
+  <select id="getActivityInfo"  resultType="java.util.Map">
+    select id,DATE_FORMAT(user_start_time,'%Y年%m月%d日') as  startTime,DATE_FORMAT(user_end_time,'%Y年%m月%d日') as endTime
+    ,if((select registration_time from t_funtime_user where id = #{userId}) between user_start_time and user_end_time,0,1) as userFlag
+	 ,if(now() between activity_start_time and activity_end_time,0,1) as activityFlag
+	 , activity_limit as activityLimit
     from t_funtime_activity
     where activity_no = #{activityNo} and channel_no = #{channelNo}
-    and (select registration_time from t_funtime_user where id = #{userId}) between user_start_time and user_end_time
-    and now() between activity_start_time and activity_end_time
   </select>
 
   <select id="getCircleActivityRecordByUserId" resultType="java.lang.Long">
     select id from t_funtime_user_account_circle_activity_record where user_id = #{userId}
   </select>
-
+  <select id="getCircleActivityRecordCounts" resultType="java.lang.Integer">
+    select count(id) from t_funtime_user_account_circle_activity_record where activity_id = #{activityId}
+  </select>
   <update id="updateActualPoolForPlus">
     update  t_funtime_game_yaoyao_pool
     set actual_pool = actual_pool+#{amount}

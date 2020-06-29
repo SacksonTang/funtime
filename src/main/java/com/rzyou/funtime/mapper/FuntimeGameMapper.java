@@ -14,9 +14,11 @@ import java.util.Map;
 @Mapper
 public interface FuntimeGameMapper {
 
+    Integer getCircleActivityRecordCounts(Integer activityId);
+
     Long getCircleActivityRecordByUserId(Long userId);
 
-    Integer getActivityInfo(@Param("userId") Long userId,@Param("activityNo") String activityNo,@Param("channelNo") String channelNo);
+    Map<String,Object> getActivityInfo(@Param("userId") Long userId, @Param("activityNo") String activityNo, @Param("channelNo") String channelNo);
 
     List<Map<String,Object>> getCircleActivityConfs();
 
