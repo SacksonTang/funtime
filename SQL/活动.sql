@@ -27,7 +27,7 @@ CREATE TABLE `t_funtime_game_circle_activity_conf` (
   `draw_val` int(32) DEFAULT NULL COMMENT '中奖蓝钻数/金币数',
   `probability` int(16) NOT NULL COMMENT '概率',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='活动转盘配置表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='活动转盘配置表';
 
 CREATE TABLE `t_funtime_user_account_circle_activity_record` (
   `id` bigint(64) NOT NULL AUTO_INCREMENT,
@@ -41,7 +41,7 @@ CREATE TABLE `t_funtime_user_account_circle_activity_record` (
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `activity_id` (`activity_id`,`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=470 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='活动转盘记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='活动转盘记录表';
 
 
 INSERT INTO `funtime`.`t_funtime_game_circle_activity_conf`(`id`, `draw_number`, `name`, `draw_url`, `draw_type`, `draw_id`, `draw_val`, `probability`) VALUES (1, 9, NULL, NULL, 1, 25, NULL, 689);
