@@ -85,7 +85,10 @@
     m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
     u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
-    m.hots,
+    case when 1000>m.hots then m.hots
+    when m.hots>=1000 and 10000>m.hots then CONCAT(FORMAT(m.hots/1000,2),'千')
+    when m.hots>=10000 then CONCAT(FORMAT(m.hots/10000,2),'万')
+    else 0 end hots,
     g.tag_name  tagNames,
     g.tag_color tagColor,
     g.tag_url tagUrl,
@@ -118,7 +121,10 @@
     m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
     u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
-    m.hots,
+    case when 1000>m.hots then m.hots
+    when m.hots>=1000 and 10000>m.hots then CONCAT(FORMAT(m.hots/1000,2),'千')
+    when m.hots>=10000 then CONCAT(FORMAT(m.hots/10000,2),'万')
+    else 0 end hots,
     g.tag_name  tagNames,
     g.tag_color tagColor,
     g.tag_url tagUrl
@@ -145,15 +151,16 @@
     m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
     m.online_num onlineNum,u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
+    case when 1000>m.hots then m.hots
+    when m.hots>=1000 and 10000>m.hots then CONCAT(FORMAT(m.hots/1000,2),'千')
+    when m.hots>=10000 then CONCAT(FORMAT(m.hots/10000,2),'万')
+    else 0 end hots,
     g.tag_name tagNames,
     g.tag_color tagColor,
-    count(u1.id) maleCount,
-    (m.online_num - count(u1.id)) femaleCount
+    g.tag_url tagUrl
     from t_funtime_chatroom m
     inner join t_funtime_user_visit_log l on m.id = l.room_id
     inner join t_funtime_user u on m.user_id = u.id
-    inner join (t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id and u1.sex = 1)
-    on m.id = cu.room_id
     left join t_funtime_tag g on g.id = m.tags
     where m.is_block = 2 and m.state = 1
      and l.user_id = #{userId}
