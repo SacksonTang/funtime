@@ -209,7 +209,6 @@ public class DateUtil {
     public static String getLastMonthEnd(){
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DATE, 1);
-        calendar.add(Calendar.MONTH, -1);
         calendar.add(Calendar.DATE, -1);
         return dateToString(calendar.getTime(),YYYY_MM_DD)+" 23:59:59";
     }
@@ -237,8 +236,8 @@ public class DateUtil {
 
     public static void main(String[] args) throws Exception{
 
-        System.out.println(TimeZone.getDefault().getID());
-        System.out.println(TimeZone.getDefault());
+        System.out.println(getLastWeekStart());
+        System.out.println(getLastWeekEnd());
     }
 
 }

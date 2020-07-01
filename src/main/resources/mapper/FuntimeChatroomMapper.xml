@@ -371,7 +371,7 @@
   <update id="updateHotsSub" >
     update t_funtime_chatroom
     set hots = hots-#{hots}
-    where id = #{id}
+    where id = #{id} and hots>=#{hots}
   </update>
     <update id="resetRoomHotsTask" >
     update t_funtime_chatroom a set a.hots = (

@@ -63,8 +63,8 @@
   </select>
 
   <select id="getActivityInfo"  resultType="java.util.Map">
-    select id,DATE_FORMAT(user_start_time,'%Y年%m月%d日') as  startTime,DATE_FORMAT(user_end_time,'%Y年%m月%d日') as endTime
-    ,if((select registration_time from t_funtime_user where id = #{userId}) between user_start_time and user_end_time,0,1) as userFlag
+    select id,hours
+    ,if(now() between (select registration_time from t_funtime_user where id = #{userId}) and DATE_ADD((select registration_time from t_funtime_user where id = #{userId}),INTERVAL hours HOUR),0,1) as userFlag
 	 ,if(now() between activity_start_time and activity_end_time,0,1) as activityFlag
 	 , activity_limit as activityLimit
     from t_funtime_activity

@@ -972,7 +972,7 @@ public class GameServiceImpl implements GameService {
         }
         if ("1".equals(map.get("userFlag").toString())){
             resultMsg.setCode(ErrorMsgEnum.DRAW_ACTIVITY_EMPIRE.getValue());
-            resultMsg.setMsg(ErrorMsgEnum.DRAW_ACTIVITY_EMPIRE.getDesc().replace("#",map.get("startTime").toString()).replace("@",map.get("endTime").toString()));
+            resultMsg.setMsg(ErrorMsgEnum.DRAW_ACTIVITY_EMPIRE.getDesc().replace("x",map.get("hours").toString()));
             return resultMsg;
         }
 
