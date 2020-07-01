@@ -25,6 +25,7 @@ public class MyWxPay {
      */
     public static Map<String,String> mmpaymkttransfers(Integer payType,String partner_trade_no,String ip,
                                                        String openid,String amount){
+        Map<String, String> resp;
         try {
             MyWxPayConfig config = new MyWxPayConfig(payType);
             WXPay wxpay = new WXPay(config, WXPayConstants.SignType.MD5);
@@ -37,23 +38,28 @@ public class MyWxPay {
             data.put("spbill_create_ip", ip);
             data.put("desc", "触娱提现");  //
             data.put("openid",openid);
-            Map<String, String> resp = wxpay.mmpaymkttransfers(data);
-            log.info("企业付款接口返回:resp===> {}",resp);
-            if(!"SUCCESS".equals(resp.get("return_code"))||!"SUCCESS".equals(resp.get("result_code"))){
-                log.error("企业付款到零钱接口:mmpaymkttransfers 失败:{}",resp);
-                if ("NOTENOUGH".equals(resp.get("err_code"))){
-                    throw new BusinessException(ErrorMsgEnum.MMPAYMKTTRANSFER_NOTENOUGH.getValue(),ErrorMsgEnum.MMPAYMKTTRANSFER_NOTENOUGH.getDesc());
-                }
-                throw new BusinessException(ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getValue(),ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getDesc());
-            }
-            else{
-                return resp;
-            }
+            resp = wxpay.mmpaymkttransfers(data);
         }catch (Exception e) {
             e.printStackTrace();
             throw new BusinessException(ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getValue(),ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getDesc());
 
         }
+        log.info("企业付款接口返回:resp===> {}",resp);
+        if(!"SUCCESS".equals(resp.get("return_code"))||!"SUCCESS".equals(resp.get("result_code"))){
+            log.error("企业付款到零钱接口:mmpaymkttransfers 失败:{}",resp);
+            if ("NOTENOUGH".equals(resp.get("err_code"))){
+                throw new BusinessException(ErrorMsgEnum.MMPAYMKTTRANSFER_NOTENOUGH.getValue(),ErrorMsgEnum.MMPAYMKTTRANSFER_NOTENOUGH.getDesc());
+            }
+            else if ("V2_ACCOUNT_SIMPLE_BAN".equals(resp.get("err_code"))){
+                throw new BusinessException(ErrorMsgEnum.MMPAYMKTTRANSFER_SIMPLE_BAN.getValue(),ErrorMsgEnum.MMPAYMKTTRANSFER_SIMPLE_BAN.getDesc());
+            }else {
+                throw new BusinessException(ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getValue(), ErrorMsgEnum.MMPAYMKTTRANSFER_ERROR.getDesc());
+            }
+        }
+        else{
+            return resp;
+        }
+
 
     }
 

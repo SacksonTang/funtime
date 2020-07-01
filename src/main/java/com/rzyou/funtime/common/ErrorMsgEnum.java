@@ -77,6 +77,7 @@ public enum ErrorMsgEnum {
     IOSPAY_TRANSFERS_EMPTY("30008","未能获取获取到交易列表"),
     IOSPAY_ERROR("30009","支付失败,错误码："),
     MMPAYMKTTRANSFER_NOTENOUGH("30010","企业账户余额不足"),
+    MMPAYMKTTRANSFER_SIMPLE_BAN("30011","用户微信支付账户未实名,无法付款"),
 
     ORDER_NOT_EXISTS("40001","充值订单记录不存在"),
     ORDER_IS_INVALID("40002","订单记录已失效"),

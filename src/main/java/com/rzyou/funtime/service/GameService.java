@@ -132,8 +132,10 @@ public interface GameService {
     /**
      * 活动转盘配置
      * @return
+     * @param activityNo
+     * @param channelNo
      */
-    Map<String, Object> getCircleActivityConf();
+    ResultMsg<Object> getCircleActivityConf(String activityNo, String channelNo);
 
     /**
      * 转盘

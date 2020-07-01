@@ -63,8 +63,9 @@ public class WithdrawalController {
                 return result;
             }
 
-            accountService.applyWithdrawal(userId,blackAmount,preRmbAmount,preChannelAmount,amount,ip);
-            Map<String, Object> map = JsonUtil.getMap("weChatSubscriptionDesc", Constant.WXCHATTEMP.replaceAll("#", parameterService.getParameterValueByKey("wechat_subscription")));
+            boolean succ = accountService.applyWithdrawal(userId,blackAmount,preRmbAmount,preChannelAmount,amount,ip);
+            String weChatSubscriptionDesc = succ?Constant.WXCHATTEMP1:Constant.WXCHATTEMP.replaceAll("#", parameterService.getParameterValueByKey("wechat_subscription"));
+            Map<String, Object> map = JsonUtil.getMap("weChatSubscriptionDesc", weChatSubscriptionDesc);
             map.put("weChatSubscription",parameterService.getParameterValueByKey("wechat_subscription"));
 
             result.setData(map);

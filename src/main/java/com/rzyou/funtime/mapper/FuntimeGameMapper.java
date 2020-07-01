@@ -20,6 +20,8 @@ public interface FuntimeGameMapper {
 
     Map<String,Object> getActivityInfo(@Param("userId") Long userId, @Param("activityNo") String activityNo, @Param("channelNo") String channelNo);
 
+    Integer getActivityHours( @Param("activityNo") String activityNo, @Param("channelNo") String channelNo);
+
     List<Map<String,Object>> getCircleActivityConfs();
 
     List<FuntimeGameCircleConf> getCircleActivityConf();

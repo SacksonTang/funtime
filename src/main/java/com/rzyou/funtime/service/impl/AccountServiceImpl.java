@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.ibatis.javassist.bytecode.stackmap.BasicBlock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -2416,7 +2417,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void applyWithdrawal(Long userId, BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal preChannelAmount, BigDecimal amount, String ip) {
+    public boolean applyWithdrawal(Long userId, BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal preChannelAmount, BigDecimal amount, String ip) {
 
         FuntimeUser user = userService.queryUserById(userId);
         if(user==null){
@@ -2502,16 +2503,26 @@ public class AccountServiceImpl implements AccountService {
         if (trialType == 1){
             try {
                 Map<String, String> resp = MyWxPay.mmpaymkttransfers(1, orderNo, ip, userThird.getOpenid(), String.valueOf(amount.multiply(new BigDecimal(100)).intValue()));
+
                 String payment_no = resp.get("payment_no");
                 //转账成功更新状态和第三方订单
                 updateFuntimeUserAccountWithdrawalRecord(recordId,3,null,payment_no);
+                return true;
+            }catch (BusinessException e){
+                if (e.getCode().equals(ErrorMsgEnum.MMPAYMKTTRANSFER_SIMPLE_BAN.getValue())){
+                    throw new BusinessException(e.getCode(),e.getMsg());
+                }else{
+                    //失败改为手动审核
+                    updateFuntimeUserAccountWithdrawalRecord(recordId,null,2,null);
+                }
             }catch (Exception e){
                 //失败改为手动审核
                 updateFuntimeUserAccountWithdrawalRecord(recordId,null,2,null);
             }
-        }
 
-        //smsService.updateSmsInfoById(smsId,1);
+        }
+        return false;
+
     }
 
     private boolean checkRmbAmountValid(BigDecimal preRmbAmount) {

@@ -207,7 +207,7 @@ public interface AccountService {
      * @param preChannelAmount
      * @param amount
      */
-    void applyWithdrawal(Long userId, BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal preChannelAmount, BigDecimal amount, String ip);
+    boolean applyWithdrawal(Long userId, BigDecimal blackAmount, BigDecimal preRmbAmount, BigDecimal preChannelAmount, BigDecimal amount, String ip);
 
     /**
      * 领赏记录列表

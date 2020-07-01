@@ -7,7 +7,6 @@ import com.rzyou.funtime.service.*;
 import com.rzyou.funtime.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -790,12 +789,20 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Map<String, Object> getCircleActivityConf() {
+    public ResultMsg<Object> getCircleActivityConf(String activityNo, String channelNo) {
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
         Map<String,Object> resultMap = new HashMap<>();
+        Integer hours = gameMapper.getActivityHours(activityNo, channelNo);
+        if (hours == null){
+            resultMsg.setCode(ErrorMsgEnum.DRAW_TIME_OUT.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
+            return resultMsg;
+        }
         //转盘价格
-        resultMap.put("list",gameMapper.getCircleActivityConfs());
+        resultMap.put("text","请在注册ID后"+hours+"小时内领取，否则失效。");
 
-        return resultMap;
+        resultMsg.setData(resultMap);
+        return resultMsg;
     }
 
     @Override

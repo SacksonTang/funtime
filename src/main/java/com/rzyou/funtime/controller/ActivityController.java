@@ -38,9 +38,15 @@ public class ActivityController {
 
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-
-            result.setData(gameService.getCircleActivityConf());
-            return result;
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String activityNo = paramJson.getString("activityNo");
+            String channelNo = paramJson.getString("channelNo");
+            if (StringUtils.isBlank(activityNo)||StringUtils.isBlank(channelNo)){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            return gameService.getCircleActivityConf(activityNo,channelNo);
 
         } catch (BusinessException be) {
             be.printStackTrace();
