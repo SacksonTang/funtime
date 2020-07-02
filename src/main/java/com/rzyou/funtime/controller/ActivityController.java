@@ -41,12 +41,13 @@ public class ActivityController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             String activityNo = paramJson.getString("activityNo");
             String channelNo = paramJson.getString("channelNo");
+            String ip = HttpHelper.getClientIpAddr(request);
             if (StringUtils.isBlank(activityNo)||StringUtils.isBlank(channelNo)){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            return gameService.getCircleActivityConf(activityNo,channelNo);
+            return gameService.getCircleActivityConf(activityNo,channelNo,ip);
 
         } catch (BusinessException be) {
             be.printStackTrace();

@@ -134,8 +134,9 @@ public interface GameService {
      * @return
      * @param activityNo
      * @param channelNo
+     * @param ip
      */
-    ResultMsg<Object> getCircleActivityConf(String activityNo, String channelNo);
+    ResultMsg<Object> getCircleActivityConf(String activityNo, String channelNo, String ip);
 
     /**
      * 转盘

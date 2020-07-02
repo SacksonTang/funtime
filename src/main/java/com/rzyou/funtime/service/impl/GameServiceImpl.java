@@ -789,17 +789,21 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public ResultMsg<Object> getCircleActivityConf(String activityNo, String channelNo) {
+    public ResultMsg<Object> getCircleActivityConf(String activityNo, String channelNo, String ip) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
         Map<String,Object> resultMap = new HashMap<>();
-        Integer hours = gameMapper.getActivityHours(activityNo, channelNo);
-        if (hours == null){
+        Map<String,Object> map = gameMapper.getActivityHours(activityNo, channelNo);
+
+        if (map.get("hours") == null){
             resultMsg.setCode(ErrorMsgEnum.DRAW_TIME_OUT.getValue());
             resultMsg.setMsg(ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
             return resultMsg;
         }
         //转盘价格
-        resultMap.put("text","请在注册ID后"+hours+"小时内领取，否则失效。");
+        resultMap.put("text","请在注册ID后"+Integer.parseInt(map.get("hours").toString())+"小时内领取，否则失效。");
+        Integer activityId = Integer.parseInt(map.get("id").toString());
+
+        gameMapper.insertActivityLog(activityId,ip);
 
         resultMsg.setData(resultMap);
         return resultMsg;

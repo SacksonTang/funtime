@@ -20,7 +20,7 @@ public interface FuntimeGameMapper {
 
     Map<String,Object> getActivityInfo(@Param("userId") Long userId, @Param("activityNo") String activityNo, @Param("channelNo") String channelNo);
 
-    Integer getActivityHours( @Param("activityNo") String activityNo, @Param("channelNo") String channelNo);
+    Map<String,Object> getActivityHours( @Param("activityNo") String activityNo, @Param("channelNo") String channelNo);
 
     List<Map<String,Object>> getCircleActivityConfs();
 
@@ -59,4 +59,6 @@ public interface FuntimeGameMapper {
     int insertCircleActivityRecord(FuntimeUserAccountCircleRecord record);
 
     List<FuntimeGameCircleConf> getCircleConfs();
+
+    int insertActivityLog(@Param("activityId") Integer activityId,@Param("ip") String ip);
 }

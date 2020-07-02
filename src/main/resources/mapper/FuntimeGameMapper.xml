@@ -70,8 +70,8 @@
     from t_funtime_activity
     where activity_no = #{activityNo} and channel_no = #{channelNo}
   </select>
-  <select id="getActivityHours"  resultType="java.lang.Integer">
-    select hours
+  <select id="getActivityHours"  resultType="java.util.Map">
+    select id,hours
     from t_funtime_activity
     where activity_no = #{activityNo} and channel_no = #{channelNo}
   </select>
@@ -127,5 +127,8 @@
   <insert id="insertCircleActivityRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountCircleRecord" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user_account_circle_activity_record (activity_id,user_id,draw_random,draw_number,draw_type,draw_id,draw_val)
     values (#{activityId},#{userId},#{drawRandom},#{drawNumber},#{drawType},#{drawId},#{drawVal})
+  </insert>
+  <insert id="insertActivityLog">
+    insert into t_funtime_activity_log (activity_id,ip) values (#{activityId},#{ip})
   </insert>
 </mapper>
