@@ -933,7 +933,6 @@ public class AccountServiceImpl implements AccountService {
         List<Map<String,Object>> list = carMapper.getCarInfoForExpire();
         FuntimeUser user;
         if (list!=null&&!list.isEmpty()){
-            Map<String,Object> carMap;
             for (Map<String,Object> map : list){
                 Long id = Long.parseLong(map.get("id").toString());
                 Long userId = Long.parseLong(map.get("userId").toString());

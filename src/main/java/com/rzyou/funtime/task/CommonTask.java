@@ -29,6 +29,8 @@ public class CommonTask {
     Game21Service game21Service;
     @Autowired
     GameService gameService;
+    @Autowired
+    HeadwearService headwearService;
 
     /**
      * 房间热度重置
@@ -104,9 +106,23 @@ public class CommonTask {
      */
     @Scheduled(fixedRate = 1000*5*60)
     public void setCarTask(){
-        log.debug("背景资源过去设置 setCarTask:{}",DateUtil.getCurrentDateTimeExtr());
+        log.debug("设置座驾过期 setCarTask:{}",DateUtil.getCurrentDateTimeExtr());
         try {
             accountService.setCarTask();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * 设置头饰
+     */
+    @Scheduled(fixedRate = 1000*5*60)
+    public void setHeadwearTask(){
+        log.debug("设置头饰过期 setHeadwearTask:{}",DateUtil.getCurrentDateTimeExtr());
+        try {
+            headwearService.setHeadwearTask();
         }catch (Exception e){
             e.printStackTrace();
         }

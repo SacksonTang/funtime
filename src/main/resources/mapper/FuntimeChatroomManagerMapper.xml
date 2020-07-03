@@ -10,10 +10,15 @@
     case when m.duration = 0 then '永久'
     else timediff(expire_time, now())
      end expireSeconds,u.show_id as showId,
-    u.nickname,u.portrait_address as portraitAddress,l.level,l.level_url as levelUrl
+    u.nickname,u.portrait_address as portraitAddress,l.level,
+    case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl
     from t_funtime_chatroom_manager m
     inner join t_funtime_user u on m.user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+     left join t_funtime_user_headwear_current h on u.id = h.user_id
      where m.room_id = #{roomId}
   </select>
 

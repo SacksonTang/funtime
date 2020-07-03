@@ -98,10 +98,15 @@
         select
         m.mic_location micLocation,m.mic_user_id micUserId,m.user_role userRole,m.state,m.music_auth musicAuth,u.nickname
         ,u.portrait_address portraitAddress,u.sex,u.show_id showId
-        ,t.level,l.level_url as levelUrl
+        ,t.level
+        ,case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl
         from t_funtime_chatroom_mic m left join (t_funtime_user u
         inner join t_funtime_user_account t on u.id = t.user_id
         inner join t_funtime_user_level_conf l on t.level = l.level)
+         left join t_funtime_user_headwear_current h on u.id = h.user_id
         on m.mic_user_id = u.id
         where m.room_id = #{roomId} and m.mic_location>0
         order by m.mic_location asc
@@ -111,10 +116,14 @@
     u.id id,u.nickname,u.portrait_address portraitAddress
     ,u.sign_text signText,u.sex,u.show_id showId,m.user_role userRole
     ,u.online_state as onlineState
-    ,l.level,l.level_url as levelUrl
+    ,l.level
+    ,case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl
     from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
-
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     where m.room_id = #{roomId} and u.online_state = 1
     <if test="nickname!=null and nickname!=''">
       and BINARY u.nickname like concat('%',#{nickname},'%')
@@ -126,10 +135,14 @@
     u.id id,u.nickname,u.portrait_address portraitAddress
     ,u.sign_text signText,u.sex,u.show_id showId,m.user_role userRole
     ,u.online_state as onlineState
-    ,l.level,l.level_url as levelUrl
+    ,l.level
+    ,case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl
     from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
-
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     where m.room_id = #{roomId} and u.online_state = 1 and u.id!=#{userId}
     and u.id not in (select cr.user_id from t_funtime_chatroom_manager cr where cr.room_id = #{roomId})
 
@@ -138,10 +151,14 @@
   <select id="getRoomUserById"  resultType="java.util.Map">
     select
     u.id id,u.nickname,u.portrait_address portraitAddress,u.sign_text signText,u.sex,u.show_id showId
-    ,l.level,l.level_url as levelUrl
+    ,l.level
+    ,case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl
     from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
-
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     where m.room_id = #{roomId} and u.id!=#{userId} and m.user_role = 4
     <if test="nickname!=null and nickname!=''">
       and BINARY u.nickname like concat('%',#{nickname},'%')

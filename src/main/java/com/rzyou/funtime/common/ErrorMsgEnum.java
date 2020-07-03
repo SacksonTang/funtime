@@ -62,6 +62,7 @@ public enum ErrorMsgEnum {
     USER_MANAGER_ERROR("10049","小可爱,不能添加自己为管理员喔"),
     USER_QQ_NOT_BIND("10050","没有用户QQ绑定信息"),
     USER_QQ_EXISTS("10051","该QQ已被其它账号绑定"),
+    USER_HEADWEAR_NOT_EXIST("10052","用户无此头饰"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),

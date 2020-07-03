@@ -63,7 +63,11 @@
     select
      m.id, m.name, m.tags, m.exam_desc, m.is_block, m.is_lock, m.hot, m.state, m.create_time,
      m.chat_message_file,m.user_id,m.password,m.exam_url,m.avatar_url,m.background_id
-     ,u.portrait_address,u.nickname,u.sex,u.show_id,l.level_url,l.level
+     ,u.portrait_address,u.nickname,u.sex,u.show_id,l.level
+     ,case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end level_url
      ,k.background_url,k.background_url2,
      (select count(u1.id) from t_funtime_chatroom_mic cu inner join t_funtime_user u1 on cu.mic_user_id = u1.id where  u1.online_state = 1 and m.id = cu.room_id) online_num
     from t_funtime_chatroom m inner join
@@ -71,6 +75,7 @@
         inner join t_funtime_user_account t on u.id = t.user_id
         inner join t_funtime_user_level_conf l on t.level = l.level)
     on m.user_id = u.id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     left join t_funtime_background k on m.background_id = k.id
     where m.id = #{id,jdbcType=BIGINT}
   </select>
