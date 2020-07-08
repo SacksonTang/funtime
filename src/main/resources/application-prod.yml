@@ -70,3 +70,9 @@ app:
     imSdkAppSecret: 2a299506bb7b6db78f00b8b4c8a16c298e2839eede5f305cad7ab222cec04ca6
     iosPushCertDevId: 18793
     iosPushCertProdId: 18792
+
+alipay:
+  merchantCertPath: /usr/alipay/appCertPublicKey_2021001172638147.crt
+  alipayCertPath: /usr/alipay/alipayCertPublicKey_RSA2.crt
+  alipayRootCertPath: /usr/alipay/alipayRootCert.crt
+  notifyUrl: https://api.rzyou.com/callback/notifyAliPay

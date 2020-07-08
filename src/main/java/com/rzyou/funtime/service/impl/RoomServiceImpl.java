@@ -364,8 +364,9 @@ public class RoomServiceImpl implements RoomService {
                 }
             }
         }
+        int hots = userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2;
         //房间人数-1
-        updateOnlineNumSub(roomId,userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2);
+        updateOnlineNumSub(roomId,chatroom.getHots()>hots?hots:0);
 
         sendRoomInfoNotice(roomId);
     }
@@ -446,9 +447,9 @@ public class RoomServiceImpl implements RoomService {
 
         //保存踢人记录
         saveChatroomKickedRecord(kickIdUserId,userId,roomId);
-
+        int hots = userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2;
         //房间人数-1
-        updateOnlineNumSub(roomId,userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2);
+        updateOnlineNumSub(roomId,chatroom.getHots()>hots?hots:0);
         //发送通知
         noticeService.notice16(micLocation, roomId, kickIdUserId);
 

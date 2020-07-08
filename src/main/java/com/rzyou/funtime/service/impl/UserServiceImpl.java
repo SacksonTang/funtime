@@ -173,6 +173,15 @@ public class UserServiceImpl implements UserService {
         user.setReceivedGiftNum(userAccount.getReceivedGiftNum());
         user.setLevel(userAccount.getLevel());
         user.setLevelUrl(userAccount.getLevelUrl());
+        user.setLevelName(userAccount.getLevelName());
+        user.setShowUrl(userAccount.getShowUrl());
+        if (userAccount.getLevel() == 0){
+            user.setBackUrl(Constant.USER_LEVEL0_URL);
+            user.setDarkUrl(Constant.USER_LEVEL0_URL);
+        }else{
+            user.setBackUrl(Constant.USER_BACK_URL);
+            user.setDarkUrl(Constant.USER_DARK_URL);
+        }
         FuntimeChatroom chatroom = roomService.getRoomByUserId(id);
 
         if (chatroom!=null) {
@@ -225,7 +234,6 @@ public class UserServiceImpl implements UserService {
             saveUserThird(user.getId(), openType, openid, unionid, accessToken,user.getNickname());
             userMapper.saveUserInfoChangeLog(user.getId(),"openid",openType+"/"+openid);
         }
-
         return true;
     }
 

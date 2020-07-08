@@ -6,6 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 public interface HeadwearService {
+
+    /**
+     * 当前头饰
+     * @param userId
+     * @return
+     */
+    Integer getCurrnetHeadwear(Long userId);
+
     /**
      * 头饰列表
      * @param userId

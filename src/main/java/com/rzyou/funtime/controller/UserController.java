@@ -119,7 +119,14 @@ public class UserController {
             }
             List<Map<String,Object>> levelConfs = accountService.getLevelConf(userId);
             Map<String, Object> map = JsonUtil.getMap("levelConfs", levelConfs);
-            map.put("userAccount",userService.getUserAccountInfoById(userId));
+            FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
+            for (Map<String,Object> levelMap : levelConfs){
+                if (userAccount.getLevel().equals(Integer.parseInt(levelMap.get("level").toString()))){
+                    userAccount.setLevelUrl(levelMap.get("levelUrl").toString());
+                    break;
+                }
+            }
+            map.put("userAccount",userAccount);
             map.put("userPortraitAddress",userService.getUserBasicInfoById(userId).getPortraitAddress());
             result.setData(map);
             return result;

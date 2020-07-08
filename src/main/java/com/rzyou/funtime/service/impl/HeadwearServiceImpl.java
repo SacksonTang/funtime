@@ -34,6 +34,10 @@ public class HeadwearServiceImpl implements HeadwearService {
     FuntimeHeadwearMapper headwearMapper;
 
 
+    @Override
+    public Integer getCurrnetHeadwear(Long userId) {
+        return headwearMapper.getCurrnetHeadwear(userId);
+    }
 
     @Override
     public Map<String, Object> getHeadwearList(Long userId) {
@@ -123,9 +127,9 @@ public class HeadwearServiceImpl implements HeadwearService {
         if (userHeadwearId == null){
             throw new BusinessException(ErrorMsgEnum.USER_HEADWEAR_NOT_EXIST.getValue(),ErrorMsgEnum.USER_HEADWEAR_NOT_EXIST.getDesc());
         }
-        Long userIdc = headwearMapper.getCurrnetHeadwear(userId);
+        Integer type = headwearMapper.getCurrnetHeadwear(userId);
         int k;
-        if (userIdc !=null) {
+        if (type !=null) {
             k = headwearMapper.updateUserHeadwearCurrent(userId, headwearId);
         }else{
 
@@ -138,9 +142,9 @@ public class HeadwearServiceImpl implements HeadwearService {
 
     @Override
     public void setHeadwear(Long userId) {
-        Long userIdc = headwearMapper.getCurrnetHeadwear(userId);
+        Integer type = headwearMapper.getCurrnetHeadwear(userId);
         int k;
-        if (userIdc!=null) {
+        if (type!=null) {
             k = headwearMapper.updateUserHeadwearCurrent2(userId);
         }else{
             k = headwearMapper.insertUserHeadwearCurrent(userId,null,1);

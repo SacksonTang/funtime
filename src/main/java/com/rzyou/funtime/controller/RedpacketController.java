@@ -101,6 +101,7 @@ public class RedpacketController {
             JSONObject paramJson;
             String flag = parameterService.getParameterValueByKey("is_encrypt");
             String min = parameterService.getParameterValueByKey("redpacket_min_amount");
+            String max = parameterService.getParameterValueByKey("redpacket_max_amount");
             if (flag!=null&&flag.equals("1")){
                 paramJson = HttpHelper.getParamterJsonDecrypt(request);
             }else{
@@ -121,7 +122,12 @@ public class RedpacketController {
             }
             if (redpacket.getAmount().subtract(new BigDecimal(min)).intValue()<0){
                 result.setCode(ErrorMsgEnum.REDPACKET_AMOUNT_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.REDPACKET_AMOUNT_ERROR.getDesc());
+                result.setMsg(ErrorMsgEnum.REDPACKET_AMOUNT_ERROR.getDesc()+min);
+                return result;
+            }
+            if (redpacket.getAmount().subtract(new BigDecimal(max)).intValue()>0){
+                result.setCode(ErrorMsgEnum.REDPACKET_MAXAMOUNT_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.REDPACKET_MAXAMOUNT_ERROR.getDesc()+max);
                 return result;
             }
             if (redpacket.getRedpacketNum()>redpacket.getAmount().intValue()){

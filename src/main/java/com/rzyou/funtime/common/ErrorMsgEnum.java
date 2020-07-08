@@ -79,6 +79,8 @@ public enum ErrorMsgEnum {
     IOSPAY_ERROR("30009","支付失败,错误码："),
     MMPAYMKTTRANSFER_NOTENOUGH("30010","企业账户余额不足"),
     MMPAYMKTTRANSFER_SIMPLE_BAN("30011","用户微信支付账户未实名,无法付款"),
+    ALIPAY_ERROR("30012","支付失败"),
+    ALIPAY_QUERY_ERROR("30013","ALIPAY查询订单失败"),
 
     ORDER_NOT_EXISTS("40001","充值订单记录不存在"),
     ORDER_IS_INVALID("40002","订单记录已失效"),
@@ -96,8 +98,9 @@ public enum ErrorMsgEnum {
     REDPACKET_IS_NOT_YOURS("50005","没有权限抢该红包"),
     REDPACKET_IS_EMPIRE("50006","红包已过期"),
     REDPACKET_NUM_ERROR("50007","红包个数必须大于等于1"),
-    REDPACKET_AMOUNT_ERROR("50008","蓝钻数必须大于等于10"),
+    REDPACKET_AMOUNT_ERROR("50008","蓝钻数必须大于等于"),
     REDPACKET_AMOUNT_NUM_ERROR("50009","红包个数必须小于等于蓝钻数"),
+    REDPACKET_MAXAMOUNT_ERROR("50010","蓝钻数必须小于等于"),
 
     GIFT_NOT_EXISTS("60001","礼物不存在"),
     BOX_NOT_EXISTS("60002","宝箱不存在"),

@@ -10,6 +10,7 @@
     <result column="operation_desc" jdbcType="VARCHAR" property="operationDesc" />
     <result column="amount" jdbcType="DECIMAL" property="amount" />
     <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="box_basic" jdbcType="INTEGER" property="boxBasic" />
     <result column="gift_id" jdbcType="INTEGER" property="giftId" />
     <result column="gift_name" jdbcType="VARCHAR" property="giftName" />
     <result column="to_user_id" jdbcType="BIGINT" property="toUserId" />
@@ -27,7 +28,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, action_type, operation_type, operation_desc, amount, num, gift_id, gift_name, 
-    to_user_id, give_channel_id, state, create_time, version, complete_time,order_no
+    to_user_id, give_channel_id, state, create_time, version, complete_time,order_no,box_basic
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -79,7 +80,7 @@
     inner join t_funtime_gift g on d.gift_id = g.id
     where d.to_user_id = #{userId}
     group by d.gift_id
-
+    having numtotal>0
     order by g.original_price  desc
   </select>
 
@@ -116,6 +117,10 @@
       <if test="num != null">
         num,
       </if>
+      <if test="boxBasic != null">
+        box_basic,
+      </if>
+
       <if test="giftId != null">
         gift_id,
       </if>
@@ -166,6 +171,9 @@
       </if>
       <if test="num != null">
         #{num,jdbcType=INTEGER},
+      </if>
+      <if test="boxBasic != null">
+        #{boxBasic},
       </if>
       <if test="giftId != null">
         #{giftId,jdbcType=INTEGER},

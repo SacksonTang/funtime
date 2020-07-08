@@ -1,10 +1,12 @@
 package com.rzyou.funtime.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alipay.easysdk.payment.common.models.AlipayTradeQueryResponse;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.im.TencentUtil;
+import com.rzyou.funtime.common.payment.alipay.MyAlipay;
 import com.rzyou.funtime.common.payment.iospay.IosPayUtil;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
 import com.rzyou.funtime.entity.*;
@@ -44,6 +46,8 @@ public class AccountServiceImpl implements AccountService {
     NoticeService noticeService;
     @Autowired
     SmsService smsService;
+    @Autowired
+    HeadwearService headwearService;
 
     @Autowired
     FuntimeCarMapper carMapper;
@@ -103,23 +107,55 @@ public class AccountServiceImpl implements AccountService {
 
     public void orderQueryTask(){
         List<FuntimeUserAccountRechargeRecord> records = userAccountRechargeRecordMapper.getRechargeRecordByTask();
+        List<Map<String, Object>> tags = userService.queryTagsByType("recharge_channel", null);
+        if (tags == null || tags.isEmpty()){
+            return ;
+        }
+
         if (records!=null&&!records.isEmpty()){
             Map<String, String> resultMap;
             for (FuntimeUserAccountRechargeRecord record : records){
-                if (record.getPollTimes()>10){
-                    closeOrder(record.getId(),record.getOrderNo(),record.getPayType());
+                Integer rechargeChannelId = record.getRechargeChannelId();
+                String channel = null;
+                for (Map<String, Object> map : tags){
+                    if (rechargeChannelId.toString().equals(map.get("id").toString())){
+                        channel = map.get("tagName").toString();
+                        break;
+                    }
+                }
+                if (channel == null){
                     continue;
                 }
-                String out_trade_no = record.getOrderNo();
-                resultMap = MyWxPay.orderQuery(null, out_trade_no,record.getPayType());
-                if (resultMap!=null&&"SUCCESS".equals(resultMap.get("return_code"))
-                           &&"SUCCESS".equals(resultMap.get("result_code"))){
-                    String trade_state = resultMap.get("trade_state");
-                    if ("SUCCESS".equals(trade_state)){
-                        rechargeSuccess(record.getId(),resultMap.get("transaction_id"),resultMap.get("total_fee"));
-                    }else{
-                        updatePollTimes(record.getId(),1);
+                if (channel.equals(RechargeChannel.WX.name())) {
+                    if (record.getPollTimes() > 10) {
+                        closeOrder(record.getId(), record.getOrderNo(), record.getPayType());
+                        continue;
                     }
+                    String out_trade_no = record.getOrderNo();
+                    resultMap = MyWxPay.orderQuery(null, out_trade_no, record.getPayType());
+                    if (resultMap != null && "SUCCESS".equals(resultMap.get("return_code"))
+                            && "SUCCESS".equals(resultMap.get("result_code"))) {
+                        String trade_state = resultMap.get("trade_state");
+                        if ("SUCCESS".equals(trade_state)) {
+                            rechargeSuccess(record.getId(), resultMap.get("transaction_id"), resultMap.get("total_fee"));
+                        } else {
+                            updatePollTimes(record.getId(), 1);
+                        }
+                    }
+                }
+                if (channel.equals(RechargeChannel.ALIPAY.name())) {
+
+                    if (record.getPollTimes() > 10) {
+                        closeOrderAlipay(record.getId(), record.getOrderNo());
+                        continue;
+                    }
+                    AlipayTradeQueryResponse response = MyAlipay.query(record.getOrderNo());
+                    if ("TRADE_SUCCESS".equals(response.tradeStatus)){
+                        aliPayOrderCallBack(record.getOrderNo(),"TRADE_SUCCESS",new BigDecimal(response.totalAmount),response.tradeNo);
+                    }else{
+                        updatePollTimes(record.getId(), 1);
+                    }
+
                 }
             }
         }
@@ -129,6 +165,12 @@ public class AccountServiceImpl implements AccountService {
     @Transactional(rollbackFor = Throwable.class)
     public void closeOrder(Long orderId, String orderNo, Integer payType){
         MyWxPay.closeOrder(orderNo,payType);
+        updateState(orderId,PayState.INVALID.getValue(),null, null, null);
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
+    public void closeOrderAlipay(Long orderId, String orderNo){
+        MyAlipay.closeOrder(orderNo);
         updateState(orderId,PayState.INVALID.getValue(),null, null, null);
     }
 
@@ -178,7 +220,7 @@ public class AccountServiceImpl implements AccountService {
         record.setAmount(rechargeConf.getRechargeNum());
         record.setLevelVal(levelVal);
         record.setWealthVal(wealthVal);
-        String orderNo = "A"+StringUtil.createOrderId();
+        String orderNo = "I"+StringUtil.createOrderId();
         saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.PAIED.getValue(), orderNo);
 
         //用户总充值数(等级值)
@@ -202,32 +244,35 @@ public class AccountServiceImpl implements AccountService {
 
         //记录日志
         saveUserAccountBlueLog(record.getUserId(),record.getAmount(),record.getId()
-                , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
+                , OperationType.IOSRECHARGE.getAction(),OperationType.IOSRECHARGE.getOperationType());
         Long WealthRecordId = saveUserAccountLevelWealthRecord(record.getUserId(),levelVal,wealthVal,record.getId(),LevelWealthType.RECHARGE.getValue());
         saveUserAccountLevelWealthLog(record.getUserId(),levelVal,wealthVal,WealthRecordId
-                , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
+                , OperationType.IOSRECHARGE.getAction(),OperationType.IOSRECHARGE.getOperationType());
 
         if(record.getHornNum()!=null&&record.getHornNum()>0){
             saveUserAccountHornLog(record.getUserId(),record.getHornNum(),record.getId()
-                    , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
+                    , OperationType.IOSRECHARGE.getAction(),OperationType.IOSRECHARGE.getOperationType());
         }
         if(record.getGoldNum()!=null&&record.getGoldNum()>0){
             saveUserAccountGoldLog(record.getUserId(),new BigDecimal(record.getGoldNum()),record.getId()
-                    , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
+                    , OperationType.IOSRECHARGE.getAction(),OperationType.IOSRECHARGE.getOperationType());
         }
 
     }
 
     private void updateLevelExtr(Long userId,Integer userLevel,String levelUrl){
-        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
-        boolean flag = TencentUtil.portraitSet(userSig, userId.toString(),userLevel,levelUrl);
-        if (!flag){
-            throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(),ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
-        }
-        Long roomId = roomService.checkUserIsInMic(userId);
-        if (roomId!=null){
-            roomService.sendRoomInfoNotice(roomId);
+        Integer type = headwearService.getCurrnetHeadwear(userId);
+        if (type == null||type == 1) {
+            String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+            boolean flag = TencentUtil.portraitSet(userSig, userId.toString(), userLevel, levelUrl);
+            if (!flag) {
+                throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(), ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
+            }
+            Long roomId = roomService.checkUserIsInMic(userId);
+            if (roomId != null) {
+                roomService.sendRoomInfoNotice(roomId);
 
+            }
         }
     }
 
@@ -247,21 +292,7 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.RECHARGE_NUM_OUT.getValue(),ErrorMsgEnum.RECHARGE_NUM_OUT.getDesc());
         }
 
-        List<Map<String, Object>> tags = userService.queryTagsByType("recharge_channel", null);
-        if (tags == null || tags.isEmpty()){
-            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-        }
 
-        String channel = null;
-        for (Map<String, Object> map : tags){
-            if (record.getRechargeChannelId().toString().equals(map.get("id").toString())){
-                channel = map.get("tagName").toString();
-                break;
-            }
-        }
-        if (channel == null){
-            throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-        }
         String blue_to_level = parameterService.getParameterValueByKey("blue_to_level");
         String level_to_wealth = parameterService.getParameterValueByKey("level_to_wealth");
         int levelVal = rechargeConf.getRechargeNum().multiply(new BigDecimal(blue_to_level)).intValue();
@@ -275,10 +306,47 @@ public class AccountServiceImpl implements AccountService {
         record.setWealthVal(wealthVal);
         String orderNo = "A"+StringUtil.createOrderId();
         Long id = saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
+        Map<String, String> orderMap  = unifiedOrder(ip, "WEB", id.toString()
+                    , rechargeConf.getRechargeRmb().multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toString(), orderNo, trade_type, record.getOpenid(), record.getPayType());
 
-        Map<String, String> orderMap = unifiedOrder(ip, "WEB", id.toString()
-                , rechargeConf.getRechargeRmb().multiply(new BigDecimal(100)).setScale(0,BigDecimal.ROUND_HALF_UP).toString(), orderNo,trade_type,record.getOpenid(),record.getPayType());
+        orderMap.put("payType", "1");
 
+        return orderMap;
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Map<String,Object> createRecharge(FuntimeUserAccountRechargeRecord record){
+        if (!userService.checkUserExists(record.getUserId())){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        FuntimeRechargeConf rechargeConf = rechargeConfMapper.selectByPrimaryKey(record.getRechargeConfId());
+        if (rechargeConf==null){
+            throw new BusinessException(ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getValue(),ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getDesc());
+        }
+        String max_recharge = parameterService.getParameterValueByKey("max_recharge");
+        BigDecimal maxRecharge = max_recharge == null?new BigDecimal(100000):new BigDecimal(max_recharge);
+        if (rechargeConf.getRechargeRmb().subtract(maxRecharge).doubleValue()>0){
+            throw new BusinessException(ErrorMsgEnum.RECHARGE_NUM_OUT.getValue(),ErrorMsgEnum.RECHARGE_NUM_OUT.getDesc());
+        }
+
+
+        String blue_to_level = parameterService.getParameterValueByKey("blue_to_level");
+        String level_to_wealth = parameterService.getParameterValueByKey("level_to_wealth");
+        int levelVal = rechargeConf.getRechargeNum().multiply(new BigDecimal(blue_to_level)).intValue();
+        int wealthVal = new BigDecimal(levelVal).multiply(new BigDecimal(level_to_wealth)).intValue();
+
+        record.setRmb(rechargeConf.getRechargeRmb());
+        record.setHornNum(rechargeConf.getHornNum());
+        record.setGoldNum(rechargeConf.getGoldNum());
+        record.setAmount(rechargeConf.getRechargeNum());
+        record.setLevelVal(levelVal);
+        record.setWealthVal(wealthVal);
+        String orderNo = "Z"+StringUtil.createOrderId();
+        saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
+        Map<String, Object> orderMap  = MyAlipay.alipay("触娱充值",orderNo,rechargeConf.getRechargeRmb().toString());
+        orderMap.put("payType", "2");
         return orderMap;
 
     }
@@ -316,7 +384,7 @@ public class AccountServiceImpl implements AccountService {
 
     }
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Throwable.class)
     public void payFail(Long orderId, String transaction_id){
         FuntimeUserAccountRechargeRecord record = userAccountRechargeRecordMapper.selectByPrimaryKey(orderId);
         if(record==null){
@@ -404,6 +472,104 @@ public class AccountServiceImpl implements AccountService {
             return;
         }
     }
+
+
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public void aliPayOrderCallBack(String outTradeNo,String tradeStatus,BigDecimal totalAmount,String buyerLogonId)  {
+        if (StringUtils.isNotEmpty(outTradeNo)) {
+            //根据交易编号加锁，处理高并发
+            synchronized (outTradeNo) {
+                FuntimeUserAccountRechargeRecord record = userAccountRechargeRecordMapper.getRechargeRecordByOrderNo(outTradeNo);
+                if (PayState.PAIED.getValue().equals(record.getState())) {
+                    return;
+                }
+                else if (PayState.START.getValue().equals(record.getState())||PayState.FAIL.getValue().equals(record.getState())
+                        ||PayState.PAYING.getValue().equals(record.getState())) {
+                    if (tradeStatus.equals("TRADE_FINISHED")) {
+                        //交易创建，等待买家付款
+                        log.info("交易创建，等待买家付款 TRADE_FINISHED");
+                        return;
+                    } else if (tradeStatus.equals("WAIT_BUYER_PAY")) {
+                        //未付款交易超时关闭，或支付完成后全额退款
+                        log.info(" 未付款交易超时关闭，或支付完成后全额退款 WAIT_BUYER_PAY");
+                        return;
+                    } else if (tradeStatus.equals("TRADE_CLOSED")) {
+                        //交易结束，不可退款
+                        log.info("交易结束，不可退款 TRADE_CLOSED");
+                        return;
+                    } else if (tradeStatus.equals("TRADE_SUCCESS")) {
+                        //交易支付成功
+                        log.info("交易支付成功 TRADE_SUCCESS");
+                        //订单需支付金额总和
+                        BigDecimal payNumSum = record.getRmb();
+                        FuntimeUserAccount userAccount = userAccountMapper.selectByUserId(record.getUserId());
+                        if (userAccount==null){
+                            return;
+                        }
+                        //以防万一，再次校验金额
+                        if (payNumSum.compareTo(totalAmount) != 0) {
+                            log.error("***订单号: " + outTradeNo + "***支付宝支付金额与订单需支付金额总和不一致***支付宝支付金额为:" + totalAmount + " ***订单需支付金额总为:" + payNumSum + "***日期:" + new Date());
+                            //金额异常，订单状态为支付金额异常
+                            return;
+                        }
+                        //修改订单状态
+                        Integer hornNum = null;
+                        Integer goldNum = null;
+                        //首充送三个
+                        if (isFirstRecharge(record.getUserId())){
+                            String first_recharge_horn = parameterService.getParameterValueByKey("first_recharge_horn");
+                            String first_recharge_gold = parameterService.getParameterValueByKey("first_recharge_gold");
+                            hornNum = record.getHornNum()==null?0:record.getHornNum()
+                                    + Integer.parseInt(first_recharge_horn==null?"3":first_recharge_horn);
+                            goldNum = record.getGoldNum() == null?0:record.getGoldNum()+Integer.parseInt(first_recharge_gold==null?"100":first_recharge_gold);
+                        }
+                        //状态变更
+                        updateState(record.getId(), PayState.PAIED.getValue(),buyerLogonId,hornNum,goldNum);
+
+                        //用户总充值数(等级值)
+                        int total = userAccount.getLevelVal()+record.getLevelVal();
+
+                        //充值等级
+                        Map<String,Object> userLevelMap = userAccountRechargeRecordMapper.getUserLevel(total);
+
+                        if (userLevelMap==null){
+                            return;
+                        }
+                        Integer userLevel = userLevelMap.get("level")==null?0:Integer.parseInt(userLevelMap.get("level").toString());
+                        String levelUrl = userLevelMap.get("levelUrl")==null?"":userLevelMap.get("levelUrl").toString();
+                        int levelVal = record.getLevelVal();
+                        int wealthVal = record.getWealthVal();
+                        if (!userLevel.equals(userAccount.getLevel())){
+                            userAccountMapper.updateUserAccountLevel(record.getUserId(),userLevel,record.getAmount(),hornNum,levelVal, wealthVal,goldNum);
+                            updateLevelExtr(record.getUserId(),userLevel,levelUrl);
+                        }else{
+                            userAccountMapper.updateUserAccountLevel(record.getUserId(),null,record.getAmount(),hornNum,levelVal, wealthVal, goldNum);
+                        }
+                        //记录日志
+                        saveUserAccountBlueLog(record.getUserId(),record.getAmount(),record.getId()
+                                , OperationType.ALIPAYRECHARGE.getAction(),OperationType.ALIPAYRECHARGE.getOperationType());
+                        Long WealthRecordId = saveUserAccountLevelWealthRecord(record.getUserId(),levelVal,wealthVal,record.getId(),LevelWealthType.RECHARGE.getValue());
+                        saveUserAccountLevelWealthLog(record.getUserId(),levelVal,wealthVal,WealthRecordId
+                                , OperationType.ALIPAYRECHARGE.getAction(),OperationType.ALIPAYRECHARGE.getOperationType());
+
+                        if(record.getHornNum()!=null&&record.getHornNum()>0){
+                            saveUserAccountHornLog(record.getUserId(),record.getHornNum(),record.getId()
+                                    , OperationType.ALIPAYRECHARGE.getAction(),OperationType.ALIPAYRECHARGE.getOperationType());
+                        }
+                        if(record.getGoldNum()!=null&&record.getGoldNum()>0){
+                            saveUserAccountGoldLog(record.getUserId(),new BigDecimal(record.getGoldNum()),record.getId()
+                                    , OperationType.ALIPAYRECHARGE.getAction(),OperationType.ALIPAYRECHARGE.getOperationType());
+                        }
+
+                    }
+                } else {
+                    log.info("该订单已支付处理，交易编号为: " + outTradeNo);
+                }
+            }
+        }
+    }
+
 
     @Override
     public PageInfo<FuntimeUserAccountRechargeRecord> getRechargeDetailForPage(Integer startPage, Integer pageSize, String queryDate, Integer state, Long userId) {
@@ -1341,7 +1507,7 @@ public class AccountServiceImpl implements AccountService {
                 BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
                 BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
                 Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
-                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId, OperationType.GIFT_BOX_OUT.getOperationType());
+                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue());
 
                 Integer charmVal = new BigDecimal(blue_to_charm).multiply(giftAmount).intValue();
                 BigDecimal black = new BigDecimal(blue_to_black).multiply(giftAmount).setScale(2, RoundingMode.DOWN);
@@ -1842,7 +2008,7 @@ public class AccountServiceImpl implements AccountService {
                 BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
                 BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
                 Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
-                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIFT_BOX_OUT.getOperationType());
+                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue());
 
                 Integer charmVal = new BigDecimal(blue_to_charm).multiply(giftAmount).intValue();
                 BigDecimal black = new BigDecimal(blue_to_black).multiply(giftAmount).setScale(2, RoundingMode.DOWN);
@@ -2190,7 +2356,7 @@ public class AccountServiceImpl implements AccountService {
                 BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
                 BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
                 Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
-                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIFT_BOX_OUT.getOperationType());
+                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue());
 
                 Integer charmVal = new BigDecimal(blue_to_charm).multiply(giftAmount).intValue();
                 BigDecimal black = new BigDecimal(blue_to_black).multiply(giftAmount).setScale(2, RoundingMode.DOWN);
@@ -2795,6 +2961,33 @@ public class AccountServiceImpl implements AccountService {
         record.setGiftId(giftId);
         record.setGiftName(giftName);
         record.setRoomId(roomId);
+        record.setGiveChannelId(giveChannelId);
+        record.setNum(num);
+        record.setOperationDesc(operationDesc);
+        record.setOperationType(operationType);
+        record.setOrderNo("C"+StringUtil.createOrderId());
+        record.setState(1);
+        record.setToUserId(toUserId);
+        record.setUserId(userId);
+        record.setVersion(System.currentTimeMillis());
+        record.setCompleteTime(new Date());
+        int k = userAccountGifttransRecordMapper.insertSelective(record);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return record.getId();
+    }
+
+    public Long saveFuntimeUserAccountGifttransRecord(Long userId, String operationDesc, BigDecimal amount, Integer num, Integer giftId
+            , String giftName, Long toUserId, Integer giveChannelId, Long roomId, String operationType,Integer boxBasic){
+        FuntimeUserAccountGifttransRecord record = new FuntimeUserAccountGifttransRecord();
+        record.setActionType(OperationType.GIVEGIFT.getAction());
+        record.setAmount(amount);
+        record.setCreateTime(new Date());
+        record.setGiftId(giftId);
+        record.setGiftName(giftName);
+        record.setRoomId(roomId);
+        record.setBoxBasic(boxBasic);
         record.setGiveChannelId(giveChannelId);
         record.setNum(num);
         record.setOperationDesc(operationDesc);

@@ -11,6 +11,7 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="version" jdbcType="BIGINT" property="version" />
     <result column="level_url"  property="levelUrl" />
+    <result column="show_url"  property="showUrl" />
     <result column="received_gift_num"  property="receivedGiftNum" />
     <result column="level_val"  property="levelVal" />
     <result column="level_name"  property="levelName" />
@@ -25,7 +26,7 @@
   <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
     t.user_id, t.black_diamond, t.blue_diamond, t.horn_number, t.gold_coin,t.level,t.received_gift_num
-    ,l.level,t.level_val,t.wealth_val,t.charm_val,l.level_name,
+    ,l.level,t.level_val,t.wealth_val,t.charm_val,l.level_name,l.show_url,
     case when h.user_id is null then null
           when h.type = 1 then l.level_url
           when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)

@@ -3,6 +3,8 @@ package com.rzyou.funtime.common;
 public enum OperationType {
 
      RECHARGE("IN","RECHARGE","充值")
+    ,ALIPAYRECHARGE("IN","ALIPAYRECHARGE","ALIPAY充值")
+    ,IOSRECHARGE("IN","IOSRECHARGE","IOS充值")
     ,GRABREDPACKET("IN","GRABREDPACKET","抢红包")
     ,REDPACKETINVALID("IN","REDPACKETINVALID","红包过期退回")
     ,RECEIVEGIFT("IN","RECEIVEGIFT","收礼物")

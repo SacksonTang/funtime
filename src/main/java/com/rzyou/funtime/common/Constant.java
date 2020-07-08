@@ -45,6 +45,9 @@ public class Constant {
     public final static String share_Text = "我在这里等你,你快点进来,一起语音说！";
     public final static String SHARE_Title = "我有事情和你说";
     public final static String REDISUSER_PREFIX = "userlogin-";
+    public final static String USER_BACK_URL = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com/level/background/back.png";
+    public final static String USER_DARK_URL = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com/level/background/dark.png";
+    public final static String USER_LEVEL0_URL = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com/level/background/level0.png";
 
 
     public static final String APPLE_URL_SANDBOX = "https://sandbox.itunes.apple.com/verifyReceipt";
@@ -54,6 +57,9 @@ public class Constant {
 
     public final static String WXCHATTEMP = "申请成功,提现金额将在10个工作日到账,关注触娱公众号#,充值更优惠";
     public final static String WXCHATTEMP1 = "已成功提现到微信钱包，请查收";
+    public final static String APPLENEWUSERRETURN = "亲爱的小可爱，IOS用户进入触娱公众号充值更优惠哦～\n" +
+            "操作步骤：\n" +
+            "进入触娱公众号-App帮助-App蓝钻-点击如何充值下方的“点击此处”输入你充值的触娱ID，选择充值金额，按照提示就可以完成充值操作啦喔～";
     public final static String ROOM_NOTICE = "欢迎来到直播间,平台提倡绿色健康直播,不提倡未成年人进行充值。直播间内发送的内容严禁包含政治，低俗，色情，暴露等内容，若有违反，将根据情节严重程度给予禁播，永久封禁直播间，禁止账户登录【巡管24小时进行巡查】";
 
     public final static String WX_MCHID = "1574424871";

@@ -129,6 +129,14 @@ public class FuntimeUser implements Serializable {
 
     private String levelUrl;
 
+    private String showUrl;
+
+    private String backUrl;
+
+    private String darkUrl;
+
+    private String levelName;
+
     private Long imSdkAppId;
 
     private Integer receivedGiftNum;

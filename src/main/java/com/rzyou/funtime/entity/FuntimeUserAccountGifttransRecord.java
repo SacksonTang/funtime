@@ -23,6 +23,8 @@ public class FuntimeUserAccountGifttransRecord implements Serializable {
 
     private BigDecimal amount;
 
+    private Integer boxBasic;
+
     private Integer num;
 
     private Integer giftId;

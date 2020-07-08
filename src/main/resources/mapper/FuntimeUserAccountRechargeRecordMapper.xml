@@ -32,10 +32,10 @@
 
   <select id="getRechargeRecordByTask"  resultMap="BaseResultMap">
     select 
-    d.id,d.recharge_card_id,d.order_no,d.poll_times,d.pay_type
+    d.id,d.recharge_card_id,d.order_no,d.poll_times,d.pay_type,recharge_channel_id
     from t_funtime_user_account_recharge_record d
-       inner join t_funtime_tag t on d.recharge_channel_id = t.id
-    where t.tag_name = 'WX' and d.state in (1,2)
+
+    where  d.state in (1,2)
      and d.create_time >= DATE_SUB(NOW(),INTERVAL 10 MINUTE)
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -43,6 +43,12 @@
     <include refid="Base_Column_List" />
     from t_funtime_user_account_recharge_record
     where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="getRechargeRecordByOrderNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user_account_recharge_record
+    where order_no = #{orderNo}
   </select>
   <select id="getRechargeRecordByUserId" parameterType="java.lang.Long" resultType="java.lang.Integer">
     select

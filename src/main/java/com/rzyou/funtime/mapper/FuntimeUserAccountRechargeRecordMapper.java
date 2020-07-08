@@ -27,6 +27,8 @@ public interface FuntimeUserAccountRechargeRecordMapper {
 
     FuntimeUserAccountRechargeRecord selectByPrimaryKey(Long id);
 
+    FuntimeUserAccountRechargeRecord getRechargeRecordByOrderNo(String orderNo);
+
     int updateByPrimaryKeySelective(FuntimeUserAccountRechargeRecord record);
 
 }

@@ -18,10 +18,7 @@
       select headwear_number as headwearId,days,ifnull(activity_price,original_price) as price,headwear_url AS headwearUrl,
       headwear_name as headwearName from t_funtime_headwear where id = #{id}
   </select>
-    <select id="getCarInfoByCarId" parameterType="java.lang.Integer" resultType="java.util.Map">
-      select car_number as carId,ifnull(activity_price,original_price) as price,animation_type as animationType,car_url AS carUrl,
-      thumbnail_url as thumbnailUrl,car_name as carName from t_funtime_car where car_number = #{carId} limit 1
-  </select>
+
     <select id="getUserHeadwearById"  resultType="java.lang.Long">
       select id  from t_funtime_user_headwear where user_id = #{userId} and headwear_id = #{headwearId}
   </select>
@@ -50,31 +47,10 @@
         WHERE
             headwear_number =#{headwearNumber}
     </select>
-    <select id="getUserCarByUserId" resultType="java.util.Map">
-        SELECT DISTINCT
-            c.car_number AS carNumber,
-            c.car_name AS carName,
-            c.thumbnail_url AS thumbnailUrl,
-            c.car_url AS carUrl,
-            c.animation_type as animationType
-        FROM
-            t_funtime_user_car u
-            INNER JOIN t_funtime_car c ON u.car_id = c.car_number
-        WHERE
-            u.user_id = #{userId} and c.flag = 1
-        ORDER BY
-            c.car_number DESC
-    </select>
-    <select id="getUserCarIdByUserId" resultType="java.lang.Integer">
-        SELECT car_id
-        FROM
-            t_funtime_user_car
-        WHERE
-            user_id = #{userId} limit 1
 
-    </select>
-    <select id="getCurrnetHeadwear" resultType="java.lang.Long">
-        select user_id from t_funtime_user_headwear_current where user_id = #{userId}
+
+    <select id="getCurrnetHeadwear" resultType="java.lang.Integer">
+        select type from t_funtime_user_headwear_current where user_id = #{userId}
     </select>
 
     <select id="getHeadwearInfoForExpire" resultType="java.util.Map">

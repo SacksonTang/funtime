@@ -91,8 +91,8 @@
     u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
     case when 1000>m.hots then m.hots
-    when m.hots>=1000 and 10000>m.hots then CONCAT(FORMAT(m.hots/1000,2),'千')
-    when m.hots>=10000 then CONCAT(FORMAT(m.hots/10000,2),'万')
+    when m.hots>=1000 and 10000>m.hots then CONCAT(FORMAT(m.hots/1000,2),'k')
+    when m.hots>=10000 then CONCAT(FORMAT(m.hots/10000,2),'w')
     else 0 end hots,
     g.tag_name  tagNames,
     g.tag_color tagColor,
@@ -127,8 +127,9 @@
     u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
     case when 1000>m.hots then m.hots
-    when m.hots>=1000 and 10000>m.hots then CONCAT(FORMAT(m.hots/1000,2),'千')
-    when m.hots>=10000 then CONCAT(FORMAT(m.hots/10000,2),'万')
+    when m.hots>=1000 and 1000000>m.hots then CONCAT(FORMAT(m.hots/1000,0),'K')
+    when m.hots>=1000000 and 1000000000>m.hots then CONCAT(FORMAT(m.hots/1000000,0),'M')
+    when m.hots>=1000000000  then CONCAT(FORMAT(m.hots/1000000000,0),'B')
     else 0 end hots,
     g.tag_name  tagNames,
     g.tag_color tagColor,

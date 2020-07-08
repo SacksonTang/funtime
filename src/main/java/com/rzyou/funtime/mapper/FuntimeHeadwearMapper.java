@@ -13,11 +13,7 @@ public interface FuntimeHeadwearMapper {
 
     Map<String,Object> getUserInfoById(Long userId);
 
-    Integer getUserCarIdByUserId(Long userId);
-
     Map<String,Object> getHeadwearInfoById(Integer id);
-
-    Map<String,Object> getCarInfoByCarId(Integer carId);
 
     int insertUserHeadwear(Map<String, Object> map);
 
@@ -29,7 +25,7 @@ public interface FuntimeHeadwearMapper {
 
     int insertUserHeadwearCurrent(@Param("userId") Long userId, @Param("headwearId") Integer headwearId,@Param("type") Integer type);
 
-    Long getCurrnetHeadwear(Long userId);
+    Integer getCurrnetHeadwear(Long userId);
 
     int deleteUserHeadwearCurrent(Long userId);
 
@@ -38,8 +34,6 @@ public interface FuntimeHeadwearMapper {
     List<Map<String,Object>> getHeadwearInfoForExpire();
 
     int deleteUserHeadwearById(Long id);
-
-    List<Map<String, Object>> getUserCarByUserId(Long userId);
 
     List<Map<String, Object>> getHeadwearList(Long userId);
 
