@@ -11,6 +11,14 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public interface RoomService {
+
+    /**
+     * 房间用户角色
+     * @param roomId
+     * @param userId
+     * @return
+     */
+    Integer getUserRole2(Long roomId,Long userId);
     /**
      * 创建房间
      * @param userId

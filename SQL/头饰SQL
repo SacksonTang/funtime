@@ -1,0 +1,59 @@
+CREATE TABLE `t_funtime_headwear` (
+  `id` int(16) NOT NULL AUTO_INCREMENT,
+  `headwear_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '名称',
+  `headwear_number` int(16) DEFAULT NULL COMMENT '头饰ID',
+  `days` int(10) DEFAULT '0' COMMENT '分期天数',
+  `show_price` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '价格显示字符串',
+  `headwear_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '资源URL',
+  `original_price` decimal(10,2) NOT NULL COMMENT '原价',
+  `activity_price` decimal(10,2) DEFAULT NULL COMMENT '活动价',
+  `discount` decimal(5,2) DEFAULT NULL COMMENT '折扣',
+  `sort` int(16) DEFAULT '1' COMMENT '排序',
+  `flag` int(2) DEFAULT '1' COMMENT '1-有效2-无效',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='头饰表';
+
+CREATE TABLE `t_funtime_user_account_headwear_record` (
+  `id` bigint(64) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(64) NOT NULL COMMENT '用户',
+  `headwear_id` int(16) DEFAULT NULL COMMENT '头饰ID',
+  `price` decimal(10,2) DEFAULT NULL COMMENT '价格',
+  `days` int(10) DEFAULT NULL COMMENT '购买天数',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '购买时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='头饰购买记录表';
+
+CREATE TABLE `t_funtime_user_headwear` (
+  `id` bigint(64) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(64) NOT NULL COMMENT '用户',
+  `headwear_id` int(16) DEFAULT NULL COMMENT '头饰ID',
+  `price` decimal(10,2) DEFAULT NULL COMMENT '价格',
+  `start_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '有效时间-开始',
+  `end_time` timestamp NULL DEFAULT NULL COMMENT '有效时间-结束',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `INDEX_USER_ID_AND_CAR` (`user_id`,`headwear_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='用户头饰表';
+
+CREATE TABLE `t_funtime_user_headwear_current` (
+  `user_id` bigint(64) NOT NULL COMMENT '用户ID',
+  `type` int(4) DEFAULT '2' COMMENT '1-等级框2-普通头饰',
+  `headwear_id` int(16) DEFAULT NULL COMMENT '普通头饰ID',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户当前头饰表';
+insert into t_funtime_user_headwear_current (user_id,type)
+select id,1 from t_funtime_user
+
+ALTER TABLE `funtime`.`t_funtime_user_account_gifttrans_record`
+ADD COLUMN `box_basic` int(16) NULL COMMENT '宝箱单价' AFTER `operation_desc`;
+
+CREATE TABLE `t_funtime_user_tyt_record` (
+  `id` bigint(64) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(64) NOT NULL COMMENT '用户',
+  `room_id` bigint(64) DEFAULT NULL COMMENT '房间',
+  `score` int(32) DEFAULT '0' COMMENT '分数',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='跳一跳记录';

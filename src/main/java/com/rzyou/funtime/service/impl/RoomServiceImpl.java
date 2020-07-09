@@ -973,7 +973,7 @@ public class RoomServiceImpl implements RoomService {
         Integer userRole = getUserRole(roomId,userId);
         userRole = userRole == null?4:userRole;
         List<String> userIds = getRoomUserByRoomIdAll(roomId);
-        msg = "<font color='#FFDE00'>"+msg+"</font>";
+        //msg = "<font color='#FFDE00'>"+msg+"</font>";
         noticeService.notice11Or14(userId,imgUrl,msg,roomId,type,userIds,userRole,playLenth);
     }
 
@@ -1492,6 +1492,12 @@ public class RoomServiceImpl implements RoomService {
 
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){
         return chatroomMicMapper.getInfoByRoomIdAndUser(roomId,userId);
+    }
+
+    @Override
+    public Integer getUserRole2(Long roomId,Long userId){
+        FuntimeChatroomMic user = getInfoByRoomIdAndUser(roomId, userId);
+        return user == null?null:user.getUserRole();
     }
 
     public List<String> getRoomManagerByRoomId(Long roomId){

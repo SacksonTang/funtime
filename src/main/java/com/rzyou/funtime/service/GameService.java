@@ -155,4 +155,21 @@ public interface GameService {
      * @return
      */
     ResultMsg<Object> circleActivityDrawing(Long userId, String activityNo, String channelNo);
+
+    /**
+     * 跳一跳得分
+     * @param userId
+     * @param score
+     * @param roomId
+     */
+    void saveScoreOfTyt(Long userId, Integer score, Long roomId);
+
+    /**
+     * 跳一跳排行榜
+     * @param userId
+     * @param type
+     * @param roomId
+     * @return
+     */
+    Map<String,Object> getTytRanklist(Long userId, Integer type, Long roomId);
 }

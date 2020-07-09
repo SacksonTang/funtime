@@ -61,4 +61,9 @@ public interface FuntimeGameMapper {
     List<FuntimeGameCircleConf> getCircleConfs();
 
     int insertActivityLog(@Param("activityId") Integer activityId,@Param("ip") String ip);
+
+
+    int insertTytRecord(@Param("userId")Long userId,@Param("roomId")Long roomId,@Param("score")Integer score);
+
+    List<Map<String, Object>> getTytRanklist(@Param("endCount") int endCount, @Param("startDate") String startDate, @Param("endDate") String endDate,@Param("roomId")  Long roomId);
 }

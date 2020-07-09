@@ -599,6 +599,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void insertFuntimeImgeCallback(FuntimeImgeCallback imgeCallback) {
+        userMapper.insertFuntimeImgeCallback(imgeCallback);
+    }
+
+    @Override
     public FuntimeUserValid queryValidInfoByUserId(Long userId) {
 
         FuntimeUserValid userValid = userValidMapper.selectByUserId(userId);

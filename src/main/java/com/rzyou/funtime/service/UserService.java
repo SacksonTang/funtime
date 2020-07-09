@@ -548,4 +548,10 @@ public interface UserService {
      * @param code
      */
     void updateUserValid(Long userId, String depositCard, String code);
+
+    /**
+     * 内容审核
+     * @param imgeCallback
+     */
+    void insertFuntimeImgeCallback(FuntimeImgeCallback imgeCallback);
 }

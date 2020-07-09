@@ -156,7 +156,12 @@
 			<artifactId>tencentcloud-sdk-java</artifactId>
 			<version>3.0.119</version>
 		</dependency>
-
+		<!-- https://mvnrepository.com/artifact/com.alipay.sdk/alipay-easysdk -->
+		<dependency>
+			<groupId>com.alipay.sdk</groupId>
+			<artifactId>alipay-easysdk</artifactId>
+			<version>2.0.0</version>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.mob.sdk.push/mobpush-api-java-client -->
 		<dependency>

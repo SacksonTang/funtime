@@ -820,4 +820,26 @@
     insert into t_funtime_user_activity (user_id,activity_id) values (#{userId},#{activityId})
   </insert>
 
+
+  <insert id="insertFuntimeImgeCallback" parameterType="com.rzyou.funtime.entity.FuntimeImgeCallback" >
+
+    insert into t_funtime_imge_callback ( trace_id, url,
+    result, forbidden_status, porn_info_hit_flag,
+    porn_info_score, porn_info_label, porn_info_count,
+    terrorist_info_hit_flag, terrorist_info_score,
+    terrorist_info_label, terrorist_info_count,
+    politics_info_hit_flag, politics_info_score,
+    politics_info_label, politics_info_count, ads_info_hit_flag,
+    ads_info_score, ads_info_label, ads_info_count
+    )
+    values ( #{traceId,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR},
+    #{result,jdbcType=INTEGER}, #{forbiddenStatus,jdbcType=INTEGER}, #{pornInfoHitFlag,jdbcType=INTEGER},
+    #{pornInfoScore,jdbcType=INTEGER}, #{pornInfoLabel,jdbcType=VARCHAR}, #{pornInfoCount,jdbcType=INTEGER},
+    #{terroristInfoHitFlag,jdbcType=INTEGER}, #{terroristInfoScore,jdbcType=INTEGER},
+    #{terroristInfoLabel,jdbcType=VARCHAR}, #{terroristInfoCount,jdbcType=INTEGER},
+    #{politicsInfoHitFlag,jdbcType=INTEGER}, #{politicsInfoScore,jdbcType=INTEGER},
+    #{politicsInfoLabel,jdbcType=VARCHAR}, #{politicsInfoCount,jdbcType=INTEGER}, #{adsInfoHitFlag,jdbcType=INTEGER},
+    #{adsInfoScore,jdbcType=INTEGER}, #{adsInfoLabel,jdbcType=VARCHAR}, #{adsInfoCount,jdbcType=INTEGER}
+    )
+  </insert>
 </mapper>

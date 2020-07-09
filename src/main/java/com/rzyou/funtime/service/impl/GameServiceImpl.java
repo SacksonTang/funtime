@@ -1031,6 +1031,52 @@ public class GameServiceImpl implements GameService {
         return resultMsg;
     }
 
+    @Override
+    public void saveScoreOfTyt(Long userId, Integer score, Long roomId) {
+
+        gameMapper.insertTytRecord(userId,roomId,score);
+        String msg = "跳一跳游戏跳了"+score+"步";
+        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+        Integer userRole = roomService.getUserRole2(roomId,userId);
+        if (userIds!=null&&!userIds.isEmpty()) {
+            noticeService.notice11Or14(userId, null, msg, roomId, 11, userIds, userRole, null);
+        }
+    }
+
+    @Override
+    public Map<String, Object> getTytRanklist(Long userId, Integer type, Long roomId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        String count = parameterService.getParameterValueByKey("tyt_rank_count");
+        resultMap.put("rankCount",count);
+        int endCount = Integer.parseInt(count);
+        List<Map<String, Object>> list = getFishRanklist(endCount,type,roomId);
+        if (list==null||list.isEmpty()){
+            resultMap.put("rankingList",null);
+            return resultMap;
+        }
+
+        resultMap.put("rankingList",list);
+        return resultMap;
+    }
+
+    public List<Map<String, Object>> getFishRanklist(int endCount, Integer type,Long roomId) {
+        String startDate = null;
+        String endDate = null;
+        if (type == 4){
+            startDate = DateUtil.getCurrentDayStart();
+            endDate = DateUtil.getCurrentDayEnd();
+        } else if (type == 3){
+            startDate = DateUtil.getCurrentWeekStart();
+            endDate = DateUtil.getCurrentWeekEnd();
+        } else if (type == 2){
+            startDate = DateUtil.getCurrentMonthStart();
+            endDate = DateUtil.getCurrentMonthEnd();
+        }
+
+        return gameMapper.getTytRanklist(endCount,startDate,endDate,roomId);
+
+    }
+
     private List<FuntimeGameCircleConf> getCircleConfs() {
         return gameMapper.getCircleConfs();
     }

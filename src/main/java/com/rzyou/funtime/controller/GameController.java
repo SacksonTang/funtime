@@ -470,4 +470,79 @@ public class GameController {
         }
     }
 
+    /**
+     * 保存跳一跳得分
+     * @param request
+     * @return
+     */
+    @PostMapping("saveScoreOfTyt")
+    public ResultMsg<Object> saveScoreOfTyt(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Integer score = paramJson.getInteger("score");
+            Long roomId = paramJson.getLong("roomId");
+            if (userId == null||score == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            if (score < 1){
+                return result;
+            }
+            gameService.saveScoreOfTyt(userId,score,roomId);
+            return result;
+
+        } catch (BusinessException be) {
+            log.error("saveScoreOfTyt BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 获取跳一跳排行榜
+     * @param request
+     * @return
+     */
+    @PostMapping("getTytRanklist")
+    public ResultMsg<Object> getTytRanklist(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Long roomId = paramJson.getLong("roomId");
+            Integer type = paramJson.getInteger("type"); //1-总榜2-月榜3-周榜4-日榜
+            if (userId == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            type = type == null?1:type;
+            result.setData(gameService.getTytRanklist(userId,type,roomId));
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
 }

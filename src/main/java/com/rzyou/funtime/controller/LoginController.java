@@ -114,7 +114,7 @@ public class LoginController {
             }
             FuntimeUser userInfo = strategy.login(user);
 
-            if (user.getPlatform() == 0&&userInfo.getNewUser()){
+            if (user.getPlatform()!=null&&user.getPlatform() == 0&&userInfo.getNewUser()){
                 log.info("苹果新用户登录");
                 String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_SYSTEMUSER);
                 List<String> toAccounts = new ArrayList<>();
