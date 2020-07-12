@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -96,7 +97,31 @@ public class RechargeController {
             if (record.getPayType()==null) {
                 record.setPayType(1);
             }
-            result.setData(accountService.createRecharge(record,ip, "APP"));
+            List<Map<String, Object>> tags = userService.queryTagsByType("recharge_channel", null);
+            if (tags == null || tags.isEmpty()){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            String channel = null;
+            for (Map<String, Object> map : tags){
+                if (record.getRechargeChannelId().toString().equals(map.get("id").toString())){
+                    channel = map.get("tagName").toString();
+                    break;
+                }
+            }
+            if (channel == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            if (channel.equals(RechargeChannel.ALIPAY.name())) {
+                result.setData(accountService.createRecharge(record));
+            }
+            if (channel.equals(RechargeChannel.WX.name())) {
+                result.setData(accountService.createRecharge(record, ip, "APP"));
+            }
 
             return result;
         } catch (BusinessException be) {

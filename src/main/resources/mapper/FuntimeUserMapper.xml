@@ -96,9 +96,14 @@
     select
      u.id,u.nickname,u.portrait_address portraitAddress,u.sign_text as  signText,u.birthday,u.sex,u.show_id showId,
      u.state,u.online_state as onlineState,
-     l.level,l.level_url as levelUrl
+     l.level
+     ,case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     where u.show_id = #{showId} and u.id!=#{userId} and flag = 1
   </select>
 
@@ -106,9 +111,14 @@
     select
      u.nickname,u.portrait_address portraitAddress,u.sign_text as  signText,u.birthday,u.sex,u.show_id showId
      ,(select count(c.id) from t_funtime_user_concern c where c.user_id = #{userId} and c.to_user_id = u.id) isConcern
-     ,l.level,l.level_url as levelUrl
+     ,l.level
+     ,case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     where u.id = #{byUserId} and flag = 1
   </select>
 
@@ -122,12 +132,16 @@
           u.show_id as showId,
           u.sex,
           t.level,
-          l.level_url as levelUrl
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl
       FROM
           t_funtime_user_account_level_wealth_record d
           inner join t_funtime_user u on u.id = d.user_id
           inner join (t_funtime_user_account t
           inner join t_funtime_user_level_conf l on t.level = l.level) on d.user_id = t.user_id
+          left join t_funtime_user_headwear_current h on u.id = h.user_id
       WHERE
           d.create_time between #{startDate} and #{endDate}
       GROUP BY
@@ -147,12 +161,16 @@
           u.show_id as showId,
           u.sex,
           t.level,
-          l.level_url as levelUrl
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl
       FROM
           t_funtime_user_account_charm_record d
           inner join t_funtime_user u on u.id = d.user_id
           inner join (t_funtime_user_account t
           inner join t_funtime_user_level_conf l on t.level = l.level) on d.user_id = t.user_id
+          left join t_funtime_user_headwear_current h on u.id = h.user_id
       WHERE
           d.create_time between #{startDate} and #{endDate}
       GROUP BY
@@ -168,9 +186,14 @@
     u.id , u.nickname, u.portrait_address , u.sex, u.birthday,u.height, u.sign_text ,
     u.state,  u.online_state  , u.create_room  , u.concerns, u.fans,u.guild_id ,u.show_id ,
     m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState,
-    l.level,l.level_url as levelUrl
+    l.level,
+    case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl
     from t_funtime_user_concern c inner join t_funtime_user u on c.to_user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id )on u.id = cm.mic_user_id
     where  c.user_id=#{userId} and u.flag = 1
     order by u.online_state asc,c.id desc
@@ -178,9 +201,14 @@
   <select id="getInvitationUserList" resultType="java.util.Map">
     select
     u.id,u.nickname,u.portrait_address as portraitAddress,u.sex,u.show_id as showId,u.sign_text as  signText
-    ,u.online_state onlineState,l.level,l.level_url as levelUrl
+    ,u.online_state onlineState,l.level,
+    case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl
     from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.to_user_id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     where c.user_id = #{userId} and u.state = 1
     and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = c.to_user_id and t.room_id = #{roomId})
     <if test="content!=null and content!=''">
@@ -191,9 +219,14 @@
   <select id="getInvitationUserList2" resultType="java.util.Map">
     select
     u.id,u.nickname,u.portrait_address as portraitAddress,u.sex,u.show_id as showId,u.sign_text as  signText
-    ,u.online_state onlineState,l.level,l.level_url as levelUrl
+    ,u.online_state onlineState,l.level,
+    case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl
     from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.user_id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     where c.to_user_id = #{userId} and u.state = 1
     and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = c.user_id and t.room_id = #{roomId})
     <if test="content!=null and content!=''">
@@ -204,9 +237,14 @@
   <select id="getInvitationUserList3" resultType="java.util.Map">
     select
     u.id,u.nickname,u.portrait_address as portraitAddress,u.sex,u.show_id as showId,u.sign_text as  signText
-    ,u.online_state onlineState,l.level,l.level_url as levelUrl
+    ,u.online_state onlineState,l.level,
+    case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     where u.online_state = 1 and u.state = 1
     and u.id not in (select c.to_user_id from t_funtime_user_concern c where c.user_id = #{userId} )
     and u.id not in (select c.user_id from t_funtime_user_concern c where c.to_user_id = #{userId} )
@@ -223,9 +261,14 @@
           u.id , u.nickname, u.portrait_address , u.sex, u.birthday,u.height, u.sign_text ,
           u.state,  u.online_state  , u.create_room  , u.concerns, u.fans,u.guild_id ,u.show_id ,
           m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState,
-          l.level,l.level_url as levelUrl
+          l.level,
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl
     from t_funtime_user_concern c inner join t_funtime_user u on c.user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id )on u.id = cm.mic_user_id
     where  c.to_user_id=#{userId} and u.flag = 1
     order by u.online_state asc,c.id desc
@@ -259,9 +302,15 @@
           u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text ,
           u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
           m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState,
-          l.level,l.level_url as levelUrl
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl,
+
+          l.level
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id )on u.id = cm.mic_user_id
     where u.online_state = 1 and u.flag = 1 and u.state = 1
       <if test="userId!=null">
@@ -285,9 +334,15 @@
     u.id , u.nickname, u.portrait_address, u.sex, u.birthday,u.height, u.sign_text  ,
     u.state,  u.online_state , u.create_room , u.concerns, u.fans,u.guild_id ,u.show_id,
     m.id roomId,m.is_lock as isLock,m.is_block as isBlock,m.state as roomState,
-    l.level,l.level_url as levelUrl
+    case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl,
+
+    l.level
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
     left join t_funtime_chatroom m on u.id = m.user_id and m.is_block = 2
     where  u.flag = 1 and u.state = 1
     <if test="userId!=null">
@@ -765,4 +820,26 @@
     insert into t_funtime_user_activity (user_id,activity_id) values (#{userId},#{activityId})
   </insert>
 
+
+  <insert id="insertFuntimeImgeCallback" parameterType="com.rzyou.funtime.entity.FuntimeImgeCallback" >
+
+    insert into t_funtime_imge_callback ( trace_id, url,
+    result, forbidden_status, porn_info_hit_flag,
+    porn_info_score, porn_info_label, porn_info_count,
+    terrorist_info_hit_flag, terrorist_info_score,
+    terrorist_info_label, terrorist_info_count,
+    politics_info_hit_flag, politics_info_score,
+    politics_info_label, politics_info_count, ads_info_hit_flag,
+    ads_info_score, ads_info_label, ads_info_count
+    )
+    values ( #{traceId,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR},
+    #{result,jdbcType=INTEGER}, #{forbiddenStatus,jdbcType=INTEGER}, #{pornInfoHitFlag,jdbcType=INTEGER},
+    #{pornInfoScore,jdbcType=INTEGER}, #{pornInfoLabel,jdbcType=VARCHAR}, #{pornInfoCount,jdbcType=INTEGER},
+    #{terroristInfoHitFlag,jdbcType=INTEGER}, #{terroristInfoScore,jdbcType=INTEGER},
+    #{terroristInfoLabel,jdbcType=VARCHAR}, #{terroristInfoCount,jdbcType=INTEGER},
+    #{politicsInfoHitFlag,jdbcType=INTEGER}, #{politicsInfoScore,jdbcType=INTEGER},
+    #{politicsInfoLabel,jdbcType=VARCHAR}, #{politicsInfoCount,jdbcType=INTEGER}, #{adsInfoHitFlag,jdbcType=INTEGER},
+    #{adsInfoScore,jdbcType=INTEGER}, #{adsInfoLabel,jdbcType=VARCHAR}, #{adsInfoCount,jdbcType=INTEGER}
+    )
+  </insert>
 </mapper>

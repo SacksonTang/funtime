@@ -1,5 +1,6 @@
 package com.rzyou.funtime.mapper;
 
+import com.rzyou.funtime.entity.FuntimeImgeCallback;
 import com.rzyou.funtime.entity.FuntimeUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -125,4 +126,6 @@ public interface FuntimeUserMapper {
     Long getUserActivity(Long userId);
 
     int insertUserActivity(@Param("userId") Long userId,@Param("activityId") Integer activityId);
+
+    int insertFuntimeImgeCallback(FuntimeImgeCallback imgeCallback);
 }

@@ -24,10 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 @Slf4j
 @RestController
 @RequestMapping("login")
@@ -115,6 +113,16 @@ public class LoginController {
                 return result;
             }
             FuntimeUser userInfo = strategy.login(user);
+
+            if (user.getPlatform()!=null&&user.getPlatform() == 0&&userInfo.getNewUser()){
+                log.info("苹果新用户登录");
+                String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_SYSTEMUSER);
+                List<String> toAccounts = new ArrayList<>();
+                toAccounts.add(userInfo.getId().toString());
+
+                TencentUtil.batchsendmsg(userSig,toAccounts,Constant.APPLENEWUSERRETURN,Constant.TENCENT_YUN_SYSTEMUSER);
+            }
+
             userInfo.setImSdkAppId(StaticData.TENCENT_YUN_SDK_APPID);
             Map<String, Object> map = JsonUtil.getMap("user", userInfo);
             if (flag!=null&&flag.equals("1")){

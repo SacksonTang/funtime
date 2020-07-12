@@ -33,13 +33,20 @@ public interface AccountService {
     FuntimeUserAccountRechargeRecord getRechargeRecordById(Long id);
 
     /**
-     * 生成充值记录
+     * 生成充值记录(微信)
      * @param record
      * @param ip
      * @param trade_type
      * @return
      */
     Map<String,String> createRecharge(FuntimeUserAccountRechargeRecord record, String ip, String trade_type);
+
+    /**
+     * 支付宝充值
+     * @param record
+     * @return
+     */
+    Map<String,Object> createRecharge(FuntimeUserAccountRechargeRecord record);
 
     /**
      * 订单回调
@@ -57,6 +64,15 @@ public interface AccountService {
      * @return
      */
     void payFail(Long orderId, String transaction_id);
+
+    /**
+     * alipay支付回调
+     * @param outTradeNo
+     * @param tradeStatus
+     * @param totalAmount
+     * @param buyerLogonId
+     */
+    void aliPayOrderCallBack(String outTradeNo,String tradeStatus,BigDecimal totalAmount,String buyerLogonId);
     /**
      * 充值记录列表
      * @param startPage

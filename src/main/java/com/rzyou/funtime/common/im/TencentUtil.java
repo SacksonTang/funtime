@@ -225,6 +225,37 @@ public class TencentUtil {
         }
     }
 
+    public static JSONArray batchsendmsg(String usersig,List<String> toAccounts,String data,String fromAccount){
+        String url = getOpenimUrl2(Constant.TENCENT_YUN_BATCHSENDMSG,usersig);
+
+        JSONObject paramMap = new JSONObject();
+        Random random = new Random();
+        paramMap.put("SyncOtherMachine",2);
+        paramMap.put("From_Account", fromAccount);
+        paramMap.put("To_Account",toAccounts);
+        paramMap.put("MsgRandom",random.nextInt(100000000));
+        Map<String,String> msgContent = new HashMap<>();
+        msgContent.put("Text",data);
+        Map<String,Object> elem = new HashMap<>();
+        elem.put("MsgType","TIMTextElem");
+        elem.put("MsgContent",msgContent);
+        List<Map<String,Object>> msgBody = new ArrayList<>();
+        msgBody.add(elem);
+        paramMap.put("MsgBody",msgBody);
+
+        log.debug(JSONObject.toJSONString(paramMap));
+        String postStr = HttpClientUtil.doPost(url, paramMap, Constant.CONTENT_TYPE);
+        JSONObject result = JSONObject.parseObject(postStr);
+        if (!"OK".equals(result.getString("ActionStatus"))||result.getInteger("ErrorCode")!=0){
+
+            log.error("腾讯批量发单聊接口:batchsendmsg 调用出错,ErrorCode：{},ErrorInfo:{}",result.getString("ErrorCode"),result.getString("ErrorInfo"));
+            return result.getJSONArray("ErrorList");
+        }else{
+            log.debug("************腾讯批量发单聊接口:batchsendmsg 调用成功*******************");
+            return null;
+        }
+    }
+
     /**
      * 单聊消息
      * @param usersig
@@ -447,6 +478,10 @@ public class TencentUtil {
 
         return getUrl(Constant.TENCENT_YUN_SERVICENAME_OPENIM,command,usersig);
     }
+    public static String getOpenimUrl2(String command,String usersig){
+
+        return getUrl2(Constant.TENCENT_YUN_SERVICENAME_OPENIM,command,usersig);
+    }
 
     public static String getGroupUrl(String command,String usersig){
 
@@ -474,6 +509,24 @@ public class TencentUtil {
                 .replaceAll("COMMAND",command)
                 .replaceAll("APPID",String.valueOf(StaticData.TENCENT_YUN_SDK_APPID))
                 .replaceAll("IDENTIFIER",Constant.TENCENT_YUN_IDENTIFIER)
+                .replaceAll("USERSIG",usersig)
+                .replaceAll("RANDOM",String.valueOf(random.nextInt(100000000)));
+
+        return url;
+    }
+
+    public static String getUrl2(String servicename,String command,String usersig){
+
+        String url = "https://HOST/VER/SERVICENAME/COMMAND?sdkappid=APPID&identifier=IDENTIFIER&usersig=USERSIG&random=RANDOM&contenttype=json";
+
+        Random random = new Random();
+
+        url = url.replaceAll("VER", Constant.TENCENT_YUN_SDK_VER)
+                .replaceAll("HOST",Constant.TENCENT_YUN_SDK_HOST)
+                .replaceAll("SERVICENAME",servicename)
+                .replaceAll("COMMAND",command)
+                .replaceAll("APPID",String.valueOf(StaticData.TENCENT_YUN_SDK_APPID))
+                .replaceAll("IDENTIFIER",Constant.TENCENT_YUN_SYSTEMUSER)
                 .replaceAll("USERSIG",usersig)
                 .replaceAll("RANDOM",String.valueOf(random.nextInt(100000000)));
 

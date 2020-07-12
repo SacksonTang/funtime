@@ -131,4 +131,36 @@
   <insert id="insertActivityLog">
     insert into t_funtime_activity_log (activity_id,ip) values (#{activityId},#{ip})
   </insert>
+
+  <select id="getTytRanklist" resultType="java.util.Map">
+    select f.user_id as userId,max(f.score) score ,
+    u.nickname,
+    u.portrait_address as portraitAddress,
+    u.show_id as showId,
+    u.sex,
+    t.level,
+    case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl
+    from t_funtime_user_tyt_record f
+    inner join t_funtime_user u on f.user_id = u.id
+    inner join (t_funtime_user_account t
+    inner join t_funtime_user_level_conf l on t.level = l.level) on f.user_id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
+    where 1=1
+    <if test="roomId!=null">
+      and f.room_id = #{roomId}
+    </if>
+    <if test="startDate !=null and endDate!=null">
+      and f.create_time BETWEEN #{startDate} AND #{endDate}
+    </if>
+    GROUP BY f.user_id,t.level
+    order by score desc
+    limit ${endCount}
+  </select>
+
+  <insert id="insertTytRecord">
+    insert into t_funtime_user_tyt_record (user_id,room_id,score) values (#{userId},#{roomId},#{score})
+  </insert>
 </mapper>

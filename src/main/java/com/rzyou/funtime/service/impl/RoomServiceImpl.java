@@ -364,8 +364,9 @@ public class RoomServiceImpl implements RoomService {
                 }
             }
         }
+        int hots = userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2;
         //房间人数-1
-        updateOnlineNumSub(roomId,userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2);
+        updateOnlineNumSub(roomId,chatroom.getHots()>hots?hots:0);
 
         sendRoomInfoNotice(roomId);
     }
@@ -446,9 +447,9 @@ public class RoomServiceImpl implements RoomService {
 
         //保存踢人记录
         saveChatroomKickedRecord(kickIdUserId,userId,roomId);
-
+        int hots = userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2;
         //房间人数-1
-        updateOnlineNumSub(roomId,userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2);
+        updateOnlineNumSub(roomId,chatroom.getHots()>hots?hots:0);
         //发送通知
         noticeService.notice16(micLocation, roomId, kickIdUserId);
 
@@ -972,7 +973,7 @@ public class RoomServiceImpl implements RoomService {
         Integer userRole = getUserRole(roomId,userId);
         userRole = userRole == null?4:userRole;
         List<String> userIds = getRoomUserByRoomIdAll(roomId);
-        msg = "<font color='#FFDE00'>"+msg+"</font>";
+        //msg = "<font color='#FFDE00'>"+msg+"</font>";
         noticeService.notice11Or14(userId,imgUrl,msg,roomId,type,userIds,userRole,playLenth);
     }
 
@@ -1491,6 +1492,12 @@ public class RoomServiceImpl implements RoomService {
 
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){
         return chatroomMicMapper.getInfoByRoomIdAndUser(roomId,userId);
+    }
+
+    @Override
+    public Integer getUserRole2(Long roomId,Long userId){
+        FuntimeChatroomMic user = getInfoByRoomIdAndUser(roomId, userId);
+        return user == null?null:user.getUserRole();
     }
 
     public List<String> getRoomManagerByRoomId(Long roomId){

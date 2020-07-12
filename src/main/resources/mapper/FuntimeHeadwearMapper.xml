@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeHeadwearMapper">
+
+    <select id="getUserInfoById" resultType="java.util.Map">
+        select u.id,u.portrait_address as portraitAddress
+        ,l.level_name as headwearName
+        ,l.level_url as headwearUrl
+        ,if(c.user_id is null,0,1) isCurrent
+        ,'现有等级头像框' as content
+        from t_funtime_user u inner join (t_funtime_user_account t
+           inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+           left join t_funtime_user_headwear_current c on u.id = c.user_id and type = 1
+       where u.id = #{userId} and t.level>0
+    </select>
+
+    <select id="getHeadwearInfoById" parameterType="java.lang.Integer" resultType="java.util.Map">
+      select headwear_number as headwearId,days,ifnull(activity_price,original_price) as price,headwear_url AS headwearUrl,
+      headwear_name as headwearName from t_funtime_headwear where id = #{id}
+  </select>
+
+    <select id="getUserHeadwearById"  resultType="java.lang.Long">
+      select id  from t_funtime_user_headwear where user_id = #{userId} and headwear_id = #{headwearId}
+  </select>
+    <select id="getHeadwearList" resultType="java.util.Map">
+    SELECT
+        c.headwearNumber,
+        c.headwearName,
+        c.headwearUrl,
+        IF(u.user_id is null,0,1) isOwer,
+        IF(t.user_id is null,0,1) isCurrent,
+        DATE_FORMAT(u.end_time,'%Y-%m-%d %H:%i:%s') as endTime,
+		CONCAT('剩余',DATEDIFF(u.end_time,now()),'天') content
+    FROM
+        ( SELECT DISTINCT headwear_number AS headwearNumber, headwear_name AS headwearName, headwear_url AS headwearUrl FROM t_funtime_headwear where flag = 1 ) c
+        left join t_funtime_user_headwear u on c.headwearNumber = u.headwear_id and u.user_id = #{userId}
+		left join t_funtime_user_headwear_current t on t.headwear_id = c.headwearNumber and t.type = 2 and t.user_id = #{userId}
+    </select>
+    <select id="getPriceTagByHeadwearNumber" resultType="java.util.Map">
+        SELECT
+            id,
+            days,
+            original_price as originalPrice,
+            activity_price as activityPrice
+        FROM
+            t_funtime_headwear
+        WHERE
+            headwear_number =#{headwearNumber}
+    </select>
+
+
+    <select id="getCurrnetHeadwear" resultType="java.lang.Integer">
+        select type from t_funtime_user_headwear_current where user_id = #{userId}
+    </select>
+
+    <select id="getHeadwearInfoForExpire" resultType="java.util.Map">
+         select u.id ,u.user_id as userId,if(t.user_id is null,0,1) isCurrent
+           from t_funtime_user_headwear u left join t_funtime_user_headwear_current t on u.user_id = t.user_id
+         where  now()>u.end_time
+    </select>
+    <insert id="insertUserHeadwear">
+    insert into t_funtime_user_headwear(user_id,headwear_id,price,end_time)
+    values (#{userId},#{headwearId},#{price},date_add(NOW(), interval ${days} day))
+  </insert>
+
+    <update id="updateUserHeadwear">
+        update t_funtime_user_headwear set price = #{price},end_time = date_add(IF(end_time>NOW(),end_time,NOW()), interval ${days} day)
+        where id = #{userHeadwearId}
+    </update>
+
+    <insert id="insertUserHeadwearCurrent">
+        insert into t_funtime_user_headwear_current(user_id,type,headwear_id)values (#{userId},#{type},#{headwearId})
+    </insert>
+    <update id="updateUserHeadwearCurrent">
+        update t_funtime_user_headwear_current set headwear_id = #{headwearId},type = 2 where user_id = #{userId}
+    </update>
+    <update id="updateUserHeadwearCurrent2">
+        update t_funtime_user_headwear_current set headwear_id = null,type = 1 where user_id = #{userId}
+    </update>
+    <delete id="deleteUserHeadwearCurrent">
+        delete from t_funtime_user_headwear_current where user_id = #{userId}
+    </delete>
+    <delete id="deleteUserHeadwearById">
+        delete from t_funtime_user_headwear where  id = #{id}
+    </delete>
+
+    <insert id="insertHeadwearRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountHeadwearRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into t_funtime_user_account_headwear_record (user_id,headwear_id,price,days)
+        values (#{userId},#{headwearId},#{price},#{days})
+    </insert>
+
+</mapper>
