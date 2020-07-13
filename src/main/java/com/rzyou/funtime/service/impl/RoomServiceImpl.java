@@ -1086,7 +1086,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public ResultMsg<Object> buyBackground(Integer backgroundId, Long userId) {
+    public ResultMsg<Object> buyBackground(Integer backgroundId, Long userId, Long roomId) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
         FuntimeUserAccount userAccount = accountService.getUserAccountByUserId(userId);
         if (userAccount==null){
@@ -1145,6 +1145,7 @@ public class RoomServiceImpl implements RoomService {
         }
         userService.updateUserAccountForSub(userId,null,price,null);
         accountService.saveUserAccountBlueLog(userId,price,userBackground.getId(),OperationType.BUY_BACKGROUND.getAction(),OperationType.BUY_BACKGROUND.getOperationType());
+        setBackground(backgroundId,userId,roomId);
         return resultMsg;
     }
 

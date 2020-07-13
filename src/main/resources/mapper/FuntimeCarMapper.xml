@@ -21,13 +21,16 @@
         c.thumbnailUrl,
         c.carUrl,
         c.animationType,
+				c.sort,
         IF(u.user_id is null,0,1) isOwer,
         0 isCurrent,
         DATE_FORMAT(u.end_time,'%Y-%m-%d %H:%i:%s') as endTime,
 		CONCAT('剩余',DATEDIFF(u.end_time,now()),'天') content
     FROM
-        ( SELECT DISTINCT car_number AS carNumber, car_name AS carName, setpage_url AS thumbnailUrl, car_url AS carUrl, animation_type AS animationType FROM t_funtime_car where flag = 1 ) c
+        ( SELECT  car_number AS carNumber, car_name AS carName, setpage_url AS thumbnailUrl, car_url AS carUrl, animation_type AS animationType,max(sort) sort FROM t_funtime_car
+				where flag = 1 GROUP BY car_number,car_name,setpage_url,car_url,animation_type) c
         left join t_funtime_user_car u on c.carNumber = u.car_id and u.user_id = #{userId}
+		order by c.sort
     </select>
     <select id="getPriceTagByCarNumber" resultType="java.util.Map">
         SELECT

@@ -117,6 +117,17 @@ public class HeadwearServiceImpl implements HeadwearService {
                 throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
             }
         }
+
+        Integer type = headwearMapper.getCurrnetHeadwear(userId);
+        if (type !=null) {
+            k = headwearMapper.updateUserHeadwearCurrent(userId, record.getHeadwearId());
+        }else{
+
+            k = headwearMapper.insertUserHeadwearCurrent(userId,record.getHeadwearId(),2);
+        }
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
         resultMsg.setData(JsonUtil.getMap("content","剩余"+record.getDays()+"天"));
         return resultMsg;
     }
