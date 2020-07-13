@@ -277,6 +277,20 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public void portraitSetLevelUrl(Long userId,String levelUrl){
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        boolean flag = TencentUtil.portraitSet(userSig, userId.toString(), null, levelUrl);
+        if (!flag) {
+            throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(), ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
+        }
+        Long roomId = roomService.checkUserIsInMic(userId);
+        if (roomId != null) {
+            roomService.sendRoomInfoNotice(roomId);
+
+        }
+    }
+
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public Map<String,String> createRecharge(FuntimeUserAccountRechargeRecord record, String ip, String trade_type){
         if (!userService.checkUserExists(record.getUserId())){

@@ -40,4 +40,9 @@ public interface FuntimeHeadwearMapper {
     List<Map<String, Object>> getPriceTagByHeadwearNumber(Integer headwearNumber);
 
     int insertHeadwearRecord(FuntimeUserAccountHeadwearRecord record);
+
+    String getUrlByHeadwearNumber(Integer headwearId);
+
+    String getUrlByUserId(Long userId);
+
 }

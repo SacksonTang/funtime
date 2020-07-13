@@ -73,8 +73,11 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     public void sendRoomUserNotice(String userSig, String data, List<String> toAccounts) {
+        if (toAccounts==null||toAccounts.size()<1){
+            return;
+        }
         JSONArray array;
-        if (toAccounts!=null&&toAccounts.size()<=500) {
+        if (toAccounts.size()<=500) {
             array = TencentUtil.batchsendmsg(userSig,toAccounts,data);
             if(array != null){
                 List<String> users = getUserIds(array);

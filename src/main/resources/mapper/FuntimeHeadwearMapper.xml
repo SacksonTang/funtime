@@ -50,8 +50,22 @@
         WHERE
             headwear_number =#{headwearNumber}
     </select>
-
-
+    <select id="getUrlByHeadwearNumber" resultType="java.lang.String">
+        SELECT
+            headwear_url
+        FROM
+            t_funtime_headwear
+        WHERE
+            headwear_number =#{headwearNumber} limit 1
+    </select>
+    <select id="getUrlByUserId" resultType="java.lang.String">
+        SELECT
+            l.level_url
+        FROM
+            t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level
+        WHERE
+            t.user_id = #{userId}
+    </select>
     <select id="getCurrnetHeadwear" resultType="java.lang.Integer">
         select type from t_funtime_user_headwear_current where user_id = #{userId}
     </select>

@@ -10,7 +10,12 @@ import java.util.Map;
 
 public interface AccountService {
 
-
+    /**
+     * 同步腾讯头像框
+     * @param userId
+     * @param levelUrl
+     */
+    void portraitSetLevelUrl(Long userId,String levelUrl);
 
     /**
      * 签到
