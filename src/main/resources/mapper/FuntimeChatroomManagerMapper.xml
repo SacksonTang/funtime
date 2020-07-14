@@ -14,7 +14,11 @@
     case when h.user_id is null then null
           when h.type = 1 then l.level_url
           when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
-          else null end levelUrl
+          else null end levelUrl,
+    case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url_h5 from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrlGif
     from t_funtime_chatroom_manager m
     inner join t_funtime_user u on m.user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
