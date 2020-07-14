@@ -6,6 +6,7 @@
         select u.id,u.portrait_address as portraitAddress
         ,l.level_name as headwearName
         ,l.level_url as headwearUrl
+        ,l.level_url as headwearUrlH5
         ,if(c.user_id is null,0,1) isCurrent
         ,'等级头饰' as content
         from t_funtime_user u inner join (t_funtime_user_account t
