@@ -20,6 +20,8 @@ public enum OperationType {
     ,GOLD_CONVERT_IN("IN","GOLD_CONVERT_IN","金币兑换")
     ,GOLD_SIGN_IN("IN","GOLD_SIGN_IN","签到")
     ,GIFT_BOX_IN("IN","GIFT_BOX_IN","宝箱收")
+    ,GIFT_KNAPSACK_EGG_IN("IN","GIFT_KNAPSACK_EGG_IN","砸蛋礼物")
+    ,GIFT_KNAPSACK_CIRCLE_IN("IN","GIFT_KNAPSACK_CIRCLE_IN","夺宝礼物")
 
     ,WITHDRAWAL("OUT","WITHDRAWAL","提现")
     ,GIVEREDPACKET("OUT","GIVEREDPACKET","发红包")
@@ -31,7 +33,7 @@ public enum OperationType {
     ,BLACK_BLUE_OUT("OUT","BLACK_BLUE_OUT","黑钻兑换蓝钻")
     ,YAOYAOLE_OUT("OUT","YAOYAOLE_OUT","摇摇乐消耗")
     ,SMASHEGG_OUT("OUT","SMASHEGG_OUT","砸蛋消耗")
-    ,CIRCLE_OUT("OUT","CIRCLE_OUT","砸蛋消耗")
+    ,CIRCLE_OUT("OUT","CIRCLE_OUT","夺宝消耗")
     ,BUY_BACKGROUND("OUT","BUY_BACKGROUND","购买背景资源")
     ,BUY_CAR("OUT","BUY_CAR","购买坐骑")
     ,BUY_HEADWEAR("OUT","BUY_HEADWEAR","购买头饰")
@@ -40,6 +42,7 @@ public enum OperationType {
     ,BUY_BULLET("OUT","BUY_BULLET","捕鱼购买子弹")
     ,GOLD_CONVERT_OUT("OUT","GOLD_CONVERT_OUT","金币兑换")
     ,GIFT_BOX_OUT("OUT","GIFT_BOX_OUT","宝箱送")
+    ,GIFT_KNAPSACK_OUT("OUT","GIFT_KNAPSACK_OUT","背包送出")
     ;
 
      private String action;

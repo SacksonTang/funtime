@@ -1033,6 +1033,7 @@ public class AccountServiceImpl implements AccountService {
             resultMsg.setMsg(ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
             return resultMsg;
         }
+        saveKnapsackLog(userId,1,giftId,giftNum*toUserIdArray.length,OperationType.GIFT_KNAPSACK_OUT.getAction(),OperationType.GIFT_KNAPSACK_OUT.getOperationType());
         String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
         String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
@@ -1871,6 +1872,7 @@ public class AccountServiceImpl implements AccountService {
             resultMsg.setMsg(ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
             return resultMsg;
         }
+        saveKnapsackLog(userId,1,giftId,giftNum*userNum,OperationType.GIFT_KNAPSACK_OUT.getAction(),OperationType.GIFT_KNAPSACK_OUT.getOperationType());
         Integer userRole = roomService.getUserRole(roomId,userId);
 
         userRole = userRole == null?4:userRole;
@@ -2221,7 +2223,7 @@ public class AccountServiceImpl implements AccountService {
             resultMsg.setMsg(ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
             return resultMsg;
         }
-
+        saveKnapsackLog(userId,1,giftId,giftNum*userNum,OperationType.GIFT_KNAPSACK_OUT.getAction(),OperationType.GIFT_KNAPSACK_OUT.getOperationType());
         Integer userRole = roomService.getUserRole(roomId,userId);
 
         userRole = userRole == null?4:userRole;
@@ -3195,6 +3197,14 @@ public class AccountServiceImpl implements AccountService {
             }
         }
 
+    }
+
+    @Override
+    public void saveKnapsackLog( Long userId,int type,Integer itemId, int itemNum,String actionType, String operationType){
+        int k = userAccountMapper.insertKnapsackLog(userId,type,itemId,itemNum,actionType,operationType);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
     }
 
     @Override

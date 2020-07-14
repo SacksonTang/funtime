@@ -677,6 +677,7 @@ public class GameServiceImpl implements GameService {
                 noticeGiftName = gift.getGiftName();
                 noticePrice = gift.getActivityPrice().intValue();
                 accountService.saveUserKnapsack(userId, 1, drawId, 1);
+                accountService.saveKnapsackLog(userId,1,drawId,1,OperationType.GIFT_KNAPSACK_EGG_IN.getAction(),OperationType.GIFT_KNAPSACK_EGG_IN.getOperationType());
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
                         , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType());
@@ -869,6 +870,7 @@ public class GameServiceImpl implements GameService {
                 noticeGiftName = gift.getGiftName();
                 noticePrice = gift.getActivityPrice().intValue();
                 accountService.saveUserKnapsack(userId, 1, drawId, 1);
+                accountService.saveKnapsackLog(userId,1,drawId,1,OperationType.GIFT_KNAPSACK_CIRCLE_IN.getAction(),OperationType.GIFT_KNAPSACK_CIRCLE_IN.getOperationType());
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
                         , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType());

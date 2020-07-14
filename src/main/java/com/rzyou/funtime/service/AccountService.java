@@ -512,6 +512,17 @@ public interface AccountService {
     void saveUserKnapsack(Long userId, int type, Integer drawId, int num);
 
     /**
+     * 礼物日志
+     * @param userId
+     * @param type
+     * @param itemId
+     * @param itemNum
+     * @param actionType
+     * @param operationType
+     */
+    void saveKnapsackLog( Long userId,int type,Integer itemId, int itemNum,String actionType, String operationType);
+
+    /**
      * 个人背包信息
      * @param userId
      * @return

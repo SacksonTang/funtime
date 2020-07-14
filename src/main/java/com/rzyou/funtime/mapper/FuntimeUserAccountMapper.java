@@ -64,5 +64,7 @@ public interface FuntimeUserAccountMapper {
 
     int updateUserKnapsackSub(@Param("id") Long id,@Param("num") int num);
 
+    int insertKnapsackLog(@Param("userId") Long userId, @Param("type") int type,  @Param("itemId") Integer itemId, @Param("itemNum") int itemNum,@Param("actionType") String actionType,@Param("operationType") String operationType);
+
     int insertUserKnapsack(@Param("userId") Long userId, @Param("type") int type,  @Param("itemId") Integer itemId, @Param("itemNum") int itemNum,@Param("version") Long version);
 }
