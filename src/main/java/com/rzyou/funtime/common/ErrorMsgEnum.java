@@ -153,6 +153,8 @@ public enum ErrorMsgEnum {
     ROOM_GAME21_MIC_ERROR("80033","麦位参数有误"),
     ROOM_GAME21_STATE_ERROR("80034","你已要牌"),
     ROOM_GAME21_UPPER_ERROR("80035","游戏中,不能跳麦"),
+    ROOM_GAME123_EXISTS("80036","游戏正在进行中，请等待游戏结束后再发起"),
+    ROOM_GAME123_AUTH("80037","无此权限"),
 
     DRAW_POOL_NOT_EN("90001","奖池余额不足"),
     DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启"),

@@ -36,6 +36,8 @@ public class RoomServiceImpl implements RoomService {
     @Autowired
     Game21Service game21Service;
     @Autowired
+    Game123Service game123Service;
+    @Autowired
     RedisUtil redisUtil;
 
     @Autowired
@@ -241,6 +243,7 @@ public class RoomServiceImpl implements RoomService {
             }
         }
 
+        game123Service.setExitTimeByJoin(userId,roomId);
         roomJoinNotice(roomId,userId,user.getNickname(),carUrl,msg,animationType);
         sendRoomInfoNotice(roomId);
         result.put("isOwer",chatroom.getUserId().equals(userId));
@@ -368,6 +371,7 @@ public class RoomServiceImpl implements RoomService {
         //房间人数-1
         updateOnlineNumSub(roomId,chatroom.getHots()>hots?hots:0);
 
+        game123Service.setExitTimeByJoin(userId,roomId);
         sendRoomInfoNotice(roomId);
     }
 
@@ -450,6 +454,8 @@ public class RoomServiceImpl implements RoomService {
         int hots = userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2;
         //房间人数-1
         updateOnlineNumSub(roomId,chatroom.getHots()>hots?hots:0);
+        game123Service.setExitTimeByExit(userId,roomId);
+
         //发送通知
         noticeService.notice16(micLocation, roomId, kickIdUserId);
 
@@ -760,6 +766,7 @@ public class RoomServiceImpl implements RoomService {
         deleteByRoomId(roomId);
         game21Service.exitGameForRoomClose(roomId);
 
+        game123Service.exitGameForRoomClose(roomId);
         if (userIds!=null&&!userIds.isEmpty()) {
             //发送通知
             noticeService.notice7(roomId,userIds);

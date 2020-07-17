@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeRoomGame123Mapper">
+
+    <select id="getUserIfExist" resultType="java.lang.Long">
+        select user_id from t_funtime_room_game123_val where user_id = #{userId}
+    </select>
+    <select id="getUserByRoomId" resultType="java.lang.Long">
+        select user_id from t_funtime_room_game123 where room_id = #{roomId}
+    </select>
+    <select id="getExpireGame1" resultType="java.lang.Long">
+        select room_id from t_funtime_room_game123 where expire_time >= now()
+    </select>
+    <select id="getExpireGame2" resultType="java.lang.Long">
+        select room_id from t_funtime_room_game123 where exit_time >= now()
+    </select>
+    <delete id="deleteGame">
+        delete from t_funtime_room_game123_val where room_id = #{roomId}
+    </delete>
+    <delete id="deleteGameById">
+        delete from t_funtime_room_game123_val where id = #{id}
+    </delete>
+    <delete id="deleteGame2">
+        delete from t_funtime_room_game123 where room_id = #{roomId}
+    </delete>
+
+    <insert id="insertRoomGame123">
+        insert into t_funtime_room_game123 (room_id,user_id,expire_time) values (#{roomId},#{userId},DATE_ADD(now(),INTERVAL ${expireHours} HOUR))
+    </insert>
+    <insert id="insertRoomGame123Val">
+        insert into t_funtime_room_game123_val (room_id,user_id,blue_amount) values (#{roomId},#{userId},#{blueAmount})
+    </insert>
+    <insert id="updateRoomGame123Val">
+        update t_funtime_room_game123_val set blue_amount = blue_amount+#{blueAmount} where user_id = #{userId}
+    </insert>
+    <update id="updateExitTime">
+        update t_funtime_room_game123 set exit_time = DATE_ADD(now(),INTERVAL 3 HOUR) where room_id = #{roomId}
+    </update>
+    <update id="updateExitTimeNull">
+        update t_funtime_room_game123 set exit_time = null where room_id = #{roomId}
+    </update>
+</mapper>

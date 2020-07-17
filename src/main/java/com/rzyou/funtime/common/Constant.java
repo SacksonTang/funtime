@@ -201,4 +201,7 @@ public class Constant {
     public static final int GAME21_GET_POKER = 20003;
     public static final int GAME21_STOP_POKER = 20004;
     public static final int GAME21_WIN = 20005;
+    public static final int GAME123_OPEN = 30000;
+    public static final int GAME123_CLOSE = 30001;
+    public static final int GAME123_CLEAR = 30002;
 }

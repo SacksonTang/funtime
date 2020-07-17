@@ -48,6 +48,8 @@ public class AccountServiceImpl implements AccountService {
     SmsService smsService;
     @Autowired
     HeadwearService headwearService;
+    @Autowired
+    Game123Service game123Service;
 
     @Autowired
     FuntimeCarMapper carMapper;
@@ -132,7 +134,12 @@ public class AccountServiceImpl implements AccountService {
                         continue;
                     }
                     String out_trade_no = record.getOrderNo();
-                    resultMap = MyWxPay.orderQuery(null, out_trade_no, record.getPayType());
+                    try {
+                        resultMap = MyWxPay.orderQuery(null, out_trade_no, record.getPayType());
+                    }catch (Exception e){
+                        updatePollTimes(record.getId(), 1);
+                        continue;
+                    }
                     if (resultMap != null && "SUCCESS".equals(resultMap.get("return_code"))
                             && "SUCCESS".equals(resultMap.get("result_code"))) {
                         String trade_state = resultMap.get("trade_state");
@@ -149,7 +156,14 @@ public class AccountServiceImpl implements AccountService {
                         closeOrderAlipay(record.getId(), record.getOrderNo());
                         continue;
                     }
-                    AlipayTradeQueryResponse response = MyAlipay.query(record.getOrderNo());
+                    AlipayTradeQueryResponse response;
+                    try {
+                        response = MyAlipay.query(record.getOrderNo());
+                    }catch (Exception e){
+                        updatePollTimes(record.getId(), 1);
+                        continue;
+                    }
+
                     if ("TRADE_SUCCESS".equals(response.tradeStatus)){
                         aliPayOrderCallBack(record.getOrderNo(),"TRADE_SUCCESS",new BigDecimal(response.totalAmount),response.tradeNo);
                     }else{
@@ -1039,8 +1053,10 @@ public class AccountServiceImpl implements AccountService {
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
+        List<Long> toUsers = new ArrayList<>();
         for (String toUserIdStr : toUserIdArray) {
             Long toUserId = Long.valueOf(toUserIdStr);
+            toUsers.add(toUserId);
             FuntimeUser toUser = userService.queryUserById(toUserId);
             if (toUser==null){
                 throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
@@ -1104,6 +1120,7 @@ public class AccountServiceImpl implements AccountService {
         resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum));
         if (roomId!=null) {
             roomService.updateHotsPlus(roomId, new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+            game123Service.saveGame123Val(toUsers,roomId,amount);
         }
         return resultMsg;
 
@@ -1319,8 +1336,10 @@ public class AccountServiceImpl implements AccountService {
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
+        List<Long> toUsers = new ArrayList<>();
         for (String toUserIdStr : toUserIdArray) {
             Long toUserId = Long.valueOf(toUserIdStr);
+            toUsers.add(toUserId);
             FuntimeUser toUser = userService.queryUserById(toUserId);
             if (toUser==null){
                 throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
@@ -1384,6 +1403,7 @@ public class AccountServiceImpl implements AccountService {
         }
         if (roomId!=null) {
             roomService.updateHotsPlus(roomId, new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+            game123Service.saveGame123Val(toUsers,roomId,amount);
         }
         return resultMsg;
     }
@@ -1505,6 +1525,7 @@ public class AccountServiceImpl implements AccountService {
         List<Map<String,Object>> noticeDatas = new ArrayList<>();
         Map<String,Object> noticeData;
         Map<Long,Map<Integer,Integer>> randomGiftsMap = getDrawId(giftId,toUserIdArray,giftNum);
+        Map<Long,Integer> tousersMap = new HashMap<>();
         for (Map.Entry<Long,Map<Integer,Integer>> entry : randomGiftsMap.entrySet()){
             Long toUserId = entry.getKey();
             FuntimeUser toUser = userService.queryUserById(toUserId);
@@ -1522,6 +1543,7 @@ public class AccountServiceImpl implements AccountService {
                 }
                 BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
                 BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
+                tousersMap.put(toUserId,tousersMap.get(toUserId)==null?giftAmount.intValue():giftAmount.intValue()+tousersMap.get(toUserId));
                 Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
                         , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue());
 
@@ -1565,6 +1587,7 @@ public class AccountServiceImpl implements AccountService {
         noticeService.notice39(noticeMap,userIds);
         if (roomId!=null) {
             roomService.updateHotsPlus(roomId, new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+            game123Service.saveGame123Val(tousersMap,roomId);
         }
         return resultMsg;
     }
@@ -1822,6 +1845,8 @@ public class AccountServiceImpl implements AccountService {
         }
         if (roomId!=null) {
             roomService.updateHotsPlus(roomId, new BigDecimal(amount * userNum).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+
+            game123Service.saveGame123Val(toUserIdArray,roomId,amount);
         }
         return resultMsg;
 
@@ -1944,6 +1969,8 @@ public class AccountServiceImpl implements AccountService {
         resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum*userNum));
         if (roomId!=null) {
             roomService.updateHotsPlus(roomId, new BigDecimal(amount * userNum).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+
+            game123Service.saveGame123Val(toUserIdArray,roomId,amount);
         }
         return resultMsg;
 
@@ -2007,6 +2034,7 @@ public class AccountServiceImpl implements AccountService {
         List<Map<String,Object>> noticeDatas = new ArrayList<>();
         Map<String,Object> noticeData;
         Map<Long,Map<Integer,Integer>> randomGiftsMap = getDrawId(giftId,toUserIdArray,giftNum);
+        Map<Long,Integer> tousersMap = new HashMap<>();
         for (Map.Entry<Long,Map<Integer,Integer>> entry : randomGiftsMap.entrySet()){
             Long toUserId = entry.getKey();
             FuntimeUser toUser = userService.queryUserById(toUserId);
@@ -2024,6 +2052,7 @@ public class AccountServiceImpl implements AccountService {
                 }
                 BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
                 BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
+                tousersMap.put(toUserId,tousersMap.get(toUserId)==null?giftAmount.intValue():giftAmount.intValue()+tousersMap.get(toUserId));
                 Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
                         , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue());
 
@@ -2066,6 +2095,8 @@ public class AccountServiceImpl implements AccountService {
         noticeService.notice39(noticeMap,userIds);
         if (roomId!=null) {
             roomService.updateHotsPlus(roomId, new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+
+            game123Service.saveGame123Val(tousersMap,roomId);
         }
         return resultMsg;
     }
@@ -2179,6 +2210,8 @@ public class AccountServiceImpl implements AccountService {
         }
         if (roomId!=null) {
             roomService.updateHotsPlus(roomId, new BigDecimal(amount * userNum).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+
+            game123Service.saveGame123Val(toUserIdArray,roomId,amount);
         }
         return resultMsg;
     }
@@ -2294,6 +2327,8 @@ public class AccountServiceImpl implements AccountService {
         resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum*userNum));
         if (roomId!=null) {
             roomService.updateHotsPlus(roomId, new BigDecimal(amount * userNum).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+
+            game123Service.saveGame123Val(toUserIdArray,roomId,amount);
         }
         return resultMsg;
     }
@@ -2355,6 +2390,7 @@ public class AccountServiceImpl implements AccountService {
         List<Map<String,Object>> noticeDatas = new ArrayList<>();
         Map<String,Object> noticeData;
         Map<Long,Map<Integer,Integer>> randomGiftsMap = getDrawId(giftId,toUserIdArray,giftNum);
+        Map<Long,Integer> tousersMap = new HashMap<>();
         for (Map.Entry<Long,Map<Integer,Integer>> entry : randomGiftsMap.entrySet()){
             Long toUserId = entry.getKey();
             FuntimeUser toUser = userService.queryUserById(toUserId);
@@ -2372,6 +2408,7 @@ public class AccountServiceImpl implements AccountService {
                 }
                 BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
                 BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
+                tousersMap.put(toUserId,tousersMap.get(toUserId)==null?giftAmount.intValue():giftAmount.intValue()+tousersMap.get(toUserId));
                 Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
                         , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue());
 
@@ -2414,6 +2451,8 @@ public class AccountServiceImpl implements AccountService {
         noticeService.notice39(noticeMap,userIds);
         if (roomId!=null) {
             roomService.updateHotsPlus(roomId, new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+
+            game123Service.saveGame123Val(tousersMap,roomId);
         }
         return resultMsg;
     }

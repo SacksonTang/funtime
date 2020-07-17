@@ -28,6 +28,8 @@ public class CommonTask {
     @Autowired
     Game21Service game21Service;
     @Autowired
+    Game123Service game123Service;
+    @Autowired
     GameService gameService;
     @Autowired
     HeadwearService headwearService;
@@ -53,6 +55,19 @@ public class CommonTask {
         long time = System.currentTimeMillis();
         try {
             game21Service.game21Task(time);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * 数值游戏定时任务
+     */
+    @Scheduled(fixedRate = 1000*10)
+    public void game123Task(){
+        try {
+            game123Service.game123Task();
         }catch (Exception e){
             e.printStackTrace();
         }

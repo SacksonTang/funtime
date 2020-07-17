@@ -449,4 +449,21 @@ public interface NoticeService {
      * @param rounds
      */
     void notice20005(List<String> userIds, List<Map<String, Object>> wins, List<FuntimeRoomGame21> totalmics, List<FuntimeRoomGame21> mics, int rounds);
+
+    /**
+     * 数值游戏开启游戏
+     * @param userIds
+     */
+    void notice30000(List<String> userIds);
+    /**
+     * 数值游戏结束游戏
+     * @param userIds
+     */
+    void notice30001(List<String> userIds);
+
+    /**
+     * 清空数值
+     * @param userIds
+     */
+    void notice30002(List<String> userIds);
 }

@@ -760,6 +760,32 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
+    public void notice30000(List<String> userIds) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME123_OPEN);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+    @Override
+    public void notice30001(List<String> userIds) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME123_CLOSE);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public void notice30002(List<String> userIds) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME123_CLEAR);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
     public void notice20001(List<String> userIds, List<FuntimeRoomGame21> list, int timestamp, int rounds, long stamp, List<FuntimeRoomGame21> totalmics, String timeZone) {
         JSONObject object = new JSONObject();
         object.put("type",Constant.GAME21_START);
