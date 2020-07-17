@@ -507,6 +507,15 @@ public class UserController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
+            if (user.getNickname()!=null){
+                for (int i = 0;i<Constant.exceptionArray.length;i++){
+                    if (user.getNickname().contains(Constant.exceptionArray[i])){
+                        result.setCode(ErrorMsgEnum.USER_NICKNAME_ERROR.getValue());
+                        result.setMsg(ErrorMsgEnum.USER_NICKNAME_ERROR.getDesc());
+                        return result;
+                    }
+                }
+            }
             if (user.getOnlineState()!=null&&user.getOnlineState()==0){
                 user.setOnlineState(1);
             }

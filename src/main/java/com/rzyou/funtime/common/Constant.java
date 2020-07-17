@@ -8,6 +8,8 @@ public class Constant {
     public final static String HEIGHT_COLOR = "#FF9500";
     public final static String DEFAULT_NICKNAME = "大侠";
 
+    public final static String[] exceptionArray = {"触娱","官方"};
+
     //AES秘钥
     public static final String AES_KEY = "Yhi6HglhWHBiw0ZQ";
 

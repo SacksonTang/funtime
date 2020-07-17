@@ -1041,6 +1041,7 @@ public class GameServiceImpl implements GameService {
         List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
         Integer userRole = roomService.getUserRole2(roomId,userId);
         if (userIds!=null&&!userIds.isEmpty()) {
+            msg = "<font color='#f8e71c'>"+msg+"</font>";
             noticeService.notice11Or14(userId, null, msg, roomId, 11, userIds, userRole, null);
         }
     }

@@ -114,6 +114,7 @@ public class LoginController {
             }
             FuntimeUser userInfo = strategy.login(user);
 
+            /*
             if (user.getPlatform()!=null&&user.getPlatform() == 0&&userInfo.getNewUser()){
                 log.info("苹果新用户登录");
                 String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_SYSTEMUSER);
@@ -121,7 +122,7 @@ public class LoginController {
                 toAccounts.add(userInfo.getId().toString());
 
                 TencentUtil.batchsendmsg(userSig,toAccounts,Constant.APPLENEWUSERRETURN,Constant.TENCENT_YUN_SYSTEMUSER);
-            }
+            }*/
 
             userInfo.setImSdkAppId(StaticData.TENCENT_YUN_SDK_APPID);
             Map<String, Object> map = JsonUtil.getMap("user", userInfo);
