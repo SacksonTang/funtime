@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,5 +136,19 @@ public class MusicServiceImpl implements MusicService {
                 musicMapper.insertMusic(map);
             }
         }
+    }
+
+    @Override
+    public Map<String, Object> getLocalMusics2() {
+        List<String> musics2 = musicMapper.getLocalMusics2();
+        List<String> data = new ArrayList<>();
+        for (String url : musics2){
+            if (!FileUtil.isConnect(url)){
+                data.add(url);
+            }
+        }
+        Map<String,Object> result = new HashMap<>();
+        result.put("urls",data);
+        return result;
     }
 }

@@ -11,5 +11,7 @@ public interface FuntimeMusicMapper {
 
     int insertMusic(Map<String,Object> map);
 
+    List<String> getLocalMusics2();
+
     List<Map<String,Object>> getLocalMusics(@Param("startPage") Integer startPage, @Param("pageSize") Integer pageSize, @Param("tagId") Integer tagId,@Param("content")  String content);
 }

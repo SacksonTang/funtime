@@ -30,6 +30,8 @@ public interface FuntimeGameMapper {
 
     int updateYaoyaoPoolTask();
 
+    int updateYaoyaoPoolTask2();
+
     int insertYaoyaoPoolHisotry(@Param("startDate") String startDate,@Param("endDate") String endDate);
 
     Integer getGameShowConf(@Param("type") Integer type,@Param("gameCode") Integer gameCode);

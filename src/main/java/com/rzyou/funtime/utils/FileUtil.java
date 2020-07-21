@@ -1,6 +1,8 @@
 package com.rzyou.funtime.utils;
 
 import java.io.File;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,43 @@ public class FileUtil {
         return files;
     }
 
+    private static URL url;
+    private static HttpURLConnection con;
+    private static int state = -1;
+    /**
+     * 功能：检测当前URL是否可连接或是否有效,
+     * 描述：最多连接网络 5 次, 如果 5 次都不成功，视为该地址不可用
+     * @param urlStr 指定URL网络地址
+     * @return URL
+     */
+    public static synchronized boolean isConnect(String urlStr) {
+        int counts = 0;
+        if (urlStr == null || urlStr.length() <= 0) {
+            return false;
+        }
+        boolean bool = false;
+        while (counts < 5) {
+            try {
+                url = new URL(urlStr);
+                con = (HttpURLConnection) url.openConnection();
+                state = con.getResponseCode();
+                System.out.println(counts +"="+state);
+                if (state == 200){
+                    bool = true;
+                }
+                break;
+            }catch (Exception ex) {
+                counts++;
+                urlStr = null;
+                continue;
+            }
+        }
+        return bool;
+    }
 
+
+    public static void main(String[] args) {
+        isConnect("https://music-1300805214.cos.ap-shanghai.myqcloud.com/music/2020热门网络歌曲/醉红尘 - 魏新雨.mp");
+    }
 
 }

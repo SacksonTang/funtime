@@ -1054,6 +1054,7 @@ public class AccountServiceImpl implements AccountService {
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
         List<Long> toUsers = new ArrayList<>();
+        List<RoomGiftNotice> notices = new ArrayList<>();
         for (String toUserIdStr : toUserIdArray) {
             Long toUserId = Long.valueOf(toUserIdStr);
             toUsers.add(toUserId);
@@ -1102,14 +1103,11 @@ public class AccountServiceImpl implements AccountService {
                     noticeService.notice21(notice);
 
                 }
-                List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
-                if (userIds == null || userIds.isEmpty()) {
-                    throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
-                }
+
                 notice.setSpecialEffect(type);
                 notice.setType(Constant.ROOM_GIFT_SEND);
-                //发送通知
-                noticeService.notice8(notice, userIds);
+                notices.add(notice);
+
                 if (noticeAmount!=null){
                     if (total>=new BigDecimal(noticeAmount).intValue()){
                         noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
@@ -1121,6 +1119,15 @@ public class AccountServiceImpl implements AccountService {
         if (roomId!=null) {
             roomService.updateHotsPlus(roomId, new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
             game123Service.saveGame123Val(toUsers,roomId,amount);
+        }
+        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+        if (userIds != null && !userIds.isEmpty()) {
+            if (!notices.isEmpty()){
+                for (RoomGiftNotice notice :notices) {
+                    //发送通知
+                    noticeService.notice8(notice, userIds);
+                }
+            }
         }
         return resultMsg;
 
@@ -1337,6 +1344,7 @@ public class AccountServiceImpl implements AccountService {
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
         List<Long> toUsers = new ArrayList<>();
+        List<RoomGiftNotice> notices = new ArrayList<>();
         for (String toUserIdStr : toUserIdArray) {
             Long toUserId = Long.valueOf(toUserIdStr);
             toUsers.add(toUserId);
@@ -1386,14 +1394,11 @@ public class AccountServiceImpl implements AccountService {
                     noticeService.notice21(notice);
 
                 }
-                List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
-                if (userIds == null || userIds.isEmpty()) {
-                    throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
-                }
+
                 notice.setSpecialEffect(type);
                 notice.setType(Constant.ROOM_GIFT_SEND);
-                //发送通知
-                noticeService.notice8(notice, userIds);
+                notices.add(notice);
+
                 if (noticeAmount!=null){
                     if (total>=new BigDecimal(noticeAmount).intValue()){
                         noticeService.notice10002("送给"+toUser.getNickname(),userId,roomId,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
@@ -1405,6 +1410,16 @@ public class AccountServiceImpl implements AccountService {
             roomService.updateHotsPlus(roomId, new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
             game123Service.saveGame123Val(toUsers,roomId,amount);
         }
+        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+        if (userIds != null && !userIds.isEmpty()) {
+            if (!notices.isEmpty()){
+                for (RoomGiftNotice notice :notices) {
+                    //发送通知
+                    noticeService.notice8(notice, userIds);
+                }
+            }
+        }
+
         return resultMsg;
     }
 
@@ -1589,6 +1604,7 @@ public class AccountServiceImpl implements AccountService {
             roomService.updateHotsPlus(roomId, new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
             game123Service.saveGame123Val(tousersMap,roomId);
         }
+
         return resultMsg;
     }
 

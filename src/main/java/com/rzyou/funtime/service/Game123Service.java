@@ -5,7 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 public interface Game123Service {
-
+    /**
+     * 状态
+     * @param roomId
+     * @return
+     */
+    Integer getStateByRoomId(Long roomId);
     /**
      * 游戏创建者
      * @param roomId

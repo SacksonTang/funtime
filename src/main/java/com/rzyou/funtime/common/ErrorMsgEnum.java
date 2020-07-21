@@ -155,6 +155,7 @@ public enum ErrorMsgEnum {
     ROOM_GAME21_UPPER_ERROR("80035","游戏中,不能跳麦"),
     ROOM_GAME123_EXISTS("80036","游戏正在进行中，请等待游戏结束后再发起"),
     ROOM_GAME123_AUTH("80037","无此权限"),
+    ROOM_GAME123_NOT_EXISTS("80038","无此游戏"),
 
     DRAW_POOL_NOT_EN("90001","奖池余额不足"),
     DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启"),

@@ -7,6 +7,7 @@ import com.rzyou.funtime.mapper.FuntimeRoomGame123Mapper;
 import com.rzyou.funtime.service.Game123Service;
 import com.rzyou.funtime.service.NoticeService;
 import com.rzyou.funtime.service.RoomService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class Game123ServiceImpl implements Game123Service {
 
     @Autowired
@@ -25,6 +27,13 @@ public class Game123ServiceImpl implements Game123Service {
     NoticeService noticeService;
 
 
+
+    @Override
+    public Integer getStateByRoomId(Long roomId) {
+
+        return roomGame123Mapper.getStateByRoomId(roomId);
+    }
+
     @Override
     public Long getUserByRoomId(Long roomId) {
         return roomGame123Mapper.getUserByRoomId(roomId);
@@ -33,14 +42,16 @@ public class Game123ServiceImpl implements Game123Service {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void startGame(Long userId, Long roomId) {
+
         Long createUserId = getUserByRoomId(roomId);
-        if (createUserId!=null){
-            throw new BusinessException(ErrorMsgEnum.ROOM_GAME123_EXISTS.getValue(),ErrorMsgEnum.ROOM_GAME123_EXISTS.getDesc());
+        if (createUserId==null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_GAME123_NOT_EXISTS.getValue(), ErrorMsgEnum.ROOM_GAME123_NOT_EXISTS.getDesc());
         }
-        int k = roomGame123Mapper.insertRoomGame123(roomId,userId,24);
-        if (k!=1){
-            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        int k = roomGame123Mapper.startGame(roomId, 24);
+        if (k != 1) {
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(), ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+
 
     }
 
@@ -48,27 +59,27 @@ public class Game123ServiceImpl implements Game123Service {
     @Transactional(rollbackFor = Throwable.class)
     public void clearVal(Long userId, Long roomId) {
         Long createUserId = getUserByRoomId(roomId);
-        if (createUserId!=null){
-            throw new BusinessException(ErrorMsgEnum.ROOM_GAME123_EXISTS.getValue(),ErrorMsgEnum.ROOM_GAME123_EXISTS.getDesc());
+        if (createUserId==null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_GAME123_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_GAME123_NOT_EXISTS.getDesc());
         }
-        int k = roomGame123Mapper.deleteGame2(roomId);
+        if (!createUserId.equals(userId)){
+            throw new BusinessException(ErrorMsgEnum.ROOM_GAME123_AUTH.getValue(),ErrorMsgEnum.ROOM_GAME123_AUTH.getDesc());
+        }
+        roomGame123Mapper.deleteGame2(roomId);
+
+        int k = roomGame123Mapper.updateState(roomId,3);
         if (k<1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
-        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
-        if (userIds!=null&&userIds.size()>0) {
-            noticeService.notice30002(userIds);
-        }
+        roomService.sendRoomInfoNotice(roomId);
+
 
     }
 
     public void clearVal(Long roomId){
         roomGame123Mapper.deleteGame2(roomId);
-
-        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
-        if (userIds!=null&&userIds.size()>0) {
-            noticeService.notice30002(userIds);
-        }
+        roomGame123Mapper.updateState(roomId,3);
+        roomService.sendRoomInfoNotice(roomId);
     }
 
     @Override
@@ -90,15 +101,16 @@ public class Game123ServiceImpl implements Game123Service {
     @Override
     public void setExitTimeByExit(Long userId, Long roomId){
         Long createUserId = getUserByRoomId(roomId);
-        if (createUserId.equals(userId)){
-
+        if (createUserId!=null&&createUserId.equals(userId)){
+            roomGame123Mapper.deleteGameByUserId(userId);
             roomGame123Mapper.updateExitTime(roomId);
         }
+
     }
     @Override
     public void setExitTimeByJoin(Long userId, Long roomId){
         Long createUserId = getUserByRoomId(roomId);
-        if (createUserId.equals(userId)){
+        if (createUserId!=null&&createUserId.equals(userId)){
 
             roomGame123Mapper.updateExitTimeNull(roomId);
         }
@@ -106,8 +118,8 @@ public class Game123ServiceImpl implements Game123Service {
 
     @Override
     public void saveGame123Val(List<Long> userIds,Long roomId,Integer blueAmount){
-        Long createUserId = getUserByRoomId(roomId);
-        if (createUserId!=null&&userIds.size()>0) {
+        Integer state = getStateByRoomId(roomId);
+        if (state!=null&&state ==2&&userIds.size()>0) {
             for (Long userId : userIds) {
                 if (roomGame123Mapper.getUserIfExist(userId) == null) {
                     roomGame123Mapper.insertRoomGame123Val(roomId, userId, blueAmount);
@@ -115,14 +127,15 @@ public class Game123ServiceImpl implements Game123Service {
                     roomGame123Mapper.updateRoomGame123Val(userId, blueAmount);
                 }
             }
+            roomService.sendRoomInfoNotice(roomId);
         }
-        roomService.sendRoomInfoNotice(roomId);
+
     }
 
     @Override
     public void saveGame123Val(Map<Long,Integer> userIdsMap, Long roomId){
-        Long createUserId = getUserByRoomId(roomId);
-        if (createUserId!=null&&!userIdsMap.isEmpty()) {
+        Integer state = getStateByRoomId(roomId);
+        if (state!=null&&state ==2&&!userIdsMap.isEmpty()) {
             for (Map.Entry<Long,Integer> entry : userIdsMap.entrySet()) {
                 Long userId = entry.getKey();
                 Integer blueAmount = entry.getValue();
@@ -132,8 +145,9 @@ public class Game123ServiceImpl implements Game123Service {
                     roomGame123Mapper.updateRoomGame123Val(userId, blueAmount);
                 }
             }
+            roomService.sendRoomInfoNotice(roomId);
         }
-        roomService.sendRoomInfoNotice(roomId);
+
     }
 
     @Override
@@ -143,23 +157,23 @@ public class Game123ServiceImpl implements Game123Service {
         if (chatroom == null){
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
-        if (roomService.getChatroomManager(roomId,userId)==null&&userId.equals(chatroom.getUserId())){
+        if (roomService.getChatroomManager(roomId,userId)==null&&!userId.equals(chatroom.getUserId())){
             throw new BusinessException(ErrorMsgEnum.ROOM_GAME123_AUTH.getValue(),ErrorMsgEnum.ROOM_GAME123_AUTH.getDesc());
         }
-        if (userId.equals(chatroom.getUserId())){
-            roomGame123Mapper.deleteGame(roomId);
-            roomGame123Mapper.deleteGame2(roomId);
-        }else{
-            Long createUserId = getUserByRoomId(roomId);
-            if (createUserId != null){
-                if (createUserId.equals(userId)){
-                    roomGame123Mapper.deleteGame(roomId);
-                    roomGame123Mapper.deleteGame2(roomId);
-                }else{
-                    throw new BusinessException(ErrorMsgEnum.ROOM_GAME123_EXISTS.getValue(),ErrorMsgEnum.ROOM_GAME123_EXISTS.getDesc());
-                }
+        Long createUserId = getUserByRoomId(roomId);
+        if (createUserId!=null) {
+            if (userId.equals(chatroom.getUserId())) {
+                exitGameForRoomClose(roomId);
+            } else {
+                throw new BusinessException(ErrorMsgEnum.ROOM_GAME123_EXISTS.getValue(), ErrorMsgEnum.ROOM_GAME123_EXISTS.getDesc());
+
             }
         }
+        int k = roomGame123Mapper.insertRoomGame123(roomId, userId, 1);
+        if (k != 1) {
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(), ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+
         List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
         if (userIds!=null&&userIds.size()>0) {
             noticeService.notice30000(userIds);
@@ -168,7 +182,6 @@ public class Game123ServiceImpl implements Game123Service {
 
     @Override
     public void game123Task() {
-
         //24小时一轮的过期,清空数值
         List<Long> roomIds = roomGame123Mapper.getExpireGame1();
 

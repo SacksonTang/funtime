@@ -89,6 +89,33 @@ public class MusicController {
             return result;
         }
     }
+    /**
+     * 获取本地列表时使用
+     * @param request
+     * @return
+     */
+    @PostMapping("getLocalMusics2")
+    public ResultMsg<Object> getLocalMusics2(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+
+            Map<String, Object> data = musicService.getLocalMusics2();
+            result.setData(data);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
     /**
      * 获取素材库列表时使用

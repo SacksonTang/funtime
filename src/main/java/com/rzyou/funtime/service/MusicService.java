@@ -62,4 +62,6 @@ public interface MusicService {
      * 初始化音乐
      */
     void initMusics();
+
+    Map<String, Object> getLocalMusics2();
 }

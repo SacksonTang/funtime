@@ -12,11 +12,13 @@ public interface FuntimeRoomGame123Mapper {
 
     Long getUserByRoomId(Long roomId);
 
+    Integer getStateByRoomId(Long roomId);
+
     List<Long> getExpireGame1();
 
     List<Long> getExpireGame2();
 
-    int insertRoomGame123(@Param("roomId") Long roomId,@Param("userId")  Long userId, @Param("expireHours") Integer expireHours);
+    int insertRoomGame123(@Param("roomId") Long roomId,@Param("userId")  Long userId, @Param("state")  Integer state);
 
     int insertRoomGame123Val(@Param("roomId") Long roomId,@Param("userId")  Long userId, @Param("blueAmount") Integer blueAmount);
 
@@ -24,11 +26,16 @@ public interface FuntimeRoomGame123Mapper {
 
     int deleteGame(Long roomId);
 
-    int deleteGameById(Long id);
-
     int deleteGame2(Long roomId);
+
+    int deleteGameByUserId(Long userId);
+
 
     int updateExitTime(Long roomId);
 
+    int startGame(@Param("roomId") Long roomId,@Param("hours") Integer hours);
+
     int updateExitTimeNull(Long roomId);
+
+    int updateState(@Param("roomId") Long roomId,Integer state);
 }

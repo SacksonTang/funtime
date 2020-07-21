@@ -64,7 +64,7 @@ public class CommonTask {
     /**
      * 数值游戏定时任务
      */
-    @Scheduled(fixedRate = 1000*10)
+    @Scheduled(fixedRate = 1000*60)
     public void game123Task(){
         try {
             game123Service.game123Task();
@@ -157,6 +157,16 @@ public class CommonTask {
         }
     }
 
+
+    @Scheduled(cron = "0 0 5 * * ?")
+    public void resetYaoyaoPool2(){
+        log.info("摇摇乐奖池重置 resetYaoyaoPool2:{}",DateUtil.getCurrentDateTimeExtr());
+        try {
+            gameService.updateYaoyaoPoolTask2();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
     /**
      * 心跳合并
      */

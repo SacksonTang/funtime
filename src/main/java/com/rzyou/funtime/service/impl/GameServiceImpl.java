@@ -192,7 +192,7 @@ public class GameServiceImpl implements GameService {
         result.put("number2",conf.getNumber2());
         result.put("number3",conf.getNumber3());
         String percent = parameterService.getParameterValueByKey("pool_percent");
-        BigDecimal poolPer = percent == null?new BigDecimal(0.8):new BigDecimal(percent);
+        BigDecimal poolPer = percent == null?new BigDecimal(1):new BigDecimal(percent);
         BigDecimal subActualPool = new BigDecimal(poolInfo.getQuota()).multiply(poolPer).setScale(0,BigDecimal.ROUND_HALF_UP);
 
         if (conf.getDrawVal().doubleValue()<=0){
@@ -567,7 +567,7 @@ public class GameServiceImpl implements GameService {
             while (it.hasNext()){
                 Map<String, Object> map = (Map<String, Object>) it.next();
                 if (roomId!=null) {
-                    if ("1005".equals(map.get("gameCode").toString())) {
+                    if ("1005".equals(map.get("gameCode").toString())||"1007".equals(map.get("gameCode").toString())) {
                         FuntimeChatroom chatroom = roomService.getChatroomById(roomId);
                         if (!chatroom.getUserId().equals(userId)) {
                             if (roomService.getChatroomManager(roomId, userId) == null) {
@@ -1060,6 +1060,12 @@ public class GameServiceImpl implements GameService {
 
         resultMap.put("rankingList",list);
         return resultMap;
+    }
+
+    @Override
+    public void updateYaoyaoPoolTask2() {
+
+        gameMapper.updateYaoyaoPoolTask2();
     }
 
     public List<Map<String, Object>> getFishRanklist(int endCount, Integer type,Long roomId) {

@@ -325,8 +325,17 @@ public class RoomServiceImpl implements RoomService {
             }
         }
         Long chatroomManagerId = chatroomManagerMapper.getChatroomManager(roomId, userId);
-        result.put("isManager",chatroomManagerId == null?false:true);
+        result.put("isManager",chatroomManagerId != null);
 
+
+        Long gameUserId = game123Service.getUserByRoomId(roomId);
+        result.put("isValueGame",gameUserId != null);
+
+        if (gameUserId!=null&&gameUserId.equals(userId)){
+
+            Integer state = game123Service.getStateByRoomId(roomId);
+            result.put("valueGameState",state);
+        }
         return result;
     }
 
@@ -371,7 +380,7 @@ public class RoomServiceImpl implements RoomService {
         //房间人数-1
         updateOnlineNumSub(roomId,chatroom.getHots()>hots?hots:0);
 
-        game123Service.setExitTimeByJoin(userId,roomId);
+        game123Service.setExitTimeByExit(userId,roomId);
         sendRoomInfoNotice(roomId);
     }
 

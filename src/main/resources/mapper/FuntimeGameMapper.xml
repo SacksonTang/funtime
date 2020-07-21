@@ -90,6 +90,10 @@
     update  t_funtime_game_yaoyao_pool
     set actual_pool = init_pool
   </update>
+  <update id="updateYaoyaoPoolTask2">
+    update  t_funtime_game_yaoyao_pool
+    set actual_pool = actual_pool/2 where actual_pool>=init_pool*2
+  </update>
   <update id="updateActualPoolForSub">
     update  t_funtime_game_yaoyao_pool
     set actual_pool = actual_pool-#{amount}
@@ -115,6 +119,8 @@
       #{drawRandom}, #{drawInfo}, #{drawAmount},
       #{basicAmount},#{userAmont},#{poolAmount},#{poolPercent},#{userExchangeAmount},#{roomId})
   </insert>
+
+
 
   <insert id="insertSmashEggRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserAccountSmashEggRecord" keyProperty="id" useGeneratedKeys="true">
     insert into t_funtime_user_account_smash_egg_record (user_id,blue_amount,draw_random,draw_number,type,draw_type,draw_id,draw_val,room_id)
@@ -163,4 +169,6 @@
   <insert id="insertTytRecord">
     insert into t_funtime_user_tyt_record (user_id,room_id,score) values (#{userId},#{roomId},#{score})
   </insert>
+  
+  
 </mapper>
