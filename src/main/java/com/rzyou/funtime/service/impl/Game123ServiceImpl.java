@@ -124,7 +124,11 @@ public class Game123ServiceImpl implements Game123Service {
         if (state!=null&&state ==2&&userIds.size()>0) {
             for (Long userId : userIds) {
                 if (roomGame123Mapper.getUserIfExist(userId) == null) {
-                    roomGame123Mapper.insertRoomGame123Val(roomId, userId, blueAmount);
+                    try {
+                        roomGame123Mapper.insertRoomGame123Val(roomId, userId, blueAmount);
+                    }catch (Exception e){
+                        roomGame123Mapper.updateRoomGame123Val(userId, blueAmount);
+                    }
                 } else {
                     roomGame123Mapper.updateRoomGame123Val(userId, blueAmount);
                 }

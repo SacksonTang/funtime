@@ -391,7 +391,7 @@
 
   </select>
   <select id="getCustomerService"  resultType="java.util.Map">
-    select email ,qq,phone_number phoneNumber
+    select email ,qq,phone_number phoneNumber,email_name emailName,qq_name qqName,phone_name phoneName
     from t_funtime_customer_service
 
   </select>
