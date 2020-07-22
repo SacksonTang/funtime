@@ -101,9 +101,11 @@ public class Game123ServiceImpl implements Game123Service {
     @Override
     public void setExitTimeByExit(Long userId, Long roomId){
         Long createUserId = getUserByRoomId(roomId);
-        if (createUserId!=null&&createUserId.equals(userId)){
+        if (createUserId!=null){
             roomGame123Mapper.deleteGameByUserId(userId);
-            roomGame123Mapper.updateExitTime(roomId);
+            if (createUserId.equals(userId)) {
+                roomGame123Mapper.updateExitTime(roomId);
+            }
         }
 
     }
@@ -162,21 +164,31 @@ public class Game123ServiceImpl implements Game123Service {
         }
         Long createUserId = getUserByRoomId(roomId);
         if (createUserId!=null) {
-            if (userId.equals(chatroom.getUserId())) {
-                exitGame(roomId);
-            } else {
+            //房主
+            if (!userId.equals(chatroom.getUserId())) {
                 throw new BusinessException(ErrorMsgEnum.ROOM_GAME123_EXISTS.getValue(), ErrorMsgEnum.ROOM_GAME123_EXISTS.getDesc());
-
             }
-        }
-        int k = roomGame123Mapper.insertRoomGame123(roomId, userId, 1);
-        if (k != 1) {
-            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(), ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
-        }
+            roomGame123Mapper.deleteGame(roomId);
+            roomGame123Mapper.deleteGame2(roomId);
 
-        List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
-        if (userIds!=null&&userIds.size()>0) {
-            noticeService.notice30000(userIds);
+            int k = roomGame123Mapper.insertRoomGame123(roomId, userId, 1);
+            if (k != 1) {
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(), ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+            if (!userId.equals(createUserId)) {
+                noticeService.notice30002(createUserId);
+            }
+            roomService.sendRoomInfoNotice(roomId);
+        }else {
+            int k = roomGame123Mapper.insertRoomGame123(roomId, userId, 1);
+            if (k != 1) {
+                throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(), ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+            }
+
+            List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
+            if (userIds != null && userIds.size() > 0) {
+                noticeService.notice30000(userIds);
+            }
         }
     }
 

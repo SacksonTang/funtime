@@ -38,7 +38,7 @@
         update t_funtime_room_game123_val set blue_amount = blue_amount+#{blueAmount} where user_id = #{userId}
     </insert>
     <update id="updateExitTime">
-        update t_funtime_room_game123 set exit_time = DATE_ADD(now(),INTERVAL 3 HOUR) where room_id = #{roomId}
+        update t_funtime_room_game123 set exit_time = DATE_ADD(now(),INTERVAL 3 minute ) where room_id = #{roomId}
     </update>
     <update id="updateExitTimeNull">
         update t_funtime_room_game123 set exit_time = null where room_id = #{roomId}

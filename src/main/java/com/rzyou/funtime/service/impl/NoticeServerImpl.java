@@ -777,11 +777,13 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
-    public void notice30002(List<String> userIds) {
+    public void notice30002(Long userId) {
         JSONObject object = new JSONObject();
-        object.put("type",Constant.GAME123_CLEAR);
+        object.put("type",Constant.GAME123_RESET);
         String data = StringEscapeUtils.unescapeJava(object.toJSONString());
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        List<String> userIds = new ArrayList<>();
+        userIds.add(userId.toString());
         sendRoomUserNotice(userSig,data,userIds);
     }
 

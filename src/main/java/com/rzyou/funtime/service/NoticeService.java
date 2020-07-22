@@ -462,8 +462,8 @@ public interface NoticeService {
     void notice30001(List<String> userIds);
 
     /**
-     * 清空数值
-     * @param userIds
+     * 重启游戏
+     * @param userId
      */
-    void notice30002(List<String> userIds);
+    void notice30002(Long userId);
 }

@@ -203,5 +203,5 @@ public class Constant {
     public static final int GAME21_WIN = 20005;
     public static final int GAME123_OPEN = 30000;
     public static final int GAME123_CLOSE = 30001;
-    public static final int GAME123_CLEAR = 30002;
+    public static final int GAME123_RESET = 30002;
 }
