@@ -163,7 +163,7 @@ public class Game123ServiceImpl implements Game123Service {
         Long createUserId = getUserByRoomId(roomId);
         if (createUserId!=null) {
             if (userId.equals(chatroom.getUserId())) {
-                exitGameForRoomClose(roomId);
+                exitGame(roomId);
             } else {
                 throw new BusinessException(ErrorMsgEnum.ROOM_GAME123_EXISTS.getValue(), ErrorMsgEnum.ROOM_GAME123_EXISTS.getDesc());
 
