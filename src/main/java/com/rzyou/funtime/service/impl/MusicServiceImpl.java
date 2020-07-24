@@ -2,7 +2,11 @@ package com.rzyou.funtime.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
+import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.entity.music.FuntimeMusicTag;
+import com.rzyou.funtime.entity.music.FuntimeUserMusic;
 import com.rzyou.funtime.mapper.FuntimeMusicMapper;
 import com.rzyou.funtime.service.MusicService;
 import com.rzyou.funtime.utils.FileUtil;
@@ -10,15 +14,12 @@ import com.tencentcloudapi.ame.v20190916.AmeClient;
 import com.tencentcloudapi.ame.v20190916.models.*;
 import com.tencentcloudapi.common.Credential;
 import org.apache.commons.lang3.StringUtils;
-import org.omg.CORBA.OBJ_ADAPTER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -102,7 +103,7 @@ public class MusicServiceImpl implements MusicService {
         if (StringUtils.isNotBlank(content)){
             content = content.toUpperCase();
         }
-        List<Map<String, Object>> musics = musicMapper.getLocalMusics(startPage, pageSize,tagId,content);
+        List<Map<String, Object>> musics = musicMapper.getLocalMusics(tagId,content);
         if (musics == null){
             result.put("musics",new PageInfo<>());
         }else{
@@ -149,6 +150,168 @@ public class MusicServiceImpl implements MusicService {
         }
         Map<String,Object> result = new HashMap<>();
         result.put("urls",data);
+        return result;
+    }
+
+    @Override
+    public Long downloadMusic(Integer musicId, Long userId) {
+        FuntimeUserMusic userMusic = new FuntimeUserMusic();
+        userMusic.setMusicId(musicId);
+        userMusic.setUserId(userId);
+        userMusic.setState(1);
+        int k = musicMapper.insertUserMusic(userMusic);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        return userMusic.getId();
+    }
+
+    @Override
+    public void downloadMusicOver(Long userMusicId) {
+        if (musicMapper.getUserMusicById(userMusicId) == null){
+            throw new BusinessException(ErrorMsgEnum.USER_MUSIC_NOT_EXIST.getValue(),ErrorMsgEnum.USER_MUSIC_NOT_EXIST.getDesc());
+        }
+        int k = musicMapper.updateUserMusicState(userMusicId);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public void addMusicTag(String tagName, Long userId) {
+        if (musicMapper.getMusicTagByName(tagName,userId)>0){
+            throw new BusinessException(ErrorMsgEnum.USER_MUSIC_TAG_EXIST.getValue(),ErrorMsgEnum.USER_MUSIC_TAG_EXIST.getDesc());
+        }
+        if (musicMapper.getMusicTagByName(null,userId)>=50){
+            throw new BusinessException(ErrorMsgEnum.USER_MUSIC_TAG_LIMIT.getValue(),ErrorMsgEnum.USER_MUSIC_TAG_LIMIT.getDesc());
+        }
+        FuntimeMusicTag musicTag = new FuntimeMusicTag();
+        musicTag.setTagName(tagName);
+        musicTag.setUserId(userId);
+        int k = musicMapper.insertMusicTag(musicTag);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void updateMusicTag(String tagIds, Long userMusicId) {
+        if(musicMapper.getUserMusicTagCount(userMusicId)>0){
+            musicMapper.deleteUserMusicTag(userMusicId);
+        }
+        if (StringUtils.isNotBlank(tagIds)){
+            String[] tagIdArray = tagIds.split(",");
+            if (tagIdArray.length>0){
+                for (String tagId : tagIdArray){
+                    Long musicTagId = Long.parseLong(tagId);
+                    musicMapper.insertUserMusicTag(userMusicId,musicTagId);
+                }
+            }
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void delMusicTag(Long musicTagId) {
+
+        musicMapper.deleteMusicTag(musicTagId);
+        if (musicMapper.getUserMusicTagCount2(musicTagId)>0){
+            musicMapper.deleteUserMusicTag2(musicTagId);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void delMusic(Long userMusicId) {
+        if (musicMapper.getUserMusicById(userMusicId) == null){
+            throw new BusinessException(ErrorMsgEnum.USER_MUSIC_NOT_EXIST.getValue(),ErrorMsgEnum.USER_MUSIC_NOT_EXIST.getDesc());
+        }
+        int k = musicMapper.deleteUserMusic(userMusicId);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        musicMapper.deleteUserMusicTag(userMusicId);
+    }
+
+    @Override
+    public Map<String, Object> getMusicTags(Long userId) {
+        List<Map<String, Object>> list = musicMapper.getMusicTagByUser(userId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("tags",list);
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> editMusicTag(Long userId, Long userMusicId) {
+        List<Map<String, Object>> tags = musicMapper.getMusicTagByUser(userId);
+        List<Long> userMusicTags = musicMapper.getUserMusicTag(userMusicId);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("tags",tags);
+        result.put("userTags",userMusicTags);
+
+        return result;
+    }
+
+    @Override
+    public void updateMusicTagName(String tagName, Long musicTagId) {
+        FuntimeMusicTag musicTag = new FuntimeMusicTag();
+        musicTag.setId(musicTagId);
+        musicTag.setTagName(tagName);
+        int k = musicMapper.updateMusicTagById(musicTag);
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
+    public Map<String, Object> getMusicsHot(Integer startPage, Integer pageSize, String content) throws Exception{
+        Map<String,Object> result = new HashMap<>();
+        PageHelper.startPage(startPage,pageSize);
+        if (StringUtils.isNotBlank(content)){
+            content = content.toUpperCase();
+        }
+        List<Map<String,Object>> musics = musicMapper.getMusicList(content);
+        if (musics == null){
+            result.put("musics",new PageInfo<>());
+        }else{
+            for (Map<String, Object> map : musics){
+                String urlStr = map.get("url").toString();
+
+                URL url = new URL(urlStr);
+                URI uri = new URI(url.getProtocol(),  url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+                url = uri.toURL();
+
+                map.put("url", url);
+            }
+            result.put("musics",new PageInfo<>(musics));
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> getMyMusics(Integer startPage, Integer pageSize, String content, Long userId, String musicTagIds) throws Exception{
+        Map<String,Object> result = new HashMap<>();
+        PageHelper.startPage(startPage,pageSize);
+        if (StringUtils.isNotBlank(content)){
+            content = content.toUpperCase();
+        }
+        List<Map<String,Object>> musics = musicMapper.getMyMusics(content,userId,musicTagIds);
+        if (musics == null){
+            result.put("musics",new PageInfo<>());
+        }else{
+            for (Map<String, Object> map : musics){
+                String urlStr = map.get("url").toString();
+
+                URL url = new URL(urlStr);
+                URI uri = new URI(url.getProtocol(),  url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+                url = uri.toURL();
+
+                map.put("url", url);
+            }
+            result.put("musics",new PageInfo<>(musics));
+        }
         return result;
     }
 }

@@ -64,6 +64,9 @@ public enum ErrorMsgEnum {
     USER_QQ_EXISTS("10051","该QQ已被其它账号绑定"),
     USER_HEADWEAR_NOT_EXIST("10052","用户无此头饰"),
     USER_NICKNAME_ERROR("10053","用户昵称不能带有触娱或官方"),
+    USER_MUSIC_NOT_EXIST("10054","音乐不存在,请刷新重试"),
+    USER_MUSIC_TAG_EXIST("10055","已经有重复的名字了,请换一个吧~"),
+    USER_MUSIC_TAG_LIMIT("10056","标签数量最多只能50个"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),

@@ -44,8 +44,8 @@ public class Constant {
     public final static String DEFAULT_ROOM_PORTRAIT = "/default/room.png";
     public final static String DEFAULT_BACKGROUND_ICON = "/default/background-icon.png";
     public final static String SHARE_URL = "https://a.app.qq.com/o/simple.jsp?pkgname=com.rzyou.funtime";
-    public final static String share_Text = "我在这里等你,你快点进来,一起语音说！";
-    public final static String SHARE_Title = "我有事情和你说";
+    public final static String share_Text = "触娱，聚焦年轻人语音社交的游戏和娱乐社区";
+    public final static String SHARE_Title = "【#】正在邀请你一起连麦";
     public final static String REDISUSER_PREFIX = "userlogin-";
     public final static String USER_BACK_URL = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com/level/background/back.png";
     public final static String USER_DARK_URL = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com/level/background/dark.png";
