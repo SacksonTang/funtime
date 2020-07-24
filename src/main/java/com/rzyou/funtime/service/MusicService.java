@@ -72,11 +72,6 @@ public interface MusicService {
      */
     Long downloadMusic(Integer musicId, Long userId);
 
-    /**
-     * 下载音乐完成
-     * @param userMusicId
-     */
-    void downloadMusicOver(Long userMusicId);
 
     /**
      * 新增音乐标签

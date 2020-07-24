@@ -155,26 +155,18 @@ public class MusicServiceImpl implements MusicService {
 
     @Override
     public Long downloadMusic(Integer musicId, Long userId) {
+        Long id = musicMapper.getUserMusic(userId, musicId);
+        if (id != null){
+            return id;
+        }
         FuntimeUserMusic userMusic = new FuntimeUserMusic();
         userMusic.setMusicId(musicId);
         userMusic.setUserId(userId);
-        userMusic.setState(1);
         int k = musicMapper.insertUserMusic(userMusic);
         if (k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
         return userMusic.getId();
-    }
-
-    @Override
-    public void downloadMusicOver(Long userMusicId) {
-        if (musicMapper.getUserMusicById(userMusicId) == null){
-            throw new BusinessException(ErrorMsgEnum.USER_MUSIC_NOT_EXIST.getValue(),ErrorMsgEnum.USER_MUSIC_NOT_EXIST.getDesc());
-        }
-        int k = musicMapper.updateUserMusicState(userMusicId);
-        if (k!=1){
-            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
-        }
     }
 
     @Override
@@ -244,12 +236,10 @@ public class MusicServiceImpl implements MusicService {
 
     @Override
     public Map<String, Object> editMusicTag(Long userId, Long userMusicId) {
-        List<Map<String, Object>> tags = musicMapper.getMusicTagByUser(userId);
-        List<Long> userMusicTags = musicMapper.getUserMusicTag(userMusicId);
+        List<Map<String,Object>> userMusicTags = musicMapper.getUserMusicTag(userMusicId,userId);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("tags",tags);
-        result.put("userTags",userMusicTags);
+        result.put("tags",userMusicTags);
 
         return result;
     }

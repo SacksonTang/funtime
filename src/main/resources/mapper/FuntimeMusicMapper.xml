@@ -18,17 +18,17 @@
   </select>
 
   <select id="getMusicList" resultType="java.util.Map">
-    select m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser,ifnull(u.state,0)
-    from t_funtime_music left join t_funtime_user_music u on m.id = u.music_id
+    select m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser
+    from t_funtime_music m left join t_funtime_user_music u on m.id = u.music_id
     where 1=1
     <if test="content !=null and content!=''">
-      and BINARY  search_name like concat('%',#{content},'%')
+      and BINARY  m.search_name like concat('%',#{content},'%')
     </if>
-    order by hot desc,id asc
+    order by m.hot desc,m.id asc
   </select>
 
   <select id="getMyMusics" resultType="java.util.Map">
-    select m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser,u.state,m.id userMusicId
+    select m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser,m.id userMusicId
     from t_funtime_music m inner join t_funtime_user_music u on m.id = u.music_id
     left join t_funtime_user_music_tag t on u.id = t.user_music_id
     where u.user_id = #{userId}
@@ -44,12 +44,13 @@
   <select id="getUserMusicById" resultType="java.lang.Long">
     select id from t_funtime_user_music where id = #{id}
   </select>
+    <select id="getUserMusic" resultType="java.lang.Long">
+    select id from t_funtime_user_music where user_id = #{userId} and music_id = #{musicId}
+  </select>
   <insert id="insertUserMusic" parameterType="com.rzyou.funtime.entity.music.FuntimeUserMusic" keyProperty="id" useGeneratedKeys="true">
-    insert into t_funtime_user_music (user_id,music_id,state) values (#{userId},#{musicId},#{state})
+    insert into t_funtime_user_music (user_id,music_id) values (#{userId},#{musicId})
   </insert>
-  <update id="updateUserMusicState">
-    update t_funtime_user_music set state = 2 where id = #{id}
-  </update>
+
   <delete id="deleteUserMusic">
     delete from t_funtime_user_music where id = #{id}
   </delete>
@@ -63,14 +64,15 @@
   </select>
 
   <select id="getMusicTagByUser" resultType="java.util.Map">
-    select id musicTagId,tag_name tagName from t_funtime_music_tag where user_id = #{userId} order by id asc
+    select id musicTagId,tag_name tagName from t_funtime_music_tag
+    where user_id = #{userId} order by id asc
   </select>
 
-  <select id="getUserMusicTag" resultType="java.lang.Long">
+  <select id="getUserMusicTag" resultType="java.util.Map">
     select
-      id
-    from t_funtime_music_tag t inner join t_funtime_user_music_tag u on t.id = u.music_tag_id
-    where u.user_music_id = #{userMusicId}
+      t.id musicTagId,t.tag_name tagName,if(u.music_tag_id is null,0,1) flag
+    from t_funtime_music_tag t left join t_funtime_user_music_tag u on t.id = u.music_tag_id and u.user_music_id = #{userMusicId}
+    where t.user_id = #{userId}
   </select>
 
   <insert id="insertMusicTag" parameterType="com.rzyou.funtime.entity.music.FuntimeMusicTag" keyProperty="id" useGeneratedKeys="true">

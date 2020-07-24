@@ -10,5 +10,4 @@ public class FuntimeUserMusic implements Serializable {
     private Long id;
     private Long userId;
     private Integer musicId;
-    private Integer state;
 }

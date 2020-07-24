@@ -136,38 +136,6 @@ public class MusicController {
         }
     }
 
-    /**
-     * 下载音乐完成
-     * @param request
-     * @return
-     */
-    @PostMapping("downloadMusicOver")
-    public ResultMsg<Object> downloadMusicOver(HttpServletRequest request){
-
-        ResultMsg<Object> result = new ResultMsg<>();
-        try {
-            JSONObject paramJson = HttpHelper.getParamterJson(request);
-            Long userMusicId = paramJson.getLong("userMusicId");
-            if (userMusicId == null){
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
-            }
-            musicService.downloadMusicOver(userMusicId);
-            return result;
-
-        } catch (BusinessException be) {
-            be.printStackTrace();
-            result.setCode(be.getCode());
-            result.setMsg(be.getMsg());
-            return result;
-        }catch (Exception e){
-            e.printStackTrace();
-            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
-            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
-            return result;
-        }
-    }
 
     /**
      * 删除音乐

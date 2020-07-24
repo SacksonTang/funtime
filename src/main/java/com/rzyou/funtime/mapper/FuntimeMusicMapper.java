@@ -24,19 +24,19 @@ public interface FuntimeMusicMapper {
 
     Long getUserMusicById(Long id);
 
+    Long getUserMusic(@Param("userId") Long userId,@Param("musicId") Integer musicId);
+
     Integer getMusicTagByName(@Param("tagName") String tagName, @Param("userId") Long userId);
 
     List<Map<String,Object>> getMusicTagByUser(Long userId);
 
-    List<Long> getUserMusicTag(Long userMusicId);
+    List<Map<String,Object>> getUserMusicTag(@Param("userMusicId") Long userMusicId,@Param("userId") Long userId);
 
     Integer getUserMusicTagCount(Long userMusicId);
 
     Integer getUserMusicTagCount2(Long musicTagId);
 
     int insertUserMusic(FuntimeUserMusic userMusic);
-
-    int updateUserMusicState(Long id);
 
     int deleteUserMusic(Long id);
 
