@@ -256,13 +256,13 @@ public class MusicServiceImpl implements MusicService {
     }
 
     @Override
-    public Map<String, Object> getMusicsHot(Integer startPage, Integer pageSize, String content) throws Exception{
+    public Map<String, Object> getMusicsHot(Integer startPage, Integer pageSize, String content, Long userId) throws Exception{
         Map<String,Object> result = new HashMap<>();
         PageHelper.startPage(startPage,pageSize);
         if (StringUtils.isNotBlank(content)){
             content = content.toUpperCase();
         }
-        List<Map<String,Object>> musics = musicMapper.getMusicList(content);
+        List<Map<String,Object>> musics = musicMapper.getMusicList(content,userId);
         if (musics == null){
             result.put("musics",new PageInfo<>());
         }else{

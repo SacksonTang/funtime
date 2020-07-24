@@ -48,7 +48,8 @@ public class MusicController {
             String content = paramJson.getString("content");
             startPage = startPage == null?1:startPage;
             pageSize = pageSize == null?20:pageSize;
-            Map<String,Object> map = musicService.getMusicsHot(startPage,pageSize,content);
+            Long userId = HttpHelper.getUserId();
+            Map<String,Object> map = musicService.getMusicsHot(startPage,pageSize,content,userId);
             result.setData(map);
             return result;
 

@@ -127,8 +127,9 @@ public interface MusicService {
      * @param startPage
      * @param pageSize
      * @param content
+     * @param userId
      */
-    Map<String, Object> getMusicsHot(Integer startPage, Integer pageSize, String content) throws Exception;
+    Map<String, Object> getMusicsHot(Integer startPage, Integer pageSize, String content, Long userId) throws Exception;
 
     /**
      * 本地音乐

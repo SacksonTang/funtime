@@ -18,7 +18,7 @@ public interface FuntimeMusicMapper {
     List<Map<String,Object>> getLocalMusics( @Param("tagId") Integer tagId,@Param("content")  String content);
 
 
-    List<Map<String,Object>>  getMusicList(String content);
+    List<Map<String,Object>>  getMusicList(@Param("content") String content,@Param("userId")  Long userId);
 
     List<Map<String, Object>> getMyMusics(@Param("content") String content, @Param("userId") Long userId, @Param("musicTagIds") String musicTagIds);
 

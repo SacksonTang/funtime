@@ -18,17 +18,18 @@
   </select>
 
   <select id="getMusicList" resultType="java.util.Map">
-    select m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser
-    from t_funtime_music m left join t_funtime_user_music u on m.id = u.music_id
+    select  m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser,if(count(u.music_id)=0,0,1) state
+    from t_funtime_music m left join t_funtime_user_music u on m.id = u.music_id and u.user_id = #{userId}
     where 1=1
     <if test="content !=null and content!=''">
       and BINARY  m.search_name like concat('%',#{content},'%')
     </if>
-    order by m.hot desc,m.id asc
+    GROUP BY m.id ,m.url,m.name,m.type,m.author,m.create_user
+    order by state desc,m.id asc
   </select>
 
   <select id="getMyMusics" resultType="java.util.Map">
-    select m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser,m.id userMusicId
+    select  m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser,m.id userMusicId
     from t_funtime_music m inner join t_funtime_user_music u on m.id = u.music_id
     left join t_funtime_user_music_tag t on u.id = t.user_music_id
     where u.user_id = #{userId}
@@ -38,7 +39,7 @@
     <if test="musicTagIds!=null and musicTagIds!='' ">
       and FIND_IN_SET(t.music_tag_id,#{musicTagId})>0
     </if>
-    order by m.hot desc,m.id asc
+    order by u.create_time desc
   </select>
 
   <select id="getUserMusicById" resultType="java.lang.Long">
