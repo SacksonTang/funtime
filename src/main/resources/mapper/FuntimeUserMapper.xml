@@ -96,11 +96,15 @@
     select
      u.id,u.nickname,u.portrait_address portraitAddress,u.sign_text as  signText,u.birthday,u.sex,u.show_id showId,
      u.state,u.online_state as onlineState,
-     l.level
-     ,case when h.user_id is null then null
-    when h.type = 1 then l.level_url
-    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
-    else null end levelUrl
+     l.level,
+     case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl,
+    case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url_h5 from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrlGif
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
@@ -135,7 +139,11 @@
           case when h.user_id is null then null
           when h.type = 1 then l.level_url
           when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
-          else null end levelUrl
+          else null end levelUrl,
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url_h5 from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrlGif
       FROM
           t_funtime_user_account_level_wealth_record d
           inner join t_funtime_user u on u.id = d.user_id
@@ -164,7 +172,11 @@
           case when h.user_id is null then null
           when h.type = 1 then l.level_url
           when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
-          else null end levelUrl
+          else null end levelUrl,
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url_h5 from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrlGif
       FROM
           t_funtime_user_account_charm_record d
           inner join t_funtime_user u on u.id = d.user_id
@@ -190,7 +202,11 @@
     case when h.user_id is null then null
           when h.type = 1 then l.level_url
           when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
-          else null end levelUrl
+          else null end levelUrl,
+    case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url_h5 from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrlGif
     from t_funtime_user_concern c inner join t_funtime_user u on c.to_user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
@@ -375,7 +391,7 @@
 
   </select>
   <select id="getCustomerService"  resultType="java.util.Map">
-    select email ,qq,phone_number phoneNumber
+    select email ,qq,phone_number phoneNumber,email_name emailName,qq_name qqName,phone_name phoneName
     from t_funtime_customer_service
 
   </select>

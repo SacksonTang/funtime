@@ -120,10 +120,14 @@ public class UserController {
             List<Map<String,Object>> levelConfs = accountService.getLevelConf(userId);
             Map<String, Object> map = JsonUtil.getMap("levelConfs", levelConfs);
             FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
-            for (Map<String,Object> levelMap : levelConfs){
-                if (userAccount.getLevel().equals(Integer.parseInt(levelMap.get("level").toString()))){
-                    userAccount.setLevelUrl(levelMap.get("levelUrl").toString());
-                    break;
+            if (userAccount.getLevel() == 0){
+                userAccount.setLevelUrl(null);
+            }else {
+                for (Map<String, Object> levelMap : levelConfs) {
+                    if (userAccount.getLevel().equals(Integer.parseInt(levelMap.get("level").toString()))) {
+                        userAccount.setLevelUrl(levelMap.get("levelUrl").toString());
+                        break;
+                    }
                 }
             }
             map.put("userAccount",userAccount);
@@ -502,6 +506,15 @@ public class UserController {
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
+            }
+            if (user.getNickname()!=null){
+                for (int i = 0;i<Constant.exceptionArray.length;i++){
+                    if (user.getNickname().contains(Constant.exceptionArray[i])){
+                        result.setCode(ErrorMsgEnum.USER_NICKNAME_ERROR.getValue());
+                        result.setMsg(ErrorMsgEnum.USER_NICKNAME_ERROR.getDesc());
+                        return result;
+                    }
+                }
             }
             if (user.getOnlineState()!=null&&user.getOnlineState()==0){
                 user.setOnlineState(1);

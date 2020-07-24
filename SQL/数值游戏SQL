@@ -1,0 +1,17 @@
+CREATE TABLE `t_funtime_room_game123` (
+  `room_id` bigint(64) NOT NULL COMMENT '房间ID',
+  `user_id` bigint(64) DEFAULT NULL COMMENT '游戏开启人',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `expire_time` timestamp NULL DEFAULT NULL COMMENT '轮数到期时间',
+  `exit_time` timestamp NULL DEFAULT NULL COMMENT '创建者退出到期时间',
+  PRIMARY KEY (`room_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='数值游戏主表';
+
+CREATE TABLE `t_funtime_room_game123_val` (
+  `user_id` bigint(64) NOT NULL COMMENT '用户ID',
+  `room_id` bigint(64) DEFAULT NULL COMMENT '房间ID',
+  `blue_amount` int(32) DEFAULT '0' COMMENT '蓝钻数',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`user_id`),
+  KEY `room_id` (`room_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='数值游戏值表';

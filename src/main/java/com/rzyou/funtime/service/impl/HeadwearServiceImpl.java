@@ -13,6 +13,7 @@ import com.rzyou.funtime.service.HeadwearService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -117,6 +118,17 @@ public class HeadwearServiceImpl implements HeadwearService {
                 throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
             }
         }
+
+        Integer type = headwearMapper.getCurrnetHeadwear(userId);
+        if (type !=null) {
+            k = headwearMapper.updateUserHeadwearCurrent(userId, record.getHeadwearId());
+        }else{
+
+            k = headwearMapper.insertUserHeadwearCurrent(userId,record.getHeadwearId(),2);
+        }
+        if (k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
         resultMsg.setData(JsonUtil.getMap("content","剩余"+record.getDays()+"天"));
         return resultMsg;
     }
@@ -138,6 +150,7 @@ public class HeadwearServiceImpl implements HeadwearService {
         if (k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        accountService.portraitSetLevelUrl(userId,headwearMapper.getUrlByHeadwearNumber(headwearId));
     }
 
     @Override
@@ -151,6 +164,10 @@ public class HeadwearServiceImpl implements HeadwearService {
         }
         if (k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        String url = headwearMapper.getUrlByUserId(userId);
+        if (StringUtils.isNotBlank(url)) {
+            accountService.portraitSetLevelUrl(userId, url);
         }
     }
 

@@ -6,8 +6,9 @@
         select u.id,u.portrait_address as portraitAddress
         ,l.level_name as headwearName
         ,l.level_url as headwearUrl
+        ,l.level_url as headwearUrlH5
         ,if(c.user_id is null,0,1) isCurrent
-        ,'现有等级头像框' as content
+        ,'等级头饰' as content
         from t_funtime_user u inner join (t_funtime_user_account t
            inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
            left join t_funtime_user_headwear_current c on u.id = c.user_id and type = 1
@@ -27,14 +28,18 @@
         c.headwearNumber,
         c.headwearName,
         c.headwearUrl,
+        c.headwearUrlH5,
+		c.sort,
         IF(u.user_id is null,0,1) isOwer,
         IF(t.user_id is null,0,1) isCurrent,
         DATE_FORMAT(u.end_time,'%Y-%m-%d %H:%i:%s') as endTime,
 		CONCAT('剩余',DATEDIFF(u.end_time,now()),'天') content
     FROM
-        ( SELECT DISTINCT headwear_number AS headwearNumber, headwear_name AS headwearName, headwear_url AS headwearUrl FROM t_funtime_headwear where flag = 1 ) c
+        ( SELECT  headwear_number AS headwearNumber, headwear_name AS headwearName, headwear_url AS headwearUrl,headwear_url_h5 AS headwearUrlH5,max(sort) sort FROM t_funtime_headwear where flag = 1
+				GROUP BY headwear_number , headwear_name , headwear_url,headwear_url_h5 ) c
         left join t_funtime_user_headwear u on c.headwearNumber = u.headwear_id and u.user_id = #{userId}
 		left join t_funtime_user_headwear_current t on t.headwear_id = c.headwearNumber and t.type = 2 and t.user_id = #{userId}
+		order by c.sort
     </select>
     <select id="getPriceTagByHeadwearNumber" resultType="java.util.Map">
         SELECT
@@ -47,8 +52,22 @@
         WHERE
             headwear_number =#{headwearNumber}
     </select>
-
-
+    <select id="getUrlByHeadwearNumber" resultType="java.lang.String">
+        SELECT
+            headwear_url
+        FROM
+            t_funtime_headwear
+        WHERE
+            headwear_number =#{headwearNumber} limit 1
+    </select>
+    <select id="getUrlByUserId" resultType="java.lang.String">
+        SELECT
+            l.level_url
+        FROM
+            t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level
+        WHERE
+            t.user_id = #{userId}
+    </select>
     <select id="getCurrnetHeadwear" resultType="java.lang.Integer">
         select type from t_funtime_user_headwear_current where user_id = #{userId}
     </select>

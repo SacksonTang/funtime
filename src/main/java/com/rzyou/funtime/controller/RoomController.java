@@ -295,12 +295,13 @@ public class RoomController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             Integer backgroundId = paramJson.getInteger("backgroundId");
             Long userId = paramJson.getLong("userId");
-            if (backgroundId==null||userId==null){
+            Long roomId = paramJson.getLong("roomId");
+            if (backgroundId==null||userId==null||roomId == null){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            return roomService.buyBackground(backgroundId,userId);
+            return roomService.buyBackground(backgroundId,userId,roomId);
         } catch (BusinessException be) {
             log.error("buyBackground BusinessException==========>{}",be.getMsg());
             be.printStackTrace();

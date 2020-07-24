@@ -62,4 +62,82 @@ public interface MusicService {
      * 初始化音乐
      */
     void initMusics();
+
+    Map<String, Object> getLocalMusics2();
+
+    /**
+     * 下载音乐
+     * @param musicId
+     * @param userId
+     */
+    Long downloadMusic(Integer musicId, Long userId);
+
+
+    /**
+     * 新增音乐标签
+     * @param tagName
+     * @param userId
+     */
+    void addMusicTag(String tagName, Long userId);
+
+    /**
+     * 变更音乐标签
+     * @param tagIds
+     * @param userMusicId
+     */
+    void updateMusicTag(String tagIds, Long userMusicId);
+
+    /**
+     * 删除音乐标签
+     * @param musicTagId
+     */
+    void delMusicTag(Long musicTagId);
+
+    /**
+     * 删除音乐
+     * @param userMusicId
+     */
+    void delMusic(Long userMusicId);
+
+    /**
+     * 获取用户音乐标签
+     * @param userId
+     * @return
+     */
+    Map<String, Object> getMusicTags(Long userId);
+
+    /**
+     * 编辑音乐标签
+     * @param userId
+     * @param userMusicId
+     * @return
+     */
+    Map<String, Object> editMusicTag(Long userId, Long userMusicId);
+
+    /**
+     * 修改标签名称
+     * @param tagName
+     * @param musicTagId
+     */
+    void updateMusicTagName(String tagName, Long musicTagId);
+
+    /**
+     * 热门音乐列表
+     * @return
+     * @param startPage
+     * @param pageSize
+     * @param content
+     */
+    Map<String, Object> getMusicsHot(Integer startPage, Integer pageSize, String content) throws Exception;
+
+    /**
+     * 本地音乐
+     * @param startPage
+     * @param pageSize
+     * @param content
+     * @param userId
+     * @param musicTagIds
+     * @return
+     */
+    Map<String, Object> getMyMusics(Integer startPage, Integer pageSize, String content, Long userId, String musicTagIds) throws Exception;
 }

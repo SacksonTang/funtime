@@ -10,7 +10,12 @@ import java.util.Map;
 
 public interface AccountService {
 
-
+    /**
+     * 同步腾讯头像框
+     * @param userId
+     * @param levelUrl
+     */
+    void portraitSetLevelUrl(Long userId,String levelUrl);
 
     /**
      * 签到
@@ -505,6 +510,17 @@ public interface AccountService {
      * 保存背包
      */
     void saveUserKnapsack(Long userId, int type, Integer drawId, int num);
+
+    /**
+     * 礼物日志
+     * @param userId
+     * @param type
+     * @param itemId
+     * @param itemNum
+     * @param actionType
+     * @param operationType
+     */
+    void saveKnapsackLog( Long userId,int type,Integer itemId, int itemNum,String actionType, String operationType);
 
     /**
      * 个人背包信息

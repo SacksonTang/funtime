@@ -73,8 +73,11 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     public void sendRoomUserNotice(String userSig, String data, List<String> toAccounts) {
+        if (toAccounts==null||toAccounts.size()<1){
+            return;
+        }
         JSONArray array;
-        if (toAccounts!=null&&toAccounts.size()<=500) {
+        if (toAccounts.size()<=500) {
             array = TencentUtil.batchsendmsg(userSig,toAccounts,data);
             if(array != null){
                 List<String> users = getUserIds(array);
@@ -753,6 +756,34 @@ public class NoticeServerImpl implements NoticeService {
         object.put("type",Constant.GAME21_OPEN);
         String data = StringEscapeUtils.unescapeJava(object.toJSONString());
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public void notice30000(List<String> userIds) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME123_OPEN);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+    @Override
+    public void notice30001(List<String> userIds) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME123_CLOSE);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public void notice30002(Long userId) {
+        JSONObject object = new JSONObject();
+        object.put("type",Constant.GAME123_RESET);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        List<String> userIds = new ArrayList<>();
+        userIds.add(userId.toString());
         sendRoomUserNotice(userSig,data,userIds);
     }
 

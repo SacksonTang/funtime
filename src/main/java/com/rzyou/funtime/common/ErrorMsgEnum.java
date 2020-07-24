@@ -63,6 +63,10 @@ public enum ErrorMsgEnum {
     USER_QQ_NOT_BIND("10050","没有用户QQ绑定信息"),
     USER_QQ_EXISTS("10051","该QQ已被其它账号绑定"),
     USER_HEADWEAR_NOT_EXIST("10052","用户无此头饰"),
+    USER_NICKNAME_ERROR("10053","用户昵称不能带有触娱或官方"),
+    USER_MUSIC_NOT_EXIST("10054","音乐不存在,请刷新重试"),
+    USER_MUSIC_TAG_EXIST("10055","已经有重复的名字了,请换一个吧~"),
+    USER_MUSIC_TAG_LIMIT("10056","标签数量最多只能50个"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -152,6 +156,9 @@ public enum ErrorMsgEnum {
     ROOM_GAME21_MIC_ERROR("80033","麦位参数有误"),
     ROOM_GAME21_STATE_ERROR("80034","你已要牌"),
     ROOM_GAME21_UPPER_ERROR("80035","游戏中,不能跳麦"),
+    ROOM_GAME123_EXISTS("80036","游戏正在进行中，请等待游戏结束后再发起"),
+    ROOM_GAME123_AUTH("80037","无此权限"),
+    ROOM_GAME123_NOT_EXISTS("80038","无此游戏"),
 
     DRAW_POOL_NOT_EN("90001","奖池余额不足"),
     DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启"),

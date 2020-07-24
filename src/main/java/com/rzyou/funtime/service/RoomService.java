@@ -331,9 +331,10 @@ public interface RoomService {
      * 购买背景图
      * @param backgroundId
      * @param userId
+     * @param roomId
      * @return
      */
-    ResultMsg<Object> buyBackground(Integer backgroundId, Long userId);
+    ResultMsg<Object> buyBackground(Integer backgroundId, Long userId, Long roomId);
 
     /**
      * 游戏抽奖

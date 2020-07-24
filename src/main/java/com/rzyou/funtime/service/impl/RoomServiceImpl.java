@@ -36,6 +36,8 @@ public class RoomServiceImpl implements RoomService {
     @Autowired
     Game21Service game21Service;
     @Autowired
+    Game123Service game123Service;
+    @Autowired
     RedisUtil redisUtil;
 
     @Autowired
@@ -241,6 +243,7 @@ public class RoomServiceImpl implements RoomService {
             }
         }
 
+        game123Service.setExitTimeByJoin(userId,roomId);
         roomJoinNotice(roomId,userId,user.getNickname(),carUrl,msg,animationType);
         sendRoomInfoNotice(roomId);
         result.put("isOwer",chatroom.getUserId().equals(userId));
@@ -308,7 +311,7 @@ public class RoomServiceImpl implements RoomService {
         }
 
         result.put("shareUrl",Constant.SHARE_URL);
-        result.put("shareTitle",Constant.SHARE_Title);
+        result.put("shareTitle",Constant.SHARE_Title.replace("#",user.getNickname()));
         result.put("shareText",Constant.share_Text);
         if (userId!=null) {
             boolean bool1 = gameService.getYaoyaoShowConf(1, userId);
@@ -322,8 +325,17 @@ public class RoomServiceImpl implements RoomService {
             }
         }
         Long chatroomManagerId = chatroomManagerMapper.getChatroomManager(roomId, userId);
-        result.put("isManager",chatroomManagerId == null?false:true);
+        result.put("isManager",chatroomManagerId != null);
 
+
+        Long gameUserId = game123Service.getUserByRoomId(roomId);
+        result.put("isValueGame",gameUserId != null);
+
+        if (gameUserId!=null&&gameUserId.equals(userId)){
+
+            Integer state = game123Service.getStateByRoomId(roomId);
+            result.put("valueGameState",state);
+        }
         return result;
     }
 
@@ -368,6 +380,7 @@ public class RoomServiceImpl implements RoomService {
         //房间人数-1
         updateOnlineNumSub(roomId,chatroom.getHots()>hots?hots:0);
 
+        game123Service.setExitTimeByExit(userId,roomId);
         sendRoomInfoNotice(roomId);
     }
 
@@ -450,6 +463,8 @@ public class RoomServiceImpl implements RoomService {
         int hots = userId.equals(chatroom.getUserId())?5:user.getSex() == 2?3:2;
         //房间人数-1
         updateOnlineNumSub(roomId,chatroom.getHots()>hots?hots:0);
+        game123Service.setExitTimeByExit(userId,roomId);
+
         //发送通知
         noticeService.notice16(micLocation, roomId, kickIdUserId);
 
@@ -760,6 +775,7 @@ public class RoomServiceImpl implements RoomService {
         deleteByRoomId(roomId);
         game21Service.exitGameForRoomClose(roomId);
 
+        game123Service.exitGameForRoomClose(roomId);
         if (userIds!=null&&!userIds.isEmpty()) {
             //发送通知
             noticeService.notice7(roomId,userIds);
@@ -1086,7 +1102,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public ResultMsg<Object> buyBackground(Integer backgroundId, Long userId) {
+    public ResultMsg<Object> buyBackground(Integer backgroundId, Long userId, Long roomId) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
         FuntimeUserAccount userAccount = accountService.getUserAccountByUserId(userId);
         if (userAccount==null){
@@ -1145,6 +1161,7 @@ public class RoomServiceImpl implements RoomService {
         }
         userService.updateUserAccountForSub(userId,null,price,null);
         accountService.saveUserAccountBlueLog(userId,price,userBackground.getId(),OperationType.BUY_BACKGROUND.getAction(),OperationType.BUY_BACKGROUND.getOperationType());
+        setBackground(backgroundId,userId,roomId);
         return resultMsg;
     }
 

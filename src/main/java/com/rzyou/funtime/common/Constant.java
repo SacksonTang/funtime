@@ -8,6 +8,8 @@ public class Constant {
     public final static String HEIGHT_COLOR = "#FF9500";
     public final static String DEFAULT_NICKNAME = "大侠";
 
+    public final static String[] exceptionArray = {"触娱","官方"};
+
     //AES秘钥
     public static final String AES_KEY = "Yhi6HglhWHBiw0ZQ";
 
@@ -42,8 +44,8 @@ public class Constant {
     public final static String DEFAULT_ROOM_PORTRAIT = "/default/room.png";
     public final static String DEFAULT_BACKGROUND_ICON = "/default/background-icon.png";
     public final static String SHARE_URL = "https://a.app.qq.com/o/simple.jsp?pkgname=com.rzyou.funtime";
-    public final static String share_Text = "我在这里等你,你快点进来,一起语音说！";
-    public final static String SHARE_Title = "我有事情和你说";
+    public final static String share_Text = "触娱，聚焦年轻人语音社交的游戏和娱乐社区";
+    public final static String SHARE_Title = "【#】正在邀请你一起连麦";
     public final static String REDISUSER_PREFIX = "userlogin-";
     public final static String USER_BACK_URL = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com/level/background/back.png";
     public final static String USER_DARK_URL = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com/level/background/dark.png";
@@ -199,4 +201,7 @@ public class Constant {
     public static final int GAME21_GET_POKER = 20003;
     public static final int GAME21_STOP_POKER = 20004;
     public static final int GAME21_WIN = 20005;
+    public static final int GAME123_OPEN = 30000;
+    public static final int GAME123_CLOSE = 30001;
+    public static final int GAME123_RESET = 30002;
 }

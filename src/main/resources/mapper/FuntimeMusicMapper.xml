@@ -12,6 +12,95 @@
     </if>
      order by hot desc
   </select>
+  <select id="getLocalMusics2" resultType="java.lang.String">
+    select url from t_funtime_music
+
+  </select>
+
+  <select id="getMusicList" resultType="java.util.Map">
+    select m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser
+    from t_funtime_music m left join t_funtime_user_music u on m.id = u.music_id
+    where 1=1
+    <if test="content !=null and content!=''">
+      and BINARY  m.search_name like concat('%',#{content},'%')
+    </if>
+    order by m.hot desc,m.id asc
+  </select>
+
+  <select id="getMyMusics" resultType="java.util.Map">
+    select m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser,m.id userMusicId
+    from t_funtime_music m inner join t_funtime_user_music u on m.id = u.music_id
+    left join t_funtime_user_music_tag t on u.id = t.user_music_id
+    where u.user_id = #{userId}
+    <if test="content !=null and content!=''">
+      and BINARY  m.search_name like concat('%',#{content},'%')
+    </if>
+    <if test="musicTagIds!=null and musicTagIds!='' ">
+      and FIND_IN_SET(t.music_tag_id,#{musicTagId})>0
+    </if>
+    order by m.hot desc,m.id asc
+  </select>
+
+  <select id="getUserMusicById" resultType="java.lang.Long">
+    select id from t_funtime_user_music where id = #{id}
+  </select>
+    <select id="getUserMusic" resultType="java.lang.Long">
+    select id from t_funtime_user_music where user_id = #{userId} and music_id = #{musicId}
+  </select>
+  <insert id="insertUserMusic" parameterType="com.rzyou.funtime.entity.music.FuntimeUserMusic" keyProperty="id" useGeneratedKeys="true">
+    insert into t_funtime_user_music (user_id,music_id) values (#{userId},#{musicId})
+  </insert>
+
+  <delete id="deleteUserMusic">
+    delete from t_funtime_user_music where id = #{id}
+  </delete>
+
+  <select id="getMusicTagByName" resultType="java.lang.Integer">
+    select count(id) from t_funtime_music_tag where user_id = #{userId}
+    <if test="tagName!=null and tagName!=''">
+      and tag_name = #{tagName}
+    </if>
+
+  </select>
+
+  <select id="getMusicTagByUser" resultType="java.util.Map">
+    select id musicTagId,tag_name tagName from t_funtime_music_tag
+    where user_id = #{userId} order by id asc
+  </select>
+
+  <select id="getUserMusicTag" resultType="java.util.Map">
+    select
+      t.id musicTagId,t.tag_name tagName,if(u.music_tag_id is null,0,1) flag
+    from t_funtime_music_tag t left join t_funtime_user_music_tag u on t.id = u.music_tag_id and u.user_music_id = #{userMusicId}
+    where t.user_id = #{userId}
+  </select>
+
+  <insert id="insertMusicTag" parameterType="com.rzyou.funtime.entity.music.FuntimeMusicTag" keyProperty="id" useGeneratedKeys="true">
+    insert into t_funtime_music_tag (user_id,tag_name) values (#{userId},#{tagName})
+  </insert>
+  <update id="updateMusicTagById" parameterType="com.rzyou.funtime.entity.music.FuntimeMusicTag">
+    update t_funtime_music_tag set tag_name = #{tagName},update_time = now() where id = #{id}
+  </update>
+  <delete id="deleteMusicTag">
+    delete from t_funtime_music_tag where id = #{id}
+  </delete>
+
+  <select id="getUserMusicTagCount" resultType="java.lang.Integer">
+    select count(*) from t_funtime_user_music_tag where user_music_id = #{userMusicId}
+  </select>
+  <select id="getUserMusicTagCount2" resultType="java.lang.Integer">
+    select count(*) from t_funtime_user_music_tag where music_tag_id = #{musicTagId}
+  </select>
+  <insert id="insertUserMusicTag">
+    insert into t_funtime_user_music_tag (user_music_id,music_tag_id) values (#{userMusicId},#{musicTagId})
+  </insert>
+  <delete id="deleteUserMusicTag">
+    delete from t_funtime_user_music_tag where user_music_id = #{userMusicId}
+  </delete>
+  <delete id="deleteUserMusicTag2">
+    delete from t_funtime_user_music_tag where music_tag_id = #{musicTagId}
+  </delete>
+
   <insert id="insertMusic" parameterType="java.util.Map">
     insert into t_funtime_music (tag_id,url,name,search_name,type) values (#{tagId},#{url},#{name},#{searchName},#{type})
   </insert>

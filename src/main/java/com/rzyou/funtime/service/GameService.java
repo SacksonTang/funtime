@@ -172,4 +172,9 @@ public interface GameService {
      * @return
      */
     Map<String,Object> getTytRanklist(Long userId, Integer type, Long roomId);
+
+    /**
+     * 定时摇摇乐
+     */
+    void updateYaoyaoPoolTask2();
 }

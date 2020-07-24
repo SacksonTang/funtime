@@ -28,6 +28,8 @@ public class CommonTask {
     @Autowired
     Game21Service game21Service;
     @Autowired
+    Game123Service game123Service;
+    @Autowired
     GameService gameService;
     @Autowired
     HeadwearService headwearService;
@@ -53,6 +55,19 @@ public class CommonTask {
         long time = System.currentTimeMillis();
         try {
             game21Service.game21Task(time);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * 数值游戏定时任务
+     */
+    @Scheduled(fixedRate = 1000*60)
+    public void game123Task(){
+        try {
+            game123Service.game123Task();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -142,6 +157,16 @@ public class CommonTask {
         }
     }
 
+
+    @Scheduled(cron = "0 0 5 * * ?")
+    public void resetYaoyaoPool2(){
+        log.info("摇摇乐奖池重置 resetYaoyaoPool2:{}",DateUtil.getCurrentDateTimeExtr());
+        try {
+            gameService.updateYaoyaoPoolTask2();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
     /**
      * 心跳合并
      */

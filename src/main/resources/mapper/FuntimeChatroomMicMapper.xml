@@ -98,16 +98,16 @@
         select
         m.mic_location micLocation,m.mic_user_id micUserId,m.user_role userRole,m.state,m.music_auth musicAuth,u.nickname
         ,u.portrait_address portraitAddress,u.sex,u.show_id showId
-        ,t.level
+        ,t.level,ifnull(g.blue_amount,0) blueAmount
         ,case when h.user_id is null then null
           when h.type = 1 then l.level_url
           when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
           else null end levelUrl
         from t_funtime_chatroom_mic m left join (t_funtime_user u
         inner join t_funtime_user_account t on u.id = t.user_id
-        inner join t_funtime_user_level_conf l on t.level = l.level)
-         left join t_funtime_user_headwear_current h on u.id = h.user_id
-        on m.mic_user_id = u.id
+        inner join t_funtime_user_level_conf l on t.level = l.level) on m.mic_user_id = u.id
+        left join t_funtime_user_headwear_current h on u.id = h.user_id
+        left join t_funtime_room_game123_val g on m.mic_user_id = g.user_id
         where m.room_id = #{roomId} and m.mic_location>0
         order by m.mic_location asc
     </select>
@@ -137,9 +137,13 @@
     ,u.online_state as onlineState
     ,l.level
     ,case when h.user_id is null then null
-    when h.type = 1 then l.level_url
-    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
-    else null end levelUrl
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl,
+    case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url_h5 from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrlGif
     from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
