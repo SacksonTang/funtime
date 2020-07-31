@@ -259,7 +259,8 @@ public class MusicController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            musicService.addMusicTag(tagName,userId);
+            Long musicTagId = musicService.addMusicTag(tagName,userId);
+            result.setData(JsonUtil.getMap("musicTagId",musicTagId));
             return result;
 
         } catch (BusinessException be) {

@@ -554,4 +554,17 @@ public interface UserService {
      * @param imgeCallback
      */
     void insertFuntimeImgeCallback(FuntimeImgeCallback imgeCallback);
+
+    /**
+     * 埋点
+     * @param deviceInfo
+     */
+    void doPoint(FuntimeDeviceInfo deviceInfo);
+
+    /**
+     * 根据设备号查询用户
+     * @param phoneImei
+     * @return
+     */
+    FuntimeUser queryUserInfoByPhoneImei(String phoneImei);
 }

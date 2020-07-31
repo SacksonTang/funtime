@@ -170,7 +170,7 @@ public class MusicServiceImpl implements MusicService {
     }
 
     @Override
-    public void addMusicTag(String tagName, Long userId) {
+    public Long addMusicTag(String tagName, Long userId) {
         if (musicMapper.getMusicTagByName(tagName,userId)>0){
             throw new BusinessException(ErrorMsgEnum.USER_MUSIC_TAG_EXIST.getValue(),ErrorMsgEnum.USER_MUSIC_TAG_EXIST.getDesc());
         }
@@ -184,6 +184,7 @@ public class MusicServiceImpl implements MusicService {
         if (k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        return musicTag.getId();
     }
 
     @Override

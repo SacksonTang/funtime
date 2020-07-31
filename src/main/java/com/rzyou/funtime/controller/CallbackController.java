@@ -11,18 +11,19 @@ import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.component.StaticData;
 import com.rzyou.funtime.entity.FuntimeImgeCallback;
+import com.rzyou.funtime.entity.FuntimeTencentAd;
+import com.rzyou.funtime.entity.FuntimeTencentAdMonitor;
 import com.rzyou.funtime.entity.dto.SdkParam;
 import com.rzyou.funtime.entity.dto.UserStateOfflineParam;
 import com.rzyou.funtime.service.AccountService;
+import com.rzyou.funtime.service.AdvertisService;
 import com.rzyou.funtime.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jacoco.agent.rt.internal_035b120.core.internal.flow.IFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
@@ -41,6 +42,8 @@ public class CallbackController {
     AccountService accountService;
     @Autowired
     UserService userService;
+    @Autowired
+    AdvertisService advertisService;
 
     /**
      * 腾讯在线状态回调
@@ -292,6 +295,35 @@ public class CallbackController {
             e.printStackTrace();
         }
         return "200";
+    }
+
+    @GetMapping(value = "gdt")
+    public JSONObject gdt(@RequestParam(required = false) Map<String, Object> params) {
+
+        JSONObject result = new JSONObject();
+        result.put("ret",0);
+        result.put("msg","sucess");
+        JSONObject obj = new JSONObject(params);
+        FuntimeTencentAd tencentAd = JSONObject.toJavaObject(obj,FuntimeTencentAd.class);
+
+        advertisService.saveTencentAd(tencentAd);
+
+        return result;
+
+    }
+    @GetMapping(value = "gdtMonitor")
+    public JSONObject gdtMonitor(@RequestParam(required = false) Map<String, Object> params) {
+
+        JSONObject result = new JSONObject();
+        result.put("ret",0);
+        result.put("msg","sucess");
+        JSONObject obj = new JSONObject(params);
+        FuntimeTencentAdMonitor tencentAd = JSONObject.toJavaObject(obj,FuntimeTencentAdMonitor.class);
+
+        advertisService.saveTencentAdMonitor(tencentAd);
+
+        return result;
+
     }
 
 }

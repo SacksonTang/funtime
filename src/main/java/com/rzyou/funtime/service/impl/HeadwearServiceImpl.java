@@ -1,17 +1,17 @@
 package com.rzyou.funtime.service.impl;
 
-import com.rzyou.funtime.common.BusinessException;
-import com.rzyou.funtime.common.ErrorMsgEnum;
-import com.rzyou.funtime.common.OperationType;
-import com.rzyou.funtime.common.ResultMsg;
+import com.rzyou.funtime.common.*;
+import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.entity.FuntimeUserAccountHeadwearRecord;
 import com.rzyou.funtime.mapper.FuntimeHeadwearMapper;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.HeadwearService;
+import com.rzyou.funtime.service.RoomService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.JsonUtil;
+import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +31,8 @@ public class HeadwearServiceImpl implements HeadwearService {
     UserService userService;
     @Autowired
     AccountService accountService;
+    @Autowired
+    RoomService roomService;
     @Autowired
     FuntimeHeadwearMapper headwearMapper;
 
@@ -195,8 +197,19 @@ public class HeadwearServiceImpl implements HeadwearService {
         if (isCurrent == 1){
             headwearMapper.deleteUserHeadwearCurrent(userId);
             FuntimeUserAccount userAccount = accountService.getUserAccountByUserId(userId);
+            String levelUrl = userAccount.getLevelUrl();
             if (userAccount.getLevel()>0){
                 headwearMapper.insertUserHeadwearCurrent(userId,null,1);
+            }else{
+                levelUrl = "";
+            }
+            String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+            TencentUtil.portraitSet(userSig, userId.toString(), levelUrl);
+
+            Long roomId = roomService.checkUserIsInMic(userId);
+            if (roomId != null) {
+                roomService.sendRoomInfoNotice(roomId);
+
             }
         }
     }

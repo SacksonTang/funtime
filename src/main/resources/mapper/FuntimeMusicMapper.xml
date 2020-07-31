@@ -29,7 +29,7 @@
   </select>
 
   <select id="getMyMusics" resultType="java.util.Map">
-    select  m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser,m.id userMusicId
+    select  m.id musicId,m.url,m.name,m.type,m.author,m.create_user createUser,u.id userMusicId
     from t_funtime_music m inner join t_funtime_user_music u on m.id = u.music_id
     left join t_funtime_user_music_tag t on u.id = t.user_music_id
     where u.user_id = #{userId}
@@ -37,8 +37,9 @@
       and BINARY  m.search_name like concat('%',#{content},'%')
     </if>
     <if test="musicTagIds!=null and musicTagIds!='' ">
-      and FIND_IN_SET(t.music_tag_id,#{musicTagId})>0
+      and FIND_IN_SET(t.music_tag_id,#{musicTagIds})>0
     </if>
+    GROUP BY m.id ,m.url,m.name,m.type,m.author,m.create_user ,u.id
     order by u.create_time desc
   </select>
 

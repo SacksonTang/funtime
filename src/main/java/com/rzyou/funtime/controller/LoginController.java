@@ -9,6 +9,7 @@ import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
 import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.component.StaticData;
+import com.rzyou.funtime.entity.FuntimeDeviceInfo;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
 import com.rzyou.funtime.service.AccountService;
@@ -41,6 +42,32 @@ public class LoginController {
     ParameterService parameterService;
 
 
+    /**
+     * 埋点
+     * @param request
+     * @return
+     */
+    @PostMapping("doPoint")
+    public ResultMsg<Object> doPoint(HttpServletRequest request) {
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            FuntimeDeviceInfo deviceInfo = JSONObject.toJavaObject(paramJson, FuntimeDeviceInfo.class);
+            deviceInfo.setIp(HttpHelper.getClientIpAddr(request));
+            userService.doPoint(deviceInfo);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
 
 
     /**
@@ -391,6 +418,8 @@ public class LoginController {
 
             //是否显示红包
             data.put("isRedpacketShow",parameterService.getParameterValueByKey("is_redpacket_show"));
+            //是否自动登录
+            data.put("autoLogin",parameterService.getParameterValueByKey("auto_login"));
             //data.put("isFishShow",parameterService.getParameterValueByKey("is_fish_show"));
             //cos信息
             data.put("cosBucket",Constant.TENCENT_YUN_COS_BUCKET);

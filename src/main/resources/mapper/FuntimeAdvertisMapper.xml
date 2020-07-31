@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeAdvertisMapper">
+
+  <insert id="saveTencentAd" parameterType="com.rzyou.funtime.entity.FuntimeTencentAd">
+    replace into t_funtime_tencent_ad (click_id, muid, click_time,
+      appid, advertiser_id, app_type,
+      android_id, mac, ip,
+      user_agent, campaign_id, adgroup_id,
+      creative_id, agent_id, deeplink_url,
+      dest_url, device_os_type, click_sku_id,
+      process_time, product_type, request_id,
+      site_set, adgroup_name, oaid)
+    values (#{clickId,jdbcType=VARCHAR}, #{muid,jdbcType=VARCHAR}, #{clickTime,jdbcType=VARCHAR},
+      #{appid,jdbcType=INTEGER}, #{advertiserId,jdbcType=INTEGER}, #{appType,jdbcType=VARCHAR},
+      #{androidId,jdbcType=VARCHAR}, #{mac,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR},
+      #{userAgent,jdbcType=VARCHAR}, #{campaignId,jdbcType=INTEGER}, #{adgroupId,jdbcType=INTEGER},
+      #{creativeId,jdbcType=INTEGER}, #{agentId,jdbcType=INTEGER}, #{deeplinkUrl,jdbcType=VARCHAR},
+      #{destUrl,jdbcType=VARCHAR}, #{deviceOsType,jdbcType=VARCHAR}, #{clickSkuId,jdbcType=INTEGER},
+      #{processTime,jdbcType=INTEGER}, #{productType,jdbcType=INTEGER}, #{requestId,jdbcType=VARCHAR},
+      #{siteSet,jdbcType=INTEGER}, #{adgroupName,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR})
+  </insert>
+
+  <insert id="saveTencentAdMonitor" parameterType="com.rzyou.funtime.entity.FuntimeTencentAdMonitor" >
+
+    replace into t_funtime_tencent_ad_monitor (click_id, muid, click_time,
+    ip, user_agent, campaign_id,
+    adgroup_id, ad_id, ad_platform_type,
+    account_id, agency_id, billing_event,
+    promoted_object_type, real_cost, deeplink_url,
+    universal_link, page_url, device_os_type,
+    click_sku_id, process_time, promoted_object_id,
+    impression_id, request_id, hash_android_id,
+    hash_mac, callback, site_set,
+    encrypted_position_id, ipv6, oaid,
+    hash_oaid)
+    values (#{clickId,jdbcType=VARCHAR}, #{muid,jdbcType=VARCHAR}, #{clickTime,jdbcType=VARCHAR},
+    #{ip,jdbcType=VARCHAR}, #{userAgent,jdbcType=VARCHAR}, #{campaignId,jdbcType=INTEGER},
+    #{adgroupId,jdbcType=INTEGER}, #{adId,jdbcType=INTEGER}, #{adPlatformType,jdbcType=INTEGER},
+    #{accountId,jdbcType=INTEGER}, #{agencyId,jdbcType=INTEGER}, #{billingEvent,jdbcType=INTEGER},
+    #{promotedObjectType,jdbcType=INTEGER}, #{realCost,jdbcType=INTEGER}, #{deeplinkUrl,jdbcType=VARCHAR},
+    #{universalLink,jdbcType=VARCHAR}, #{pageUrl,jdbcType=VARCHAR}, #{deviceOsType,jdbcType=VARCHAR},
+    #{clickSkuId,jdbcType=VARCHAR}, #{processTime,jdbcType=INTEGER}, #{promotedObjectId,jdbcType=VARCHAR},
+    #{impressionId,jdbcType=VARCHAR}, #{requestId,jdbcType=VARCHAR}, #{hashAndroidId,jdbcType=VARCHAR},
+    #{hashMac,jdbcType=VARCHAR}, #{callback,jdbcType=VARCHAR}, #{siteSet,jdbcType=INTEGER},
+    #{encryptedPositionId,jdbcType=INTEGER}, #{ipv6,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR},
+    #{hashOaid,jdbcType=VARCHAR})
+  </insert>
+</mapper>

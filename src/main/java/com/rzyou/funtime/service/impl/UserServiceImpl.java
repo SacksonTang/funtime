@@ -604,6 +604,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void doPoint(FuntimeDeviceInfo deviceInfo) {
+        userMapper.insertDeviceInfo(deviceInfo);
+    }
+
+    @Override
+    public FuntimeUser queryUserInfoByPhoneImei(String phoneImei) {
+        return userMapper.queryUserInfoByImei(phoneImei);
+    }
+
+    @Override
     public FuntimeUserValid queryValidInfoByUserId(Long userId) {
 
         FuntimeUserValid userValid = userValidMapper.selectByUserId(userId);

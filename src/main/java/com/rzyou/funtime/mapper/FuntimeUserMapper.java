@@ -1,5 +1,6 @@
 package com.rzyou.funtime.mapper;
 
+import com.rzyou.funtime.entity.FuntimeDeviceInfo;
 import com.rzyou.funtime.entity.FuntimeImgeCallback;
 import com.rzyou.funtime.entity.FuntimeUser;
 import org.apache.ibatis.annotations.Mapper;
@@ -34,6 +35,8 @@ public interface FuntimeUserMapper {
     FuntimeUser queryUserInfo(Map<String,Object> map);
 
     FuntimeUser queryUserInfoByPhone(String phone);
+
+    FuntimeUser queryUserInfoByImei(String phoneImei);
 
     List<FuntimeUser> queryUserInfoByOnline(@Param("sex") Integer sex, @Param("startAge") String startAge, @Param("endAge") String endAge, @Param("userId") Long userId);
 
@@ -128,4 +131,6 @@ public interface FuntimeUserMapper {
     int insertUserActivity(@Param("userId") Long userId,@Param("activityId") Integer activityId);
 
     int insertFuntimeImgeCallback(FuntimeImgeCallback imgeCallback);
+
+    int insertDeviceInfo(FuntimeDeviceInfo deviceInfo);
 }

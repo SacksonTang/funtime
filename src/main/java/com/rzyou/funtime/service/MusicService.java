@@ -78,7 +78,7 @@ public interface MusicService {
      * @param tagName
      * @param userId
      */
-    void addMusicTag(String tagName, Long userId);
+    Long addMusicTag(String tagName, Long userId);
 
     /**
      * 变更音乐标签

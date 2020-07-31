@@ -312,6 +312,14 @@
 
     limit 1
   </select>
+  <select id="queryUserInfoByImei" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_user
+    where phone_imei = #{phoneImei}
+
+    limit 1
+  </select>
 
   <select id="queryUserInfoByOnline"  resultMap="BaseResultMap">
     select
@@ -857,5 +865,16 @@
     #{politicsInfoLabel,jdbcType=VARCHAR}, #{politicsInfoCount,jdbcType=INTEGER}, #{adsInfoHitFlag,jdbcType=INTEGER},
     #{adsInfoScore,jdbcType=INTEGER}, #{adsInfoLabel,jdbcType=VARCHAR}, #{adsInfoCount,jdbcType=INTEGER}
     )
+  </insert>
+  
+  <insert id="insertDeviceInfo" parameterType="com.rzyou.funtime.entity.FuntimeDeviceInfo">
+    insert into t_funtime_device_info ( point, imei,
+      idfa, android_id, oaid,
+      os, mac, mac1, ip,
+      ua,channel,user_id,brand,phone_model,phone_version,idfv)
+    values ( #{point,jdbcType=VARCHAR}, #{imei,jdbcType=VARCHAR},
+      #{idfa,jdbcType=VARCHAR}, #{androidId,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR},
+      #{os,jdbcType=VARCHAR}, #{mac,jdbcType=VARCHAR}, #{mac1,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR},
+      #{ua,jdbcType=VARCHAR},#{channel},#{userId},#{brand},#{phoneModel},#{phoneVersion},#{idfv})
   </insert>
 </mapper>
