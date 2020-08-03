@@ -154,6 +154,7 @@ public class MusicServiceImpl implements MusicService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Long downloadMusic(Integer musicId, Long userId) {
         Long id = musicMapper.getUserMusic(userId, musicId);
         if (id != null){
@@ -166,6 +167,7 @@ public class MusicServiceImpl implements MusicService {
         if (k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        musicMapper.updateMusicHot(musicId);
         return userMusic.getId();
     }
 

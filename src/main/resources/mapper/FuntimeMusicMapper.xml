@@ -25,7 +25,7 @@
       and BINARY  m.search_name like concat('%',#{content},'%')
     </if>
     GROUP BY m.id ,m.url,m.name,m.type,m.author,m.create_user
-    order by state desc,m.id asc
+    order by state desc,m.hot asc
   </select>
 
   <select id="getMyMusics" resultType="java.util.Map">
@@ -43,6 +43,9 @@
     order by u.create_time desc
   </select>
 
+  <update id="updateMusicHot">
+    update t_funtime_music set hot=hot+1 where id = #{musicId}
+  </update>
   <select id="getUserMusicById" resultType="java.lang.Long">
     select id from t_funtime_user_music where id = #{id}
   </select>
