@@ -212,7 +212,7 @@ public class GameServiceImpl implements GameService {
                 result.put("userAmount",userAccount.getBlueDiamond().intValue()-poolInfo.getQuota());
 
                 accountService.saveUserAccountBlueLog(userId,new BigDecimal(poolInfo.getQuota()),recordId
-                        ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType());
+                        ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType(),roomId);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(poolInfo.getQuota()), null);
             } else {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -255,7 +255,7 @@ public class GameServiceImpl implements GameService {
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(poolInfo.getQuota()).subtract(drawAmount), null);
 
                 accountService.saveUserAccountBlueLog(userId,new BigDecimal(poolInfo.getQuota()).subtract(drawAmount),recordId
-                        ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType());
+                        ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType(), roomId);
 
             } else {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -275,7 +275,7 @@ public class GameServiceImpl implements GameService {
                 userService.updateUserAccountForPlus(userId, null, drawAmount.subtract(new BigDecimal(poolInfo.getQuota())), null);
 
                 accountService.saveUserAccountBlueLog(userId,drawAmount.subtract(new BigDecimal(poolInfo.getQuota())),recordId
-                        ,OperationType.YAOYAOLE_IN.getAction(),OperationType.YAOYAOLE_IN.getOperationType());
+                        ,OperationType.YAOYAOLE_IN.getAction(),OperationType.YAOYAOLE_IN.getOperationType(), roomId);
 
             } else {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -520,7 +520,7 @@ public class GameServiceImpl implements GameService {
                 return resultMsg;
             }
         }
-        Long recordId = accountService.insertFishAccountRecord(userId,bullet,Integer.parseInt(bulletPrice),roomId);
+        Long recordId = accountService.insertFishAccountRecord(userId,bullet,Integer.parseInt(bulletPrice),roomId,type);
         accountService.updateBulletForPlus(userId,bullet);
         if (type == 1){
             userService.updateUserAccountGoldCoinSub(userId,amount.intValue());
@@ -529,7 +529,7 @@ public class GameServiceImpl implements GameService {
 
         }else {
             userService.updateUserAccountForSub(userId, null, amount, null);
-            accountService.saveUserAccountBlueLog(userId,amount,recordId,OperationType.BUY_BULLET.getAction(),OperationType.BUY_BULLET.getOperationType());
+            accountService.saveUserAccountBlueLog(userId,amount,recordId,OperationType.BUY_BULLET.getAction(),OperationType.BUY_BULLET.getOperationType(), roomId);
             if (roomId!=null&&roomId>0) {
                 roomService.updateHotsPlus(roomId,amount.divide(new BigDecimal(10)).setScale(0, BigDecimal.ROUND_UP).intValue());
             }
@@ -680,7 +680,7 @@ public class GameServiceImpl implements GameService {
                 accountService.saveKnapsackLog(userId,1,drawId,1,OperationType.GIFT_KNAPSACK_EGG_IN.getAction(),OperationType.GIFT_KNAPSACK_EGG_IN.getOperationType());
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
-                        , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType());
+                        , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType(), roomId);
                 //蓝钻
             } else if (conf.getDrawType() == 2) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
@@ -690,12 +690,12 @@ public class GameServiceImpl implements GameService {
                 if (price - conf.getDrawVal().intValue() > 0) {
                     userService.updateUserAccountForSub(userId, null, new BigDecimal(price - conf.getDrawVal().intValue()), null);
                     accountService.saveUserAccountBlueLog(userId, new BigDecimal(price - conf.getDrawVal().intValue()), recordId
-                            , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType());
+                            , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType(), roomId);
                 }
                 if (price - conf.getDrawVal().intValue() < 0) {
                     userService.updateUserAccountForPlus(userId, null, new BigDecimal(conf.getDrawVal().intValue() - price), null);
                     accountService.saveUserAccountBlueLog(userId, new BigDecimal(conf.getDrawVal().intValue() - price), recordId
-                            , OperationType.SMASHEGG_IN.getAction(), OperationType.SMASHEGG_IN.getOperationType());
+                            , OperationType.SMASHEGG_IN.getAction(), OperationType.SMASHEGG_IN.getOperationType(), roomId);
                 }
                 //金币
             } else if (conf.getDrawType() == 3) {
@@ -705,7 +705,7 @@ public class GameServiceImpl implements GameService {
                 //蓝钻减少
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
-                        , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType());
+                        , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType(), roomId);
                 //金币增加
                 userService.updateUserAccountGoldCoinPlus(userId, conf.getDrawVal().intValue());
                 accountService.saveUserAccountGoldLog(userId, conf.getDrawVal(), recordId
@@ -725,7 +725,7 @@ public class GameServiceImpl implements GameService {
                 roomService.drawBackground(drawId, userId);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
-                        , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType());
+                        , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType(), roomId);
                 //喇叭
             } else if (conf.getDrawType() == 5) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
@@ -733,7 +733,7 @@ public class GameServiceImpl implements GameService {
                 drawMap.put("drawVal",new BigDecimal(parameterService.getParameterValueByKey("horn_price")).multiply(conf.getDrawVal()).intValue()+"钻");
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
-                        , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType());
+                        , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType(), roomId);
                 userService.updateUserAccountForPlus(userId, null, null, conf.getDrawVal().intValue());
                 accountService.saveUserAccountHornLog(userId, conf.getDrawVal().intValue(), recordId
                         , OperationType.SMASHEGG_IN.getAction(), OperationType.SMASHEGG_IN.getOperationType());
@@ -752,7 +752,7 @@ public class GameServiceImpl implements GameService {
                 accountService.drawCar(map);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
-                        , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType());
+                        , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType(), roomId);
 
             }else{
                 return null;
@@ -873,7 +873,7 @@ public class GameServiceImpl implements GameService {
                 accountService.saveKnapsackLog(userId,1,drawId,1,OperationType.GIFT_KNAPSACK_CIRCLE_IN.getAction(),OperationType.GIFT_KNAPSACK_CIRCLE_IN.getOperationType());
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
-                        , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType());
+                        , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType(), roomId);
                 //蓝钻
             } else if (conf.getDrawType() == 2) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
@@ -883,12 +883,12 @@ public class GameServiceImpl implements GameService {
                 if (price - conf.getDrawVal().intValue() > 0) {
                     userService.updateUserAccountForSub(userId, null, new BigDecimal(price - conf.getDrawVal().intValue()), null);
                     accountService.saveUserAccountBlueLog(userId, new BigDecimal(price - conf.getDrawVal().intValue()), recordId
-                            , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType());
+                            , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType(), roomId);
                 }
                 if (price - conf.getDrawVal().intValue() < 0) {
                     userService.updateUserAccountForPlus(userId, null, new BigDecimal(conf.getDrawVal().intValue() - price), null);
                     accountService.saveUserAccountBlueLog(userId, new BigDecimal(conf.getDrawVal().intValue() - price), recordId
-                            , OperationType.CIRCLE_IN.getAction(), OperationType.CIRCLE_IN.getOperationType());
+                            , OperationType.CIRCLE_IN.getAction(), OperationType.CIRCLE_IN.getOperationType(), roomId);
                 }
                 //金币
             } else if (conf.getDrawType() == 3) {
@@ -898,7 +898,7 @@ public class GameServiceImpl implements GameService {
                 //蓝钻减少
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
-                        , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType());
+                        , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType(), roomId);
                 //金币增加
                 userService.updateUserAccountGoldCoinPlus(userId, conf.getDrawVal().intValue());
                 accountService.saveUserAccountGoldLog(userId, conf.getDrawVal(), recordId
@@ -918,7 +918,7 @@ public class GameServiceImpl implements GameService {
                 roomService.drawBackground(drawId, userId);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
-                        , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType());
+                        , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType(), roomId);
                 //喇叭
             } else if (conf.getDrawType() == 5) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
@@ -926,7 +926,7 @@ public class GameServiceImpl implements GameService {
                 drawMap.put("drawVal",new BigDecimal(parameterService.getParameterValueByKey("horn_price")).multiply(conf.getDrawVal()).intValue()+"钻");
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
-                        , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType());
+                        , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType(), roomId);
                 userService.updateUserAccountForPlus(userId, null, null, conf.getDrawVal().intValue());
                 accountService.saveUserAccountHornLog(userId, conf.getDrawVal().intValue(), recordId
                         , OperationType.CIRCLE_IN.getAction(), OperationType.CIRCLE_IN.getOperationType());
@@ -945,7 +945,7 @@ public class GameServiceImpl implements GameService {
                 accountService.drawCar(map);
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(price), null);
                 accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
-                        , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType());
+                        , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType(), roomId);
             } else {
                 return null;
             }

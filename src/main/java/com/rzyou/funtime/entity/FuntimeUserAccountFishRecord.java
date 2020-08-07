@@ -10,6 +10,7 @@ import lombok.Data;
 public class FuntimeUserAccountFishRecord {
     private Long id;
     private Long userId;
+    private Integer type;
     private Integer bullet;
     private Integer bulletPrice;
     private Long roomId;

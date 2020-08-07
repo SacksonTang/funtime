@@ -1,6 +1,5 @@
 package com.rzyou.funtime.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
@@ -29,6 +28,44 @@ public class RoomController {
 
     @Autowired
     RoomService roomService;
+
+    /**
+     * 房间榜单
+     * @param request
+     * @return
+     */
+    @PostMapping("getRoomRankingList")
+    public ResultMsg<Object> getRoomRankingList(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String userId = paramJson.getString("userId");
+            Long roomId = paramJson.getLong("roomId");
+            Integer type = paramJson.getInteger("type");//1-魅力榜2-贡献榜
+            Integer dateType = paramJson.getInteger("dateType");//1-日2-周3-月4-总榜
+
+            if (type==null||roomId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String,Object> resultMap = roomService.getRoomRankingList(dateType, type,userId,roomId);
+
+            result.setData(resultMap);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
     /**
      * 开启麦位音乐权限

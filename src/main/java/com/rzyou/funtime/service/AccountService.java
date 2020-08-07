@@ -412,8 +412,9 @@ public interface AccountService {
      * @param recordId
      * @param actionType
      * @param operationType
+     * @param roomId
      */
-    void saveUserAccountBlueLog(Long userId, BigDecimal amount,Long recordId,String actionType,String operationType);
+    void saveUserAccountBlueLog(Long userId, BigDecimal amount, Long recordId, String actionType, String operationType, Long roomId);
 
     /**
      * 红钻日志
@@ -487,9 +488,10 @@ public interface AccountService {
      * @param bullet
      * @param parseInt
      * @param roomId
+     * @param type
      * @return
      */
-    Long insertFishAccountRecord(Long userId, Integer bullet, int parseInt, Long roomId);
+    Long insertFishAccountRecord(Long userId, Integer bullet, int parseInt, Long roomId, Integer type);
 
     /**
      * 捕鱼排行榜

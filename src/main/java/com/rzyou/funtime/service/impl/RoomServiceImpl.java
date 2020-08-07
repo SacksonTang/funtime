@@ -9,6 +9,7 @@ import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
 
+import com.rzyou.funtime.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -1160,7 +1161,7 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
         userService.updateUserAccountForSub(userId,null,price,null);
-        accountService.saveUserAccountBlueLog(userId,price,userBackground.getId(),OperationType.BUY_BACKGROUND.getAction(),OperationType.BUY_BACKGROUND.getOperationType());
+        accountService.saveUserAccountBlueLog(userId,price,userBackground.getId(),OperationType.BUY_BACKGROUND.getAction(),OperationType.BUY_BACKGROUND.getOperationType(), roomId);
         setBackground(backgroundId,userId,roomId);
         return resultMsg;
     }
@@ -1505,6 +1506,84 @@ public class RoomServiceImpl implements RoomService {
     public void resetRoomHotsTask() {
 
         chatroomMapper.resetRoomHotsTask();
+    }
+
+    @Override
+    public Map<String, Object> getRoomRankingList(Integer dateType, Integer type, String curUserId,Long roomId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        String count = parameterService.getParameterValueByKey("ranking_list_count");
+        resultMap.put("rankCount",count);
+        int endCount = Integer.parseInt(count);
+
+        String startDate;
+        String endDate;
+
+        if (dateType == 1){
+            startDate = DateUtil.getCurrentDayStart();
+            endDate = DateUtil.getCurrentDayEnd();
+        }else if (dateType == 2){
+            startDate = DateUtil.getCurrentWeekStart();
+            endDate = DateUtil.getCurrentWeekEnd();
+        }else if (dateType == 3){
+            startDate = DateUtil.getCurrentMonthStart();
+            endDate = DateUtil.getCurrentMonthEnd();
+        }else if (dateType == 4){
+            startDate = null;
+            endDate = null;
+        }else {
+            resultMap.put("rankingList",null);
+            return resultMap;
+        }
+
+        List<Map<String, Object>> list;
+
+        if (type == 1){
+            list = chatroomMapper.getRoomCharmList(endCount,startDate,endDate,roomId);
+        }else{
+            list = chatroomMapper.getRoomContributionList(endCount,startDate,endDate,roomId);
+        }
+
+        if (list==null||list.isEmpty()){
+            resultMap.put("rankingList",null);
+            return resultMap;
+        }
+        FuntimeUser user = userService.queryUserById(Long.parseLong(curUserId));
+        FuntimeUserAccount userAccount= accountService.getUserAccountByUserId(Long.parseLong(curUserId));
+        Map<String,Object> myInfoMap = new HashMap<>();
+        myInfoMap.put("nickname",user.getNickname());
+        myInfoMap.put("portraitAddress",user.getPortraitAddress());
+        myInfoMap.put("signText",user.getSignText());
+        myInfoMap.put("showId",user.getShowId());
+        myInfoMap.put("sex",user.getSex());
+        myInfoMap.put("level",userAccount.getLevel());
+        myInfoMap.put("levelUrl",userAccount.getLevelUrl());
+        boolean isRankMe = false;
+        for (int i =0;i<list.size();i++){
+            Map<String, Object> map = list.get(i);
+            String userId = map.get("userId").toString();
+            if (userId.equals(curUserId)){
+                isRankMe = true;
+                myInfoMap.put("isRankMe",true);
+                myInfoMap.put("mySort", i+1);
+                myInfoMap.put("myAmount", map.get("amountSum"));
+                if (i == 0){
+                    myInfoMap.put("diffAmount",0);
+                }else{
+                    BigDecimal currentAmount = new BigDecimal(map.get("amountSum").toString());
+                    BigDecimal lastAmount = new BigDecimal(list.get(i-1).get("amountSum").toString());
+                    myInfoMap.put("diffAmount",lastAmount.subtract(currentAmount).intValue());
+                }
+
+                resultMap.put("user",myInfoMap);
+            }
+        }
+        if (!isRankMe){
+            myInfoMap.put("isRankMe",false);
+            resultMap.put("user",myInfoMap);
+        }
+        resultMap.put("rankingList",list);
+        return resultMap;
+
     }
 
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){

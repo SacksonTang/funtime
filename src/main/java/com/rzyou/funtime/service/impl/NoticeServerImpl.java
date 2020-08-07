@@ -482,12 +482,12 @@ public class NoticeServerImpl implements NoticeService {
                 throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
             }
             userService.updateUserAccountForSub(userId,null,userAccountInfo.getHornPrice(),null);
-            accountService.saveUserAccountBlueLog(userId,userAccountInfo.getHornPrice(),null
-                    , OperationType.BUY_HORN.getAction(),OperationType.BUY_HORN.getOperationType());
+            accountService.saveUserAccountBlueLog(userId,userAccountInfo.getHornPrice(),roomId
+                    , OperationType.BUY_HORN.getAction(),OperationType.BUY_HORN.getOperationType(), roomId);
 
         }else {
             userService.updateUserAccountForSub(userId, null, null, 1);
-            accountService.saveUserAccountHornLog(userId,1,null,OperationType.HORN_CONSUME.getAction(),OperationType.HORN_CONSUME.getOperationType());
+            accountService.saveUserAccountHornLog(userId,1,roomId,OperationType.HORN_CONSUME.getAction(),OperationType.HORN_CONSUME.getOperationType());
         }
         FuntimeUser user = userService.queryUserById(userId);
         JSONObject object = new JSONObject();

@@ -104,7 +104,7 @@ public class HeadwearServiceImpl implements HeadwearService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
         userService.updateUserAccountForSub(userId,null,price,null);
-        accountService.saveUserAccountBlueLog(userId,price,record.getId(), OperationType.BUY_HEADWEAR.getAction(),OperationType.BUY_HEADWEAR.getOperationType());
+        accountService.saveUserAccountBlueLog(userId,price,record.getId(), OperationType.BUY_HEADWEAR.getAction(),OperationType.BUY_HEADWEAR.getOperationType(), null);
         Long userHeadwearId = headwearMapper.getUserHeadwearById(userId, record.getHeadwearId());
 
         headwearInfoMap.put("userId",userId);

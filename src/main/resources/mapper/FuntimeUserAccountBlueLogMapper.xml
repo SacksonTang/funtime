@@ -40,6 +40,9 @@
       <if test="userId != null">
         user_id,
       </if>
+      <if test="roomId != null">
+        room_id,
+      </if>
       <if test="relationId != null">
         relation_id,
       </if>
@@ -62,6 +65,9 @@
       </if>
       <if test="userId != null">
         #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="roomId != null">
+        #{roomId,jdbcType=BIGINT},
       </if>
       <if test="relationId != null">
         #{relationId,jdbcType=BIGINT},

@@ -77,7 +77,7 @@
   </select>
   <select id="getRedpacketListInvalid" resultMap="BaseResultMap">
     select
-    t.id, t.user_id, t.redpacket_num, t.amount
+    t.id, t.user_id, t.redpacket_num, t.amount,t.room_id
     ,sum(l.amount) grabAmount,count(l.id) grabNum
     from t_funtime_user_redpacket t inner join t_funtime_user_redpacket_detail l on t.id = l.redpacket_id
 

@@ -15,6 +15,8 @@ public class FuntimeUserAccountBlueLog implements Serializable {
 
     private Long relationId;
 
+    private Long roomId;
+
     private String actionType;
 
     private String operationType;

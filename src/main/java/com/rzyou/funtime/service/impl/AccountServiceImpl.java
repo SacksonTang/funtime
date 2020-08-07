@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.ibatis.javassist.bytecode.stackmap.BasicBlock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -258,7 +257,7 @@ public class AccountServiceImpl implements AccountService {
 
         //记录日志
         saveUserAccountBlueLog(record.getUserId(),record.getAmount(),record.getId()
-                , OperationType.IOSRECHARGE.getAction(),OperationType.IOSRECHARGE.getOperationType());
+                , OperationType.IOSRECHARGE.getAction(),OperationType.IOSRECHARGE.getOperationType(), null);
         Long WealthRecordId = saveUserAccountLevelWealthRecord(record.getUserId(),levelVal,wealthVal,record.getId(),LevelWealthType.RECHARGE.getValue());
         saveUserAccountLevelWealthLog(record.getUserId(),levelVal,wealthVal,WealthRecordId
                 , OperationType.IOSRECHARGE.getAction(),OperationType.IOSRECHARGE.getOperationType());
@@ -480,7 +479,7 @@ public class AccountServiceImpl implements AccountService {
             }
             //记录日志
             saveUserAccountBlueLog(record.getUserId(),record.getAmount(),record.getId()
-                    , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
+                    , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType(), null);
             Long WealthRecordId = saveUserAccountLevelWealthRecord(record.getUserId(),levelVal,wealthVal,record.getId(),LevelWealthType.RECHARGE.getValue());
             saveUserAccountLevelWealthLog(record.getUserId(),levelVal,wealthVal,WealthRecordId
                     , OperationType.RECHARGE.getAction(),OperationType.RECHARGE.getOperationType());
@@ -576,7 +575,7 @@ public class AccountServiceImpl implements AccountService {
                         }
                         //记录日志
                         saveUserAccountBlueLog(record.getUserId(),record.getAmount(),record.getId()
-                                , OperationType.ALIPAYRECHARGE.getAction(),OperationType.ALIPAYRECHARGE.getOperationType());
+                                , OperationType.ALIPAYRECHARGE.getAction(),OperationType.ALIPAYRECHARGE.getOperationType(), null);
                         Long WealthRecordId = saveUserAccountLevelWealthRecord(record.getUserId(),levelVal,wealthVal,record.getId(),LevelWealthType.RECHARGE.getValue());
                         saveUserAccountLevelWealthLog(record.getUserId(),levelVal,wealthVal,WealthRecordId
                                 , OperationType.ALIPAYRECHARGE.getAction(),OperationType.ALIPAYRECHARGE.getOperationType());
@@ -653,7 +652,7 @@ public class AccountServiceImpl implements AccountService {
         }
         userService.updateUserAccountForSub(redpacket.getUserId(),null,redpacket.getAmount(),null);
         //新建用户日志
-        saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getAmount(),redpacket.getId(),OperationType.GIVEREDPACKET.getAction(),OperationType.GIVEREDPACKET.getOperationType());
+        saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getAmount(),redpacket.getId(),OperationType.GIVEREDPACKET.getAction(),OperationType.GIVEREDPACKET.getOperationType(), redpacket.getRoomId());
 
         if (redpacket.getType() == 1) {
             RedPacketUtil redPacketUtil = new RedPacketUtil(redpacket.getAmount().intValue());
@@ -725,7 +724,7 @@ public class AccountServiceImpl implements AccountService {
                 throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_YOURS.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_YOURS.getDesc());
             }
             if (redpacket.getBestowCondition()==1){
-                return grabRedpacketNoCondition2(userId, redpacketId,null);
+                return grabRedpacketNoCondition2(userId, redpacketId,null, redpacket.getRoomId());
             }else{
                 return grabRedpacketBestowCondition2(userId,redpacketId,redpacket.getGiftId(),redpacket.getUserId(),redpacket.getRoomId());
             }
@@ -734,10 +733,10 @@ public class AccountServiceImpl implements AccountService {
             //房间
 
             if (redpacket.getBestowCondition()==1){
-                return grabRedpacketNoCondition(userId, redpacketId,null);
+                return grabRedpacketNoCondition(userId, redpacketId,null,redpacket.getRoomId());
             }else{
                 if (userId.equals(redpacket.getUserId())){
-                    return grabRedpacketNoCondition(userId, redpacketId,null);
+                    return grabRedpacketNoCondition(userId, redpacketId,null,redpacket.getRoomId());
                 }
                 return grabRedpacketBestowCondition(userId,redpacketId,redpacket.getGiftId(),redpacket.getUserId(),redpacket.getRoomId());
             }
@@ -751,7 +750,7 @@ public class AccountServiceImpl implements AccountService {
         ResultMsg<Object> resultMsg = createGiftTrans(userId,toUserId,giftId,1,"红包赠送",GiveChannel.REDPACKET.getValue(), roomId);
         if (ErrorMsgEnum.SUCCESS.getValue().equals(resultMsg.getCode())){
             Long recordId = Long.parseLong(resultMsg.getData().toString());
-            return grabRedpacketNoCondition(userId, redpacketId,recordId);
+            return grabRedpacketNoCondition(userId, redpacketId,recordId,roomId);
         }else{
             return resultMsg;
         }
@@ -764,7 +763,7 @@ public class AccountServiceImpl implements AccountService {
         ResultMsg<Object> resultMsg = createGiftTrans(userId,toUserId,giftId,1,"红包赠送",GiveChannel.REDPACKET.getValue(), roomId);
         if (ErrorMsgEnum.SUCCESS.getValue().equals(resultMsg.getCode())){
             Long recordId = Long.parseLong(resultMsg.getData().toString());
-            return grabRedpacketNoCondition2(userId, redpacketId,recordId);
+            return grabRedpacketNoCondition2(userId, redpacketId,recordId,roomId);
         }else{
             return resultMsg;
         }
@@ -773,7 +772,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     //无条件
-    public ResultMsg<Object> grabRedpacketNoCondition2(Long userId, Long redpacketId,Long giftRecordId) {
+    public ResultMsg<Object> grabRedpacketNoCondition2(Long userId, Long redpacketId, Long giftRecordId, Long roomId) {
 
         checkUser(userId);
         //有没有抢过
@@ -798,7 +797,7 @@ public class AccountServiceImpl implements AccountService {
         userService.updateUserAccountForPlus(userId,null,detail.getAmount(),null);
 
         //新建用户日志
-        saveUserAccountBlueLog(userId,detail.getAmount(),recordId,OperationType.GRABREDPACKET.getAction(),OperationType.GRABREDPACKET.getOperationType());
+        saveUserAccountBlueLog(userId,detail.getAmount(),recordId,OperationType.GRABREDPACKET.getAction(),OperationType.GRABREDPACKET.getOperationType(), roomId);
 
         updateRedpacketState(redpacketId,RedpacketState.SUCCESS.getValue());
 
@@ -810,7 +809,7 @@ public class AccountServiceImpl implements AccountService {
 
 
     //无条件
-    public ResultMsg<Object> grabRedpacketNoCondition(Long userId, Long redpacketId,Long giftRecordId) {
+    public ResultMsg<Object> grabRedpacketNoCondition(Long userId, Long redpacketId,Long giftRecordId,Long roomId) {
 
         checkUser(userId);
         //有没有抢过
@@ -837,7 +836,7 @@ public class AccountServiceImpl implements AccountService {
         userService.updateUserAccountForPlus(userId,null,detail.getAmount(),null);
 
         //新建用户日志
-        saveUserAccountBlueLog(userId,detail.getAmount(),recordId,OperationType.GRABREDPACKET.getAction(),OperationType.GRABREDPACKET.getOperationType());
+        saveUserAccountBlueLog(userId,detail.getAmount(),recordId,OperationType.GRABREDPACKET.getAction(),OperationType.GRABREDPACKET.getOperationType(), roomId);
 
         //最后一个打标签
         if(isLastOne){
@@ -1070,8 +1069,8 @@ public class AccountServiceImpl implements AccountService {
             userService.updateUserAccountForPlusGift(toUserId, black, giftNum,charmVal);
             saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
             //用户送的日志
-            saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
-                    , OperationType.GIVEGIFTBAG.getAction(), OperationType.GIVEGIFTBAG.getOperationType());
+            //saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+             //       , OperationType.GIVEGIFTBAG.getAction(), OperationType.GIVEGIFTBAG.getOperationType());
             //用户收的日志
             saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEBAGGIFT.getAction()
                     , OperationType.RECEIVEBAGGIFT.getOperationType());
@@ -1217,7 +1216,7 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
         userService.updateUserAccountForSub(userId,null,price,null);
-        saveUserAccountBlueLog(userId,price,record.getId(),OperationType.BUY_CAR.getAction(),OperationType.BUY_CAR.getOperationType());
+        saveUserAccountBlueLog(userId,price,record.getId(),OperationType.BUY_CAR.getAction(),OperationType.BUY_CAR.getOperationType(), null);
         Long userCarId = carMapper.getUserCarById(userId, Integer.parseInt(carInfoMap.get("carId").toString()));
 
         carInfoMap.put("userId",userId);
@@ -1287,7 +1286,7 @@ public class AccountServiceImpl implements AccountService {
         }
         //用户减的日志
         saveUserAccountBlueLog(userId,new BigDecimal(blueAmount),recordId
-                ,OperationType.GOLD_CONVERT_OUT.getAction(),OperationType.GOLD_CONVERT_OUT.getOperationType());
+                ,OperationType.GOLD_CONVERT_OUT.getAction(),OperationType.GOLD_CONVERT_OUT.getOperationType(), null);
 
         //用户加的日志
         saveUserAccountGoldLog(userId,new BigDecimal(goldAmount),recordId,OperationType.GOLD_CONVERT_IN.getAction()
@@ -1361,7 +1360,7 @@ public class AccountServiceImpl implements AccountService {
             saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
             //用户送的日志
             saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
-                    , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType());
+                    , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType(), roomId);
 
             //用户收的日志
             saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFT.getAction()
@@ -1569,7 +1568,7 @@ public class AccountServiceImpl implements AccountService {
                 saveUserAccountCharmRecord(toUserId, charmVal, recordId, 1);
                 //用户送的日志
                 saveUserAccountBlueLog(userId, new BigDecimal(num).multiply(price).setScale(2,BigDecimal.ROUND_HALF_DOWN), recordId
-                        , OperationType.GIFT_BOX_OUT.getAction(), OperationType.GIFT_BOX_OUT.getOperationType());
+                        , OperationType.GIFT_BOX_OUT.getAction(), OperationType.GIFT_BOX_OUT.getOperationType(), roomId);
 
                 //用户收的日志
                 saveUserAccountBlackLog(toUserId, black, recordId, OperationType.GIFT_BOX_IN.getAction()
@@ -1658,7 +1657,7 @@ public class AccountServiceImpl implements AccountService {
         saveUserAccountCharmRecord(userId,charmVal,recordId,1);
         //用户送的日志
         saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
-                , OperationType.GIVEGIFTREDPACKET.getAction(), OperationType.GIVEGIFTREDPACKET.getOperationType());
+                , OperationType.GIVEGIFTREDPACKET.getAction(), OperationType.GIVEGIFTREDPACKET.getOperationType(), roomId);
 
         //用户收的日志
         saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFTREDPACKET.getAction()
@@ -1738,7 +1737,7 @@ public class AccountServiceImpl implements AccountService {
         //saveUserAccountCharmRecord(userId,charmVal,recordId,1);
         //用户送的日志
         saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
-                , OperationType.GIVEGIFTACTIVITY.getAction(), OperationType.GIVEGIFTACTIVITY.getOperationType());
+                , OperationType.GIVEGIFTACTIVITY.getAction(), OperationType.GIVEGIFTACTIVITY.getOperationType(), null);
 
         //用户收的日志
         saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFTACTIVITY.getAction()
@@ -1809,7 +1808,7 @@ public class AccountServiceImpl implements AccountService {
             saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
             //用户送的日志
             saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
-                    , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType());
+                    , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType(), roomId);
 
             //用户收的日志
             saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFT.getAction()
@@ -1932,8 +1931,8 @@ public class AccountServiceImpl implements AccountService {
             userService.updateUserAccountForPlusGift(toUserId, black, giftNum, charmVal);
             saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
             //用户送的日志
-            saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
-                    , OperationType.GIVEGIFTBAG.getAction(), OperationType.GIVEGIFTBAG.getOperationType());
+            //saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+            //        , OperationType.GIVEGIFTBAG.getAction(), OperationType.GIVEGIFTBAG.getOperationType());
 
             //用户收的日志
             saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEBAGGIFT.getAction()
@@ -2079,7 +2078,7 @@ public class AccountServiceImpl implements AccountService {
                 saveUserAccountCharmRecord(toUserId, charmVal, recordId, 1);
                 //用户送的日志
                 saveUserAccountBlueLog(userId, new BigDecimal(num).multiply(price).setScale(2,BigDecimal.ROUND_HALF_DOWN), recordId
-                        , OperationType.GIFT_BOX_OUT.getAction(), OperationType.GIFT_BOX_OUT.getOperationType());
+                        , OperationType.GIFT_BOX_OUT.getAction(), OperationType.GIFT_BOX_OUT.getOperationType(), roomId);
 
                 //用户收的日志
                 saveUserAccountBlackLog(toUserId, black, recordId, OperationType.GIFT_BOX_IN.getAction()
@@ -2177,7 +2176,7 @@ public class AccountServiceImpl implements AccountService {
             saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
             //用户送的日志
             saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
-                    , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType());
+                    , OperationType.GIVEGIFT.getAction(), OperationType.GIVEGIFT.getOperationType(), roomId);
 
             //用户收的日志
             saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFT.getAction()
@@ -2292,8 +2291,8 @@ public class AccountServiceImpl implements AccountService {
 
             saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
             //用户送的日志
-            saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
-                    , OperationType.GIVEGIFTBAG.getAction(), OperationType.GIVEGIFTBAG.getOperationType());
+            //saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+            //        , OperationType.GIVEGIFTBAG.getAction(), OperationType.GIVEGIFTBAG.getOperationType());
 
             //用户收的日志
             saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEBAGGIFT.getAction()
@@ -2435,7 +2434,7 @@ public class AccountServiceImpl implements AccountService {
                 saveUserAccountCharmRecord(toUserId, charmVal, recordId, 1);
                 //用户送的日志
                 saveUserAccountBlueLog(userId, new BigDecimal(num).multiply(price).setScale(2,BigDecimal.ROUND_HALF_DOWN), recordId
-                        , OperationType.GIFT_BOX_OUT.getAction(), OperationType.GIFT_BOX_OUT.getOperationType());
+                        , OperationType.GIFT_BOX_OUT.getAction(), OperationType.GIFT_BOX_OUT.getOperationType(), roomId);
 
                 //用户收的日志
                 saveUserAccountBlackLog(toUserId, black, recordId, OperationType.GIFT_BOX_IN.getAction()
@@ -2538,7 +2537,7 @@ public class AccountServiceImpl implements AccountService {
         if (redpacketListInvalid!=null&&!redpacketListInvalid.isEmpty()) {
             for (FuntimeUserRedpacket redpacket : redpacketListInvalid){
                 userService.updateUserAccountForPlus(redpacket.getUserId(),null,redpacket.getGrabAmount(),null);
-                saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getGrabAmount(),redpacket.getId(),OperationType.REDPACKETINVALID.getAction(),OperationType.REDPACKETINVALID.getOperationType());
+                saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getGrabAmount(),redpacket.getId(),OperationType.REDPACKETINVALID.getAction(),OperationType.REDPACKETINVALID.getOperationType(), redpacket.getRoomId());
                 userRedpacketMapper.updateStateForInvalid(redpacket.getId());
             }
         }
@@ -2585,7 +2584,7 @@ public class AccountServiceImpl implements AccountService {
 
         //用户加的日志
         saveUserAccountBlueLog(userId,toAmount,recordId
-                ,OperationType.BLACK_BLUE_IN.getAction(),OperationType.BLACK_BLUE_IN.getOperationType());
+                ,OperationType.BLACK_BLUE_IN.getAction(),OperationType.BLACK_BLUE_IN.getOperationType(), null);
 
         //用户减的日志
         saveUserAccountBlackLog(userId,amount,recordId,OperationType.BLACK_BLUE_OUT.getAction()
@@ -3167,7 +3166,7 @@ public class AccountServiceImpl implements AccountService {
             if (k!=1){
                 throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
             }
-            insertFishAccountRecord(userId,10,0, roomId);
+            insertFishAccountRecord(userId,10,0, roomId, 1);
             fish = new HashMap<>();
             fish.put("bullet",10);
             fish.put("score",0);
@@ -3197,13 +3196,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Long insertFishAccountRecord(Long userId, Integer bullet, int parseInt, Long roomId) {
+    public Long insertFishAccountRecord(Long userId, Integer bullet, int parseInt, Long roomId, Integer type) {
 
         FuntimeUserAccountFishRecord record = new FuntimeUserAccountFishRecord();
         record.setBullet(bullet);
         record.setBulletPrice(parseInt);
         record.setUserId(userId);
         record.setRoomId(roomId);
+        record.setType(type);
         int k = userAccountMapper.insertFishAccountRecord(record);
         if (k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
@@ -3343,13 +3343,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void saveUserAccountBlueLog(Long userId, BigDecimal amount,Long recordId,String actionType,String operationType){
+    public void saveUserAccountBlueLog(Long userId, BigDecimal amount, Long recordId, String actionType, String operationType, Long roomId){
         FuntimeUserAccountBlueLog blueLog = new FuntimeUserAccountBlueLog();
         blueLog.setUserId(userId);
         blueLog.setAmount(amount);
         blueLog.setRelationId(recordId);
         blueLog.setActionType(actionType);
         blueLog.setOperationType(operationType);
+        blueLog.setRoomId(roomId);
         int k = userAccountBlueLogMapper.insertSelective(blueLog);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());

@@ -173,6 +173,79 @@
     group by m.id
     order by m.online_num desc ,m.id desc
   </select>
+  <select id="getRoomContributionList" resultType="java.util.Map">
+
+      SELECT
+          d.user_id as userId,
+          sum( d.amount ) amountSum,
+          u.nickname,
+          u.portrait_address as portraitAddress,
+          u.show_id as showId,
+          u.sex,
+          t.level,
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl,
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url_h5 from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrlGif
+      FROM
+          t_funtime_user_account_blue_log d
+          inner join t_funtime_user u on u.id = d.user_id
+          inner join (t_funtime_user_account t
+          inner join t_funtime_user_level_conf l on t.level = l.level) on d.user_id = t.user_id
+          left join t_funtime_user_headwear_current h on u.id = h.user_id
+		  left join t_funtime_chatroom m on d.user_id = m.user_id
+
+      WHERE d.action_type = 'OUT'
+            and operation_type in ('GIVEGIFT','GIVEGIFTREDPACKET','GOLD_CONVERT_OUT','YAOYAOLE_OUT','SMASHEGG_OUT','CIRCLE_OUT','BUY_BACKGROUND','BUY_CAR','BUY_HEADWEAR','BUY_HORN','BUY_BULLET','GIFT_BOX_OUT')
+            and (d.room_id = #{roomId} or (d.room_id is null and m.id = #{roomId}))
+          <if test="startDate!=null and endDate!=null">
+            and d.create_time between #{startDate} and #{endDate}
+          </if>
+      GROUP BY
+          d.user_id,t.level
+      ORDER BY
+          amountSum DESC,max(d.id) ASC
+      limit ${endCount}
+  </select>
+
+  <select id="getRoomCharmList" resultType="java.util.Map">
+    SELECT
+          d.to_user_id as userId,
+          sum( d.amount ) amountSum,
+          u.nickname,
+          u.portrait_address as portraitAddress,
+          u.show_id as showId,
+          u.sex,
+          t.level,
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl,
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url_h5 from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrlGif
+      FROM
+          t_funtime_user_account_gifttrans_record d
+          inner join t_funtime_user u on u.id = d.to_user_id
+          inner join (t_funtime_user_account t
+          inner join t_funtime_user_level_conf l on t.level = l.level) on d.to_user_id = t.user_id
+          left join t_funtime_user_headwear_current h on u.id = h.user_id
+      WHERE d.room_id = #{roomId}
+          <if test="startDate!=null and endDate!=null">
+            and d.create_time between #{startDate} and #{endDate}
+          </if>
+
+      GROUP BY
+          d.to_user_id,t.level
+      ORDER BY
+          amountSum DESC,max(d.id) ASC
+    limit ${endCount}
+  </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_chatroom

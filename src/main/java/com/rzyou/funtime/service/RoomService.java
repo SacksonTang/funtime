@@ -470,4 +470,14 @@ public interface RoomService {
      * 定时重置热度
      */
     void resetRoomHotsTask();
+
+    /**
+     * 房间榜单
+     * @param dateType
+     * @param type
+     * @param curUserId
+     * @param roomId
+     * @return
+     */
+    Map<String, Object> getRoomRankingList(Integer dateType, Integer type, String curUserId,Long roomId);
 }
