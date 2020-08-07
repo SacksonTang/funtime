@@ -42,6 +42,8 @@ public interface FuntimeUserAccountMapper {
 
     Map<String, Object> getBulletOfFish(Long userId);
 
+    Integer getScoreOfFish(@Param("startDate") String startDate,@Param("endDate") String endDate,@Param("userId") Long userId);
+
     int saveScoreOfFish(@Param("userId") Long userId,@Param("score") Integer score, @Param("bullet")Integer bullet);
 
     int updateBulletForPlus(@Param("userId") Long userId,@Param("bullet")Integer bullet);

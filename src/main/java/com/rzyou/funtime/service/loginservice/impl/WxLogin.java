@@ -68,7 +68,11 @@ public class WxLogin implements LoginStrategy {
                 log.error("wx nick encode error : {}",userJson);
             }
             user.setNickname(nickName);
-            user.setPortraitAddress(userJson.getString("headimgurl"));
+            String url = userJson.getString("headimgurl");
+            if (url !=null&&url.startsWith("http:")){
+                url = url.replace("http:","https:");
+            }
+            user.setPortraitAddress(url);
             user.setSex(userJson.getInteger("sex")==null?1:userJson.getInteger("sex"));
             if (StringUtils.isBlank(user.getPortraitAddress())) {
                 List<String> userImageDefaultUrls = userService.getUserImageDefaultUrls(user.getSex());

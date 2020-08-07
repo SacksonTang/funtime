@@ -39,8 +39,12 @@
     select level,level_name as levelName,level_url as levelUrl,show_url as showUrl,total_recharge_amount as totalRechargeAmount
      from t_funtime_user_level_conf where level>0 order by level asc
   </select>
-  <select id="getBulletOfFish" parameterType="java.lang.Long" resultType="java.util.Map">
-    select bullet,score from t_funtime_user_account_fish where user_id = #{userId}
+  <select id="getScoreOfFish"  resultType="java.lang.Integer">
+    select sum(score) score from t_funtime_user_fish_record where user_id = #{userId}
+    and  create_time BETWEEN #{startDate} AND #{endDate}
+  </select>
+  <select id="getBulletOfFish"  resultType="java.util.Map">
+    select bullet from t_funtime_user_account_fish where user_id = #{userId}
   </select>
   <update id="saveScoreOfFish" >
     update t_funtime_user_account_fish set score = score+#{score},bullet = bullet-#{bullet}

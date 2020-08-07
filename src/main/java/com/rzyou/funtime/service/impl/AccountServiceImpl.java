@@ -3170,6 +3170,11 @@ public class AccountServiceImpl implements AccountService {
             fish = new HashMap<>();
             fish.put("bullet",10);
             fish.put("score",0);
+        }else{
+            String startDate = DateUtil.getCurrentMonthStart();
+            String endDate = DateUtil.getCurrentMonthEnd();
+            Integer score = userAccountMapper.getScoreOfFish(startDate,endDate,userId);
+            fish.put("score", score == null?0:score);
         }
         return fish;
     }
