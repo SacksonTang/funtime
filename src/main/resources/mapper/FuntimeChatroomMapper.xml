@@ -131,12 +131,13 @@
     when m.hots>=1000000 and 1000000000>m.hots then CONCAT(FORMAT(m.hots/1000000,0),'M')
     when m.hots>=1000000000  then CONCAT(FORMAT(m.hots/1000000000,0),'B')
     else 0 end hots,
+    count(cu.id) counts,
     g.tag_name  tagNames,
     g.tag_color tagColor,
     g.tag_url tagUrl
     from t_funtime_chatroom m
     inner join t_funtime_user u on m.user_id = u.id
-
+    left join (t_funtime_chatroom_mic cu inner join t_funtime_user u2 on cu.mic_user_id = u2.id  and u2.online_state = 1 ) on m.id = cu.room_id
     left join t_funtime_tag g on g.id = m.tags
     where m.is_block = 2 and m.state = 1
 
@@ -149,7 +150,7 @@
       </if>
     </if>
     group by m.id
-    order by m.hot desc,m.hots desc ,m.id desc
+    order by m.hot desc,counts desc,m.hots desc ,m.id desc
   </select>
 
   <select id="getRoomLogList" parameterType="java.lang.Long" resultType="java.util.Map">

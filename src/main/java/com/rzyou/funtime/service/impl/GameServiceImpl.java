@@ -248,14 +248,18 @@ public class GameServiceImpl implements GameService {
 
             if (type == 1) {
                 userService.updateUserAccountGoldCoinSub(userId, poolInfo.getQuota()-drawAmount.intValue());
-                accountService.saveUserAccountGoldLog(userId,new BigDecimal(poolInfo.getQuota()).subtract(drawAmount),recordId
+                accountService.saveUserAccountGoldLog(userId,new BigDecimal(poolInfo.getQuota()),recordId
                         ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType());
+                accountService.saveUserAccountGoldLog(userId,drawAmount,recordId
+                        ,OperationType.YAOYAOLE_IN.getAction(),OperationType.YAOYAOLE_IN.getOperationType());
 
             } else if (type == 2) {
                 userService.updateUserAccountForSub(userId, null, new BigDecimal(poolInfo.getQuota()).subtract(drawAmount), null);
 
-                accountService.saveUserAccountBlueLog(userId,new BigDecimal(poolInfo.getQuota()).subtract(drawAmount),recordId
+                accountService.saveUserAccountBlueLog(userId,new BigDecimal(poolInfo.getQuota()),recordId
                         ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType(), roomId);
+                accountService.saveUserAccountBlueLog(userId,drawAmount,recordId
+                        ,OperationType.YAOYAOLE_IN.getAction(),OperationType.YAOYAOLE_IN.getOperationType(), roomId);
 
             } else {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
@@ -267,19 +271,21 @@ public class GameServiceImpl implements GameService {
             if (type == 1) {
 
                 userService.updateUserAccountGoldCoinPlus(userId, drawAmount.intValue()-poolInfo.getQuota());
-
-                accountService.saveUserAccountGoldLog(userId,drawAmount.subtract(new BigDecimal(poolInfo.getQuota())),recordId
+                accountService.saveUserAccountGoldLog(userId,drawAmount,recordId
                         ,OperationType.YAOYAOLE_IN.getAction(),OperationType.YAOYAOLE_IN.getOperationType());
-
+                accountService.saveUserAccountGoldLog(userId,new BigDecimal(poolInfo.getQuota()),recordId
+                        ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType());
             } else if (type == 2) {
                 userService.updateUserAccountForPlus(userId, null, drawAmount.subtract(new BigDecimal(poolInfo.getQuota())), null);
-
-                accountService.saveUserAccountBlueLog(userId,drawAmount.subtract(new BigDecimal(poolInfo.getQuota())),recordId
+                accountService.saveUserAccountBlueLog(userId,drawAmount,recordId
                         ,OperationType.YAOYAOLE_IN.getAction(),OperationType.YAOYAOLE_IN.getOperationType(), roomId);
-
+                accountService.saveUserAccountBlueLog(userId,new BigDecimal(poolInfo.getQuota()),recordId
+                        ,OperationType.YAOYAOLE_OUT.getAction(),OperationType.YAOYAOLE_OUT.getOperationType(), roomId);
             } else {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
             }
+
+
         }
 
         if (type == 2&&roomId!=null) {
@@ -689,14 +695,14 @@ public class GameServiceImpl implements GameService {
                 noticePrice = conf.getDrawVal().intValue();
                 if (price - conf.getDrawVal().intValue() > 0) {
                     userService.updateUserAccountForSub(userId, null, new BigDecimal(price - conf.getDrawVal().intValue()), null);
-                    accountService.saveUserAccountBlueLog(userId, new BigDecimal(price - conf.getDrawVal().intValue()), recordId
-                            , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType(), roomId);
                 }
                 if (price - conf.getDrawVal().intValue() < 0) {
                     userService.updateUserAccountForPlus(userId, null, new BigDecimal(conf.getDrawVal().intValue() - price), null);
-                    accountService.saveUserAccountBlueLog(userId, new BigDecimal(conf.getDrawVal().intValue() - price), recordId
-                            , OperationType.SMASHEGG_IN.getAction(), OperationType.SMASHEGG_IN.getOperationType(), roomId);
                 }
+                accountService.saveUserAccountBlueLog(userId, conf.getDrawVal(), recordId
+                        , OperationType.SMASHEGG_IN.getAction(), OperationType.SMASHEGG_IN.getOperationType(), roomId);
+                accountService.saveUserAccountBlueLog(userId, new BigDecimal(price ), recordId
+                        , OperationType.SMASHEGG_OUT.getAction(), OperationType.SMASHEGG_OUT.getOperationType(), roomId);
                 //金币
             } else if (conf.getDrawType() == 3) {
                 drawMap.put("drawUrl",conf.getDrawUrl());
@@ -882,14 +888,16 @@ public class GameServiceImpl implements GameService {
                 noticePrice = conf.getDrawVal().intValue();
                 if (price - conf.getDrawVal().intValue() > 0) {
                     userService.updateUserAccountForSub(userId, null, new BigDecimal(price - conf.getDrawVal().intValue()), null);
-                    accountService.saveUserAccountBlueLog(userId, new BigDecimal(price - conf.getDrawVal().intValue()), recordId
-                            , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType(), roomId);
+
                 }
                 if (price - conf.getDrawVal().intValue() < 0) {
                     userService.updateUserAccountForPlus(userId, null, new BigDecimal(conf.getDrawVal().intValue() - price), null);
-                    accountService.saveUserAccountBlueLog(userId, new BigDecimal(conf.getDrawVal().intValue() - price), recordId
-                            , OperationType.CIRCLE_IN.getAction(), OperationType.CIRCLE_IN.getOperationType(), roomId);
+
                 }
+                accountService.saveUserAccountBlueLog(userId, conf.getDrawVal(), recordId
+                        , OperationType.CIRCLE_IN.getAction(), OperationType.CIRCLE_IN.getOperationType(), roomId);
+                accountService.saveUserAccountBlueLog(userId, new BigDecimal(price), recordId
+                        , OperationType.CIRCLE_OUT.getAction(), OperationType.CIRCLE_OUT.getOperationType(), roomId);
                 //金币
             } else if (conf.getDrawType() == 3) {
                 drawMap.put("drawUrl",conf.getDrawUrl());

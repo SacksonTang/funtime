@@ -251,41 +251,50 @@ public class CallbackController {
                     JSONObject terrorist_info = data.getJSONObject("terrorist_info");
                     JSONObject politics_info = data.getJSONObject("politics_info");
                     JSONObject ads_info = data.getJSONObject("ads_info");
-                    Integer porn_info_hit_flag = porn_info.getInteger("porn_info_hit_flag");
-                    Integer porn_info_score = porn_info.getInteger("porn_info_score");
-                    Integer porn_info_count = porn_info.getInteger("porn_info_count");
-                    String porn_info_label = porn_info.getString("porn_info_label");
-                    Integer terrorist_info_hit_flag = terrorist_info.getInteger("terrorist_info_hit_flag");
-                    Integer terrorist_info_score = terrorist_info.getInteger("terrorist_info_score");
-                    Integer terrorist_info_count = terrorist_info.getInteger("terrorist_info_count");
-                    String terrorist_info_label = terrorist_info.getString("terrorist_info_label");
-                    Integer politics_info_hit_flag = politics_info.getInteger("politics_info_hit_flag");
-                    Integer politics_info_score = politics_info.getInteger("politics_info_score");
-                    Integer politics_info_count = politics_info.getInteger("politics_info_count");
-                    String politics_info_label = politics_info.getString("politics_info_label");
-                    Integer ads_info_hit_flag = ads_info.getInteger("ads_info_hit_flag");
-                    Integer ads_info_score = ads_info.getInteger("ads_info_score");
-                    Integer ads_info_count = ads_info.getInteger("ads_info_count");
-                    String ads_info_label = ads_info.getString("ads_info_label");
                     FuntimeImgeCallback imgeCallback = new FuntimeImgeCallback();
-                    imgeCallback.setAdsInfoCount(ads_info_count);
-                    imgeCallback.setAdsInfoHitFlag(ads_info_hit_flag);
-                    imgeCallback.setAdsInfoLabel(ads_info_label);
-                    imgeCallback.setAdsInfoScore(ads_info_score);
+                    if (porn_info!=null) {
+                        Integer porn_info_hit_flag = porn_info.getInteger("porn_info_hit_flag");
+                        Integer porn_info_score = porn_info.getInteger("porn_info_score");
+                        Integer porn_info_count = porn_info.getInteger("porn_info_count");
+                        String porn_info_label = porn_info.getString("porn_info_label");
+                        imgeCallback.setPornInfoCount(porn_info_count);
+                        imgeCallback.setPornInfoHitFlag(porn_info_hit_flag);
+                        imgeCallback.setPornInfoLabel(porn_info_label);
+                        imgeCallback.setPornInfoScore(porn_info_score);
+                    }
+                    if (terrorist_info!=null) {
+                        Integer terrorist_info_hit_flag = terrorist_info.getInteger("terrorist_info_hit_flag");
+                        Integer terrorist_info_score = terrorist_info.getInteger("terrorist_info_score");
+                        Integer terrorist_info_count = terrorist_info.getInteger("terrorist_info_count");
+                        String terrorist_info_label = terrorist_info.getString("terrorist_info_label");
+                        imgeCallback.setTerroristInfoCount(terrorist_info_count);
+                        imgeCallback.setTerroristInfoHitFlag(terrorist_info_hit_flag);
+                        imgeCallback.setTerroristInfoLabel(terrorist_info_label);
+                        imgeCallback.setTerroristInfoScore(terrorist_info_score);
+                    }
+                    if (politics_info!=null) {
+                        Integer politics_info_hit_flag = politics_info.getInteger("politics_info_hit_flag");
+                        Integer politics_info_score = politics_info.getInteger("politics_info_score");
+                        Integer politics_info_count = politics_info.getInteger("politics_info_count");
+                        String politics_info_label = politics_info.getString("politics_info_label");
+                        imgeCallback.setPoliticsInfoCount(politics_info_count);
+                        imgeCallback.setPoliticsInfoHitFlag(politics_info_hit_flag);
+                        imgeCallback.setPoliticsInfoLabel(politics_info_label);
+                        imgeCallback.setPoliticsInfoScore(politics_info_score);
+                    }
+                    if (ads_info!=null) {
+                        Integer ads_info_hit_flag = ads_info.getInteger("ads_info_hit_flag");
+                        Integer ads_info_score = ads_info.getInteger("ads_info_score");
+                        Integer ads_info_count = ads_info.getInteger("ads_info_count");
+                        String ads_info_label = ads_info.getString("ads_info_label");
+                        imgeCallback.setAdsInfoCount(ads_info_count);
+                        imgeCallback.setAdsInfoHitFlag(ads_info_hit_flag);
+                        imgeCallback.setAdsInfoLabel(ads_info_label);
+                        imgeCallback.setAdsInfoScore(ads_info_score);
+                    }
+
                     imgeCallback.setForbiddenStatus(forbidden_status);
-                    imgeCallback.setPoliticsInfoCount(politics_info_count);
-                    imgeCallback.setPoliticsInfoHitFlag(politics_info_hit_flag);
-                    imgeCallback.setPoliticsInfoLabel(politics_info_label);
-                    imgeCallback.setPoliticsInfoScore(politics_info_score);
-                    imgeCallback.setPornInfoCount(porn_info_count);
-                    imgeCallback.setPornInfoHitFlag(porn_info_hit_flag);
-                    imgeCallback.setPornInfoLabel(porn_info_label);
-                    imgeCallback.setPornInfoScore(porn_info_score);
                     imgeCallback.setResult(result);
-                    imgeCallback.setTerroristInfoCount(terrorist_info_count);
-                    imgeCallback.setTerroristInfoHitFlag(terrorist_info_hit_flag);
-                    imgeCallback.setTerroristInfoLabel(terrorist_info_label);
-                    imgeCallback.setTerroristInfoScore(terrorist_info_score);
                     imgeCallback.setTraceId(trace_id);
                     imgeCallback.setUrl(url);
                     userService.insertFuntimeImgeCallback(imgeCallback);
