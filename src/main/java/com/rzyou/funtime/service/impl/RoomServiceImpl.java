@@ -118,10 +118,13 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void roomUpdate(FuntimeChatroom chatroom) {
+
         Integer userRole = getUserRole(chatroom.getId(), chatroom.getUserId());
         if (userRole==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        userService.checkSensitive(chatroom.getName());
+        userService.checkSensitive(chatroom.getExamDesc());
         /*
         if(!userService.checkAuthorityForUserRole(userRole, UserRoleAuthority.A_1.getValue())){
             throw new BusinessException(ErrorMsgEnum.ROOM_USER_NO_AUTH.getValue(),ErrorMsgEnum.ROOM_USER_NO_AUTH.getDesc());
@@ -980,6 +983,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public void sendNotice(Long userId, String imgUrl, String msg, Long roomId, Integer type, Integer playLenth) {
+        userService.checkSensitive(msg);
         FuntimeUser user = userService.getUserBasicInfoById(userId);
         if (user == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());

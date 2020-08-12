@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.CookieHandler;
 import java.util.*;
 
 @Service
@@ -611,6 +612,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public FuntimeUser queryUserInfoByPhoneImei(String phoneImei) {
         return userMapper.queryUserInfoByImei(phoneImei);
+    }
+
+    @Override
+    public void checkSensitive(String content) {
+       Integer count = userMapper.checkSensitive(content);
+       if (count>0){
+           throw new BusinessException(ErrorMsgEnum.SENSITIVE_ERROR.getValue(),ErrorMsgEnum.SENSITIVE_ERROR.getDesc());
+       }
     }
 
     @Override
@@ -1543,6 +1552,12 @@ public class UserServiceImpl implements UserService {
 
 
     public Boolean updateByPrimaryKeySelective(FuntimeUser user){
+        if (StringUtils.isNotBlank(user.getNickname())){
+            checkSensitive(user.getNickname());
+        }
+        if (StringUtils.isNotBlank(user.getSignText())){
+            checkSensitive(user.getSignText());
+        }
         if(userMapper.updateByPrimaryKeySelective(user)!=1){
 
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());

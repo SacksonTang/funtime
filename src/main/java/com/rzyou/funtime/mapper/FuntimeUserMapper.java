@@ -13,6 +13,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserMapper {
 
+    Integer checkSensitive(String content);
+
     Map<String,Object> getUserInfoByShowId2(@Param("showId") Long showId,@Param("userId") Long userId);
 
     List<String> getDefaultNameBySex(Integer sex);

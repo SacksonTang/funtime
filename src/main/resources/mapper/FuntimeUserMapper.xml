@@ -52,6 +52,10 @@
     update_time, last_login_time, concerns, fans, ip, flag, version,longitude,latitude,location_desc,
     province,city,district,guild_id,platform,channel,show_id,car_id
   </sql>
+
+  <select id="checkSensitive" resultType="java.lang.Integer">
+    select count(t.id) counts from t_funtime_sensitive_data t where #{content} like CONCAT('%',t.sensitive,'%')
+  </select>
   <select id="getDefaultNameBySex" resultType="java.lang.String">
     select name from t_funtime_default_name where sex = #{sex}
   </select>

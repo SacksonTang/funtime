@@ -567,4 +567,10 @@ public interface UserService {
      * @return
      */
     FuntimeUser queryUserInfoByPhoneImei(String phoneImei);
+
+    /**
+     * 监测敏感词
+     * @param content
+     */
+    void checkSensitive(String content);
 }

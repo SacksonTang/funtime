@@ -67,6 +67,7 @@ public enum ErrorMsgEnum {
     USER_MUSIC_NOT_EXIST("10054","音乐不存在,请刷新重试"),
     USER_MUSIC_TAG_EXIST("10055","已经有重复的名字了,请换一个吧~"),
     USER_MUSIC_TAG_LIMIT("10056","标签数量最多只能50个"),
+    SENSITIVE_ERROR("10057","文本包含敏感词,请重新输入"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),

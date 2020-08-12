@@ -473,6 +473,7 @@ public class NoticeServerImpl implements NoticeService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void notice10001(String content, Long userId, Long roomId, String hornLength) {
+        userService.checkSensitive(content);
         FuntimeUserAccount userAccountInfo = userService.getUserAccountInfoById(userId);
         if (userAccountInfo==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
