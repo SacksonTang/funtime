@@ -2,6 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.rzyou.funtime.mapper.FuntimeAdvertisMapper">
 
+  <select id="getCallBackUrl" resultType="java.lang.String">
+    select callback from t_funtime_kuaishou_ad_monitor where 1=1
+      <if test="androidId!=null">
+        and android_id3 = #{androidId}
+      </if>
+      <if test="idfa!=null">
+        and idfa3 = #{idfa}
+      </if>
+    order by id desc
+    limit 1
+  </select>
+
   <insert id="saveTencentAd" parameterType="com.rzyou.funtime.entity.FuntimeTencentAd">
     replace into t_funtime_tencent_ad (click_id, muid, click_time,
       appid, advertiser_id, app_type,
@@ -45,5 +57,21 @@
     #{hashMac,jdbcType=VARCHAR}, #{callback,jdbcType=VARCHAR}, #{siteSet,jdbcType=INTEGER},
     #{encryptedPositionId,jdbcType=INTEGER}, #{ipv6,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR},
     #{hashOaid,jdbcType=VARCHAR})
+  </insert>
+
+  <insert id="saveKuaishouAdMonitor" parameterType="com.rzyou.funtime.entity.FuntimeKuaishouAdMonitor" >
+
+    insert into t_funtime_kuaishou_ad_monitor (os, aid, cid,
+    did, dname, imei2,
+    imei3, oaid, idfa2,
+    idfa3, mac, mac2, mac3,
+    android_id2, android_id3, ts,
+    ip, csite, callback)
+    values (#{os,jdbcType=VARCHAR}, #{aid,jdbcType=INTEGER}, #{cid,jdbcType=INTEGER},
+    #{did,jdbcType=INTEGER}, #{dname,jdbcType=VARCHAR}, #{imei2,jdbcType=VARCHAR},
+    #{imei3,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR}, #{idfa2,jdbcType=VARCHAR},
+    #{idfa3,jdbcType=VARCHAR}, #{mac,jdbcType=VARCHAR}, #{mac2,jdbcType=VARCHAR}, #{mac3,jdbcType=VARCHAR},
+    #{androidId2,jdbcType=VARCHAR}, #{androidId3,jdbcType=VARCHAR}, #{ts,jdbcType=BIGINT},
+    #{ip,jdbcType=VARCHAR}, #{csite,jdbcType=INTEGER}, #{callback,jdbcType=VARCHAR})
   </insert>
 </mapper>

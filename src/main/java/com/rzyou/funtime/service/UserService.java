@@ -573,4 +573,10 @@ public interface UserService {
      * @param content
      */
     void checkSensitive(String content);
+
+    /**
+     * 监测封禁设备
+     * @param phoneImei
+     */
+    void getBlockDevice(String phoneImei);
 }

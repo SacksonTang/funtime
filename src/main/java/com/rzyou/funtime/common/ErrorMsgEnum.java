@@ -68,6 +68,7 @@ public enum ErrorMsgEnum {
     USER_MUSIC_TAG_EXIST("10055","已经有重复的名字了,请换一个吧~"),
     USER_MUSIC_TAG_LIMIT("10056","标签数量最多只能50个"),
     SENSITIVE_ERROR("10057","文本包含敏感词,请重新输入"),
+    USER_DEVICE_BLOCK("10058","设备已封禁"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -160,6 +161,7 @@ public enum ErrorMsgEnum {
     ROOM_GAME123_EXISTS("80036","游戏正在进行中，请等待游戏结束后再发起"),
     ROOM_GAME123_AUTH("80037","无此权限"),
     ROOM_GAME123_NOT_EXISTS("80038","无此游戏"),
+    ROOM_SHOWCAR_OVER("80039","炫耀次数超限,请明天再来"),
 
     DRAW_POOL_NOT_EN("90001","奖池余额不足"),
     DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启"),

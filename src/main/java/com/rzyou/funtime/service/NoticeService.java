@@ -466,4 +466,16 @@ public interface NoticeService {
      * @param userId
      */
     void notice30002(Long userId);
+
+    /**
+     * 炫耀座驾
+     * @param roomId
+     * @param userId
+     * @param nickname
+     * @param userIds
+     * @param carUrl
+     * @param msg
+     * @param animationType
+     */
+    void notice40(Long roomId, Long userId, String nickname, List<String> userIds, String carUrl, String msg, String animationType);
 }

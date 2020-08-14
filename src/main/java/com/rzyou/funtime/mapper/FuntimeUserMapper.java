@@ -15,6 +15,10 @@ public interface FuntimeUserMapper {
 
     Integer checkSensitive(String content);
 
+    Integer getBlockDevice(String imei);
+
+    Integer checkDeviceExists(@Param("idfa") String idfa,@Param("androidId") String androidId,@Param("point") String point);
+
     Map<String,Object> getUserInfoByShowId2(@Param("showId") Long showId,@Param("userId") Long userId);
 
     List<String> getDefaultNameBySex(Integer sex);

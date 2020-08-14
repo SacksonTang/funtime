@@ -123,6 +123,7 @@ public class MyWxPay {
             data.put("notify_url", notifyUrl);
             data.put("trade_type", trade_type);  //
             data.put("attach", orderId);
+            log.info("unifiedOrder ==={}",data);
             Map<String, String> resp = wxpay.unifiedOrder(data);
             if(!"SUCCESS".equals(resp.get("return_code"))||!"SUCCESS".equals(resp.get("result_code"))){
                 log.error("预支付接口:unifiedOrder失败:{}",resp);
@@ -137,6 +138,7 @@ public class MyWxPay {
                 throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
 
         }

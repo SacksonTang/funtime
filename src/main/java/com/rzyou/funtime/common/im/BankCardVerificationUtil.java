@@ -30,7 +30,7 @@ public class BankCardVerificationUtil {
             BankCardVerificationRequest req = new BankCardVerificationRequest();
 
             req.setBankCard(bankCard);
-            req.setCertType(0);
+            req.setCertType(0l);
             req.setName(name);
             req.setIdCard(idCard);
             // 通过client对象调用想要访问的接口，需要传入请求对象

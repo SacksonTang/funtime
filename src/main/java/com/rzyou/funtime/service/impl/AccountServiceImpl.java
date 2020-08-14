@@ -163,7 +163,7 @@ public class AccountServiceImpl implements AccountService {
                         continue;
                     }
 
-                    if ("TRADE_SUCCESS".equals(response.tradeStatus)){
+                    if ("0".equals(response.code)&&"TRADE_SUCCESS".equals(response.tradeStatus)){
                         aliPayOrderCallBack(record.getOrderNo(),"TRADE_SUCCESS",new BigDecimal(response.totalAmount),response.tradeNo);
                     }else{
                         updatePollTimes(record.getId(), 1);
@@ -378,6 +378,42 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Map<String,Object> createRechargeAlipayH5(FuntimeUserAccountRechargeRecord record){
+        if (!userService.checkUserExists(record.getUserId())){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        FuntimeRechargeConf rechargeConf = rechargeConfMapper.selectByPrimaryKey(record.getRechargeConfId());
+        if (rechargeConf==null){
+            throw new BusinessException(ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getValue(),ErrorMsgEnum.RECHARGE_CONF_NOT_EXISTS.getDesc());
+        }
+        String max_recharge = parameterService.getParameterValueByKey("max_recharge");
+        BigDecimal maxRecharge = max_recharge == null?new BigDecimal(100000):new BigDecimal(max_recharge);
+        if (rechargeConf.getRechargeRmb().subtract(maxRecharge).doubleValue()>0){
+            throw new BusinessException(ErrorMsgEnum.RECHARGE_NUM_OUT.getValue(),ErrorMsgEnum.RECHARGE_NUM_OUT.getDesc());
+        }
+
+
+        String blue_to_level = parameterService.getParameterValueByKey("blue_to_level");
+        String level_to_wealth = parameterService.getParameterValueByKey("level_to_wealth");
+        int levelVal = rechargeConf.getRechargeNum().multiply(new BigDecimal(blue_to_level)).intValue();
+        int wealthVal = new BigDecimal(levelVal).multiply(new BigDecimal(level_to_wealth)).intValue();
+
+        record.setRmb(rechargeConf.getRechargeRmb());
+        record.setHornNum(rechargeConf.getHornNum());
+        record.setGoldNum(rechargeConf.getGoldNum());
+        record.setAmount(rechargeConf.getRechargeNum());
+        record.setLevelVal(levelVal);
+        record.setWealthVal(wealthVal);
+        String orderNo = "Z"+StringUtil.createOrderId();
+        saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
+        Map<String, Object> orderMap  = MyAlipay.alipayH5("触娱H5充值",orderNo,rechargeConf.getRechargeRmb().toString(),record.getQuitUrl(),record.getReturnUrl());
+        orderMap.put("payType", "2");
+        return orderMap;
+
+    }
+
     public Map<String, String> unifiedOrder(String ip, String imei, String orderId, String totalFee, String orderNo, String trade_type, String openid, Integer payType) {
 
         if (TradeType.APP.getValue().equals(trade_type)) {
@@ -385,6 +421,9 @@ public class AccountServiceImpl implements AccountService {
         }
         else if (TradeType.JSAPI.getValue().equals(trade_type)) {
             return MyWxPay.unifiedOrder(totalFee, ip, orderNo, imei, notifyUrl, orderId, trade_type,openid,payType);
+        }
+        else if (TradeType.MWEB.getValue().equals(trade_type)) {
+            return MyWxPay.unifiedOrder(totalFee, ip, orderNo, imei, notifyUrl, orderId, trade_type,payType);
         }else{
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
@@ -630,6 +669,9 @@ public class AccountServiceImpl implements AccountService {
         String isRedpacketShow = parameterService.getParameterValueByKey("is_redpacket_show");
         if (isRedpacketShow!=null&&isRedpacketShow.equals("2")){
             throw new BusinessException(ErrorMsgEnum.DRAW_TIME_OUT.getValue(),ErrorMsgEnum.DRAW_TIME_OUT.getDesc());
+        }
+        if (StringUtils.isNotBlank(redpacket.getRedpacketDesc())) {
+            userService.checkSensitive(redpacket.getRedpacketDesc());
         }
         if (redpacket.getType() == 1) {
             FuntimeChatroom chatroom = roomService.getChatroomById(redpacket.getRoomId());
@@ -1062,7 +1104,7 @@ public class AccountServiceImpl implements AccountService {
                 throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
             }
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, desc, new BigDecimal(amount)
-                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel,roomId,OperationType.GIVEGIFTBAG.getOperationType());
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel,roomId,OperationType.GIVEGIFTBAG.getOperationType(),black);
 
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
             //用户收加上黑钻,魅力值
@@ -1352,7 +1394,7 @@ public class AccountServiceImpl implements AccountService {
                 throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
             }
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
-                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId, OperationType.GIVEGIFT.getOperationType());
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId, OperationType.GIVEGIFT.getOperationType(),black);
 
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
             //用户收加上黑钻,魅力值
@@ -1558,11 +1600,11 @@ public class AccountServiceImpl implements AccountService {
                 BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
                 BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
                 tousersMap.put(toUserId,tousersMap.get(toUserId)==null?giftAmount.intValue():giftAmount.intValue()+tousersMap.get(toUserId));
-                Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
-                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue());
-
                 Integer charmVal = new BigDecimal(blue_to_charm).multiply(giftAmount).intValue();
                 BigDecimal black = new BigDecimal(blue_to_black).multiply(giftAmount).setScale(2, RoundingMode.DOWN);
+                Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
+                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue(),black);
+
                 //用户收加上黑钻,魅力值
                 userService.updateUserAccountForPlusGift(toUserId, black, num, charmVal);
                 saveUserAccountCharmRecord(toUserId, charmVal, recordId, 1);
@@ -1643,11 +1685,10 @@ public class AccountServiceImpl implements AccountService {
         String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
 
         Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
-                , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId, OperationType.GIVEGIFTREDPACKET.getOperationType());
-
-        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
+                , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId, OperationType.GIVEGIFTREDPACKET.getOperationType(), black);
 
         //用户送减去蓝钻
         userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
@@ -1724,11 +1765,10 @@ public class AccountServiceImpl implements AccountService {
         Integer amount= price.intValue()*giftNum;
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm");
-        Long recordId = saveFuntimeUserAccountGifttransRecord(userId, "送礼物-活动赠送", new BigDecimal(amount)
-                , giftNum, giftId, funtimeGift.getGiftName(), toUserId, 3, null, OperationType.GIVEGIFTACTIVITY.getOperationType());
 
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
-
+        Long recordId = saveFuntimeUserAccountGifttransRecord(userId, "送礼物-活动赠送", new BigDecimal(amount)
+                , giftNum, giftId, funtimeGift.getGiftName(), toUserId, 3, null, OperationType.GIVEGIFTACTIVITY.getOperationType(), black);
         //用户送减去蓝钻
         //userService.updateUserAccountForSub(userId, null, new BigDecimal(amount), null);
         Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
@@ -1800,7 +1840,7 @@ public class AccountServiceImpl implements AccountService {
         for (Long toUserId : toUserIdArray) {
 
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
-                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIVEGIFT.getOperationType());
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIVEGIFT.getOperationType(), black);
 
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
             //用户收加上黑钻
@@ -1924,7 +1964,7 @@ public class AccountServiceImpl implements AccountService {
         for (Long toUserId : toUserIdArray) {
 
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
-                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIVEGIFTBAG.getOperationType());
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIVEGIFTBAG.getOperationType(), black);
 
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
             //用户收加上黑钻
@@ -2068,11 +2108,11 @@ public class AccountServiceImpl implements AccountService {
                 BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
                 BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
                 tousersMap.put(toUserId,tousersMap.get(toUserId)==null?giftAmount.intValue():giftAmount.intValue()+tousersMap.get(toUserId));
-                Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
-                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue());
-
                 Integer charmVal = new BigDecimal(blue_to_charm).multiply(giftAmount).intValue();
                 BigDecimal black = new BigDecimal(blue_to_black).multiply(giftAmount).setScale(2, RoundingMode.DOWN);
+                Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
+                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue(),black);
+
                 //用户收加上黑钻,魅力值
                 userService.updateUserAccountForPlusGift(toUserId, black, num, charmVal);
                 saveUserAccountCharmRecord(toUserId, charmVal, recordId, 1);
@@ -2167,7 +2207,7 @@ public class AccountServiceImpl implements AccountService {
         for (Long toUserId : toUserIdArray) {
 
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
-                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIVEGIFT.getOperationType());
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIVEGIFT.getOperationType(), black);
 
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
             //用户收加上黑钻
@@ -2283,7 +2323,7 @@ public class AccountServiceImpl implements AccountService {
         for (Long toUserId : toUserIdArray) {
 
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
-                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIVEGIFTBAG.getOperationType());
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIVEGIFTBAG.getOperationType(), black);
 
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
             //用户收加上黑钻
@@ -2424,11 +2464,12 @@ public class AccountServiceImpl implements AccountService {
                 BigDecimal giftPrice = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
                 BigDecimal giftAmount = giftPrice.multiply(new BigDecimal(num).setScale(2,BigDecimal.ROUND_HALF_DOWN));
                 tousersMap.put(toUserId,tousersMap.get(toUserId)==null?giftAmount.intValue():giftAmount.intValue()+tousersMap.get(toUserId));
-                Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
-                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue());
-
                 Integer charmVal = new BigDecimal(blue_to_charm).multiply(giftAmount).intValue();
                 BigDecimal black = new BigDecimal(blue_to_black).multiply(giftAmount).setScale(2, RoundingMode.DOWN);
+
+                Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, giftAmount
+                        , num, toGiftId, funtimeGift.getGiftName(), toUserId, giveChannel, roomId, OperationType.GIFT_BOX_OUT.getOperationType(),box.getPrice().intValue(),black);
+
                 //用户收加上黑钻,魅力值
                 userService.updateUserAccountForPlusGift(toUserId, black, num, charmVal);
                 saveUserAccountCharmRecord(toUserId, charmVal, recordId, 1);
@@ -3024,7 +3065,7 @@ public class AccountServiceImpl implements AccountService {
 
 
     public Long saveFuntimeUserAccountGifttransRecord(Long userId, String operationDesc, BigDecimal amount, Integer num, Integer giftId
-            , String giftName, Long toUserId, Integer giveChannelId, Long roomId, String operationType){
+            , String giftName, Long toUserId, Integer giveChannelId, Long roomId, String operationType, BigDecimal black){
         FuntimeUserAccountGifttransRecord record = new FuntimeUserAccountGifttransRecord();
         record.setActionType(OperationType.GIVEGIFT.getAction());
         record.setAmount(amount);
@@ -3032,6 +3073,7 @@ public class AccountServiceImpl implements AccountService {
         record.setGiftId(giftId);
         record.setGiftName(giftName);
         record.setRoomId(roomId);
+        record.setBlackAmount(black);
         record.setGiveChannelId(giveChannelId);
         record.setNum(num);
         record.setOperationDesc(operationDesc);
@@ -3050,7 +3092,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     public Long saveFuntimeUserAccountGifttransRecord(Long userId, String operationDesc, BigDecimal amount, Integer num, Integer giftId
-            , String giftName, Long toUserId, Integer giveChannelId, Long roomId, String operationType,Integer boxBasic){
+            , String giftName, Long toUserId, Integer giveChannelId, Long roomId, String operationType, Integer boxBasic, BigDecimal black){
         FuntimeUserAccountGifttransRecord record = new FuntimeUserAccountGifttransRecord();
         record.setActionType(OperationType.GIVEGIFT.getAction());
         record.setAmount(amount);
@@ -3058,6 +3100,7 @@ public class AccountServiceImpl implements AccountService {
         record.setGiftId(giftId);
         record.setGiftName(giftName);
         record.setRoomId(roomId);
+        record.setBlackAmount(black);
         record.setBoxBasic(boxBasic);
         record.setGiveChannelId(giveChannelId);
         record.setNum(num);
@@ -3288,6 +3331,16 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Map<String, Object> getCarInfoByCarId(Integer carId) {
         return carMapper.getCarInfoByCarId(carId);
+    }
+
+    @Override
+    public Integer getShowCountsById(Long userId, Integer carId) {
+        return carMapper.getShowCountsById(userId,carId);
+    }
+
+    @Override
+    public void insertShowcarRecord(Long userId, Integer carId) {
+        carMapper.insertShowcarRecord(userId,carId);
     }
 
     @Override

@@ -22,6 +22,9 @@ public interface FuntimeCarMapper {
 
     Long getUserCarById(@Param("userId") Long userId,@Param("carId") Integer carId);
 
+    Integer getShowCountsById(@Param("userId") Long userId,@Param("carId") Integer carId);
+
+    int insertShowcarRecord(@Param("userId") Long userId,@Param("carId") Integer carId);
 
     List<Map<String,Object>> getCarInfoForExpire();
 

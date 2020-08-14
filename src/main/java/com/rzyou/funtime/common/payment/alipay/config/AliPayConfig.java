@@ -31,7 +31,7 @@ public abstract class AliPayConfig {
     }
 
     public String getGatewayHost(){
-        return "https://openapi.alipay.com/gateway.do" ;
+        return "openapi.alipay.com" ;
     }
 
     public String getSignType(){

@@ -53,9 +53,15 @@
     province,city,district,guild_id,platform,channel,show_id,car_id
   </sql>
 
+
   <select id="checkSensitive" resultType="java.lang.Integer">
-    select count(t.id) counts from t_funtime_sensitive_data t where #{content} like CONCAT('%',t.sensitive,'%')
+    select count(t.id) counts from t_funtime_sensitive_data t where #{content} like CONCAT('%',t.sensitive_data,'%')
   </select>
+
+    <select id="getBlockDevice" resultType="java.lang.Integer">
+        select count(id) from t_funtime_block_device where imei = #{imei}
+    </select>
+
   <select id="getDefaultNameBySex" resultType="java.lang.String">
     select name from t_funtime_default_name where sex = #{sex}
   </select>
@@ -870,7 +876,16 @@
     #{adsInfoScore,jdbcType=INTEGER}, #{adsInfoLabel,jdbcType=VARCHAR}, #{adsInfoCount,jdbcType=INTEGER}
     )
   </insert>
-  
+
+  <select id="checkDeviceExists" resultType="java.lang.Integer">
+    select count(id) from t_funtime_device_info where point = #{point}
+    <if test="androidId!=null">
+      and android_id = #{androidId}
+    </if>
+    <if test="idfa!=null">
+      and idfa = #{idfa}
+    </if>
+  </select>
   <insert id="insertDeviceInfo" parameterType="com.rzyou.funtime.entity.FuntimeDeviceInfo">
     insert into t_funtime_device_info ( point, imei,
       idfa, android_id, oaid,

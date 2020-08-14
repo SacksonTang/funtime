@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
+import com.rzyou.funtime.common.httputil.HttpClientUtil;
 import com.rzyou.funtime.common.im.BankCardVerificationUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.qqutils.QqLoginUtils;
@@ -24,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.CookieHandler;
+import java.net.URLDecoder;
 import java.util.*;
 
 @Service
@@ -39,6 +40,8 @@ public class UserServiceImpl implements UserService {
     RoomService roomService;
     @Autowired
     NoticeService noticeService;
+    @Autowired
+    AdvertisService advertisService;
     @Autowired
     RedisUtil redisUtil;
     @Autowired
@@ -606,7 +609,43 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void doPoint(FuntimeDeviceInfo deviceInfo) {
+        Integer count = null;
+        try {
+            if ("ios".equals(deviceInfo.getChannel()) || "kuaishou".equals(deviceInfo.getChannel())) {
+                if ("startup".equals(deviceInfo.getPoint())) {
+                    if (deviceInfo.getIdfa() != null || deviceInfo.getAndroidId() != null) {
+                        count = userMapper.checkDeviceExists(deviceInfo.getIdfa(), deviceInfo.getAndroidId(),"startup");
+                        if (count == 0) {
+                            log.info("**************激活数据上报*****************");
+                            String url = advertisService.getCallBackUrl(deviceInfo.getIdfa(), deviceInfo.getAndroidId());
+                            if (StringUtils.isNotBlank(url)) {
+                                url = URLDecoder.decode(url,"utf-8");
+                                url = url + "&event_type=1&event_time=" + System.currentTimeMillis();
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    }
+                }else if ("startIndex".equals(deviceInfo.getPoint())){
+                    if (deviceInfo.getIdfa() != null || deviceInfo.getAndroidId() != null) {
+                        count = userMapper.checkDeviceExists(deviceInfo.getIdfa(), deviceInfo.getAndroidId(),"startIndex");
+                        if (count == 0) {
+                            log.info("**************首页数据上报*****************");
+                            String url = advertisService.getCallBackUrl(deviceInfo.getIdfa(), deviceInfo.getAndroidId());
+                            if (StringUtils.isNotBlank(url)) {
+                                url = URLDecoder.decode(url,"utf-8");
+                                url = url + "&event_type=2&event_time=" + System.currentTimeMillis();
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    }
+                }
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         userMapper.insertDeviceInfo(deviceInfo);
+
     }
 
     @Override
@@ -620,6 +659,14 @@ public class UserServiceImpl implements UserService {
        if (count>0){
            throw new BusinessException(ErrorMsgEnum.SENSITIVE_ERROR.getValue(),ErrorMsgEnum.SENSITIVE_ERROR.getDesc());
        }
+    }
+
+    @Override
+    public void getBlockDevice(String phoneImei) {
+        Integer count = userMapper.getBlockDevice(phoneImei);
+        if (count>0){
+            throw new BusinessException(ErrorMsgEnum.USER_DEVICE_BLOCK.getValue(),ErrorMsgEnum.USER_DEVICE_BLOCK.getDesc());
+        }
     }
 
     @Override

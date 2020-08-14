@@ -35,6 +35,8 @@ public class MyWxPayConfig extends WXPayConfig {
             return Constant.WX_SMALL_PROGRAM_APPID;
         }else if (payType == 3){
             return Constant.WX_PUBLIC_APPID;
+        }else if(payType == 5){
+            return Constant.WX_APPID;
         }else{
             return null;
         }

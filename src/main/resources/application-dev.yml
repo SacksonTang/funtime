@@ -6,8 +6,9 @@ server:
     min-spare-threads: 30
     accesslog:
       enabled: true
-      directory: E:\tomcat_log
+      directory: /opt/log/tomcat_log
     connection-timeout: 30000
+
 
 spring:
   datasource:
@@ -27,6 +28,9 @@ spring:
       test-on-borrow: false
       test-on-return: false
       test-while-idle: true
+      log-abandoned: true
+      remove-abandoned: true
+      remove-abandoned-timeout: 1800
       time-between-eviction-runs-millis: 60000
       min-evictable-idle-time-millis: 100000
 
@@ -40,11 +44,15 @@ spring:
         reset-enable: false
         login-username: admin
         login-password: funtime@2019
+        allow:
       filter:
         stat:
           db-type: mysql
           log-slow-sql: true
           slow-sql-millis: 5000
+
+
+
   redis:
     host: 106.52.93.16
     port: 6379
@@ -61,6 +69,22 @@ logging:
 app:
   pay:
     notifyUrl: https://test.rzyou.com/callback/notifyWxPay
-    certPath: E:/cert/apiclient_cert.p12
-  logpath: E:\log
+    certPath: C:\Users\AC\Desktop\apiclient_cert.p12
+    appleUrl: https://sandbox.itunes.apple.com/verifyReceipt
+  logpath: /opt/log/pro_log
+  im:
+    imSdkAppId: 1400323798
+    imSdkAppSecret: fe86b9de3bc8f83e011c39286c2977250e4dc7a793e77938a39f0817733109b1
+    iosPushCertDevId: 18791
+    iosPushCertProdId: 18790
+
+
+alipay:
+  merchantCertPath: C:\Users\AC\Desktop\alipay\appCertPublicKey_2021001172638147.crt
+  alipayCertPath: C:\Users\AC\Desktop\alipay\alipayCertPublicKey_RSA2.crt
+  alipayRootCertPath: C:\Users\AC\Desktop\alipay\alipayRootCert.crt
+  notifyUrl: https://test.rzyou.com/callback/notifyAliPay
+
+
+
 

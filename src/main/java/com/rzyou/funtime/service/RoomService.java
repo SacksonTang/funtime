@@ -480,4 +480,12 @@ public interface RoomService {
      * @return
      */
     Map<String, Object> getRoomRankingList(Integer dateType, Integer type, String curUserId,Long roomId);
+
+    /**
+     * 炫耀座驾
+     * @param userId
+     * @param roomId
+     * @param carNumber
+     */
+    void showCar(Long userId, Long roomId, Integer carNumber);
 }

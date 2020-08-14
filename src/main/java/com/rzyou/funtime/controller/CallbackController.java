@@ -11,6 +11,7 @@ import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.component.StaticData;
 import com.rzyou.funtime.entity.FuntimeImgeCallback;
+import com.rzyou.funtime.entity.FuntimeKuaishouAdMonitor;
 import com.rzyou.funtime.entity.FuntimeTencentAd;
 import com.rzyou.funtime.entity.FuntimeTencentAdMonitor;
 import com.rzyou.funtime.entity.dto.SdkParam;
@@ -306,6 +307,11 @@ public class CallbackController {
         return "200";
     }
 
+    /**
+     * 广点通
+     * @param params
+     * @return
+     */
     @GetMapping(value = "gdt")
     public JSONObject gdt(@RequestParam(required = false) Map<String, Object> params) {
 
@@ -320,6 +326,12 @@ public class CallbackController {
         return result;
 
     }
+
+    /**
+     * 广点通监测
+     * @param params
+     * @return
+     */
     @GetMapping(value = "gdtMonitor")
     public JSONObject gdtMonitor(@RequestParam(required = false) Map<String, Object> params) {
 
@@ -330,6 +342,26 @@ public class CallbackController {
         FuntimeTencentAdMonitor tencentAd = JSONObject.toJavaObject(obj,FuntimeTencentAdMonitor.class);
 
         advertisService.saveTencentAdMonitor(tencentAd);
+
+        return result;
+
+    }
+
+    /**
+     * 快手监测链接
+     * @param params
+     * @return
+     */
+    @GetMapping(value = "ksMonitor")
+    public JSONObject ksMonitor(@RequestParam(required = false) Map<String, Object> params) {
+
+        JSONObject result = new JSONObject();
+        result.put("ret",0);
+        result.put("msg","sucess");
+        JSONObject obj = new JSONObject(params);
+        FuntimeKuaishouAdMonitor ad = JSONObject.toJavaObject(obj,FuntimeKuaishouAdMonitor.class);
+
+        advertisService.saveKuaishouAdMonitor(ad);
 
         return result;
 

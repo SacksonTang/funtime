@@ -130,6 +130,9 @@ public class LoginController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
+            if (StringUtils.isNotBlank(user.getPhoneImei())) {
+                userService.getBlockDevice(user.getPhoneImei());
+            }
             user.setAppVersion(HttpHelper.ver);
             user.setIp(HttpHelper.getClientIpAddr(request));
             user.setLastLoginTime(new Date());
@@ -386,6 +389,77 @@ public class LoginController {
             String ip = HttpHelper.getClientIpAddr(request);
             record.setRechargeChannelId(id);
             result.setData(accountService.createRecharge(record,ip,"JSAPI"));
+
+            return result;
+        } catch (BusinessException be) {
+            log.error("startRecharge BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+    /**
+     * 充值生成待支付记录(h5)
+     */
+    @PostMapping("wxRechargeH5")
+    public ResultMsg<Object> wxRechargeH5(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            FuntimeUserAccountRechargeRecord record = JSONObject.toJavaObject(paramJson, FuntimeUserAccountRechargeRecord.class);
+            Integer id = userService.queryTagsByTypeAndName("recharge_channel","WX");
+
+            if (record==null||record.getUserId()==null||id == null||record.getPayType()==null||record.getRechargeConfId()==null) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            String ip = HttpHelper.getClientIpAddr(request);
+            record.setRechargeChannelId(id);
+            result.setData(accountService.createRecharge(record,ip,"MWEB"));
+
+            return result;
+        } catch (BusinessException be) {
+            log.error("startRecharge BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+    /**
+     * 充值生成待支付记录(h5)
+     */
+    @PostMapping("alipayRechargeH5")
+    public ResultMsg<Object> alipayRechargeH5(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            FuntimeUserAccountRechargeRecord record = JSONObject.toJavaObject(paramJson, FuntimeUserAccountRechargeRecord.class);
+            Integer id = userService.queryTagsByTypeAndName("recharge_channel","ALIPAY");
+
+            if (record==null||record.getUserId()==null||id == null||record.getPayType()==null||record.getRechargeConfId()==null) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            record.setRechargeChannelId(id);
+            result.setData(accountService.createRechargeAlipayH5(record));
 
             return result;
         } catch (BusinessException be) {

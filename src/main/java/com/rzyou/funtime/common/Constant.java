@@ -193,6 +193,7 @@ public class Constant {
     public static final int ROOM_START_MUSIC = 37;
     public static final int ROOM_CANCEL_MUSIC = 38;
     public static final int ROOM_BOX = 39;
+    public static final int ROOM_SHOW_CAR = 40;
     public static final int SERVICE_MSG = 10001;
     public static final int SERVICE_GIFT_MSG = 10002;
     public static final int SERVICE_REDPACKET_MSG = 10003;

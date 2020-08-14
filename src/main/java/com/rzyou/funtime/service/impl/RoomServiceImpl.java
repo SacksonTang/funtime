@@ -1590,6 +1590,38 @@ public class RoomServiceImpl implements RoomService {
 
     }
 
+    @Override
+    public void showCar(Long userId, Long roomId, Integer carNumber) {
+        FuntimeUser user = userService.queryUserById(userId);
+        if (user == null){
+            return;
+        }
+
+        Integer counts = accountService.getShowCountsById(userId,carNumber);
+        String val = parameterService.getParameterValueByKey("show_car_count");
+        Integer normal = val == null?10:Integer.parseInt(val);
+        if (counts>=normal){
+            throw new BusinessException(ErrorMsgEnum.ROOM_SHOWCAR_OVER.getValue(),ErrorMsgEnum.ROOM_SHOWCAR_OVER.getDesc());
+        }
+
+        accountService.insertShowcarRecord(userId,carNumber);
+
+
+        Map<String, Object> carInfoMap = accountService.getCarInfoByCarId(carNumber);
+        if (carInfoMap !=null&&carInfoMap.get("carUrl")!=null){
+            String carUrl = carInfoMap.get("carUrl").toString();
+            String carName = carInfoMap.get("carName").toString();
+            String msg = "坐着"+carName+"进来了";
+            String animationType = carInfoMap.get("animationType").toString();
+            List<String> userIds = getRoomUserByRoomIdAll(roomId);
+            if (userIds!=null&&userIds.size()>0) {
+                //发送通知
+                noticeService.notice40(roomId, userId, user.getNickname(), userIds,carUrl,msg,animationType);
+
+            }
+        }
+    }
+
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){
         return chatroomMicMapper.getInfoByRoomIdAndUser(roomId,userId);
     }

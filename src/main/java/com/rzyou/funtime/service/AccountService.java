@@ -54,6 +54,13 @@ public interface AccountService {
     Map<String,Object> createRecharge(FuntimeUserAccountRechargeRecord record);
 
     /**
+     * 支付宝H5
+     * @param record
+     * @return
+     */
+    Map<String,Object> createRechargeAlipayH5(FuntimeUserAccountRechargeRecord record);
+
+    /**
      * 订单回调
      * @param orderId
      * @param transaction_id
@@ -551,6 +558,21 @@ public interface AccountService {
      * @return
      */
     Map<String,Object> getCarInfoByCarId(Integer carId);
+
+    /**
+     * 用户座驾
+     * @param userId
+     * @param carId
+     * @return
+     */
+    Integer getShowCountsById(Long userId,Integer carId);
+
+    /**
+     * 新增炫耀座驾记录
+     * @param userId
+     * @param carId
+     */
+    void insertShowcarRecord(Long userId,Integer carId);
 
     /**
      * 中奖保存座驾

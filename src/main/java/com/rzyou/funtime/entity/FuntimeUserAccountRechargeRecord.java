@@ -54,4 +54,8 @@ public class FuntimeUserAccountRechargeRecord implements Serializable {
     private Integer pollTimes;
 
     private String openid;
+
+    private String quitUrl;
+
+    private String returnUrl;
 }

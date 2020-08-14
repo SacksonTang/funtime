@@ -14,6 +14,13 @@
     <select id="getUserCarById"  resultType="java.lang.Long">
       select id  from t_funtime_user_car where user_id = #{userId} and car_id = #{carId}
   </select>
+    <select id="getShowCountsById"  resultType="java.lang.Integer">
+      select count(id)  from t_funtime_showcar_record where user_id = #{userId} and car_id = #{carId}
+      and DATE_FORMAT(create_time,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')
+  </select>
+    <insert id="insertShowcarRecord">
+        insert into t_funtime_showcar_record(user_id,car_id) values (#{userId},#{carId})
+    </insert>
     <select id="getCarList" resultType="java.util.Map">
     SELECT
         c.carNumber,

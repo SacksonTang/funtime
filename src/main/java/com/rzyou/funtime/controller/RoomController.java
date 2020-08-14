@@ -1322,6 +1322,37 @@ public class RoomController {
     }
 
     /**
+     * 炫耀座驾
+     * @param request
+     * @return
+     */
+    @PostMapping("showCar")
+    public ResultMsg<Object> showCar(HttpServletRequest request) {
+        ResultMsg<Object> result = new ResultMsg<>();
+
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Integer carNumber = paramJson.getInteger("carNumber");
+            Long roomId = paramJson.getLong("roomId");
+            roomService.showCar(userId,roomId,carNumber);
+
+
+        } catch (BusinessException be) {
+            log.error("sendNotice BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
+
+    /**
      * 获取用户状态
      * @param request
      * @return

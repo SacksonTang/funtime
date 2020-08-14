@@ -6,6 +6,7 @@ import com.alipay.easysdk.kernel.util.ResponseChecker;
 import com.alipay.easysdk.payment.app.models.AlipayTradeAppPayResponse;
 import com.alipay.easysdk.payment.common.models.AlipayTradeCloseResponse;
 import com.alipay.easysdk.payment.common.models.AlipayTradeQueryResponse;
+import com.alipay.easysdk.payment.wap.models.AlipayTradeWapPayResponse;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.payment.alipay.config.MyAliPayConfig;
@@ -40,6 +41,31 @@ public class MyAlipay {
         }
     }
 
+    public static Map<String, Object> alipayH5(String subject, String outTradeNo, String totalAmount,String quitUrl,String returnUrl) {
+        boolean success ;
+        Map<String, Object> map ;
+        AlipayTradeWapPayResponse response = null;
+        try {
+            Factory.setOptions(getOptions());
+            log.info("支付宝发起支付====== : {},{},{}",subject,outTradeNo,totalAmount);
+            response = Payment.Wap().pay(subject,outTradeNo,totalAmount,quitUrl,returnUrl);
+            log.info("alipay =======resp :{}",response.toMap());
+            success = ResponseChecker.success(response);
+            map = response.toMap();
+        }catch (Exception e){
+            log.error("alipay response:{}",outTradeNo);
+            e.printStackTrace();
+            throw new BusinessException(ErrorMsgEnum.ALIPAY_ERROR.getValue(),ErrorMsgEnum.ALIPAY_ERROR.getDesc());
+        }
+        if (success){
+            return map;
+        }else {
+            log.error("alipay response:{}",map);
+            throw new BusinessException(ErrorMsgEnum.ALIPAY_ERROR.getValue(),ErrorMsgEnum.ALIPAY_ERROR.getDesc());
+        }
+    }
+
+
     public static AlipayTradeQueryResponse query(String outTradeNo){
         log.info("支付宝发起支付查询====== : {}",outTradeNo);
         boolean success ;
@@ -64,6 +90,32 @@ public class MyAlipay {
 
     }
 
+    /*
+    public static AlipayTradeQueryResponse query(String outTradeNo){
+        log.info("支付宝发起支付查询====== : {}",outTradeNo);
+        MyAliPayConfig aliPayConfig = new MyAliPayConfig();
+        AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",aliPayConfig.getAppId(),aliPayConfig.getMerchantPrivateKey(),"json","utf-8",aliPayConfig.getAlipayPublicKey(),"RSA2");
+        AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+        AlipayTradeQueryModel model=new AlipayTradeQueryModel();
+        model.setOutTradeNo(outTradeNo);
+        //model.setTradeNo(trade_no);
+        request.setBizModel(model);
+        AlipayTradeQueryResponse response = null;
+        try {
+            response = alipayClient.execute(request);
+        } catch (AlipayApiException e) {
+            log.error("alipayQuery response:{}",outTradeNo);
+            e.printStackTrace();
+            throw new BusinessException(ErrorMsgEnum.ALIPAY_QUERY_ERROR.getValue(),ErrorMsgEnum.ALIPAY_QUERY_ERROR.getDesc());
+        }
+        if(response.isSuccess()){
+            return response;
+        } else {
+            throw new BusinessException(ErrorMsgEnum.ALIPAY_QUERY_ERROR.getValue(),ErrorMsgEnum.ALIPAY_QUERY_ERROR.getDesc());
+        }
+    }*/
+
+
     public static Map<String,Object> closeOrder(String outTradeNo){
         log.info("支付宝发起支付关闭====== : {}",outTradeNo);
         boolean success ;
@@ -87,6 +139,27 @@ public class MyAlipay {
         }
 
     }
+
+    /*
+    public static void closeOrder(String outTradeNo){
+        log.info("支付宝发起支付关闭====== : {}",outTradeNo);
+        MyAliPayConfig aliPayConfig = new MyAliPayConfig();
+        AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do",aliPayConfig.getAppId(),aliPayConfig.getMerchantPrivateKey(),"json","utf-8",aliPayConfig.getAlipayPublicKey(),"RSA2");
+        AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
+        JSONObject object = new JSONObject();
+        object.put("out_trade_no",outTradeNo);
+        request.setBizContent(JSONObject.toJSONString(object));
+        AlipayTradeCloseResponse response = null;
+        try {
+            response = alipayClient.execute(request);
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+            throw new BusinessException(ErrorMsgEnum.ALIPAY_QUERY_ERROR.getValue(),ErrorMsgEnum.ALIPAY_QUERY_ERROR.getDesc());
+        }
+        if(!response.isSuccess()){
+            throw new BusinessException(ErrorMsgEnum.ALIPAY_QUERY_ERROR.getValue(),response.getMsg()+","+response.getSubMsg());
+        }
+    }*/
 
     private static Config getOptions() {
         Config config = new Config();

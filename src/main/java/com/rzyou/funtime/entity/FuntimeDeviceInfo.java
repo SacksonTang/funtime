@@ -12,6 +12,8 @@ public class FuntimeDeviceInfo implements Serializable {
 
     private Long userId;
 
+    private String firstAction;
+
     private String channel;
 
     private String point;
