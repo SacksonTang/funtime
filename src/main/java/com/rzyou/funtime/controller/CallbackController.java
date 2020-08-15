@@ -361,7 +361,9 @@ public class CallbackController {
         JSONObject obj = new JSONObject(params);
         FuntimeKuaishouAdMonitor ad = JSONObject.toJavaObject(obj,FuntimeKuaishouAdMonitor.class);
 
-        advertisService.saveKuaishouAdMonitor(ad);
+        if(StringUtils.isNotBlank(ad.getOs())) {
+            advertisService.saveKuaishouAdMonitor(ad);
+        }
 
         return result;
 

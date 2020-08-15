@@ -52,9 +52,7 @@ public class StringUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(DigestUtils.sha1Hex("00A79B14-5B55-4052-83D2-CDB8D4C0CC5B"));
-        System.out.println(DigestUtils.sha1Hex("64322AA0-2B79-403C-AF2F-79B867FB9251"));
-        System.out.println(DigestUtils.sha1Hex("6A47E279-2637-4ABF-BAB0-4A6CC0A59D4E"));
-    }
+        System.out.println(System.currentTimeMillis());
+         }
 
 }
