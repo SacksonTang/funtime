@@ -52,7 +52,8 @@ public class StringUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(System.currentTimeMillis());
+        System.out.println(DigestUtils.sha1Hex("02F93186-0CEE-47A1-92C9-5A28D11039DC").toUpperCase());
+        System.out.println(DigestUtils.sha1Hex("7b329a3379ffdc5e"));
          }
 
 }

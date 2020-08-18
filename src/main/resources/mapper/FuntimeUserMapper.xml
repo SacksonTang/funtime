@@ -877,14 +877,11 @@
     )
   </insert>
 
-  <select id="checkDeviceExists" resultType="java.lang.Integer">
-    select count(id) from t_funtime_device_info where point = #{point}
-    <if test="androidId!=null">
-      and android_id = #{androidId}
-    </if>
-    <if test="idfa!=null">
-      and idfa = #{idfa}
-    </if>
+  <select id="checkDeviceExistsForAndroid" resultType="java.lang.Integer">
+    select count(id) from t_funtime_device_info where point = #{point} and android_id = #{androidId}
+  </select>
+  <select id="checkDeviceExistsForApple" resultType="java.lang.Integer">
+    select count(id) from t_funtime_device_info where point = #{point} and idfa = #{idfa}
   </select>
   <insert id="insertDeviceInfo" parameterType="com.rzyou.funtime.entity.FuntimeDeviceInfo">
     insert into t_funtime_device_info ( point, imei,

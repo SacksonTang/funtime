@@ -40,7 +40,7 @@ public class FuntimeKuaishouAdMonitor implements Serializable {
 
     private String androidId3;
 
-    private Long ts;
+    private String ts;
 
     private String ip;
 

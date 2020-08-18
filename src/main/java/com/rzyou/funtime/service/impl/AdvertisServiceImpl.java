@@ -3,6 +3,7 @@ package com.rzyou.funtime.service.impl;
 import com.rzyou.funtime.entity.FuntimeKuaishouAdMonitor;
 import com.rzyou.funtime.entity.FuntimeTencentAd;
 import com.rzyou.funtime.entity.FuntimeTencentAdMonitor;
+import com.rzyou.funtime.entity.FuntimeToutiaoAdMonitor;
 import com.rzyou.funtime.mapper.FuntimeAdvertisMapper;
 import com.rzyou.funtime.service.AdvertisService;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -32,7 +33,7 @@ public class AdvertisServiceImpl implements AdvertisService {
     }
 
     @Override
-    public String getCallBackUrl(String idfa, String androidId) {
+    public String getCallBackUrlForKS(String idfa, String androidId) {
         if (StringUtils.isNotBlank(idfa)) {
             idfa = DigestUtils.sha1Hex(idfa).toUpperCase();
         }
@@ -40,6 +41,19 @@ public class AdvertisServiceImpl implements AdvertisService {
         if (StringUtils.isNotBlank(androidId)){
             androidId = DigestUtils.sha1Hex(androidId).toUpperCase();
         }
-        return advertisMapper.getCallBackUrl(idfa,androidId);
+        return advertisMapper.getCallBackUrlForKS(idfa,androidId);
+    }
+
+    @Override
+    public String getCallBackUrlForQTT(String idfa, String androidId) {
+        if (StringUtils.isNotBlank(androidId)){
+            androidId = DigestUtils.md5Hex(androidId);
+        }
+        return advertisMapper.getCallBackUrlForQTT(idfa,androidId);
+    }
+
+    @Override
+    public void saveToutiaoAdMonitor(FuntimeToutiaoAdMonitor ad) {
+        advertisMapper.saveToutiaoAdMonitor(ad);
     }
 }

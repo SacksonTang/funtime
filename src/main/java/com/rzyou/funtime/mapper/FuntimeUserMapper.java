@@ -17,7 +17,9 @@ public interface FuntimeUserMapper {
 
     Integer getBlockDevice(String imei);
 
-    Integer checkDeviceExists(@Param("idfa") String idfa,@Param("androidId") String androidId,@Param("point") String point);
+    Integer checkDeviceExistsForAndroid(@Param("androidId") String androidId,@Param("point") String point);
+
+    Integer checkDeviceExistsForApple(@Param("idfa") String idfa,@Param("point") String point);
 
     Map<String,Object> getUserInfoByShowId2(@Param("showId") Long showId,@Param("userId") Long userId);
 

@@ -10,10 +10,7 @@ import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
 import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.component.StaticData;
-import com.rzyou.funtime.entity.FuntimeImgeCallback;
-import com.rzyou.funtime.entity.FuntimeKuaishouAdMonitor;
-import com.rzyou.funtime.entity.FuntimeTencentAd;
-import com.rzyou.funtime.entity.FuntimeTencentAdMonitor;
+import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.entity.dto.SdkParam;
 import com.rzyou.funtime.entity.dto.UserStateOfflineParam;
 import com.rzyou.funtime.service.AccountService;
@@ -364,6 +361,26 @@ public class CallbackController {
         if(StringUtils.isNotBlank(ad.getOs())) {
             advertisService.saveKuaishouAdMonitor(ad);
         }
+
+        return result;
+
+    }
+
+    /**
+     * 头条监测链接
+     * @param params
+     * @return
+     */
+    @GetMapping(value = "ttMonitor")
+    public JSONObject ttMonitor(@RequestParam(required = false) Map<String, Object> params) {
+
+        JSONObject result = new JSONObject();
+        result.put("status",0);
+        JSONObject obj = new JSONObject(params);
+        FuntimeToutiaoAdMonitor ad = JSONObject.toJavaObject(obj,FuntimeToutiaoAdMonitor.class);
+
+        advertisService.saveToutiaoAdMonitor(ad);
+
 
         return result;
 

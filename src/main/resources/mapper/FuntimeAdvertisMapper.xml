@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.rzyou.funtime.mapper.FuntimeAdvertisMapper">
 
-  <select id="getCallBackUrl" resultType="java.lang.String">
+  <select id="getCallBackUrlForKS" resultType="java.lang.String">
     select callback from t_funtime_kuaishou_ad_monitor where 1=1
       <if test="androidId!=null">
         and android_id3 = #{androidId}
@@ -13,7 +13,17 @@
     order by id desc
     limit 1
   </select>
-
+    <select id="getCallBackUrlForQTT" resultType="java.lang.String">
+        select callback_url from t_funtime_toutiao_ad_monitor where 1=1
+        <if test="androidId!=null">
+            and androididmd5 = #{androidId}
+        </if>
+        <if test="idfa!=null">
+            and idfa = #{idfa}
+        </if>
+        order by id desc
+        limit 1
+    </select>
   <insert id="saveTencentAd" parameterType="com.rzyou.funtime.entity.FuntimeTencentAd">
     replace into t_funtime_tencent_ad (click_id, muid, click_time,
       appid, advertiser_id, app_type,
@@ -71,7 +81,21 @@
     #{did,jdbcType=INTEGER}, #{dname,jdbcType=VARCHAR}, #{imei2,jdbcType=VARCHAR},
     #{imei3,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR}, #{idfa2,jdbcType=VARCHAR},
     #{idfa3,jdbcType=VARCHAR}, #{mac,jdbcType=VARCHAR}, #{mac2,jdbcType=VARCHAR}, #{mac3,jdbcType=VARCHAR},
-    #{androidId2,jdbcType=VARCHAR}, #{androidId3,jdbcType=VARCHAR}, #{ts,jdbcType=BIGINT},
+    #{androidId2,jdbcType=VARCHAR}, #{androidId3,jdbcType=VARCHAR}, #{ts},
     #{ip,jdbcType=VARCHAR}, #{csite,jdbcType=INTEGER}, #{callback,jdbcType=VARCHAR})
+  </insert>
+
+  <insert id="saveToutiaoAdMonitor" parameterType="com.rzyou.funtime.entity.FuntimeToutiaoAdMonitor" >
+
+    insert into t_funtime_toutiao_ad_monitor (cid, os, imeimd5,
+    idfa, ts, tsms, callback_url,
+    unit, plan, uid, ua,
+    androididmd5, ip, oaid,
+    dp_link)
+    values (#{cid,jdbcType=VARCHAR}, #{os,jdbcType=INTEGER}, #{imeimd5,jdbcType=VARCHAR},
+    #{idfa,jdbcType=VARCHAR}, #{ts,jdbcType=VARCHAR}, #{tsms,jdbcType=VARCHAR}, #{callbackUrl,jdbcType=VARCHAR},
+    #{unit,jdbcType=VARCHAR}, #{plan,jdbcType=VARCHAR}, #{uid,jdbcType=VARCHAR}, #{ua,jdbcType=VARCHAR},
+    #{androididmd5,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR},
+    #{dpLink,jdbcType=VARCHAR})
   </insert>
 </mapper>
