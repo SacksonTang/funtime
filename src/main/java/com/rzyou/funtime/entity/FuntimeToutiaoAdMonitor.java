@@ -10,6 +10,8 @@ public class FuntimeToutiaoAdMonitor implements Serializable {
     private static final long serialVersionUID = -1803265366926582196L;
     private Long id;
 
+    private Integer type;
+
     private String cid;
 
     private Integer os;

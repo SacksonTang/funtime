@@ -22,7 +22,7 @@ public interface FuntimeCarMapper {
 
     Long getUserCarById(@Param("userId") Long userId,@Param("carId") Integer carId);
 
-    Integer getShowCountsById(@Param("userId") Long userId,@Param("carId") Integer carId);
+    Integer getShowCountsById(Long userId);
 
     int insertShowcarRecord(@Param("userId") Long userId,@Param("carId") Integer carId);
 

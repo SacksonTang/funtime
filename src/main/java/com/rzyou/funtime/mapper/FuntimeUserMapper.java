@@ -15,6 +15,8 @@ public interface FuntimeUserMapper {
 
     Integer checkSensitive(String content);
 
+    Integer checkForbiddenWords(Long userId);
+
     Integer getBlockDevice(String imei);
 
     Integer checkDeviceExistsForAndroid(@Param("androidId") String androidId,@Param("point") String point);

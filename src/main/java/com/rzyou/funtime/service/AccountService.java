@@ -562,10 +562,9 @@ public interface AccountService {
     /**
      * 用户座驾
      * @param userId
-     * @param carId
      * @return
      */
-    Integer getShowCountsById(Long userId,Integer carId);
+    Integer getShowCountsById(Long userId);
 
     /**
      * 新增炫耀座驾记录

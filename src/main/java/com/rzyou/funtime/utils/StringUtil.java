@@ -3,6 +3,7 @@ package com.rzyou.funtime.utils;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 public class StringUtil {
@@ -52,8 +53,10 @@ public class StringUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(DigestUtils.sha1Hex("02F93186-0CEE-47A1-92C9-5A28D11039DC").toUpperCase());
-        System.out.println(DigestUtils.sha1Hex("7b329a3379ffdc5e"));
+        System.out.println(System.currentTimeMillis());
+        String[] a = "http://funtime-1300805214.picsh.myqcloud.com/user/861/phoho/1597852663995".split("/");
+        System.out.println(Arrays.toString(a));
+        System.out.println(a[4]);
          }
 
 }

@@ -150,6 +150,7 @@
       </if>
     </if>
     group by m.id
+    having counts>0
     order by m.hot desc,counts desc,m.hots desc ,m.id desc
   </select>
 

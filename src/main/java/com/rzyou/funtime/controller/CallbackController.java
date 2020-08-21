@@ -6,6 +6,7 @@ import com.alipay.easysdk.kernel.util.AntCertificationUtil;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
+import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
 import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
@@ -16,6 +17,7 @@ import com.rzyou.funtime.entity.dto.UserStateOfflineParam;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.AdvertisService;
 import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jacoco.agent.rt.internal_035b120.core.internal.flow.IFrame;
@@ -27,9 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -232,18 +232,21 @@ public class CallbackController {
     public String reviewImage(HttpServletRequest request) {
 
         String bodyString = HttpHelper.getBodyString(request);
+        log.info("reviewImage=======>{}",bodyString);
         if (StringUtils.isBlank(bodyString)){
             return "200";
         }
         try {
+            Integer forbidden_status = 0;
+            String url = null;
             JSONObject obj = JSONObject.parseObject(bodyString);
             Integer code = obj.getInteger("code");
             if (code != null && code == 0) {
                 JSONObject data = obj.getJSONObject("data");
                 if (data != null && !data.isEmpty()) {
-                    Integer forbidden_status = data.getInteger("forbidden_status");
+                    forbidden_status = data.getInteger("forbidden_status");
                     String trace_id = data.getString("trace_id");
-                    String url = data.getString("url");
+                    url = data.getString("url");
                     Integer result = data.getInteger("result");
                     JSONObject porn_info = data.getJSONObject("porn_info");
                     JSONObject terrorist_info = data.getJSONObject("terrorist_info");
@@ -296,6 +299,17 @@ public class CallbackController {
                     imgeCallback.setTraceId(trace_id);
                     imgeCallback.setUrl(url);
                     userService.insertFuntimeImgeCallback(imgeCallback);
+                }
+            }
+
+            if (forbidden_status==1&&StringUtils.isNotBlank(url)){
+                String[] array = url.split("/");
+                String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_SYSTEMUSER);
+                List<String> userIds = new ArrayList<>();
+                userIds.add(array[4]);
+                FuntimeUser user = userService.getUserInfoByShowId("10000");
+                if (user!=null&&!userIds.isEmpty()){
+                    TencentUtil.batchsendmsg(userSig,userIds,Constant.PIC_ERROR_INFO,user.getId().toString());
                 }
             }
         }catch (Exception e){

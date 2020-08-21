@@ -1779,6 +1779,29 @@ public class UserController {
     }
 
     /**
+     * 监测禁言
+     */
+    @PostMapping("checkForbiddenWords")
+    public ResultMsg<Object> checkForbiddenWords(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            userService.checkForbiddenWords(userId);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 获取COS临时密钥
      * @param request
      * @return

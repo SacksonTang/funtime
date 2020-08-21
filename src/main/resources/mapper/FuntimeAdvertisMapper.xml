@@ -91,11 +91,11 @@
     idfa, ts, tsms, callback_url,
     unit, plan, uid, ua,
     androididmd5, ip, oaid,
-    dp_link)
+    dp_link,type)
     values (#{cid,jdbcType=VARCHAR}, #{os,jdbcType=INTEGER}, #{imeimd5,jdbcType=VARCHAR},
     #{idfa,jdbcType=VARCHAR}, #{ts,jdbcType=VARCHAR}, #{tsms,jdbcType=VARCHAR}, #{callbackUrl,jdbcType=VARCHAR},
     #{unit,jdbcType=VARCHAR}, #{plan,jdbcType=VARCHAR}, #{uid,jdbcType=VARCHAR}, #{ua,jdbcType=VARCHAR},
     #{androididmd5,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR},
-    #{dpLink,jdbcType=VARCHAR})
+    #{dpLink,jdbcType=VARCHAR},#{type})
   </insert>
 </mapper>

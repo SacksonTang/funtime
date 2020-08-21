@@ -693,7 +693,7 @@ public class UserServiceImpl implements UserService {
 
                         }
                     }
-                    else if ("qutoutiao".equals(deviceInfo.getChannel())) {
+                    else if ("qutoutiao".equals(deviceInfo.getChannel())||"qutoutiao-wx".equals(deviceInfo.getChannel())||"qutoutiao-ld".equals(deviceInfo.getChannel())) {
                         if ("startup".equals(deviceInfo.getPoint())) {
                             if (deviceInfo.getIdfa() != null || deviceInfo.getAndroidId() != null) {
                                 count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startup");
@@ -722,6 +722,7 @@ public class UserServiceImpl implements UserService {
                             }
                         }
                     }
+
                 }
             }
 
@@ -750,6 +751,14 @@ public class UserServiceImpl implements UserService {
         Integer count = userMapper.getBlockDevice(phoneImei);
         if (count>0){
             throw new BusinessException(ErrorMsgEnum.USER_DEVICE_BLOCK.getValue(),ErrorMsgEnum.USER_DEVICE_BLOCK.getDesc());
+        }
+    }
+
+    @Override
+    public void checkForbiddenWords(Long userId) {
+        Integer hours = userMapper.checkForbiddenWords(userId);
+        if (hours!=null){
+            throw new BusinessException(ErrorMsgEnum.USER_FORBIDDEN_WORDS.getValue(),ErrorMsgEnum.USER_FORBIDDEN_WORDS.getDesc().replace("X",hours.toString()));
         }
     }
 

@@ -61,6 +61,9 @@
     <select id="getBlockDevice" resultType="java.lang.Integer">
         select count(id) from t_funtime_block_device where imei = #{imei}
     </select>
+  <select id="checkForbiddenWords" resultType="java.lang.Integer">
+    select hours from t_funtime_user_forbidden_words_record where user_id = #{userId} and state = 1 and now()>expire_time
+  </select>
 
   <select id="getDefaultNameBySex" resultType="java.lang.String">
     select name from t_funtime_default_name where sex = #{sex}
@@ -836,6 +839,10 @@
         t.user_id
     HAVING
         DATE_SUB( NOW( ), INTERVAL ${mins} MINUTE ) > max( t.heart )
+    union all
+   select id user_id from t_funtime_user
+   where online_state = 1
+     and id not in (select distinct user_id from t_funtime_heart)
   </select>
   <select id="getRankRewardConf" resultType="java.util.Map" parameterType="java.lang.Integer">
     select rank_type as rankType,ranking,reward from t_funtime_rank_reward_conf where  date_type = #{dateType}

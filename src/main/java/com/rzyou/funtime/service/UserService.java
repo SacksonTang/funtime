@@ -579,4 +579,11 @@ public interface UserService {
      * @param phoneImei
      */
     void getBlockDevice(String phoneImei);
+
+    /**
+     * 监测是否被禁言
+     * @param userId
+     * @return
+     */
+    void checkForbiddenWords(Long userId);
 }

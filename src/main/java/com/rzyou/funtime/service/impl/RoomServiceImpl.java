@@ -161,7 +161,7 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
         }
         //房间已封禁
-        if (chatroom.getIsBlock().intValue()==1){
+        if (chatroom.getIsBlock()==1){
             log.info("roomJoin==========> {}",ErrorMsgEnum.ROOM_IS_BLOCK.getDesc());
             throw new BusinessException(ErrorMsgEnum.ROOM_IS_BLOCK.getValue(),ErrorMsgEnum.ROOM_IS_BLOCK.getDesc());
         }
@@ -173,7 +173,7 @@ public class RoomServiceImpl implements RoomService {
             }
             //if (type == null||type !=1) {
                 //上锁的房间
-            if (chatroom.getIsLock().intValue() == 1) {
+            if (chatroom.getIsLock() == 1) {
                 //不是房主
                 //校验密码
                 if (StringUtils.isEmpty(password) || StringUtils.isEmpty(chatroom.getPassword())) {
@@ -546,6 +546,7 @@ public class RoomServiceImpl implements RoomService {
         if (user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        userService.checkForbiddenWords(userId);
         if (chatroomMapper.checkRoomExists(roomId)==null){
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
@@ -984,6 +985,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public void sendNotice(Long userId, String imgUrl, String msg, Long roomId, Integer type, Integer playLenth) {
         userService.checkSensitive(msg);
+        userService.checkForbiddenWords(userId);
         FuntimeUser user = userService.getUserBasicInfoById(userId);
         if (user == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
@@ -1597,7 +1599,7 @@ public class RoomServiceImpl implements RoomService {
             return;
         }
 
-        Integer counts = accountService.getShowCountsById(userId,carNumber);
+        Integer counts = accountService.getShowCountsById(userId);
         String val = parameterService.getParameterValueByKey("show_car_count");
         Integer normal = val == null?10:Integer.parseInt(val);
         if (counts>=normal){

@@ -3334,8 +3334,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Integer getShowCountsById(Long userId, Integer carId) {
-        return carMapper.getShowCountsById(userId,carId);
+    public Integer getShowCountsById(Long userId) {
+        return carMapper.getShowCountsById(userId);
     }
 
     @Override
