@@ -17,7 +17,7 @@
   <select id="getNewVersionInfoByPlatform"  resultType="java.util.Map">
     select app_version as appVersion,version_desc as versionDesc,download_url as downloadUrl
     from t_funtime_app_version
-    where platform = #{platform} and state = 1
+    where platform = #{platform} and state = 1 order by id desc limit 1
   </select>
 
 </mapper>
