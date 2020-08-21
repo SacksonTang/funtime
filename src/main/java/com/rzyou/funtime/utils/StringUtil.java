@@ -51,12 +51,20 @@ public class StringUtil {
         String currency =  DateUtil.getCurrentDateTime();
         return currency+str;
     }
+    public static String convertMD5(String inStr){
 
+        char[] a = inStr.toCharArray();
+        for (int i = 0; i < a.length; i++){
+            a[i] = (char) (a[i] ^ 't');
+        }
+        String s = new String(a);
+        return s;
+
+    }
     public static void main(String[] args) {
         System.out.println(System.currentTimeMillis());
-        String[] a = "http://funtime-1300805214.picsh.myqcloud.com/user/861/phoho/1597852663995".split("/");
-        System.out.println(Arrays.toString(a));
-        System.out.println(a[4]);
+        System.out.println(DigestUtils.md5Hex("ba7a1534134ac992"));
+
          }
 
 }

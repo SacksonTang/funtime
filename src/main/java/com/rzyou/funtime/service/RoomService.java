@@ -488,4 +488,13 @@ public interface RoomService {
      * @param carNumber
      */
     void showCar(Long userId, Long roomId, Integer carNumber);
+
+    /**
+     * 房间流水
+     * @param startDate
+     * @param endDate
+     * @param roomId
+     * @return
+     */
+    Map<String, Object> getRoomStatement(String startDate, String endDate, Long roomId);
 }

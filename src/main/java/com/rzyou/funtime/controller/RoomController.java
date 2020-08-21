@@ -12,6 +12,7 @@ import com.rzyou.funtime.service.RoomService;
 import com.rzyou.funtime.utils.JsonUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,6 +51,43 @@ public class RoomController {
                 return result;
             }
             Map<String,Object> resultMap = roomService.getRoomRankingList(dateType, type,userId,roomId);
+
+            result.setData(resultMap);
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 房间流水
+     * @param request
+     * @return
+     */
+    @PostMapping("getRoomStatement")
+    public ResultMsg<Object> getRoomStatement(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long roomId = paramJson.getLong("roomId");
+            String startDate = paramJson.getString("startDate");
+            String endDate = paramJson.getString("endDate");
+
+            if (StringUtils.isBlank(startDate)||StringUtils.isBlank(endDate)||roomId==null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String,Object> resultMap = roomService.getRoomStatement(startDate,endDate,roomId);
 
             result.setData(resultMap);
 

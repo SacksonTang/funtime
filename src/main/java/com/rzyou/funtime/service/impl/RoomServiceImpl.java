@@ -546,7 +546,7 @@ public class RoomServiceImpl implements RoomService {
         if (user==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
-        userService.checkForbiddenWords(userId);
+        userService.checkForbiddenWords(micUserId);
         if (chatroomMapper.checkRoomExists(roomId)==null){
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
@@ -1622,6 +1622,11 @@ public class RoomServiceImpl implements RoomService {
 
             }
         }
+    }
+
+    @Override
+    public Map<String, Object> getRoomStatement(String startDate, String endDate, Long roomId) {
+        return null;
     }
 
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){

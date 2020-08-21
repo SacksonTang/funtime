@@ -33,23 +33,40 @@ public class AdvertisServiceImpl implements AdvertisService {
     }
 
     @Override
-    public String getCallBackUrlForKS(String idfa, String androidId) {
+    public String getCallBackUrlForKS(String imei, String androidId, String oaid) {
+        if (StringUtils.isNotBlank(imei)) {
+            imei = DigestUtils.sha1Hex(imei);
+        }
+
+        if (StringUtils.isNotBlank(androidId)){
+            androidId = DigestUtils.sha1Hex(androidId);
+        }
+        return advertisMapper.getCallBackUrlForKS(imei,androidId,oaid);
+    }
+
+    @Override
+    public String getCallBackUrlForQTT(String imei, String androidId, String oaid) {
+        if (StringUtils.isNotBlank(imei)) {
+            imei = DigestUtils.sha1Hex(imei);
+        }
+        if (StringUtils.isNotBlank(androidId)){
+            androidId = DigestUtils.md5Hex(androidId);
+        }
+        return advertisMapper.getCallBackUrlForQTT(imei,androidId,oaid);
+    }
+
+    @Override
+    public String getCallBackUrlForKSApple(String idfa) {
         if (StringUtils.isNotBlank(idfa)) {
             idfa = DigestUtils.sha1Hex(idfa).toUpperCase();
         }
 
-        if (StringUtils.isNotBlank(androidId)){
-            androidId = DigestUtils.sha1Hex(androidId).toUpperCase();
-        }
-        return advertisMapper.getCallBackUrlForKS(idfa,androidId);
+        return advertisMapper.getCallBackUrlForKSApple(idfa);
     }
 
     @Override
-    public String getCallBackUrlForQTT(String idfa, String androidId) {
-        if (StringUtils.isNotBlank(androidId)){
-            androidId = DigestUtils.md5Hex(androidId);
-        }
-        return advertisMapper.getCallBackUrlForQTT(idfa,androidId);
+    public String getCallBackUrlForQTTApple(String idfa) {
+        return advertisMapper.getCallBackUrlForQTTApple(idfa);
     }
 
     @Override

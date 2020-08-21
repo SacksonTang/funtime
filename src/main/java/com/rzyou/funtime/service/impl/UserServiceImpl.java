@@ -625,7 +625,7 @@ public class UserServiceImpl implements UserService {
                         count = userMapper.checkDeviceExistsForApple(deviceInfo.getIdfa(),"startup");
                         if (count == 0) {
                             //快手
-                            String url = advertisService.getCallBackUrlForKS(deviceInfo.getIdfa(), null);
+                            String url = advertisService.getCallBackUrlForKSApple(deviceInfo.getIdfa());
                             if (StringUtils.isNotBlank(url)) {
                                 log.info("**************苹果快手激活数据上报*****************idfa:{}",deviceInfo.getIdfa());
                                 url = URLDecoder.decode(url,"utf-8");
@@ -633,7 +633,7 @@ public class UserServiceImpl implements UserService {
                                 HttpClientUtil.doGet(url);
                             }
                             //头条
-                            url = advertisService.getCallBackUrlForQTT(deviceInfo.getIdfa(), null);
+                            url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
                             if (StringUtils.isNotBlank(url)) {
                                 log.info("**************苹果头条激活数据上报*****************idfa:{}",deviceInfo.getIdfa());
                                 url = URLDecoder.decode(url,"utf-8");
@@ -647,7 +647,7 @@ public class UserServiceImpl implements UserService {
                         count = userMapper.checkDeviceExistsForApple(deviceInfo.getIdfa(),"startIndex");
                         if (count == 0) {
                             //快手
-                            String url = advertisService.getCallBackUrlForKS(deviceInfo.getIdfa(), null);
+                            String url = advertisService.getCallBackUrlForKSApple(deviceInfo.getIdfa());
                             if (StringUtils.isNotBlank(url)) {
                                 log.info("**************苹果快手首页数据上报*****************idfa:{}",deviceInfo.getIdfa());
                                 url = URLDecoder.decode(url,"utf-8");
@@ -655,7 +655,7 @@ public class UserServiceImpl implements UserService {
                                 HttpClientUtil.doGet(url);
                             }
                             //头条
-                            url = advertisService.getCallBackUrlForQTT(deviceInfo.getIdfa(), null);
+                            url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
                             if (StringUtils.isNotBlank(url)) {
                                 log.info("**************苹果头条首页数据上报*****************idfa:{}",deviceInfo.getIdfa());
                                 url = URLDecoder.decode(url,"utf-8");
@@ -668,11 +668,11 @@ public class UserServiceImpl implements UserService {
             }else {
                 if (deviceInfo.getAndroidId() != null) {
                     if ("kuaishou".equals(deviceInfo.getChannel())) {
-                        if ("startup".equals(deviceInfo.getPoint())) {
+                        if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
                             count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startup");
                             if (count == 0) {
                                 log.info("**************快手激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
-                                String url = advertisService.getCallBackUrlForKS(null, deviceInfo.getAndroidId());
+                                String url = advertisService.getCallBackUrlForKS(deviceInfo.getImei(), deviceInfo.getAndroidId(),deviceInfo.getOaid());
                                 if (StringUtils.isNotBlank(url)) {
                                     url = URLDecoder.decode(url, "utf-8");
                                     url = url + "&event_type=1&event_time=" + System.currentTimeMillis();
@@ -683,7 +683,7 @@ public class UserServiceImpl implements UserService {
                             count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
                             if (count == 0) {
                                 log.info("**************快手首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
-                                String url = advertisService.getCallBackUrlForKS(null, deviceInfo.getAndroidId());
+                                String url = advertisService.getCallBackUrlForKS(deviceInfo.getImei(), deviceInfo.getAndroidId(), deviceInfo.getOaid());
                                 if (StringUtils.isNotBlank(url)) {
                                     url = URLDecoder.decode(url, "utf-8");
                                     url = url + "&event_type=2&event_time=" + System.currentTimeMillis();
@@ -694,12 +694,12 @@ public class UserServiceImpl implements UserService {
                         }
                     }
                     else if ("qutoutiao".equals(deviceInfo.getChannel())||"qutoutiao-wx".equals(deviceInfo.getChannel())||"qutoutiao-ld".equals(deviceInfo.getChannel())) {
-                        if ("startup".equals(deviceInfo.getPoint())) {
+                        if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
                             if (deviceInfo.getIdfa() != null || deviceInfo.getAndroidId() != null) {
                                 count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startup");
                                 if (count == 0) {
                                     log.info("**************头条激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
-                                    String url = advertisService.getCallBackUrlForQTT(null, deviceInfo.getAndroidId());
+                                    String url = advertisService.getCallBackUrlForQTT(deviceInfo.getImei(), deviceInfo.getAndroidId(),deviceInfo.getOaid());
                                     if (StringUtils.isNotBlank(url)) {
                                         url = URLDecoder.decode(url, "utf-8");
                                         url = url + "&op2=0&opt_active_time=" + System.currentTimeMillis();
@@ -712,7 +712,7 @@ public class UserServiceImpl implements UserService {
                                 count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
                                 if (count == 0) {
                                     log.info("**************头条首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
-                                    String url = advertisService.getCallBackUrlForQTT(null, deviceInfo.getAndroidId());
+                                    String url = advertisService.getCallBackUrlForQTT(deviceInfo.getImei(), deviceInfo.getAndroidId(), deviceInfo.getOaid());
                                     if (StringUtils.isNotBlank(url)) {
                                         url = URLDecoder.decode(url, "utf-8");
                                         url = url + "&op2=1&opt_active_time=" + System.currentTimeMillis();

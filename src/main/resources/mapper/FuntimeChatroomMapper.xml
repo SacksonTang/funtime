@@ -214,6 +214,8 @@
       limit ${endCount}
   </select>
 
+
+
   <select id="getRoomCharmList" resultType="java.util.Map">
     SELECT
           d.to_user_id as userId,

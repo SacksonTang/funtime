@@ -1,26 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.rzyou.funtime.mapper.FuntimeAdvertisMapper">
-
+  <select id="getCallBackUrlForKSApple" resultType="java.lang.String">
+    select callback from t_funtime_kuaishou_ad_monitor where idfa3 = #{idfa}
+    order by id desc
+    limit 1
+  </select>
+  <select id="getCallBackUrlForQTTApple" resultType="java.lang.String">
+    select callback_url from t_funtime_toutiao_ad_monitor where idfa = #{idfa}
+    order by id desc
+    limit 1
+  </select>
   <select id="getCallBackUrlForKS" resultType="java.lang.String">
-    select callback from t_funtime_kuaishou_ad_monitor where 1=1
-      <if test="androidId!=null">
-        and android_id3 = #{androidId}
+    select callback from t_funtime_kuaishou_ad_monitor where android_id3 = #{androidId}
+      <if test="imei!=null and imei!=''">
+        or imei3 = #{imei}
       </if>
-      <if test="idfa!=null">
-        and idfa3 = #{idfa}
+      <if test="oaid!=null and oaid!=''">
+        or oaid = #{oaid}
       </if>
     order by id desc
     limit 1
   </select>
     <select id="getCallBackUrlForQTT" resultType="java.lang.String">
-        select callback_url from t_funtime_toutiao_ad_monitor where 1=1
-        <if test="androidId!=null">
-            and androididmd5 = #{androidId}
-        </if>
-        <if test="idfa!=null">
-            and idfa = #{idfa}
-        </if>
+        select callback_url from t_funtime_toutiao_ad_monitor where  androididmd5 = #{androidId}
+      <if test="imei!=null and imei!=''">
+        or imeimd5 = #{imei}
+      </if>
+      <if test="oaid!=null and oaid!=''">
+        or oaid = #{oaid}
+      </if>
         order by id desc
         limit 1
     </select>

@@ -14,9 +14,13 @@ public interface AdvertisService {
 
     void saveKuaishouAdMonitor(FuntimeKuaishouAdMonitor ad);
 
-    String getCallBackUrlForKS(String idfa, String androidId);
+    String getCallBackUrlForKS(String imei, String androidId, String oaid);
 
-    String getCallBackUrlForQTT(String idfa, String androidId);
+    String getCallBackUrlForQTT(String imei, String androidId, String oaid);
+
+    String getCallBackUrlForKSApple(String idfa);
+
+    String getCallBackUrlForQTTApple(String idfa);
 
     void saveToutiaoAdMonitor(FuntimeToutiaoAdMonitor ad);
 }

@@ -16,9 +16,13 @@ public interface FuntimeAdvertisMapper {
 
     int saveKuaishouAdMonitor(FuntimeKuaishouAdMonitor ad);
 
-    String getCallBackUrlForKS(@Param("idfa") String idfa, @Param("androidId") String androidId);
+    String getCallBackUrlForKS(@Param("imei") String imei, @Param("androidId") String androidId, @Param("oaid") String oaid);
 
-    String getCallBackUrlForQTT(@Param("idfa") String idfa, @Param("androidId") String androidId);
+    String getCallBackUrlForQTT(@Param("imei") String imei, @Param("androidId") String androidId, @Param("oaid") String oaid);
+
+    String getCallBackUrlForKSApple(String idfa);
+
+    String getCallBackUrlForQTTApple(String idfa);
 
     int saveToutiaoAdMonitor(FuntimeToutiaoAdMonitor ad);
 }

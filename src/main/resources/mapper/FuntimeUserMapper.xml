@@ -62,7 +62,7 @@
         select count(id) from t_funtime_block_device where imei = #{imei}
     </select>
   <select id="checkForbiddenWords" resultType="java.lang.Integer">
-    select hours from t_funtime_user_forbidden_words_record where user_id = #{userId} and state = 1 and now()>expire_time
+    select hours from t_funtime_user_forbidden_words_record where user_id = #{userId} and state = 1 and expire_time>now()
   </select>
 
   <select id="getDefaultNameBySex" resultType="java.lang.String">
