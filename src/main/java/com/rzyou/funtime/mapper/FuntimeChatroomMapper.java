@@ -56,10 +56,9 @@ public interface FuntimeChatroomMapper {
 
     List<Map<String, Object>> getRoomLogList(Long userId);
 
-    List<Map<String, Object>> getRoomContributionList(@Param("endCount") Integer endCount,@Param("startDate") String startDate,@Param("endDate") String endDate,@Param("roomId") Long roomId);
+    List<Map<String, Object>> getRoomContributionList(@Param("endCount") Integer endCount, @Param("startDate") String startDate, @Param("endDate") String endDate, @Param("roomId") Long roomId,@Param("userId") Long userId);
 
     List<Map<String, Object>> getRoomCharmList(@Param("endCount") Integer endCount,@Param("startDate") String startDate,@Param("endDate") String endDate,@Param("roomId") Long roomId);
 
-
-
+    List<Map<String, Object>> getRoomStatement(@Param("startDate") String startDate, @Param("endDate")String endDate, @Param("roomId") Long roomId, @Param("userId") Long userId);
 }

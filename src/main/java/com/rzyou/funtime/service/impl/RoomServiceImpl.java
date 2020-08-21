@@ -1521,6 +1521,10 @@ public class RoomServiceImpl implements RoomService {
         resultMap.put("rankCount",count);
         int endCount = Integer.parseInt(count);
 
+        FuntimeChatroom chatroom = getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
         String startDate;
         String endDate;
 
@@ -1546,7 +1550,7 @@ public class RoomServiceImpl implements RoomService {
         if (type == 1){
             list = chatroomMapper.getRoomCharmList(endCount,startDate,endDate,roomId);
         }else{
-            list = chatroomMapper.getRoomContributionList(endCount,startDate,endDate,roomId);
+            list = chatroomMapper.getRoomContributionList(endCount,startDate,endDate,roomId,chatroom.getUserId());
         }
 
         if (list==null||list.isEmpty()){
@@ -1626,7 +1630,23 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Map<String, Object> getRoomStatement(String startDate, String endDate, Long roomId) {
-        return null;
+        FuntimeChatroom chatroom = getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        List<Map<String,Object>> list = chatroomMapper.getRoomStatement(startDate,endDate,roomId,chatroom.getUserId());
+        Map<String,Object> resultMap = new HashMap<>();
+        resultMap.put("listData",list);
+        if (list!=null&&!list.isEmpty()){
+            int total = 0;
+            for (Map<String,Object> map : list){
+                Integer totalCoefficient = map.get("totalCoefficient")==null?0:Integer.parseInt(map.get("totalCoefficient").toString());
+
+                total += totalCoefficient;
+            }
+            resultMap.put("total",total);
+        }
+        return resultMap;
     }
 
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){

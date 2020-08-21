@@ -199,11 +199,11 @@
           inner join (t_funtime_user_account t
           inner join t_funtime_user_level_conf l on t.level = l.level) on d.user_id = t.user_id
           left join t_funtime_user_headwear_current h on u.id = h.user_id
-		  left join t_funtime_chatroom m on d.user_id = m.user_id
+
 
       WHERE d.action_type = 'OUT'
             and operation_type in ('GIVEGIFT','GIVEGIFTREDPACKET','GOLD_CONVERT_OUT','YAOYAOLE_OUT','SMASHEGG_OUT','CIRCLE_OUT','BUY_BACKGROUND','BUY_CAR','BUY_HEADWEAR','BUY_HORN','BUY_BULLET','GIFT_BOX_OUT')
-            and (d.room_id = #{roomId} or (d.room_id is null and m.id = #{roomId}))
+            and (d.room_id = #{roomId} or (d.room_id is null and d.user_id = #{userId}))
           <if test="startDate!=null and endDate!=null">
             and d.create_time between #{startDate} and #{endDate}
           </if>
@@ -251,6 +251,49 @@
     limit ${endCount}
   </select>
 
+  <select id="getRoomStatement" resultType="java.util.Map">
+    select h.hour_time,ifnull(c.totalCoefficient,0) totalCoefficient
+       from t_funtime_hour h
+       left join
+      (select b.hourTime
+                  ,FLOOR(b.a1*(select coefficient from t_funtime_statement_coefficient where id = 1))
+                  +FLOOR(b.a2*(select coefficient from t_funtime_statement_coefficient where id = 2))
+                  +FLOOR(b.a3*(select coefficient from t_funtime_statement_coefficient where id = 3))
+                  +FLOOR(b.a4*(select coefficient from t_funtime_statement_coefficient where id = 4))
+                  +FLOOR(b.a5*(select coefficient from t_funtime_statement_coefficient where id = 5))
+                  +FLOOR(b.a6*(select coefficient from t_funtime_statement_coefficient where id = 6))
+                  +FLOOR(b.a7*(select coefficient from t_funtime_statement_coefficient where id = 7))
+                  +FLOOR(b.a8*(select coefficient from t_funtime_statement_coefficient where id = 8))
+                  +FLOOR(b.a9*(select coefficient from t_funtime_statement_coefficient where id = 9))
+                  +FLOOR(b.a10*(select coefficient from t_funtime_statement_coefficient where id = 10))
+                  +FLOOR(b.a11*(select coefficient from t_funtime_statement_coefficient where id = 11))
+                  totalCoefficient
+      FROM
+      (SELECT
+                  DATE_FORMAT( d.create_time, '%H' ) hourTime,
+                  sum( IF ( d.operation_type = 'GIVEGIFT' OR d.operation_type = 'GIVEGIFTREDPACKET', d.amount, 0 ) ) a10,
+                  sum( IF ( d.operation_type = 'GOLD_CONVERT_OUT', d.amount, 0 ) ) a6,
+                  sum( IF ( d.operation_type = 'YAOYAOLE_OUT', d.amount, 0 ) ) a1,
+                  sum( IF ( d.operation_type = 'SMASHEGG_OUT', d.amount, 0 ) ) a2,
+                  sum( IF ( d.operation_type = 'CIRCLE_OUT', d.amount, 0 ) ) a3,
+                  sum( IF ( d.operation_type = 'BUY_BACKGROUND', d.amount, 0 ) ) a7,
+                  sum( IF ( d.operation_type = 'BUY_CAR', d.amount, 0 ) ) a8,
+                  sum( IF ( d.operation_type = 'BUY_HEADWEAR', d.amount, 0 ) ) a9,
+                  sum( IF ( d.operation_type = 'BUY_HORN', d.amount, 0 ) ) a4,
+                  sum( IF ( d.operation_type = 'BUY_BULLET', d.amount, 0 ) ) a5,
+                  sum( IF ( d.operation_type = 'GIFT_BOX_OUT', d.amount, 0 ) ) a11
+      FROM
+             t_funtime_user_account_blue_log d
+      WHERE d.action_type = 'OUT'
+              AND d.operation_type IN ( 'GIVEGIFT', 'GIVEGIFTREDPACKET', 'GOLD_CONVERT_OUT', 'YAOYAOLE_OUT', 'SMASHEGG_OUT', 'CIRCLE_OUT', 'BUY_BACKGROUND',    'BUY_CAR', 'BUY_HEADWEAR', 'BUY_HORN', 'BUY_BULLET', 'GIFT_BOX_OUT' )
+              AND ( d.room_id = #{roomId} OR ( d.room_id IS NULL AND d.user_id = #{userId} ) )
+              <if test="startDate!=null and endDate!=null">
+                AND d.create_time between #{startDate} and #{endDate}
+              </if>
+          GROUP BY
+              hourTime) b) c on h.hour_time = c.hourTime
+	order by h.hour_time
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from t_funtime_chatroom
     where id = #{id,jdbcType=BIGINT}
