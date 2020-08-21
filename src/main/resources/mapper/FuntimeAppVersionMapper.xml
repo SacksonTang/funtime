@@ -5,7 +5,7 @@
   <select id="getVersionInfoByVerAndPlatform"  resultType="java.util.Map">
     select id,state
     from t_funtime_app_version
-    where platform = #{platform} and app_version = #{appVersion}
+    where platform = #{platform} and app_version = #{appVersion} limit 1
   </select>
 
   <select id="checkVersion"  resultType="java.lang.Integer">
