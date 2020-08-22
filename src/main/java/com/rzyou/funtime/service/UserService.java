@@ -586,4 +586,11 @@ public interface UserService {
      * @return
      */
     void checkForbiddenWords(Long userId);
+
+    /**
+     * 注销
+     * @param userId
+     * @param code
+     */
+    void cancellation(Long userId, String code);
 }

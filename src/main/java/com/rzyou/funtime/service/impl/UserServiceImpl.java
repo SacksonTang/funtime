@@ -763,6 +763,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void cancellation(Long userId, String code) {
+
+        FuntimeUser user = queryUserById(userId);
+        if (user == null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        if (StringUtils.isBlank(user.getPhoneNumber())){
+            throw new BusinessException(ErrorMsgEnum.USER_PHONE_NOT_BIND.getValue(),ErrorMsgEnum.USER_PHONE_NOT_BIND.getDesc());
+        }
+        String isSend = parameterService.getParameterValueByKey("is_send");
+        if (isSend != null && isSend.equals("1")) {
+            //校验验证码
+            smsService.validateSms(SmsType.USERCANCELATION.getValue(), user.getPhoneNumber(), code);
+        }
+        Long roomId = roomService.checkUserIsInRoom(userId);
+        if (roomId!=null){
+            roomService.roomExit(userId, roomId);
+        }
+
+        userMapper.userCancellation(userId);
+
+        userThirdMapper.deleteByUserId(userId);
+
+
+    }
+
+    @Override
     public FuntimeUserValid queryValidInfoByUserId(Long userId) {
 
         FuntimeUserValid userValid = userValidMapper.selectByUserId(userId);

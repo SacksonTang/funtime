@@ -77,7 +77,7 @@
   <select id="getAllUserIdByApp" resultType="java.lang.String">
     select
     id
-    from t_funtime_user
+    from t_funtime_user and flag = 1
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -164,7 +164,7 @@
           inner join t_funtime_user_level_conf l on t.level = l.level) on d.user_id = t.user_id
           left join t_funtime_user_headwear_current h on u.id = h.user_id
       WHERE
-          d.create_time between #{startDate} and #{endDate}
+           d.create_time between #{startDate} and #{endDate}
       GROUP BY
           d.user_id,t.level
       ORDER BY
@@ -197,7 +197,7 @@
           inner join t_funtime_user_level_conf l on t.level = l.level) on d.user_id = t.user_id
           left join t_funtime_user_headwear_current h on u.id = h.user_id
       WHERE
-          d.create_time between #{startDate} and #{endDate}
+           d.create_time between #{startDate} and #{endDate}
       GROUP BY
           d.user_id,t.level
       ORDER BY
@@ -238,7 +238,7 @@
     from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.to_user_id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
-    where c.user_id = #{userId} and u.state = 1
+    where c.user_id = #{userId} and u.state = 1 and u.flag = 1
     and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = c.to_user_id and t.room_id = #{roomId})
     <if test="content!=null and content!=''">
       and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
@@ -256,7 +256,7 @@
     from  t_funtime_user_concern c inner join t_funtime_user u on u.id = c.user_id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
-    where c.to_user_id = #{userId} and u.state = 1
+    where c.to_user_id = #{userId} and u.state = 1 and u.flag = 1
     and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = c.user_id and t.room_id = #{roomId})
     <if test="content!=null and content!=''">
       and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
@@ -274,7 +274,7 @@
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
-    where u.online_state = 1 and u.state = 1
+    where u.online_state = 1 and u.state = 1 and u.flag = 1
     and u.id not in (select c.to_user_id from t_funtime_user_concern c where c.user_id = #{userId} )
     and u.id not in (select c.user_id from t_funtime_user_concern c where c.to_user_id = #{userId} )
     and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = u.id and t.room_id = #{roomId})
@@ -310,7 +310,7 @@
     select
     <include refid="Base_Column_List" />
     from t_funtime_user
-    where 1=1
+    where  flag = 1
     <if test="phone!=null and phone != ''">
       and phone_number = #{phone}
     </if>
@@ -321,7 +321,7 @@
     select
     <include refid="Base_Column_List" />
     from t_funtime_user
-    where phone_number = #{phone}
+    where phone_number = #{phone} and flag = 1
 
     limit 1
   </select>
@@ -329,7 +329,7 @@
     select
     <include refid="Base_Column_List" />
     from t_funtime_user
-    where phone_imei = #{phoneImei}
+    where phone_imei = #{phoneImei} and flag = 1
 
     limit 1
   </select>
@@ -800,6 +800,9 @@
   <update id="updateRealnameAuthenticationFlagById" >
   update t_funtime_user set realname_authentication_flag = 1,update_time =now() where id = #{id}
 </update>
+  <update id="userCancellation">
+    update t_funtime_user set flag = 2,online_state = 2,update_time =now() where id = #{userId}
+  </update>
   <insert id="saveHeart" >
     insert INTO t_funtime_heart (user_id,ip) VALUES(#{userId},#{ip})
   </insert>

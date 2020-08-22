@@ -143,4 +143,6 @@ public interface FuntimeUserMapper {
     int insertFuntimeImgeCallback(FuntimeImgeCallback imgeCallback);
 
     int insertDeviceInfo(FuntimeDeviceInfo deviceInfo);
+
+    int userCancellation(Long userId);
 }

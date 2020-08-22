@@ -822,6 +822,41 @@ public class UserController {
         }
     }
 
+    /**
+     * 注销
+     */
+    @PostMapping("cancellation")
+    public ResultMsg<Object> cancellation(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+
+            String code = paramJson.getString("code");
+            Long userId = HttpHelper.getUserId();
+            if (userId==null||StringUtils.isBlank(code)) {
+
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            userService.cancellation(userId,code);
+
+            return result;
+        } catch (BusinessException be) {
+            log.error("cancellation BusinessException==========>{}",be.getMsg());
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
 
     /**
      * 在线用户查询

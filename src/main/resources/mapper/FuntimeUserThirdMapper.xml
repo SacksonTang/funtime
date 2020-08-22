@@ -45,7 +45,10 @@
     delete from t_funtime_user_third
     where id = #{id,jdbcType=BIGINT}
   </delete>
-
+  <delete id="deleteByUserId" parameterType="java.lang.Long">
+    delete from t_funtime_user_third
+    where user_id = #{userId}
+  </delete>
   <insert id="insertSelective" parameterType="com.rzyou.funtime.entity.FuntimeUserThird">
     insert into t_funtime_user_third
     <trim prefix="(" suffix=")" suffixOverrides=",">

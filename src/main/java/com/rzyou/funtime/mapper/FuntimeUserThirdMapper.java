@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Param;
 public interface FuntimeUserThirdMapper {
     int deleteByPrimaryKey(Long id);
 
+    int deleteByUserId(Long userId);
+
     int insertSelective(FuntimeUserThird record);
 
     FuntimeUserThird selectByPrimaryKey(Long id);
