@@ -288,7 +288,7 @@
               AND d.operation_type IN ( 'GIVEGIFT', 'GIVEGIFTREDPACKET', 'GOLD_CONVERT_OUT', 'YAOYAOLE_OUT', 'SMASHEGG_OUT', 'CIRCLE_OUT', 'BUY_BACKGROUND',    'BUY_CAR', 'BUY_HEADWEAR', 'BUY_HORN', 'BUY_BULLET', 'GIFT_BOX_OUT' )
               AND ( d.room_id = #{roomId} OR ( d.room_id IS NULL AND d.user_id = #{userId} ) )
               <if test="startDate!=null and endDate!=null">
-                AND d.create_time between #{startDate} and #{endDate}
+                AND d.create_time between concat(#{startDate},' 00:00:00') and concat(#{endDate},' 23:59:59')
               </if>
           GROUP BY
               hourTime) b) c on h.hour_time = c.hourTime

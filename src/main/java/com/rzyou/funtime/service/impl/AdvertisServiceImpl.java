@@ -47,7 +47,7 @@ public class AdvertisServiceImpl implements AdvertisService {
     @Override
     public String getCallBackUrlForQTT(String imei, String androidId, String oaid) {
         if (StringUtils.isNotBlank(imei)) {
-            imei = DigestUtils.sha1Hex(imei);
+            imei = DigestUtils.md5Hex(imei);
         }
         if (StringUtils.isNotBlank(androidId)){
             androidId = DigestUtils.md5Hex(androidId);

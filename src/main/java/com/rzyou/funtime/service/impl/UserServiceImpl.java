@@ -621,7 +621,7 @@ public class UserServiceImpl implements UserService {
         try {
             if ("1".equals(deviceInfo.getOs())) {
                 if ("startup".equals(deviceInfo.getPoint())) {
-                    if (deviceInfo.getIdfa() != null || deviceInfo.getAndroidId() != null) {
+                    if (deviceInfo.getIdfa() != null ) {
                         count = userMapper.checkDeviceExistsForApple(deviceInfo.getIdfa(),"startup");
                         if (count == 0) {
                             //快手
@@ -643,7 +643,7 @@ public class UserServiceImpl implements UserService {
                         }
                     }
                 }else if ("startIndex".equals(deviceInfo.getPoint())){
-                    if (deviceInfo.getIdfa() != null || deviceInfo.getAndroidId() != null) {
+                    if (deviceInfo.getIdfa() != null ) {
                         count = userMapper.checkDeviceExistsForApple(deviceInfo.getIdfa(),"startIndex");
                         if (count == 0) {
                             //快手
@@ -669,7 +669,7 @@ public class UserServiceImpl implements UserService {
                 if (deviceInfo.getAndroidId() != null) {
                     if ("kuaishou".equals(deviceInfo.getChannel())) {
                         if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
-                            count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startup");
+                            count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
                             if (count == 0) {
                                 log.info("**************快手激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
                                 String url = advertisService.getCallBackUrlForKS(deviceInfo.getImei(), deviceInfo.getAndroidId(),deviceInfo.getOaid());
@@ -695,8 +695,8 @@ public class UserServiceImpl implements UserService {
                     }
                     else if ("qutoutiao".equals(deviceInfo.getChannel())||"qutoutiao-wx".equals(deviceInfo.getChannel())||"qutoutiao-ld".equals(deviceInfo.getChannel())) {
                         if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
-                            if (deviceInfo.getIdfa() != null || deviceInfo.getAndroidId() != null) {
-                                count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startup");
+                            if (deviceInfo.getAndroidId() != null) {
+                                count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
                                 if (count == 0) {
                                     log.info("**************头条激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
                                     String url = advertisService.getCallBackUrlForQTT(deviceInfo.getImei(), deviceInfo.getAndroidId(),deviceInfo.getOaid());
@@ -708,7 +708,7 @@ public class UserServiceImpl implements UserService {
                                 }
                             }
                         } else if ("startIndex".equals(deviceInfo.getPoint())) {
-                            if (deviceInfo.getIdfa() != null || deviceInfo.getAndroidId() != null) {
+                            if (deviceInfo.getAndroidId() != null) {
                                 count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
                                 if (count == 0) {
                                     log.info("**************头条首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());

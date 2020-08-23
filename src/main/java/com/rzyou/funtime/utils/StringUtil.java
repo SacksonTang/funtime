@@ -2,6 +2,7 @@ package com.rzyou.funtime.utils;
 
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -51,18 +52,9 @@ public class StringUtil {
         String currency =  DateUtil.getCurrentDateTime();
         return currency+str;
     }
-    public static String convertMD5(String inStr){
 
-        char[] a = inStr.toCharArray();
-        for (int i = 0; i < a.length; i++){
-            a[i] = (char) (a[i] ^ 't');
-        }
-        String s = new String(a);
-        return s;
-
-    }
     public static void main(String[] args) {
-        System.out.println(System.currentTimeMillis());
+        System.out.println(StringUtils.isNotBlank("1"));
         System.out.println(DigestUtils.md5Hex("ba7a1534134ac992"));
 
          }
