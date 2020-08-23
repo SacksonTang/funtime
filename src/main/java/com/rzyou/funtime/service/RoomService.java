@@ -288,7 +288,12 @@ public interface RoomService {
      */
     FuntimeChatroom getRoomByUserId(Long userId);
 
-
+    /**
+     * 获取用户所在房间
+     * @param userId
+     * @return
+     */
+    Long getRoomIdByUserId(Long userId);
 
     /**
      * 用户是否在房间

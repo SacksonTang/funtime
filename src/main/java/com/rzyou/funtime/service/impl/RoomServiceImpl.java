@@ -138,6 +138,7 @@ public class RoomServiceImpl implements RoomService {
 
     }
 
+    @Override
     public Long getRoomIdByUserId(Long userId){
         FuntimeChatroomMic mic = chatroomMicMapper.getRoomUserInfoByUserId(userId);
         return mic==null?null:mic.getRoomId();

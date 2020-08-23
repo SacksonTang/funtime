@@ -694,7 +694,7 @@ public class AccountServiceImpl implements AccountService {
         }
         userService.updateUserAccountForSub(redpacket.getUserId(),null,redpacket.getAmount(),null);
         //新建用户日志
-        saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getAmount(),redpacket.getId(),OperationType.GIVEREDPACKET.getAction(),OperationType.GIVEREDPACKET.getOperationType(), redpacket.getRoomId());
+        saveUserAccountBlueLog(redpacket.getUserId(),redpacket.getAmount(),redpacket.getId(),OperationType.GIVEREDPACKET.getAction(),OperationType.GIVEREDPACKET.getOperationType(), redpacket.getRoomId()==null||redpacket.getRoomId().intValue()==0?null:redpacket.getRoomId());
 
         if (redpacket.getType() == 1) {
             RedPacketUtil redPacketUtil = new RedPacketUtil(redpacket.getAmount().intValue());
@@ -839,7 +839,7 @@ public class AccountServiceImpl implements AccountService {
         userService.updateUserAccountForPlus(userId,null,detail.getAmount(),null);
 
         //新建用户日志
-        saveUserAccountBlueLog(userId,detail.getAmount(),recordId,OperationType.GRABREDPACKET.getAction(),OperationType.GRABREDPACKET.getOperationType(), roomId);
+        saveUserAccountBlueLog(userId,detail.getAmount(),recordId,OperationType.GRABREDPACKET.getAction(),OperationType.GRABREDPACKET.getOperationType(), roomId==null||roomId.intValue()==0?null:roomId);
 
         updateRedpacketState(redpacketId,RedpacketState.SUCCESS.getValue());
 
@@ -878,7 +878,7 @@ public class AccountServiceImpl implements AccountService {
         userService.updateUserAccountForPlus(userId,null,detail.getAmount(),null);
 
         //新建用户日志
-        saveUserAccountBlueLog(userId,detail.getAmount(),recordId,OperationType.GRABREDPACKET.getAction(),OperationType.GRABREDPACKET.getOperationType(), roomId);
+        saveUserAccountBlueLog(userId,detail.getAmount(),recordId,OperationType.GRABREDPACKET.getAction(),OperationType.GRABREDPACKET.getOperationType(), roomId==null||roomId.intValue()==0?null:roomId);
 
         //最后一个打标签
         if(isLastOne){

@@ -478,6 +478,8 @@ public class NoticeServerImpl implements NoticeService {
         if (userAccountInfo==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        roomId = roomId==null||roomId.intValue() == 0?null:roomId;
+
         if (userAccountInfo.getHornNumber()<1){
             if (userAccountInfo.getBlueDiamond().subtract(userAccountInfo.getHornPrice()).doubleValue()<0){
                 throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue(),ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
