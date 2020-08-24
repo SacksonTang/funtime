@@ -90,17 +90,21 @@ public class NoticeServerImpl implements NoticeService {
             int size = toAccounts.size();
             int fromIndex = 0;
             int toIndex = 500;
+            int temp = 500;
             int k = size%toIndex == 0?size/toIndex:size/toIndex+1;
             for (int j = 1;j<k+1;j++){
                 List<String> spList = toAccounts.subList(fromIndex,toIndex);
-                fromIndex = j*toIndex;
-                toIndex =  Math.min((j+1)*toIndex,size) ;
+                fromIndex = toIndex;
+                toIndex =  Math.min((j+1)*temp,size) ;
                 array = TencentUtil.batchsendmsg(userSig,spList,data);
                 if(array != null){
                     List<String> users = getUserIds(array);
                     if (!users.isEmpty()) {
                         TencentUtil.batchsendmsg(userSig, users, data);
                     }
+                }
+                if (toIndex>size){
+                    break;
                 }
             }
         }
@@ -138,11 +142,12 @@ public class NoticeServerImpl implements NoticeService {
             int size = list.size();
             int fromIndex = 0;
             int toIndex = 500;
+            int temp = 500;
             int k = size%toIndex == 0?size/toIndex:size/toIndex+1;
             for (int j = 1;j<k+1;j++){
                 List<String> spList = list.subList(fromIndex,toIndex);
-                fromIndex = j*toIndex;
-                toIndex =  Math.min((j+1)*toIndex,size) ;
+                fromIndex = toIndex;
+                toIndex =  Math.min((j+1)*temp,size) ;
                 array = TencentUtil.batchsendmsg(userSig,spList,data);
                 if(array == null){
                     noticeMapper.updateState(id,1);
@@ -154,6 +159,9 @@ public class NoticeServerImpl implements NoticeService {
                     }else{
                         noticeMapper.updateState(id, 4);
                     }
+                }
+                if (toIndex>size){
+                    break;
                 }
             }
         }
@@ -182,11 +190,12 @@ public class NoticeServerImpl implements NoticeService {
             int size = list.size();
             int fromIndex = 0;
             int toIndex = 500;
+            int temp = 500;
             int k = size%toIndex == 0?size/toIndex:size/toIndex+1;
             for (int j = 1;j<k+1;j++){
                 List<String> spList = list.subList(fromIndex,toIndex);
-                fromIndex = j*toIndex;
-                toIndex =  Math.min((j+1)*toIndex,size) ;
+                fromIndex = toIndex;
+                toIndex =  Math.min((j+1)*temp,size) ;
                 array = TencentUtil.batchsendmsg(userSig,spList,data);
                 if(array == null){
                     noticeMapper.updateState(id,1);
@@ -198,6 +207,9 @@ public class NoticeServerImpl implements NoticeService {
                     }else{
                         noticeMapper.updateState(id, 4);
                     }
+                }
+                if (toIndex>size){
+                    break;
                 }
             }
         }
