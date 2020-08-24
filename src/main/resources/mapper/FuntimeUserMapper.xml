@@ -829,7 +829,7 @@
   </insert>
   <select id="getOfflineUser" resultType="java.lang.Long">
     select t.user_id from t_funtime_im_heart t
-    where t.user_state = 2 and t.is_sync = 2  and DATE_SUB(NOW(),INTERVAL 30 SECOND)>t.operation_time
+    where t.user_state = 2 and t.is_sync = 2  and DATE_SUB(NOW(),INTERVAL 60 SECOND)>t.operation_time
   </select>
   <select id="getOfflineUserByApp" resultType="java.lang.Long" parameterType="java.lang.Integer">
     SELECT

@@ -73,7 +73,7 @@ public class WxLogin implements LoginStrategy {
                 url = url.replace("http:","https:");
             }
             user.setPortraitAddress(url);
-            user.setSex(userJson.getInteger("sex")==null?1:userJson.getInteger("sex"));
+            user.setSex(userJson.getInteger("sex")==null||userJson.getInteger("sex")==0?1:userJson.getInteger("sex"));
             if (StringUtils.isBlank(user.getPortraitAddress())) {
                 List<String> userImageDefaultUrls = userService.getUserImageDefaultUrls(user.getSex());
                 if (userImageDefaultUrls == null || userImageDefaultUrls.isEmpty()) {

@@ -608,6 +608,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void doPoint(FuntimeDeviceInfo deviceInfo) {
 
         dataReport(deviceInfo);
