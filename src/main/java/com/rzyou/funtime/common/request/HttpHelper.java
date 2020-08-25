@@ -27,7 +27,7 @@ public class HttpHelper {
 
     public static JSONObject getParamterJsonDecrypt(HttpServletRequest request){
         String str = getBodyString(request);
-        log.info("请求Body: {} ", str);
+        log.debug("请求Body: {} ", str);
         if (StringUtils.isBlank(str)){
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
@@ -50,7 +50,7 @@ public class HttpHelper {
 
 
         String str = getBodyString(request);
-        log.info("请求Body: {} ", str);
+        log.debug("请求Body: {} ", str);
         if (StringUtils.isBlank(str)){
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
