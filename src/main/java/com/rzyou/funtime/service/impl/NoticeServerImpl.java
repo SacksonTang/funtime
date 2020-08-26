@@ -77,7 +77,7 @@ public class NoticeServerImpl implements NoticeService {
             return;
         }
         JSONArray array;
-        if (toAccounts.size()<=500) {
+        if (toAccounts.size()<=300) {
             array = TencentUtil.batchsendmsg(userSig,toAccounts,data);
             if(array != null){
                 List<String> users = getUserIds(array);
@@ -89,8 +89,8 @@ public class NoticeServerImpl implements NoticeService {
         }else{
             int size = toAccounts.size();
             int fromIndex = 0;
-            int toIndex = 500;
-            int temp = 500;
+            int toIndex = 300;
+            int temp = 300;
             int k = size%toIndex == 0?size/toIndex:size/toIndex+1;
             for (int j = 1;j<k+1;j++){
                 List<String> spList = toAccounts.subList(fromIndex,toIndex);
@@ -124,7 +124,7 @@ public class NoticeServerImpl implements NoticeService {
     public void sendAllAppNotice(String userSig, String data, Long id) {
         List<String> list = userService.getAllUserId();
         JSONArray array;
-        if (list!=null&&list.size()<=500) {
+        if (list!=null&&list.size()<=300) {
             array = TencentUtil.batchsendmsg(userSig,list,data);
             if(array == null){
                 noticeMapper.updateState(id,1);
@@ -141,8 +141,8 @@ public class NoticeServerImpl implements NoticeService {
         }else{
             int size = list.size();
             int fromIndex = 0;
-            int toIndex = 500;
-            int temp = 500;
+            int toIndex = 300;
+            int temp = 300;
             int k = size%toIndex == 0?size/toIndex:size/toIndex+1;
             for (int j = 1;j<k+1;j++){
                 List<String> spList = list.subList(fromIndex,toIndex);
@@ -172,7 +172,7 @@ public class NoticeServerImpl implements NoticeService {
 
         List<String> list = roomService.getAllRoomUser();
         JSONArray array;
-        if (list!=null&&list.size()<=500) {
+        if (list!=null&&list.size()<=300) {
             array = TencentUtil.batchsendmsg(userSig,list,data);
             if(array == null){
                 noticeMapper.updateState(id,1);
@@ -189,8 +189,8 @@ public class NoticeServerImpl implements NoticeService {
         }else{
             int size = list.size();
             int fromIndex = 0;
-            int toIndex = 500;
-            int temp = 500;
+            int toIndex = 300;
+            int temp = 300;
             int k = size%toIndex == 0?size/toIndex:size/toIndex+1;
             for (int j = 1;j<k+1;j++){
                 List<String> spList = list.subList(fromIndex,toIndex);

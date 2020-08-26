@@ -1304,10 +1304,13 @@ public class RoomServiceImpl implements RoomService {
             List<Map<String, Object>> micUser;
             List<String> userIds;
             for (Long roomId : allRoom){
-                userIds = getRoomUserByRoomIdAll(roomId);
-                micUser = getMicUserByRoomId(roomId);
-                if (userIds!=null&&!userIds.isEmpty()) {
-                    noticeService.notice32(userIds, micUser, userIds.size());
+                Long time = (Long) redisUtil.get(Constant.REDIS_ROOM_MIC_PREFIX + roomId);
+                if (time!=null&&System.currentTimeMillis()-time>5000) {
+                    userIds = getRoomUserByRoomIdAll(roomId);
+                    micUser = getMicUserByRoomId(roomId);
+                    if (userIds != null && !userIds.isEmpty()) {
+                        noticeService.notice32(userIds, micUser, userIds.size());
+                    }
                 }
             }
         }
@@ -1320,6 +1323,7 @@ public class RoomServiceImpl implements RoomService {
         if (userIds!=null&&!userIds.isEmpty()) {
             List<Map<String, Object>> micUser = getMicUserByRoomId(roomId);
             noticeService.notice32(userIds, micUser,userIds.size());
+            redisUtil.set(Constant.REDIS_ROOM_MIC_PREFIX+roomId,System.currentTimeMillis(),60*60*12);
         }
     }
 
@@ -1481,6 +1485,7 @@ public class RoomServiceImpl implements RoomService {
         for (FuntimeChatroom chatroom : chatrooms){
             try {
                 roomClose(chatroom.getUserId(), chatroom.getId());
+                redisUtil.del(Constant.REDIS_ROOM_MIC_PREFIX+chatroom.getId());
             }catch (Exception e){
                 log.error("定时清理空房出错 房间ID:{}",chatroom.getId());
             }

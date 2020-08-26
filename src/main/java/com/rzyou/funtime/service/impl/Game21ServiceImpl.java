@@ -361,7 +361,6 @@ public class Game21ServiceImpl implements Game21Service {
             resultMap.put("game", gameInfo);
             resultMap.put("mics", roomGame21Mapper.getGameInfoByRoomId(roomId));
         }
-        log.info("getGameInfo {}",resultMap);
         return resultMap;
     }
 

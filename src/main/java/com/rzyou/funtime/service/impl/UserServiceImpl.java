@@ -791,6 +791,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void updateUserLocation(Long userId, String longitude, String latitude) {
+        FuntimeUser user = new FuntimeUser();
+        user.setId(userId);
+        user.setLongitude(longitude);
+        user.setLatitude(latitude);
+        int k = userMapper.updateByPrimaryKeySelective(user);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        k = userMapper.insertUserLocationLog(userId,longitude,latitude);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
+    @Override
     public FuntimeUserValid queryValidInfoByUserId(Long userId) {
 
         FuntimeUserValid userValid = userValidMapper.selectByUserId(userId);
@@ -925,6 +942,62 @@ public class UserServiceImpl implements UserService {
                 }
                 user.setTagNames(tagNames);
 
+            }
+
+            return new PageInfo<>(list);
+        }
+    }
+
+    @Override
+    public PageInfo<Map<String,Object>> getUserList(Integer startPage, Integer pageSize, Integer sex, Long userId, Integer type, BigDecimal longitude, BigDecimal latitude) {
+        PageHelper.startPage(startPage,pageSize);
+        List<Map<String,Object>> list = null;
+        if (type == 1) {
+            list = userMapper.getUserList1(sex, userId);
+        }
+        if (type == 2) {
+            list = userMapper.getUserList2(sex, userId);
+        }
+        if (type == 3) {
+            list = userMapper.getUserList3(sex, userId);
+        }
+        if (type == 4) {
+            if (longitude==null||latitude==null){
+                list = null;
+            }else {
+                list = userMapper.getUserList4(sex, userId, longitude, latitude);
+            }
+        }
+        if(list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }else{
+            for (Map<String,Object> userMap:list){
+                if (userMap.get("birthday")!=null) {
+                    Integer birthday = Integer.parseInt(userMap.get("birthday").toString());
+                    userMap.put("age",DateUtil.getAgeByBirthday(birthday));
+                    userMap.put("constellation",DateUtil.getConstellationByBirthday(birthday));
+                }
+                if (userMap.get("sex")!=null){
+                    if (Integer.parseInt(userMap.get("sex").toString()) == 1){
+                        userMap.put("sexColor",Constant.SEX_MALE_COLOR);
+                    }else {
+                        userMap.put("sexColor",Constant.SEX_FEMALE_COLOR);
+                    }
+                }
+                if (userMap.get("height")!=null){
+                    userMap.put("heightColor",Constant.HEIGHT_COLOR);
+                }
+
+                List<Map<String, Object>> tagNames = tagMapper.queryTagNamesByUserId(Long.parseLong(userMap.get("id").toString()));
+                if (tagNames!=null&&!tagNames.isEmpty()){
+                    for (Map<String, Object> map : tagNames){
+                        if (map.get("tagType").toString()!=null){
+                            map.put("tagColor", TagColorEnmu.getDescByValue(map.get("tagType").toString()));
+                        }
+
+                    }
+                }
+                userMap.put("tagNames",tagNames);
             }
 
             return new PageInfo<>(list);

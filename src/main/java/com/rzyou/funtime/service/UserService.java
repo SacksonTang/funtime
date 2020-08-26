@@ -593,4 +593,25 @@ public interface UserService {
      * @param code
      */
     void cancellation(Long userId, String code);
+
+    /**
+     * 修改经纬度
+     * @param userId
+     * @param longitude
+     * @param latitude
+     */
+    void updateUserLocation(Long userId, String longitude, String latitude);
+
+    /**
+     * 扩列
+     * @param startPage
+     * @param pageSize
+     * @param sex
+     * @param userId
+     * @param type
+     * @param longitude
+     * @param latitude
+     * @return
+     */
+    PageInfo<Map<String,Object>> getUserList(Integer startPage, Integer pageSize, Integer sex, Long userId, Integer type, BigDecimal longitude, BigDecimal latitude);
 }

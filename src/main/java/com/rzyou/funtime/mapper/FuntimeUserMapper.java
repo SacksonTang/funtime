@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.omg.CORBA.OBJ_ADAPTER;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -145,4 +146,14 @@ public interface FuntimeUserMapper {
     int insertDeviceInfo(FuntimeDeviceInfo deviceInfo);
 
     int userCancellation(Long userId);
+
+    int insertUserLocationLog(@Param("userId") Long userId,@Param("longitude") String longitude,@Param("latitude")  String latitude);
+
+    List<Map<String,Object>> getUserList1(@Param("sex") Integer sex, @Param("userId") Long userId);
+
+    List<Map<String,Object>> getUserList2(@Param("sex") Integer sex, @Param("userId") Long userId);
+
+    List<Map<String,Object>> getUserList3(@Param("sex") Integer sex, @Param("userId") Long userId);
+
+    List<Map<String,Object>> getUserList4(@Param("sex") Integer sex, @Param("userId") Long userId, @Param("longitude") BigDecimal longitude,@Param("latitude") BigDecimal latitude);
 }

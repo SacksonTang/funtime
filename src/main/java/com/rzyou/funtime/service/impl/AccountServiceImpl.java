@@ -2862,7 +2862,6 @@ public class AccountServiceImpl implements AccountService {
         int currentDate = DateUtil.getCurrentInt();
         Long id = signMapper.getSignCheck(currentDate,userId);
         if (id != null){
-            log.error("用户{}已签到",userId);
             resultMsg.setCode(ErrorMsgEnum.USER_SIGN_ERROR.getValue());
             resultMsg.setMsg(ErrorMsgEnum.USER_SIGN_ERROR.getValue());
             return resultMsg;

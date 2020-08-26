@@ -4,7 +4,9 @@ package com.rzyou.funtime.utils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class StringUtil {
@@ -54,9 +56,7 @@ public class StringUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(StringUtils.isNotBlank("1"));
-        System.out.println(DigestUtils.md5Hex("ba7a1534134ac992"));
 
-         }
+    }
 
 }

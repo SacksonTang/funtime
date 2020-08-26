@@ -42,6 +42,38 @@ public class UserController {
     ParameterService parameterService;
 
     /**
+     * 修改地理信息
+     * @return
+     */
+    @PostMapping("updateUserLocation")
+    public ResultMsg<Object> updateUserLocation(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String longitude = paramJson.getString("longitude");
+            String latitude = paramJson.getString("latitude");
+            Long userId = HttpHelper.getUserId();
+            if (StringUtils.isBlank(latitude)||StringUtils.isBlank(longitude)) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            userService.updateUserLocation(userId,longitude,latitude);
+
+        }catch (BusinessException be){
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return result;
+
+    }
+
+    /**
      * 根据showId获取用户信息（管理员）
      * @return
      */
@@ -870,13 +902,50 @@ public class UserController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
             Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
-            Integer pageSize = paramJson.getInteger("pageSize")==null?0:paramJson.getInteger("pageSize");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             Integer sex = paramJson.getInteger("sex");
             Integer ageType = paramJson.getInteger("ageType");
 
             Long userId = HttpHelper.getUserId();
 
             result.setData(JsonUtil.getMap("pageInfo",userService.queryUserInfoByOnline(startPage,pageSize,sex,ageType,userId)));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 扩列查询
+     * @param request
+     * @return
+     */
+    @PostMapping("getUserList")
+    public ResultMsg<Object> getUserList(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
+            Integer sex = paramJson.getInteger("sex");
+            Integer type = paramJson.getInteger("type");
+            BigDecimal longitude = paramJson.getBigDecimal("longitude");
+            BigDecimal latitude = paramJson.getBigDecimal("latitude");
+            type = type == null?1:type;
+
+            Long userId = HttpHelper.getUserId();
+
+            result.setData(JsonUtil.getMap("pageInfo",userService.getUserList(startPage,pageSize,sex,userId,type,longitude,latitude)));
 
             return result;
         } catch (BusinessException be) {

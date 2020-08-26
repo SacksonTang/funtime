@@ -47,6 +47,7 @@ public class Constant {
     public final static String share_Text = "触娱，聚焦年轻人语音社交的游戏和娱乐社区";
     public final static String SHARE_Title = "【#】正在邀请你一起连麦";
     public final static String REDISUSER_PREFIX = "userlogin-";
+    public final static String REDIS_ROOM_MIC_PREFIX = "roommicoperate-";
     public final static String USER_BACK_URL = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com/level/background/back.png";
     public final static String USER_DARK_URL = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com/level/background/dark.png";
     public final static String USER_LEVEL0_URL = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com/level/background/level0.png";
