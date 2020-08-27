@@ -938,14 +938,13 @@ public class UserController {
             Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
             Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
             Integer sex = paramJson.getInteger("sex");
-            Integer type = paramJson.getInteger("type");
+            Integer tagId = paramJson.getInteger("tagId");
             BigDecimal longitude = paramJson.getBigDecimal("longitude");
             BigDecimal latitude = paramJson.getBigDecimal("latitude");
-            type = type == null?1:type;
 
             Long userId = HttpHelper.getUserId();
 
-            result.setData(JsonUtil.getMap("pageInfo",userService.getUserList(startPage,pageSize,sex,userId,type,longitude,latitude)));
+            result.setData(JsonUtil.getMap("pageInfo",userService.getUserList(startPage,pageSize,sex,userId,tagId,longitude,latitude)));
 
             return result;
         } catch (BusinessException be) {
@@ -1599,6 +1598,41 @@ public class UserController {
             }
 
             result.setData(JsonUtil.getMap("invitationUserList",userService.getInvitationUserList(startPage,pageSize,userId,roomId,type,content)));
+
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    @PostMapping("getInvitationList")
+    public ResultMsg<Object> getInvitationList(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Long roomId = paramJson.getLong("roomId");
+            String content = paramJson.getString("content");
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?10:paramJson.getInteger("pageSize");
+            Integer tagId = paramJson.getInteger("tagId");
+            BigDecimal longitude = paramJson.getBigDecimal("longitude");
+            BigDecimal latitude = paramJson.getBigDecimal("latitude");
+            if (userId==null||roomId==null||tagId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+
+            result.setData(JsonUtil.getMap("invitationUserList",userService.getInvitationList(startPage,pageSize,userId,roomId,tagId,content,longitude,latitude)));
 
             return result;
         } catch (BusinessException be) {

@@ -376,14 +376,38 @@
       left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id ) on u.id = cm.mic_user_id
     where  u.flag = 1 and u.state = 1
         and u.last_login_time BETWEEN DATE_SUB(now(),INTERVAL 3 day) and DATE_SUB(now(),INTERVAL 1 day)
-      <if test="userId!=null">
-        and u.id!=#{userId}
-      </if>
-      <if test="sex!=null">
-        and u.sex = #{sex}
-      </if>
+
+        <if test="userId!=null">
+          and u.id!=#{userId}
+        </if>
+        <if test="sex!=null">
+          and u.sex = #{sex}
+        </if>
+
       order by u.last_login_time desc
   </select>
+  <select id="getInvitationUserList87"  resultType="java.util.Map">
+    select
+    u.id,u.nickname,u.portrait_address as portraitAddress,u.sex,u.show_id as showId,u.sign_text as  signText
+    ,u.online_state onlineState,
+    case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl,
+    l.level
+    from t_funtime_user u
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
+    where  u.flag = 1 and u.state = 1
+    and u.last_login_time BETWEEN DATE_SUB(now(),INTERVAL 3 day) and DATE_SUB(now(),INTERVAL 1 day)
+      and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = u.id and t.room_id = #{roomId})
+      and u.id!=#{userId}
+    <if test="content!=null and content!=''">
+      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
+    </if>
+    order by u.last_login_time desc
+  </select>
+
   <select id="getUserList2"  resultType="java.util.Map">
     select
     u.id , u.nickname, u.portrait_address as portraitAddress, u.sex, u.birthday,u.height, u.sign_text AS signText,
@@ -405,8 +429,32 @@
     <if test="sex!=null">
       and u.sex = #{sex}
     </if>
+
     order by u.last_login_time desc
   </select>
+
+  <select id="getInvitationUserList88"  resultType="java.util.Map">
+    select
+    u.id,u.nickname,u.portrait_address as portraitAddress,u.sex,u.show_id as showId,u.sign_text as  signText
+    ,u.online_state onlineState,
+    case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl,
+    l.level
+    from t_funtime_user u
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
+    where  u.online_state = 1 and u.flag = 1 and u.state = 1
+    and u.last_login_time BETWEEN DATE_SUB(now(),INTERVAL 3 day) and DATE_SUB(now(),INTERVAL 1 day)
+    and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = u.id and t.room_id = #{roomId})
+    and u.id!=#{userId}
+    <if test="content!=null and content!=''">
+      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
+    </if>
+    order by u.last_login_time desc
+  </select>
+
   <select id="getUserList3"  resultType="java.util.Map">
     select
     u.id , u.nickname, u.portrait_address as portraitAddress, u.sex, u.birthday,u.height, u.sign_text AS signText,
@@ -427,6 +475,29 @@
     </if>
     <if test="sex!=null">
       and u.sex = #{sex}
+    </if>
+
+    order by u.last_login_time desc
+  </select>
+
+  <select id="getInvitationUserList89"  resultType="java.util.Map">
+    select
+    u.id,u.nickname,u.portrait_address as portraitAddress,u.sex,u.show_id as showId,u.sign_text as  signText
+    ,u.online_state onlineState,
+    case when h.user_id is null then null
+    when h.type = 1 then l.level_url
+    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+    else null end levelUrl,
+    l.level
+    from t_funtime_user u
+    inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+    left join t_funtime_user_headwear_current h on u.id = h.user_id
+    where  u.online_state = 2 and u.flag = 1 and u.state = 1
+    and u.last_login_time BETWEEN DATE_SUB(now(),INTERVAL 3 day) and DATE_SUB(now(),INTERVAL 1 day)
+    and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = u.id and t.room_id = #{roomId})
+    and u.id!=#{userId}
+    <if test="content!=null and content!=''">
+      and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
     </if>
     order by u.last_login_time desc
   </select>
@@ -453,8 +524,32 @@
     <if test="sex!=null">
       and u.sex = #{sex}
     </if>
+
     order by distance asc,u.last_login_time desc
   </select>
+
+  <select id="getInvitationUserList90"  resultType="java.util.Map">
+  select
+  u.id,u.nickname,u.portrait_address as portraitAddress,u.sex,u.show_id as showId,u.sign_text as  signText
+  ,u.online_state onlineState,
+   round(st_distance_sphere (point(u.longitude, u.latitude), point(${longitude},${latitude})),0) as distance,
+  case when h.user_id is null then null
+  when h.type = 1 then l.level_url
+  when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+  else null end levelUrl,
+  l.level
+  from t_funtime_user u
+  inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
+  left join t_funtime_user_headwear_current h on u.id = h.user_id
+  where   u.flag = 1 and u.state = 1
+  and u.last_login_time BETWEEN DATE_SUB(now(),INTERVAL 3 day) and DATE_SUB(now(),INTERVAL 1 day)
+  and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = u.id and t.room_id = #{roomId})
+  and u.id!=#{userId}
+  <if test="content!=null and content!=''">
+    and (BINARY u.show_id = #{content} or u.nickname like concat('%',#{content},'%'))
+  </if>
+    order by distance asc,u.last_login_time desc
+</select>
 
   <select id="queryUserInfoByIndex"  resultMap="BaseResultMap">
     select

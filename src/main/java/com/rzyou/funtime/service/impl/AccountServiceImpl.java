@@ -1,12 +1,11 @@
 package com.rzyou.funtime.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alipay.easysdk.payment.common.models.AlipayTradeQueryResponse;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.im.TencentUtil;
-import com.rzyou.funtime.common.payment.alipay.MyAlipay;
+import com.rzyou.funtime.common.payment.alipay.MyAlipayOld;
 import com.rzyou.funtime.common.payment.iospay.IosPayUtil;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
 import com.rzyou.funtime.entity.*;
@@ -155,16 +154,16 @@ public class AccountServiceImpl implements AccountService {
                         closeOrderAlipay(record.getId(), record.getOrderNo());
                         continue;
                     }
-                    AlipayTradeQueryResponse response;
+                    com.alipay.api.response.AlipayTradeQueryResponse response;
                     try {
-                        response = MyAlipay.query(record.getOrderNo());
+                         response = MyAlipayOld.query(record.getOrderNo());
                     }catch (Exception e){
                         updatePollTimes(record.getId(), 1);
                         continue;
                     }
 
-                    if ("0".equals(response.code)&&"TRADE_SUCCESS".equals(response.tradeStatus)){
-                        aliPayOrderCallBack(record.getOrderNo(),"TRADE_SUCCESS",new BigDecimal(response.totalAmount),response.tradeNo);
+                    if ("10000".equals(response.getCode())&&"TRADE_SUCCESS".equals(response.getTradeStatus())){
+                        aliPayOrderCallBack(record.getOrderNo(),"TRADE_SUCCESS",new BigDecimal(response.getTotalAmount()),response.getTradeNo());
                     }else{
                         updatePollTimes(record.getId(), 1);
                     }
@@ -183,7 +182,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Transactional(rollbackFor = Throwable.class)
     public void closeOrderAlipay(Long orderId, String orderNo){
-        MyAlipay.closeOrder(orderNo);
+        MyAlipayOld.closeOrder(orderNo);
         updateState(orderId,PayState.INVALID.getValue(),null, null, null);
     }
 
@@ -372,15 +371,17 @@ public class AccountServiceImpl implements AccountService {
         record.setWealthVal(wealthVal);
         String orderNo = "Z"+StringUtil.createOrderId();
         saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
-        Map<String, Object> orderMap  = MyAlipay.alipay("触娱充值",orderNo,rechargeConf.getRechargeRmb().toString());
+        Map<String, Object> orderMap  = MyAlipayOld.alipay("触娱充值",orderNo,rechargeConf.getRechargeRmb().toString());
         orderMap.put("payType", "2");
         return orderMap;
 
     }
 
+
+
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Map<String,Object> createRechargeAlipayH5(FuntimeUserAccountRechargeRecord record){
+    public Map<String, Object>  createRechargeAlipayH5(FuntimeUserAccountRechargeRecord record){
         if (!userService.checkUserExists(record.getUserId())){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
@@ -408,7 +409,7 @@ public class AccountServiceImpl implements AccountService {
         record.setWealthVal(wealthVal);
         String orderNo = "Z"+StringUtil.createOrderId();
         saveAccountRechargeRecord(record,System.currentTimeMillis(),PayState.START.getValue(), orderNo);
-        Map<String, Object> orderMap  = MyAlipay.alipayH5("触娱H5充值",orderNo,rechargeConf.getRechargeRmb().toString(),record.getQuitUrl(),record.getReturnUrl());
+        Map<String, Object> orderMap  = MyAlipayOld.alipayH5("触娱H5充值", orderNo, rechargeConf.getRechargeRmb().toString(), record.getQuitUrl(), record.getReturnUrl());
         orderMap.put("payType", "2");
         return orderMap;
 
@@ -542,7 +543,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void aliPayOrderCallBack(String outTradeNo,String tradeStatus,BigDecimal totalAmount,String buyerLogonId)  {
+    public void aliPayOrderCallBack(String outTradeNo,String tradeStatus,BigDecimal totalAmount,String tradeNo)  {
         if (StringUtils.isNotEmpty(outTradeNo)) {
             //根据交易编号加锁，处理高并发
             synchronized (outTradeNo) {
@@ -591,7 +592,7 @@ public class AccountServiceImpl implements AccountService {
                             goldNum = record.getGoldNum() == null?0:record.getGoldNum()+Integer.parseInt(first_recharge_gold==null?"100":first_recharge_gold);
                         }
                         //状态变更
-                        updateState(record.getId(), PayState.PAIED.getValue(),buyerLogonId,hornNum,goldNum);
+                        updateState(record.getId(), PayState.PAIED.getValue(),tradeNo,hornNum,goldNum);
 
                         //用户总充值数(等级值)
                         int total = userAccount.getLevelVal()+record.getLevelVal();

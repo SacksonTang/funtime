@@ -70,6 +70,16 @@ public class AdvertisServiceImpl implements AdvertisService {
     }
 
     @Override
+    public String getCallBackUrlForKS2(String ip) {
+        return advertisMapper.getCallBackUrlForKS2(ip);
+    }
+
+    @Override
+    public String getCallBackUrlForQTT2(String ip) {
+        return advertisMapper.getCallBackUrlForQTT2(ip);
+    }
+
+    @Override
     public void saveToutiaoAdMonitor(FuntimeToutiaoAdMonitor ad) {
         advertisMapper.saveToutiaoAdMonitor(ad);
     }

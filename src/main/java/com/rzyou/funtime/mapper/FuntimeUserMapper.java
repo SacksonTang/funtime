@@ -151,9 +151,17 @@ public interface FuntimeUserMapper {
 
     List<Map<String,Object>> getUserList1(@Param("sex") Integer sex, @Param("userId") Long userId);
 
+    List<Map<String,Object>> getInvitationUserList87(@Param("userId") Long userId,@Param("content") String content,@Param("roomId") Long roomId);
+
+    List<Map<String,Object>> getInvitationUserList88(@Param("userId") Long userId,@Param("content") String content,@Param("roomId") Long roomId);
+
+    List<Map<String,Object>> getInvitationUserList89(@Param("userId") Long userId,@Param("content") String content,@Param("roomId") Long roomId);
+
     List<Map<String,Object>> getUserList2(@Param("sex") Integer sex, @Param("userId") Long userId);
 
     List<Map<String,Object>> getUserList3(@Param("sex") Integer sex, @Param("userId") Long userId);
 
     List<Map<String,Object>> getUserList4(@Param("sex") Integer sex, @Param("userId") Long userId, @Param("longitude") BigDecimal longitude,@Param("latitude") BigDecimal latitude);
+
+    List<Map<String,Object>> getInvitationUserList90(@Param("userId") Long userId,@Param("content") String content, @Param("longitude") BigDecimal longitude,@Param("latitude") BigDecimal latitude,@Param("roomId") Long roomId);
 }

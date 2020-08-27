@@ -88,6 +88,7 @@ public enum ErrorMsgEnum {
     MMPAYMKTTRANSFER_SIMPLE_BAN("30011","用户微信支付账户未实名,无法付款"),
     ALIPAY_ERROR("30012","支付失败"),
     ALIPAY_QUERY_ERROR("30013","ALIPAY查询订单失败"),
+    ALIPAY_CLOSE_ERROR("30014","ALIPAY关闭订单失败"),
 
     ORDER_NOT_EXISTS("40001","充值订单记录不存在"),
     ORDER_IS_INVALID("40002","订单记录已失效"),

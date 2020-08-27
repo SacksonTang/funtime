@@ -436,6 +436,20 @@ public interface UserService {
     PageInfo<Map<String,Object>> getInvitationUserList(Integer startPage, Integer pageSize, Long userId, Long roomId, Integer type, String content);
 
     /**
+     * 邀请列表（新）
+     * @param startPage
+     * @param pageSize
+     * @param userId
+     * @param roomId
+     * @param tagId
+     * @param content
+     * @param longitude
+     * @param latitude
+     * @return
+     */
+    PageInfo<Map<String,Object>> getInvitationList(Integer startPage, Integer pageSize, Long userId, Long roomId, Integer tagId, String content, BigDecimal longitude, BigDecimal latitude);
+
+    /**
      * 版本管理
      * @param platform
      * @param appVersion
@@ -608,10 +622,10 @@ public interface UserService {
      * @param pageSize
      * @param sex
      * @param userId
-     * @param type
+     * @param tagId
      * @param longitude
      * @param latitude
      * @return
      */
-    PageInfo<Map<String,Object>> getUserList(Integer startPage, Integer pageSize, Integer sex, Long userId, Integer type, BigDecimal longitude, BigDecimal latitude);
+    PageInfo<Map<String,Object>> getUserList(Integer startPage, Integer pageSize, Integer sex, Long userId, Integer tagId, BigDecimal longitude, BigDecimal latitude);
 }

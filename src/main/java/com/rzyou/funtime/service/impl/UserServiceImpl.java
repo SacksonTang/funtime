@@ -620,111 +620,102 @@ public class UserServiceImpl implements UserService {
     private void dataReport(FuntimeDeviceInfo deviceInfo){
         Integer count ;
         try {
-            if ("1".equals(deviceInfo.getOs())) {
+            if ("1".equals(deviceInfo.getOs())&&StringUtils.isNotBlank(deviceInfo.getIdfa())) {
                 if ("startup".equals(deviceInfo.getPoint())) {
-                    if (deviceInfo.getIdfa() != null ) {
-                        count = userMapper.checkDeviceExistsForApple(deviceInfo.getIdfa(),"startup");
+                    count = userMapper.checkDeviceExistsForApple(deviceInfo.getIdfa(),"startup");
+                    if (count == 0) {
+                        //快手
+                        String url = advertisService.getCallBackUrlForKSApple(deviceInfo.getIdfa());
+                        if (StringUtils.isNotBlank(url)) {
+                            log.info("**************苹果快手激活数据上报*****************idfa:{}",deviceInfo.getIdfa());
+                            url = URLDecoder.decode(url,"utf-8");
+                            url = url + "&event_type=1&event_time=" + System.currentTimeMillis();
+                            HttpClientUtil.doGet(url);
+                        }
+                        //头条
+                        url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
+                        if (StringUtils.isNotBlank(url)) {
+                            log.info("**************苹果头条激活数据上报*****************idfa:{}",deviceInfo.getIdfa());
+                            url = URLDecoder.decode(url,"utf-8");
+                            url = url + "&op2=0&opt_active_time=" + System.currentTimeMillis();
+                            HttpClientUtil.doGet(url);
+                        }
+                    }
+                }else if ("startIndex".equals(deviceInfo.getPoint())){
+                    count = userMapper.checkDeviceExistsForApple(deviceInfo.getIdfa(),"startIndex");
+                    if (count == 0) {
+                        //快手
+                        String url = advertisService.getCallBackUrlForKSApple(deviceInfo.getIdfa());
+                        if (StringUtils.isNotBlank(url)) {
+                            log.info("**************苹果快手首页数据上报*****************idfa:{}",deviceInfo.getIdfa());
+                            url = URLDecoder.decode(url,"utf-8");
+                            url = url + "&event_type=2&event_time=" + System.currentTimeMillis();
+                            HttpClientUtil.doGet(url);
+                        }
+                        //头条
+                        url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
+                        if (StringUtils.isNotBlank(url)) {
+                            log.info("**************苹果头条首页数据上报*****************idfa:{}",deviceInfo.getIdfa());
+                            url = URLDecoder.decode(url,"utf-8");
+                            url = url + "&op2=1&opt_active_time=" + System.currentTimeMillis();
+                            HttpClientUtil.doGet(url);
+                        }
+                    }
+                }
+            }else if("1".equals(deviceInfo.getOs())&&StringUtils.isNotBlank(deviceInfo.getIp())&&StringUtils.isNotBlank(deviceInfo.getAndroidId())){
+                if ("kuaishou".equals(deviceInfo.getChannel())) {
+                    if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
                         if (count == 0) {
-                            //快手
-                            String url = advertisService.getCallBackUrlForKSApple(deviceInfo.getIdfa());
+                            log.info("**************快手激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackUrlForKS2(deviceInfo.getIp());
                             if (StringUtils.isNotBlank(url)) {
-                                log.info("**************苹果快手激活数据上报*****************idfa:{}",deviceInfo.getIdfa());
-                                url = URLDecoder.decode(url,"utf-8");
+                                url = URLDecoder.decode(url, "utf-8");
                                 url = url + "&event_type=1&event_time=" + System.currentTimeMillis();
                                 HttpClientUtil.doGet(url);
                             }
-                            //头条
-                            url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
+                        }
+                    } else if ("startIndex".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
+                        if (count == 0) {
+                            log.info("**************快手首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackUrlForKS2(deviceInfo.getIp());
                             if (StringUtils.isNotBlank(url)) {
-                                log.info("**************苹果头条激活数据上报*****************idfa:{}",deviceInfo.getIdfa());
-                                url = URLDecoder.decode(url,"utf-8");
+                                url = URLDecoder.decode(url, "utf-8");
+                                url = url + "&event_type=2&event_time=" + System.currentTimeMillis();
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+
+                    }
+                }
+                else if ("qutoutiao".equals(deviceInfo.getChannel())||"qutoutiao-wx".equals(deviceInfo.getChannel())||"qutoutiao-ld".equals(deviceInfo.getChannel())) {
+                    if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
+                        if (count == 0) {
+                            log.info("**************头条激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackUrlForQTT2(deviceInfo.getIp());
+                            if (StringUtils.isNotBlank(url)) {
+                                url = URLDecoder.decode(url, "utf-8");
                                 url = url + "&op2=0&opt_active_time=" + System.currentTimeMillis();
                                 HttpClientUtil.doGet(url);
                             }
                         }
-                    }
-                }else if ("startIndex".equals(deviceInfo.getPoint())){
-                    if (deviceInfo.getIdfa() != null ) {
-                        count = userMapper.checkDeviceExistsForApple(deviceInfo.getIdfa(),"startIndex");
+                    } else if ("startIndex".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
                         if (count == 0) {
-                            //快手
-                            String url = advertisService.getCallBackUrlForKSApple(deviceInfo.getIdfa());
+                            log.info("**************头条首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackUrlForQTT2(deviceInfo.getIp());
                             if (StringUtils.isNotBlank(url)) {
-                                log.info("**************苹果快手首页数据上报*****************idfa:{}",deviceInfo.getIdfa());
-                                url = URLDecoder.decode(url,"utf-8");
-                                url = url + "&event_type=2&event_time=" + System.currentTimeMillis();
-                                HttpClientUtil.doGet(url);
-                            }
-                            //头条
-                            url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
-                            if (StringUtils.isNotBlank(url)) {
-                                log.info("**************苹果头条首页数据上报*****************idfa:{}",deviceInfo.getIdfa());
-                                url = URLDecoder.decode(url,"utf-8");
+                                url = URLDecoder.decode(url, "utf-8");
                                 url = url + "&op2=1&opt_active_time=" + System.currentTimeMillis();
                                 HttpClientUtil.doGet(url);
                             }
                         }
                     }
                 }
-            }else {
-                if (deviceInfo.getAndroidId() != null) {
-                    if ("kuaishou".equals(deviceInfo.getChannel())) {
-                        if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
-                            count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
-                            if (count == 0) {
-                                log.info("**************快手激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
-                                String url = advertisService.getCallBackUrlForKS(deviceInfo.getImei(), deviceInfo.getAndroidId(),deviceInfo.getOaid());
-                                if (StringUtils.isNotBlank(url)) {
-                                    url = URLDecoder.decode(url, "utf-8");
-                                    url = url + "&event_type=1&event_time=" + System.currentTimeMillis();
-                                    HttpClientUtil.doGet(url);
-                                }
-                            }
-                        } else if ("startIndex".equals(deviceInfo.getPoint())) {
-                            count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
-                            if (count == 0) {
-                                log.info("**************快手首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
-                                String url = advertisService.getCallBackUrlForKS(deviceInfo.getImei(), deviceInfo.getAndroidId(), deviceInfo.getOaid());
-                                if (StringUtils.isNotBlank(url)) {
-                                    url = URLDecoder.decode(url, "utf-8");
-                                    url = url + "&event_type=2&event_time=" + System.currentTimeMillis();
-                                    HttpClientUtil.doGet(url);
-                                }
-                            }
+            }else{
 
-                        }
-                    }
-                    else if ("qutoutiao".equals(deviceInfo.getChannel())||"qutoutiao-wx".equals(deviceInfo.getChannel())||"qutoutiao-ld".equals(deviceInfo.getChannel())) {
-                        if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
-                            if (deviceInfo.getAndroidId() != null) {
-                                count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
-                                if (count == 0) {
-                                    log.info("**************头条激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
-                                    String url = advertisService.getCallBackUrlForQTT(deviceInfo.getImei(), deviceInfo.getAndroidId(),deviceInfo.getOaid());
-                                    if (StringUtils.isNotBlank(url)) {
-                                        url = URLDecoder.decode(url, "utf-8");
-                                        url = url + "&op2=0&opt_active_time=" + System.currentTimeMillis();
-                                        HttpClientUtil.doGet(url);
-                                    }
-                                }
-                            }
-                        } else if ("startIndex".equals(deviceInfo.getPoint())) {
-                            if (deviceInfo.getAndroidId() != null) {
-                                count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
-                                if (count == 0) {
-                                    log.info("**************头条首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
-                                    String url = advertisService.getCallBackUrlForQTT(deviceInfo.getImei(), deviceInfo.getAndroidId(), deviceInfo.getOaid());
-                                    if (StringUtils.isNotBlank(url)) {
-                                        url = URLDecoder.decode(url, "utf-8");
-                                        url = url + "&op2=1&opt_active_time=" + System.currentTimeMillis();
-                                        HttpClientUtil.doGet(url);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
             }
 
         }catch (Exception e){
@@ -948,20 +939,21 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
     @Override
-    public PageInfo<Map<String,Object>> getUserList(Integer startPage, Integer pageSize, Integer sex, Long userId, Integer type, BigDecimal longitude, BigDecimal latitude) {
+    public PageInfo<Map<String,Object>> getUserList(Integer startPage, Integer pageSize, Integer sex, Long userId, Integer tagId, BigDecimal longitude, BigDecimal latitude) {
         PageHelper.startPage(startPage,pageSize);
         List<Map<String,Object>> list = null;
-        if (type == 1) {
+        if (tagId == 81) {
             list = userMapper.getUserList1(sex, userId);
         }
-        if (type == 2) {
+        if (tagId == 82) {
             list = userMapper.getUserList2(sex, userId);
         }
-        if (type == 3) {
+        if (tagId == 83) {
             list = userMapper.getUserList3(sex, userId);
         }
-        if (type == 4) {
+        if (tagId == 84) {
             if (longitude==null||latitude==null){
                 list = null;
             }else {
@@ -1470,6 +1462,41 @@ public class UserServiceImpl implements UserService {
         }else{
             list = null;
         }
+        if (list==null||list.isEmpty()){
+            return new PageInfo<>();
+        }
+
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public PageInfo<Map<String, Object>> getInvitationList(Integer startPage, Integer pageSize, Long userId, Long roomId, Integer tagId, String content, BigDecimal longitude, BigDecimal latitude) {
+        PageHelper.startPage(startPage,pageSize);
+        List<Map<String, Object>> list = null;
+        if (tagId == 87) {
+            list = userMapper.getInvitationUserList87( userId,content,roomId);
+        }
+        if (tagId == 88) {
+            list = userMapper.getInvitationUserList88( userId,content,roomId);
+        }
+        if (tagId == 89) {
+            list = userMapper.getInvitationUserList89( userId,content,roomId);
+        }
+        if (tagId == 90) {
+            if (longitude==null||latitude==null){
+                list = null;
+            }else {
+                updateUserLocation(userId,longitude.toString(),latitude.toString());
+                list = userMapper.getInvitationUserList90( userId,content, longitude, latitude,roomId);
+            }
+        }
+        if (tagId == 85){
+            list = userMapper.getInvitationUserList(userId,roomId,content);
+        }
+        if (tagId == 86){
+            list = userMapper.getInvitationUserList2(userId,roomId,content);
+        }
+
         if (list==null||list.isEmpty()){
             return new PageInfo<>();
         }

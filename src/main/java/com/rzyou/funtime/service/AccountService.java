@@ -58,7 +58,7 @@ public interface AccountService {
      * @param record
      * @return
      */
-    Map<String,Object> createRechargeAlipayH5(FuntimeUserAccountRechargeRecord record);
+    Map<String, Object>  createRechargeAlipayH5(FuntimeUserAccountRechargeRecord record);
 
     /**
      * 订单回调
@@ -82,9 +82,9 @@ public interface AccountService {
      * @param outTradeNo
      * @param tradeStatus
      * @param totalAmount
-     * @param buyerLogonId
+     * @param tradeNo
      */
-    void aliPayOrderCallBack(String outTradeNo,String tradeStatus,BigDecimal totalAmount,String buyerLogonId);
+    void aliPayOrderCallBack(String outTradeNo,String tradeStatus,BigDecimal totalAmount,String tradeNo);
     /**
      * 充值记录列表
      * @param startPage

@@ -463,7 +463,7 @@ public class LoginController {
 
             return result;
         } catch (BusinessException be) {
-            log.error("startRecharge BusinessException==========>{}",be.getMsg());
+            log.error("alipayRechargeH5 BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -475,6 +475,8 @@ public class LoginController {
             return result;
         }
     }
+
+
 
     @PostMapping("getGlobalConfig")
     public ResultMsg<Object> getGlobalConfig(HttpServletRequest request){

@@ -33,6 +33,16 @@
         order by id desc
         limit 1
     </select>
+  <select id="getCallBackUrlForKS2" resultType="java.lang.String">
+    select callback from t_funtime_kuaishou_ad_monitor where ip = #{ip}
+    order by id desc
+    limit 1
+  </select>
+  <select id="getCallBackUrlForQTT2" resultType="java.lang.String">
+    select callback_url from t_funtime_toutiao_ad_monitor where  ip = #{ip}
+    order by id desc
+    limit 1
+  </select>
   <insert id="saveTencentAd" parameterType="com.rzyou.funtime.entity.FuntimeTencentAd">
     replace into t_funtime_tencent_ad (click_id, muid, click_time,
       appid, advertiser_id, app_type,

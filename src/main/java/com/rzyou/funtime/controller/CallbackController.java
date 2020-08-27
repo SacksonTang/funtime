@@ -1,12 +1,12 @@
 package com.rzyou.funtime.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alipay.easysdk.factory.Factory;
-import com.alipay.easysdk.kernel.util.AntCertificationUtil;
+import com.alipay.api.internal.util.AlipaySignature;
 import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.im.TencentUtil;
+import com.rzyou.funtime.common.payment.alipay.config.MyAliPayConfig;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
 import com.rzyou.funtime.common.payment.wxpay.sdk.WXPayUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
@@ -20,7 +20,6 @@ import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jacoco.agent.rt.internal_035b120.core.internal.flow.IFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -180,7 +179,6 @@ public class CallbackController {
         //获取支付宝POST过来反馈信息
         Map<String,String> params = new HashMap<>();
         Map<String, String[]> requestParams = request.getParameterMap();
-        log.info("支付宝回调参数:{}",requestParams);
         for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
             String name = (String) iter.next();
             String[] values = requestParams.get(name);
@@ -194,10 +192,11 @@ public class CallbackController {
             params.put(name, valueStr);
         }
         log.info("支付宝回调参数:{}",params);
-        Boolean verifyNotify = Factory.Payment.Common().verifyNotify(params);
+        MyAliPayConfig aliPayConfig = new MyAliPayConfig();
+        Boolean verifyNotify = AlipaySignature.rsaCertCheckV1(params,aliPayConfig.getAlipayCertPath(),"utf-8",aliPayConfig.getSignType());
         if (!verifyNotify){
             log.error("支付宝支付回调签名不正确");
-            throw new BusinessException(ErrorMsgEnum.ALIPAY_ERROR.getValue(),ErrorMsgEnum.ALIPAY_ERROR.getDesc());
+            return "sign error";
         }
         //商户订单号
         String outTradeNo = request.getParameter("out_trade_no");
@@ -205,20 +204,20 @@ public class CallbackController {
         String tradeStatus = request.getParameter("trade_status");
         //资金总额
         String totalAmount = request.getParameter("total_amount");
-        //卖家支付宝账户
-        String sellerId = request.getParameter("seller_id");
+        //支付宝账户流水
+        String tradeNo = request.getParameter("trade_no");
         //买家支付宝账户
         String buyerLogonId = request.getParameter("buyer_logon_id");
         //签名
         String sign = request.getParameter("sign");
 
         if (StringUtils.isBlank(outTradeNo)||StringUtils.isBlank(tradeStatus)||StringUtils.isBlank(totalAmount)){
-            return "0";
+            return "success";
         }
 
-        accountService.aliPayOrderCallBack(outTradeNo,tradeStatus,new BigDecimal(totalAmount),buyerLogonId);
+        accountService.aliPayOrderCallBack(outTradeNo,tradeStatus,new BigDecimal(totalAmount),tradeNo);
 
-        return "0";
+        return "success";
 
     }
 

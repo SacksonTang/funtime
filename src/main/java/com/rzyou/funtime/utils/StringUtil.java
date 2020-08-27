@@ -1,13 +1,12 @@
 package com.rzyou.funtime.utils;
 
 
+import com.alibaba.fastjson.JSONObject;
+import com.rzyou.funtime.entity.FuntimeUser;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class StringUtil {
 
@@ -57,6 +56,10 @@ public class StringUtil {
 
     public static void main(String[] args) {
 
+        FuntimeUser user = new FuntimeUser();
+        user.setId(1l);
+        Map map = (JSONObject)(JSONObject.toJSON(user));
+        System.out.println(map);
     }
 
 }

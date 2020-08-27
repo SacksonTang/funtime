@@ -24,5 +24,9 @@ public interface FuntimeAdvertisMapper {
 
     String getCallBackUrlForQTTApple(String idfa);
 
+    String getCallBackUrlForKS2(String ip);
+
+    String getCallBackUrlForQTT2(String ip);
+
     int saveToutiaoAdMonitor(FuntimeToutiaoAdMonitor ad);
 }
