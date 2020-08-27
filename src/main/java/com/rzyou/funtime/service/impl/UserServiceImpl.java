@@ -957,6 +957,7 @@ public class UserServiceImpl implements UserService {
             if (longitude==null||latitude==null){
                 list = null;
             }else {
+                updateUserLocation(userId,longitude.toString(),latitude.toString());
                 list = userMapper.getUserList4(sex, userId, longitude, latitude);
             }
         }
