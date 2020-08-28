@@ -226,7 +226,7 @@ public class UserServiceImpl implements UserService {
 
         List<Long> beautyList = userMapper.getBeautyNumbers();
         Long maxShowId = userMapper.getMaxShowId();
-        for (int i = 0;i<10;i++){
+        for (int i = 0;i<10000;i++){
             maxShowId++;
             if(!beautyList.contains(maxShowId)){
                 break;
