@@ -838,7 +838,7 @@ public class NoticeServerImpl implements NoticeService {
         object.put("uid",userId);
         object.put("name",nickname);
         object.put("msg",msg);
-        object.put("type",Constant.ROOM_OPEN_SCREEN);
+        object.put("type",Constant.ROOM_CLOSE_SCREEN);
         String data = StringEscapeUtils.unescapeJava(object.toJSONString());
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
         sendRoomUserNotice(userSig,data,userIds);
