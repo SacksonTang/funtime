@@ -28,6 +28,8 @@ public class FuntimeChatroom implements Serializable {
 
     private Integer isLock;
 
+    private Integer screenFlag;
+
     private Integer hot;
 
     private Integer hots;

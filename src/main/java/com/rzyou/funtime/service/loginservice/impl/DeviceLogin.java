@@ -82,7 +82,7 @@ public class DeviceLogin implements LoginStrategy {
             userService.saveUser(user, null, null, null,null);
             userId = user.getId().toString();
             token = JwtHelper.generateJWT(userId,uuid);
-            userService.updateShowIdById(user.getId());
+            //userService.updateShowIdById(user.getId());
 
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());

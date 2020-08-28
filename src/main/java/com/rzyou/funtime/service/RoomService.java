@@ -502,4 +502,30 @@ public interface RoomService {
      * @return
      */
     Map<String, Object> getRoomStatement(String startDate, String endDate, Long roomId);
+
+    /**
+     * 获取首页推荐房间
+     * @return
+     */
+    Long getInvitationRoomId();
+
+    /**
+     * 打开公屏
+     * @param roomId
+     * @param userId
+     */
+    void openScreen(Long roomId, Long userId);
+
+    /**
+     * 关闭公屏
+     * @param roomId
+     * @param userId
+     */
+    void closeScreen(Long roomId, Long userId);
+
+    /**
+     * 推荐位
+     * @return
+     */
+    Map<String,Object> getRecommendRoomList();
 }

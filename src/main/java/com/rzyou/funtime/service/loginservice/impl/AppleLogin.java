@@ -71,7 +71,7 @@ public class AppleLogin implements LoginStrategy {
             user.setVersion(System.currentTimeMillis());
             user.setToken(uuid);
             userService.saveUser(user,Constant.LOGIN_APPLE,user.getAppleUserId(),null,null);
-            userService.updateShowIdById(user.getId());
+            //userService.updateShowIdById(user.getId());
             userId = user.getId().toString();
             String token = JwtHelper.generateJWT(userId,uuid);
             user.setToken(token);

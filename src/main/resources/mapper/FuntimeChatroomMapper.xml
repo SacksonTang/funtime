@@ -12,6 +12,7 @@
     <result column="exam_desc" jdbcType="VARCHAR" property="examDesc" />
     <result column="is_block" jdbcType="INTEGER" property="isBlock" />
     <result column="is_lock" jdbcType="INTEGER" property="isLock" />
+    <result column="screen_flag" jdbcType="INTEGER" property="screenFlag" />
     <result column="hot" jdbcType="INTEGER" property="hot" />
     <result column="hots" jdbcType="INTEGER" property="hots" />
     <result column="online_num" jdbcType="INTEGER" property="onlineNum" />
@@ -30,8 +31,19 @@
   </resultMap>
   <sql id="Base_Column_List">
     id, name, tags, exam_desc, is_block, is_lock, hot, online_num, state, create_time,
-    chat_message_file,user_id,password,exam_url,avatar_url,background_id,hots
+    chat_message_file,user_id,password,exam_url,avatar_url,background_id,hots,screen_flag
   </sql>
+
+
+  <select id="getInvitationConf" resultType="java.lang.Long">
+      select
+      case when type = 1 then (select id from t_funtime_chatroom order by online_num desc limit 1)
+			     when type = 2 then (select id from t_funtime_chatroom order by hot desc limit 1)
+                 when type = 3 then room_id
+                 else null
+                 end roomId
+      from t_funtime_invitation_conf limit 1
+  </select>
   <select id="getAllRoom" resultType="java.lang.Long" >
     select
     m.id
@@ -62,7 +74,7 @@
   <select id="getRoomInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
      m.id, m.name, m.tags, m.exam_desc, m.is_block, m.is_lock, m.hot, m.state, m.create_time,
-     m.chat_message_file,m.user_id,m.password,m.exam_url,m.avatar_url,m.background_id
+     m.chat_message_file,m.user_id,m.password,m.exam_url,m.avatar_url,m.background_id,m.screen_flag
      ,u.portrait_address,u.nickname,u.sex,u.show_id,l.level
      ,case when h.user_id is null then null
           when h.type = 1 then l.level_url
@@ -153,6 +165,60 @@
     having counts>0
     order by m.hot desc,counts desc,m.hots desc ,m.id desc
   </select>
+
+    <select id="getRecommendRoomList1"  resultType="java.util.Map">
+        select
+        m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+        u.sex,u.show_id showId,
+        m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
+        case when 1000>m.hots then m.hots
+        when m.hots>=1000 and 1000000>m.hots then CONCAT(FORMAT(m.hots/1000,0),'K')
+        when m.hots>=1000000 and 1000000000>m.hots then CONCAT(FORMAT(m.hots/1000000,0),'M')
+        when m.hots>=1000000000  then CONCAT(FORMAT(m.hots/1000000000,0),'B')
+        else 0 end hots,
+        count(cu.id) counts,
+        g.tag_name  tagNames,
+        g.tag_color tagColor,
+        g.tag_url tagUrl
+        from t_funtime_chatroom m
+        inner join t_funtime_user u on m.user_id = u.id
+        left join (t_funtime_chatroom_mic cu inner join t_funtime_user u2 on cu.mic_user_id = u2.id  and u2.online_state = 1 ) on m.id = cu.room_id
+        left join t_funtime_tag g on g.id = m.tags
+        where m.is_block = 2 and m.state = 1 and m.hot>0
+        group by m.id
+        having counts>0
+        order by m.hot desc,counts desc,m.hots desc ,m.id desc limit 3
+    </select>
+    <select id="getRecommendRoomList2"  resultType="java.util.Map">
+        select
+        m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+        u.sex,u.show_id showId,
+        m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
+        case when 1000>m.hots then m.hots
+        when m.hots>=1000 and 1000000>m.hots then CONCAT(FORMAT(m.hots/1000,0),'K')
+        when m.hots>=1000000 and 1000000000>m.hots then CONCAT(FORMAT(m.hots/1000000,0),'M')
+        when m.hots>=1000000000  then CONCAT(FORMAT(m.hots/1000000000,0),'B')
+        else 0 end hots,
+        count(cu.id) counts,
+        g.tag_name  tagNames,
+        g.tag_color tagColor,
+        g.tag_url tagUrl
+        from t_funtime_chatroom m
+        inner join t_funtime_user u on m.user_id = u.id
+        left join (t_funtime_chatroom_mic cu inner join t_funtime_user u2 on cu.mic_user_id = u2.id  and u2.online_state = 1 ) on m.id = cu.room_id
+        left join t_funtime_tag g on g.id = m.tags
+        where m.is_block = 2 and m.state = 1
+        <if test="list!=null and list.size()>0">
+            and m.id not in
+            <foreach collection="list" item="id"  open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+
+        group by m.id
+        having counts>0
+        order by counts desc,m.hots desc ,m.id desc limit 3
+    </select>
 
   <select id="getRoomLogList" parameterType="java.lang.Long" resultType="java.util.Map">
     select
@@ -511,5 +577,8 @@
     inner join (select room_id,count(id) counts from t_funtime_chatroom_mic where mic_user_id is not null GROUP BY room_id) u on m.id = u.room_id
     set m.online_num = u.counts
     where  m.online_num!= u.counts
+  </update>
+  <update id="updateScreenFlag">
+      update t_funtime_chatroom set screen_flag = #{flag} where id = #{roomId}
   </update>
 </mapper>

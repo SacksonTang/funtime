@@ -14,6 +14,10 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserMapper {
 
+    List<Long> getBeautyNumbers();
+
+    Long getMaxShowId();
+
     Integer checkSensitive(String content);
 
     Integer checkForbiddenWords(Long userId);

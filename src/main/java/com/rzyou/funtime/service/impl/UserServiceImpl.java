@@ -223,6 +223,16 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid,String accessToken) {
+
+        List<Long> beautyList = userMapper.getBeautyNumbers();
+        Long maxShowId = userMapper.getMaxShowId();
+        for (int i = 0;i<10;i++){
+            maxShowId++;
+            if(!beautyList.contains(maxShowId)){
+                break;
+            }
+        }
+        user.setShowId(maxShowId);
         insertSelective(user);
 
         if (StringUtils.isNotBlank(user.getPhoneNumber())){

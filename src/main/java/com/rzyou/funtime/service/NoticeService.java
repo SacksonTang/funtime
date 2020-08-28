@@ -478,4 +478,23 @@ public interface NoticeService {
      * @param animationType
      */
     void notice40(Long roomId, Long userId, String nickname, List<String> userIds, String carUrl, String msg, String animationType);
+
+    /**
+     * 打开公屏
+     * @param userIds
+     * @param roomId
+     * @param userId
+     * @param nickname
+     * @param msg
+     */
+    void notice41(List<String> userIds, Long roomId, Long userId, String nickname, String msg);
+    /**
+     * 打开公屏
+     * @param userIds
+     * @param roomId
+     * @param userId
+     * @param nickname
+     * @param msg
+     */
+    void notice42(List<String> userIds, Long roomId, Long userId, String nickname, String msg);
 }

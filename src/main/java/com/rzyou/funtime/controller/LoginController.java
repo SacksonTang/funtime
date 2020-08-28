@@ -12,10 +12,7 @@ import com.rzyou.funtime.component.StaticData;
 import com.rzyou.funtime.entity.FuntimeDeviceInfo;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
-import com.rzyou.funtime.service.AccountService;
-import com.rzyou.funtime.service.ParameterService;
-import com.rzyou.funtime.service.SmsService;
-import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.service.*;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.JsonUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
@@ -40,6 +37,8 @@ public class LoginController {
     AccountService accountService;
     @Autowired
     ParameterService parameterService;
+    @Autowired
+    RoomService roomService;
 
 
     /**
@@ -428,7 +427,7 @@ public class LoginController {
 
             return result;
         } catch (BusinessException be) {
-            log.error("startRecharge BusinessException==========>{}",be.getMsg());
+            log.error("wxRechargeH5 BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
             result.setCode(be.getCode());
             result.setMsg(be.getMsg());
@@ -515,6 +514,8 @@ public class LoginController {
             data.put("userUrl",Constant.COS_URL_PREFIX+Constant.AGREEMENT_USER);
             data.put("priveteUrl",Constant.COS_URL_PREFIX+Constant.AGREEMENT_PRIVACY);
             data.put("boxRuleUrl",Constant.COS_URL_PREFIX+Constant.BOX_RULE);
+            data.put("invitationRoomId",roomService.getInvitationRoomId());
+            data.put("invitationImageUrl",parameterService.getParameterValueByKey("invitation_image_url"));
 
             data.put("roomNotice",Constant.ROOM_NOTICE);
             result.setData(data);

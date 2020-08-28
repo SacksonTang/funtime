@@ -93,7 +93,7 @@ public class QQLogin implements LoginStrategy {
             userId = user.getId().toString();
             String token = JwtHelper.generateJWT(userId, uuid);
             user.setToken(token);
-            userService.updateShowIdById(user.getId());
+            //userService.updateShowIdById(user.getId());
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig, user.getId().toString(), user.getNickname(), user.getPortraitAddress());
             if (!flag) {

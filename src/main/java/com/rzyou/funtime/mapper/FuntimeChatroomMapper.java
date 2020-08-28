@@ -10,6 +10,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeChatroomMapper {
 
+    Long getInvitationConf();
+
     List<FuntimeChatroom> getRoomCloseTask();
 
     int deleteByPrimaryKey(Long id);
@@ -48,6 +50,8 @@ public interface FuntimeChatroomMapper {
 
     int updateOnlineNumTask();
 
+    int updateScreenFlag(@Param("roomId") Long roomId,@Param("flag") Integer flag);
+
     int insertUserRoomLog(Map<String, Object> map);
 
     List<Map<String, Object>> getRoomList(Integer tagId);
@@ -55,6 +59,10 @@ public interface FuntimeChatroomMapper {
     List<Map<String, Object>> getRoomList2(Integer tagId);
 
     List<Map<String, Object>> getRoomLogList(Long userId);
+
+    List<Map<String, Object>> getRecommendRoomList1();
+
+    List<Map<String, Object>> getRecommendRoomList2(List<Long> list);
 
     List<Map<String, Object>> getRoomContributionList(@Param("endCount") Integer endCount, @Param("startDate") String startDate, @Param("endDate") String endDate, @Param("roomId") Long roomId,@Param("userId") Long userId);
 

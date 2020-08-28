@@ -819,6 +819,32 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
+    public void notice41(List<String> userIds, Long roomId, Long userId, String nickname, String msg) {
+        JSONObject object = new JSONObject();
+        object.put("rid",roomId);
+        object.put("uid",userId);
+        object.put("name",nickname);
+        object.put("msg",msg);
+        object.put("type",Constant.ROOM_OPEN_SCREEN);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
+    public void notice42(List<String> userIds, Long roomId, Long userId, String nickname, String msg) {
+        JSONObject object = new JSONObject();
+        object.put("rid",roomId);
+        object.put("uid",userId);
+        object.put("name",nickname);
+        object.put("msg",msg);
+        object.put("type",Constant.ROOM_OPEN_SCREEN);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
     public void notice20001(List<String> userIds, List<FuntimeRoomGame21> list, int timestamp, int rounds, long stamp, List<FuntimeRoomGame21> totalmics, String timeZone) {
         JSONObject object = new JSONObject();
         object.put("type",Constant.GAME21_START);

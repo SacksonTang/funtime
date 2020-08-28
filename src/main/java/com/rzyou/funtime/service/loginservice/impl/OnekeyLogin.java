@@ -74,7 +74,7 @@ public class OnekeyLogin implements LoginStrategy {
             userId = user.getId().toString();
 
             token = JwtHelper.generateJWT(userId,uuid);
-            userService.updateShowIdById(user.getId());
+            //userService.updateShowIdById(user.getId());
 
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
@@ -85,7 +85,7 @@ public class OnekeyLogin implements LoginStrategy {
         }else{
             isNewUser = false;
             userId = funtimeUser.getId().toString();
-            if(funtimeUser.getState().intValue()!=1){
+            if(funtimeUser.getState()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
             token = JwtHelper.generateJWT(userId,uuid);

@@ -164,6 +164,9 @@ public enum ErrorMsgEnum {
     ROOM_GAME123_AUTH("80037","无此权限"),
     ROOM_GAME123_NOT_EXISTS("80038","无此游戏"),
     ROOM_SHOWCAR_OVER("80039","今天炫耀次数已用完~"),
+    ROOM_SCREEN_OPEN("80040","公屏已打开"),
+    ROOM_SCREEN_CLOSE("80041","公屏已关闭"),
+    ROOM_NOT_MANAGER("80042","只有管理员才能进行此项操作"),
 
     DRAW_POOL_NOT_EN("90001","奖池余额不足"),
     DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启"),
