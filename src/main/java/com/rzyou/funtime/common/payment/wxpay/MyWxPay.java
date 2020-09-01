@@ -144,6 +144,46 @@ public class MyWxPay {
         }
     }
 
+    /**
+     * 统一下单（手机H5支付）
+     *
+     * @return
+     */
+    public static Map<String, String> unifiedOrderMWEB(String totalFee, String ip, String orderNo, String imei, String notifyUrl, String orderId, String trade_type,Integer payType) {
+        try {
+            MyWxPayConfig config = new MyWxPayConfig(payType);
+            WXPay wxpay = new WXPay(config);
+
+            Map<String, String> data = new HashMap<>();
+            data.put("body", "FUNTIME-RECHARGE");
+            data.put("out_trade_no", orderNo);
+            data.put("device_info", imei);
+            data.put("fee_type", "CNY");
+            data.put("total_fee", totalFee);
+            data.put("spbill_create_ip", ip);
+            data.put("notify_url", notifyUrl);
+            data.put("trade_type", trade_type);  //
+            data.put("attach", orderId);
+            log.info("unifiedOrder ==={}",data);
+            Map<String, String> resp = wxpay.unifiedOrder(data);
+            if(!"SUCCESS".equals(resp.get("return_code"))||!"SUCCESS".equals(resp.get("result_code"))){
+                log.error("预支付接口:unifiedOrder失败:{}",resp);
+                throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
+            }
+            if (resp.get("prepay_id")!=null) {
+
+                log.info("unifiedOrder result : {}", resp);
+                return resp;
+            }else{
+                throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BusinessException(ErrorMsgEnum.UNIFIELDORDER_ERROR.getValue(),ErrorMsgEnum.UNIFIELDORDER_ERROR.getDesc());
+
+        }
+    }
+
 
 
     /**

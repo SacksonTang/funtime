@@ -424,7 +424,7 @@ public class AccountServiceImpl implements AccountService {
             return MyWxPay.unifiedOrder(totalFee, ip, orderNo, imei, notifyUrl, orderId, trade_type,openid,payType);
         }
         else if (TradeType.MWEB.getValue().equals(trade_type)) {
-            return MyWxPay.unifiedOrder(totalFee, ip, orderNo, imei, notifyUrl, orderId, trade_type,payType);
+            return MyWxPay.unifiedOrderMWEB(totalFee, ip, orderNo, imei, notifyUrl, orderId, trade_type,payType);
         }else{
             throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(),ErrorMsgEnum.PARAMETER_ERROR.getDesc());
         }
