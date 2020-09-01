@@ -89,7 +89,7 @@
     select
     id, username, fullname, nickname, password, phone_number,
     drainage_channel,token, portrait_address, sex, birthday, height, sign_text,version,
-    state, realname_authentication_flag, online_state, create_room, registration_time,
+    state, realname_authentication_flag, online_state, create_room, registration_time,longitude,latitude,
     update_time, last_login_time, concerns, fans, ip, flag, guild_id,platform,channel,show_id,car_id
     from t_funtime_user
     where id = #{id,jdbcType=BIGINT} and flag = 1
@@ -354,7 +354,7 @@
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
-    left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id )on u.id = cm.mic_user_id
+    left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id and m.state = 1)on u.id = cm.mic_user_id
     where u.online_state = 1 and u.flag = 1 and u.state = 1
       <if test="userId!=null">
         and u.id!=#{userId}
@@ -379,7 +379,7 @@
     from t_funtime_user u
       inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
       left join t_funtime_user_headwear_current h on u.id = h.user_id
-      left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id ) on u.id = cm.mic_user_id
+      left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id and m.state = 1) on u.id = cm.mic_user_id
     where  u.flag = 1 and u.state = 1
         and u.last_login_time BETWEEN DATE_SUB(now(),INTERVAL 3 day) and DATE_SUB(now(),INTERVAL 1 day)
 
@@ -427,7 +427,7 @@
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
-    left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id )on u.id = cm.mic_user_id
+    left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id and m.state = 1)on u.id = cm.mic_user_id
     where u.online_state = 1 and u.flag = 1 and u.state = 1
     <if test="userId!=null">
       and u.id!=#{userId}
@@ -474,7 +474,7 @@
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
-    left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id )on u.id = cm.mic_user_id
+    left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id and m.state = 1)on u.id = cm.mic_user_id
     where u.online_state = 2 and u.flag = 1 and u.state = 1
     <if test="userId!=null">
       and u.id!=#{userId}
@@ -522,7 +522,7 @@
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
-    left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id )on u.id = cm.mic_user_id
+    left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id and m.state = 1)on u.id = cm.mic_user_id
     where  u.flag = 1 and u.state = 1
     <if test="userId!=null">
       and u.id!=#{userId}
@@ -1097,4 +1097,24 @@
   <insert id="insertUserLocationLog">
     insert into t_funtime_user_location_log (user_id,longitude,latitude) values (#{userId},#{longitude},#{latitude})
   </insert>
+  <select id="insertUserAction">
+      insert into t_funtime_user_action (user_id,page,ip) values (#{userId},#{page},#{ip})
+  </select>
+
+  <select id="getUserImDayCount" resultType="java.lang.Integer">
+      select t.counts-count(d.to_user_id) from t_funtime_user_imdaycount t left join t_funtime_user_im_record d on t.user_id = d.user_id
+       where t.user_id = #{userId} and d.day_time = #{dayTime} and d.unlock = 2
+       group by t.user_id
+  </select>
+
+  <insert id="insertUserImDayCount">
+      insert into t_funtime_user_imdaycount (user_id,counts) values (#{userId},#{counts})
+  </insert>
+  <select id="getUserImRecord">
+      select 1 from t_funtime_user_im_record where user_id = #{userId} and to_user_id = #{toUserId} and day_time = #{dayTime}
+  </select>
+  <insert id="insertUserImRecord">
+      insert into t_funtime_user_im_record (user_id,to_user_id,day_time,unlock) values  (#{userId},#{toUserId},#{dayTime},#{unlock})
+  </insert>
+
 </mapper>

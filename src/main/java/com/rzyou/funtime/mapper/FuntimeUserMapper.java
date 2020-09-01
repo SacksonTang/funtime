@@ -168,4 +168,14 @@ public interface FuntimeUserMapper {
     List<Map<String,Object>> getUserList4(@Param("sex") Integer sex, @Param("userId") Long userId, @Param("longitude") BigDecimal longitude,@Param("latitude") BigDecimal latitude);
 
     List<Map<String,Object>> getInvitationUserList90(@Param("userId") Long userId,@Param("content") String content, @Param("longitude") BigDecimal longitude,@Param("latitude") BigDecimal latitude,@Param("roomId") Long roomId);
+
+    int insertUserAction(@Param("userId") Long userId,@Param("page")  String page,@Param("ip")  String ip);
+
+    int insertUserImDayCount(@Param("userId") Long userId,@Param("counts")  Integer counts);
+
+    Integer getUserImRecord(@Param("userId") Long userId,@Param("toUserId") Long toUserId,@Param("dayTime") Integer dayTime);
+
+    int insertUserImRecord(@Param("userId") Long userId,@Param("toUserId") Long toUserId,@Param("dayTime") Integer dayTime,@Param("unlock") Integer unlock);
+
+    Integer getUserImDayCount(@Param("userId") Long userId,@Param("dayTime") Integer dayTime);
 }

@@ -16,5 +16,11 @@ public interface FuntimeUserConcernMapper {
     FuntimeUserConcern selectByPrimaryKey(Long id);
 
 
+    Integer checkFriendExist(@Param("userId") Long userId,@Param("toUserId") Long toUserId);
+
+    int insertUserFriend(@Param("userId") Long userId,@Param("toUserId") Long toUserId);
+
+    int delUserFriend(@Param("userId") Long userId,@Param("toUserId") Long toUserId);
+
 
 }

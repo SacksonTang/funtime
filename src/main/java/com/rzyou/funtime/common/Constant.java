@@ -199,6 +199,8 @@ public class Constant {
     public static final int ROOM_SHOW_CAR = 40;
     public static final int ROOM_OPEN_SCREEN = 41;
     public static final int ROOM_CLOSE_SCREEN = 42;
+    public static final int ROOM_OPEN_RANK = 43;
+    public static final int ROOM_CLOSE_RANK = 44;
     public static final int SERVICE_MSG = 10001;
     public static final int SERVICE_GIFT_MSG = 10002;
     public static final int SERVICE_REDPACKET_MSG = 10003;

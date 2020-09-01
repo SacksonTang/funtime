@@ -39,7 +39,33 @@ public class LoginController {
     ParameterService parameterService;
     @Autowired
     RoomService roomService;
+    /**
+     * 用户行为记录
+     * @param request
+     * @return
+     */
+    @PostMapping("doAction")
+    public ResultMsg<Object> doAction(HttpServletRequest request) {
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = paramJson.getLong("userId");
+            String page = paramJson.getString("page");
+            String ip = HttpHelper.getClientIpAddr(request);
+            userService.doAction(userId,page,ip);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
 
+        return result;
+    }
 
     /**
      * 埋点
@@ -475,7 +501,29 @@ public class LoginController {
         }
     }
 
+    @PostMapping("getInvitationRoom")
+    public ResultMsg<Object> getInvitationRoom(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Map<String,Object> data = new HashMap<>();
 
+            data.put("invitationRoomId",roomService.getInvitationRoomId());
+            data.put("invitationImageUrl",parameterService.getParameterValueByKey("invitation_image_url"));
+
+            result.setData(data);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
 
     @PostMapping("getGlobalConfig")
     public ResultMsg<Object> getGlobalConfig(HttpServletRequest request){

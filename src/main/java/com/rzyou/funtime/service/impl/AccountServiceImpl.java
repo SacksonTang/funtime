@@ -640,10 +640,10 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public PageInfo<FuntimeUserAccountRechargeRecord> getRechargeDetailForPage(Integer startPage, Integer pageSize, String queryDate, Integer state, Long userId) {
-        PageHelper.startPage(startPage,pageSize);
+
         String startDate = queryDate+"-01 00:00:01";
         String endDate = currentFinalDay(queryDate) ;
-
+        PageHelper.startPage(startPage,pageSize);
         List<FuntimeUserAccountRechargeRecord> list = userAccountRechargeRecordMapper.getRechargeDetailForPage(startDate,endDate,userId,state);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
@@ -998,11 +998,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public PageInfo<FuntimeUserRedpacket> getRedpacketOfSendForPage(Integer startPage, Integer pageSize, String queryDate, Long userId) {
-        PageHelper.startPage(startPage,pageSize);
-
         String startDate = queryDate+"-01 00:00:01";
         String endDate = currentFinalDay(queryDate) ;
-
+        PageHelper.startPage(startPage,pageSize);
         List<FuntimeUserRedpacket> list = userRedpacketMapper.getRedpacketInfoByUserId(startDate,endDate,userId);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
@@ -1013,11 +1011,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public PageInfo<FuntimeUserAccountRedpacketRecord> getRedpacketOfRecieveForPage(Integer startPage, Integer pageSize, String queryDate, Long userId) {
-        PageHelper.startPage(startPage,pageSize);
-
         String startDate = queryDate+"-01 00:00:01";
         String endDate = currentFinalDay(queryDate) ;
-
+        PageHelper.startPage(startPage,pageSize);
         List<FuntimeUserAccountRedpacketRecord> list = userAccountRedpacketRecordMapper.getRedpacketOfRecieveForPage(startDate,endDate,userId);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
@@ -1052,7 +1048,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ResultMsg<Object> sendGiftForKnapsack(Long userId, String toUserIds, Integer giftId, Integer giftNum, String desc, Integer giveChannel, Long roomId) {
+    public ResultMsg<Object> sendGiftForKnapsack(Long userId, String toUserIds, Integer giftId, Integer giftNum, String desc, Integer giveChannel, Long roomId, Integer unlock) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
         String[] toUserIdArray = toUserIds.split(",");
 
@@ -1105,8 +1101,10 @@ public class AccountServiceImpl implements AccountService {
                 throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
             }
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, desc, new BigDecimal(amount)
-                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel,roomId,OperationType.GIVEGIFTBAG.getOperationType(),black);
-
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannel,roomId,OperationType.GIVEGIFTBAG.getOperationType(),black,unlock);
+            if(unlock!=null&&unlock == 1){
+                userService.insertUserImRecord(userId,toUserId,DateUtil.getCurrentInt(),1);
+            }
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
             //用户收加上黑钻,魅力值
             userService.updateUserAccountForPlusGift(toUserId, black, giftNum,charmVal);
@@ -1344,7 +1342,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId) {
+    public ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId,Integer unlock) {
 
         ResultMsg<Object> resultMsg = new ResultMsg<>();
 
@@ -1395,8 +1393,11 @@ public class AccountServiceImpl implements AccountService {
                 throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
             }
             Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
-                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId, OperationType.GIVEGIFT.getOperationType(),black);
+                    , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannelId, roomId, OperationType.GIVEGIFT.getOperationType(),black,unlock);
 
+            if(unlock!=null&&unlock == 1){
+                userService.insertUserImRecord(userId,toUserId,DateUtil.getCurrentInt(),1);
+            }
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
             //用户收加上黑钻,魅力值
             userService.updateUserAccountForPlusGift(toUserId, black, giftNum,charmVal);
@@ -2641,11 +2642,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public PageInfo<FuntimeUserConvertRecord> getUserConvertRecordForPage(Integer startPage, Integer pageSize, Long userId, String queryDate,Integer convertType) {
-        PageHelper.startPage(startPage,pageSize);
-
         String startDate = queryDate+"-01 00:00:01";
         String endDate = currentFinalDay(queryDate) ;
-
+        PageHelper.startPage(startPage,pageSize);
         List<FuntimeUserConvertRecord> list = userConvertRecordMapper.getUserConvertRecordForPage(convertType,startDate,endDate,userId);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
@@ -2656,15 +2655,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public PageInfo<FuntimeUserAccountGifttransRecord> getGiftOfSendForPage(Integer startPage, Integer pageSize, String queryDate, Long userId) {
-        PageHelper.startPage(startPage,pageSize);
-
         String startDate = null;
         String endDate = null;
         if(StringUtils.isNotBlank(queryDate)) {
             startDate = queryDate + "-01 00:00:01";
             endDate = currentFinalDay(queryDate);
         }
-
+        PageHelper.startPage(startPage,pageSize);
         List<FuntimeUserAccountGifttransRecord> list = userAccountGifttransRecordMapper.getGiftOfSendForPage(startDate,endDate,userId);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
@@ -2676,14 +2673,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public PageInfo<FuntimeUserAccountGifttransRecord> getGiftOfRecieveForPage(Integer startPage, Integer pageSize, String queryDate, Long userId) {
-        PageHelper.startPage(startPage,pageSize);
         String startDate = null;
         String endDate = null;
         if(StringUtils.isNotBlank(queryDate)) {
             startDate = queryDate + "-01 00:00:01";
             endDate = currentFinalDay(queryDate);
         }
-
+        PageHelper.startPage(startPage,pageSize);
         List<FuntimeUserAccountGifttransRecord> list = userAccountGifttransRecordMapper.getGiftOfRecieveForPage(startDate,endDate,userId);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
@@ -2894,14 +2890,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public PageInfo<FuntimeUserAccountWithdrawalRecord> getWithdrawalForPage(Integer startPage, Integer pageSize, String queryDate, Integer state, Long userId) {
-        PageHelper.startPage(startPage,pageSize);
         String startDate = null;
         String endDate = null;
         if(StringUtils.isNotBlank(queryDate)) {
             startDate = queryDate + "-01 00:00:01";
             endDate = currentFinalDay(queryDate);
         }
-
+        PageHelper.startPage(startPage,pageSize);
         List<FuntimeUserAccountWithdrawalRecord> list = userAccountWithdrawalRecordMapper.getWithdrawalForPage(startDate,endDate,userId,state);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
@@ -3062,7 +3057,33 @@ public class AccountServiceImpl implements AccountService {
 
         return new BigDecimal(val);
     }
-
+    public Long saveFuntimeUserAccountGifttransRecord(Long userId, String operationDesc, BigDecimal amount, Integer num, Integer giftId
+            , String giftName, Long toUserId, Integer giveChannelId, Long roomId, String operationType, BigDecimal black,Integer unlock){
+        FuntimeUserAccountGifttransRecord record = new FuntimeUserAccountGifttransRecord();
+        record.setActionType(OperationType.GIVEGIFT.getAction());
+        record.setAmount(amount);
+        record.setCreateTime(new Date());
+        record.setGiftId(giftId);
+        record.setGiftName(giftName);
+        record.setRoomId(roomId);
+        record.setUnlock(unlock);
+        record.setBlackAmount(black);
+        record.setGiveChannelId(giveChannelId);
+        record.setNum(num);
+        record.setOperationDesc(operationDesc);
+        record.setOperationType(operationType);
+        record.setOrderNo("C"+StringUtil.createOrderId());
+        record.setState(1);
+        record.setToUserId(toUserId);
+        record.setUserId(userId);
+        record.setVersion(System.currentTimeMillis());
+        record.setCompleteTime(new Date());
+        int k = userAccountGifttransRecordMapper.insertSelective(record);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return record.getId();
+    }
 
     public Long saveFuntimeUserAccountGifttransRecord(Long userId, String operationDesc, BigDecimal amount, Integer num, Integer giftId
             , String giftName, Long toUserId, Integer giveChannelId, Long roomId, String operationType, BigDecimal black){

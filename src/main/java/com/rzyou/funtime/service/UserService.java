@@ -625,7 +625,40 @@ public interface UserService {
      * @param tagId
      * @param longitude
      * @param latitude
+     * @param ip
      * @return
      */
-    PageInfo<Map<String,Object>> getUserList(Integer startPage, Integer pageSize, Integer sex, Long userId, Integer tagId, BigDecimal longitude, BigDecimal latitude);
+    PageInfo<Map<String,Object>> getUserList(Integer startPage, Integer pageSize, Integer sex, Long userId, Integer tagId, BigDecimal longitude, BigDecimal latitude, String ip);
+
+    /**
+     * 记录用户行为
+     * @param userId
+     * @param page
+     * @param ip
+     */
+    void doAction(Long userId, String page, String ip);
+
+    /**
+     * 监测IM发送次数
+     * @param userId
+     * @param toUserId
+     * @return
+     */
+    Map<String,Object> checkSendImCounts(Long userId, Long toUserId);
+
+    /**
+     * IM次数减少
+     * @param userId
+     * @param toUserId
+     */
+    void subImCounts(Long userId, Long toUserId);
+
+    /**
+     * IM记录
+     * @param userId
+     * @param toUserId
+     * @param dayTime
+     * @param unlock
+     */
+    void insertUserImRecord(Long userId, Long toUserId, Integer dayTime,Integer unlock);
 }

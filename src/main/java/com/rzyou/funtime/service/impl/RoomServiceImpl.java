@@ -13,7 +13,6 @@ import com.rzyou.funtime.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.omg.CORBA.OBJ_ADAPTER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -995,6 +994,13 @@ public class RoomServiceImpl implements RoomService {
         if (user.getOnlineState() == 2){
             throw new BusinessException(ErrorMsgEnum.USER_IS_OFFLINE.getValue(),ErrorMsgEnum.USER_IS_OFFLINE.getDesc());
         }
+        FuntimeChatroom chatroom = getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        if(chatroom.getScreenFlag() == 2){
+            throw new BusinessException(ErrorMsgEnum.ROOM_SCREEN_CLOSE.getValue(),ErrorMsgEnum.ROOM_SCREEN_CLOSE.getDesc());
+        }
         Integer userRole = getUserRole(roomId,userId);
         userRole = userRole == null?4:userRole;
         List<String> userIds = getRoomUserByRoomIdAll(roomId);
@@ -1670,9 +1676,11 @@ public class RoomServiceImpl implements RoomService {
         if(chatroom.getScreenFlag() == 1){
             throw new BusinessException(ErrorMsgEnum.ROOM_SCREEN_OPEN.getValue(),ErrorMsgEnum.ROOM_SCREEN_OPEN.getDesc());
         }
-        Long manager = getChatroomManager(roomId, userId);
-        if (manager == null){
-            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_MANAGER.getValue(),ErrorMsgEnum.ROOM_NOT_MANAGER.getDesc());
+        if (!userId.equals(chatroom.getUserId())) {
+            Long manager = getChatroomManager(roomId, userId);
+            if (manager == null) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_NOT_MANAGER.getValue(), ErrorMsgEnum.ROOM_NOT_MANAGER.getDesc());
+            }
         }
         int k = chatroomMapper.updateScreenFlag(roomId,1);
         if(k!=1){
@@ -1693,11 +1701,13 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
         }
         if(chatroom.getScreenFlag() == 2){
-            throw new BusinessException(ErrorMsgEnum.ROOM_SCREEN_OPEN.getValue(),ErrorMsgEnum.ROOM_SCREEN_OPEN.getDesc());
+            throw new BusinessException(ErrorMsgEnum.ROOM_SCREEN_CLOSE.getValue(),ErrorMsgEnum.ROOM_SCREEN_CLOSE.getDesc());
         }
-        Long manager = getChatroomManager(roomId, userId);
-        if (manager == null){
-            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_MANAGER.getValue(),ErrorMsgEnum.ROOM_NOT_MANAGER.getDesc());
+        if (!userId.equals(chatroom.getUserId())) {
+            Long manager = getChatroomManager(roomId, userId);
+            if (manager == null) {
+                throw new BusinessException(ErrorMsgEnum.ROOM_NOT_MANAGER.getValue(), ErrorMsgEnum.ROOM_NOT_MANAGER.getDesc());
+            }
         }
         int k = chatroomMapper.updateScreenFlag(roomId,2);
         if(k!=1){
@@ -1707,7 +1717,7 @@ public class RoomServiceImpl implements RoomService {
         List<String> userIds = getRoomUserByRoomIdAll(roomId);
         String msg = "公屏已关闭";
         if (userIds!=null&&!userIds.isEmpty()){
-            noticeService.notice41(userIds,roomId,userId,user.getNickname(),msg);
+            noticeService.notice42(userIds,roomId,userId,user.getNickname(),msg);
         }
     }
 
@@ -1729,6 +1739,50 @@ public class RoomServiceImpl implements RoomService {
         resultMap.put("hots",list2);
 
         return resultMap;
+    }
+
+    @Override
+    public void openRoomRank(Long roomId, Long userId) {
+        FuntimeChatroom chatroom = getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        if(chatroom.getRankFlag() == 1){
+            throw new BusinessException(ErrorMsgEnum.ROOM_RANK_OPEN.getValue(),ErrorMsgEnum.ROOM_RANK_OPEN.getDesc());
+        }
+        if (!userId.equals(chatroom.getUserId())) {
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_CREATER.getValue(), ErrorMsgEnum.ROOM_NOT_CREATER.getDesc());
+        }
+        int k = chatroomMapper.updateRankFlag(roomId,1);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        List<String> userIds = getRoomUserByRoomIdAll(roomId);
+        if (userIds!=null&&!userIds.isEmpty()){
+            noticeService.notice43(userIds,roomId,userId);
+        }
+    }
+
+    @Override
+    public void closeRoomRank(Long roomId, Long userId) {
+        FuntimeChatroom chatroom = getChatroomById(roomId);
+        if (chatroom == null){
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_EXISTS.getValue(),ErrorMsgEnum.ROOM_NOT_EXISTS.getDesc());
+        }
+        if(chatroom.getRankFlag() == 2){
+            throw new BusinessException(ErrorMsgEnum.ROOM_RANK_CLOSE.getValue(),ErrorMsgEnum.ROOM_RANK_CLOSE.getDesc());
+        }
+        if (!userId.equals(chatroom.getUserId())) {
+            throw new BusinessException(ErrorMsgEnum.ROOM_NOT_CREATER.getValue(), ErrorMsgEnum.ROOM_NOT_CREATER.getDesc());
+        }
+        int k = chatroomMapper.updateRankFlag(roomId,1);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+        List<String> userIds = getRoomUserByRoomIdAll(roomId);
+        if (userIds!=null&&!userIds.isEmpty()){
+            noticeService.notice44(userIds,roomId,userId);
+        }
     }
 
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){

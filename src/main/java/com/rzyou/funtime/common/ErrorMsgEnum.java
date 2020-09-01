@@ -70,6 +70,7 @@ public enum ErrorMsgEnum {
     SENSITIVE_ERROR("10057","文本包含敏感词,请重新输入"),
     USER_DEVICE_BLOCK("10058","设备已封禁"),
     USER_FORBIDDEN_WORDS("10059","您发布了违规信息，已被禁言X小时，再次违规将被重罚。"),
+    USER_IMCOUNTS_EXCEED("10060","您今天撩人已达上限，送任意礼物可畅聊"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -167,6 +168,9 @@ public enum ErrorMsgEnum {
     ROOM_SCREEN_OPEN("80040","公屏已打开"),
     ROOM_SCREEN_CLOSE("80041","公屏已关闭"),
     ROOM_NOT_MANAGER("80042","只有管理员才能进行此项操作"),
+    ROOM_RANK_OPEN("80043","排行榜已打开"),
+    ROOM_RANK_CLOSE("80044","排行榜已关闭"),
+    ROOM_NOT_CREATER("80045","只有房主才能进行此项操作"),
 
     DRAW_POOL_NOT_EN("90001","奖池余额不足"),
     DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启"),

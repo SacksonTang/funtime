@@ -46,6 +46,7 @@ public class GiftTransController {
             Integer giftNum = paramJson.getInteger("giftNum");
             Integer giveChannel = paramJson.getInteger("giveChannel");//1-房间2-单发
             Long roomId = paramJson.getLong("roomId");
+            Integer unlock = paramJson.getInteger("unlock");
             if (userId == null || StringUtils.isBlank(toUserIds)||giftId == null || giftNum == null || giveChannel == null
                     ||(giveChannel.equals(GiveChannel.ROOM.getValue())&&roomId==null||giftNum<1)
                     ){
@@ -54,10 +55,10 @@ public class GiftTransController {
                 return result;
             }
             if (type == null || type == 1) {
-                return accountService.createGiftTrans(userId, toUserIds, giftId, giftNum, "送礼物", giveChannel, roomId);
+                return accountService.createGiftTrans(userId, toUserIds, giftId, giftNum, "送礼物", giveChannel, roomId,unlock);
             }
             else if (type == 2){
-                return accountService.sendGiftForKnapsack(userId, toUserIds, giftId, giftNum, "送礼物-背包", giveChannel, roomId);
+                return accountService.sendGiftForKnapsack(userId, toUserIds, giftId, giftNum, "送礼物-背包", giveChannel, roomId,unlock);
             }else if (type == 3){
                 return accountService.sendGiftForBox(userId, toUserIds, giftId, giftNum, "送礼物-宝箱", giveChannel, roomId);
             }

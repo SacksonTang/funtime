@@ -166,7 +166,7 @@ public interface AccountService {
      * @param roomId
      * @return
      */
-    ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId);
+    ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId,Integer unlock);
 
     /**
      * 送宝箱
@@ -589,9 +589,10 @@ public interface AccountService {
      * @param desc
      * @param giveChannel
      * @param roomId
+     * @param unlock
      * @return
      */
-    ResultMsg<Object> sendGiftForKnapsack(Long userId, String toUserIds, Integer giftId, Integer giftNum, String desc, Integer giveChannel, Long roomId);
+    ResultMsg<Object> sendGiftForKnapsack(Long userId, String toUserIds, Integer giftId, Integer giftNum, String desc, Integer giveChannel, Long roomId, Integer unlock);
 
     /**
      * 定时设置过期座驾

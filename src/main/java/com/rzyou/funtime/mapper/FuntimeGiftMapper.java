@@ -21,4 +21,6 @@ public interface FuntimeGiftMapper {
 
     List<FuntimeGift> getGiftListInit();
 
+    List<FuntimeGift> getGiftListByUnlock();
+
 }

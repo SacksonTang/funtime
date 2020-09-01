@@ -42,6 +42,68 @@ public class UserController {
     ParameterService parameterService;
 
     /**
+     * 监测是否可以发送消息
+     * @return
+     */
+    @PostMapping("checkSendImCounts")
+    public ResultMsg<Object> checkSendImCounts(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long toUserId = paramJson.getLong("toUserId");
+            Long userId = HttpHelper.getUserId();
+            if (toUserId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            result.setData(userService.checkSendImCounts(userId,toUserId));
+
+        }catch (BusinessException be){
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return result;
+
+    }
+
+    /**
+     * 消息次数减少
+     * @return
+     */
+    @PostMapping("subImCounts")
+    public ResultMsg<Object> subImCounts(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long toUserId = paramJson.getLong("toUserId");
+            Long userId = HttpHelper.getUserId();
+            if (toUserId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            userService.subImCounts(userId,toUserId);
+
+        }catch (BusinessException be){
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return result;
+
+    }
+
+    /**
      * 修改地理信息
      * @return
      */
@@ -943,8 +1005,9 @@ public class UserController {
             BigDecimal latitude = paramJson.getBigDecimal("latitude");
 
             Long userId = HttpHelper.getUserId();
+            String ip = HttpHelper.getClientIpAddr(request);
 
-            result.setData(JsonUtil.getMap("pageInfo",userService.getUserList(startPage,pageSize,sex,userId,tagId,longitude,latitude)));
+            result.setData(JsonUtil.getMap("pageInfo",userService.getUserList(startPage,pageSize,sex,userId,tagId,longitude,latitude,ip)));
 
             return result;
         } catch (BusinessException be) {

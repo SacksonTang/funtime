@@ -57,4 +57,6 @@ public class FuntimeUserAccountGifttransRecord implements Serializable {
 
     private Integer concerned;
 
+    private Integer unlock;
+
 }

@@ -489,7 +489,7 @@ public interface NoticeService {
      */
     void notice41(List<String> userIds, Long roomId, Long userId, String nickname, String msg);
     /**
-     * 打开公屏
+     * 关闭公屏
      * @param userIds
      * @param roomId
      * @param userId
@@ -497,4 +497,19 @@ public interface NoticeService {
      * @param msg
      */
     void notice42(List<String> userIds, Long roomId, Long userId, String nickname, String msg);
+
+    /**
+     * 打开排行榜
+     * @param userIds
+     * @param roomId
+     * @param userId
+     */
+    void notice43(List<String> userIds, Long roomId, Long userId);
+    /**
+     * 关闭排行榜
+     * @param userIds
+     * @param roomId
+     * @param userId
+     */
+    void notice44(List<String> userIds, Long roomId, Long userId);
 }

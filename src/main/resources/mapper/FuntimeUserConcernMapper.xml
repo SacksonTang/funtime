@@ -52,4 +52,19 @@
     </trim>
   </insert>
 
+  <select id="checkFriendExist" resultType="java.lang.Integer">
+    select
+    1
+    from t_funtime_user_friend
+    where user_id = #{userId} and to_user_id = #{toUserId}
+  </select>
+
+  <insert id="insertUserFriend">
+    insert into t_funtime_user_friend (user_id,to_user_id) values (#{userId},#{toUserId})
+  </insert>
+
+  <delete id="delUserFriend">
+    delete from t_funtime_user_friend where user_id = #{userId} and to_user_id = #{toUserId}
+  </delete>
+
 </mapper>

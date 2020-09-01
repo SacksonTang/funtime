@@ -528,4 +528,18 @@ public interface RoomService {
      * @return
      */
     Map<String,Object> getRecommendRoomList();
+
+    /**
+     * 打开房间排行榜
+     * @param roomId
+     * @param userId
+     */
+    void openRoomRank(Long roomId, Long userId);
+
+    /**
+     * 关闭房间排行
+     * @param roomId
+     * @param userId
+     */
+    void closeRoomRank(Long roomId, Long userId);
 }

@@ -52,6 +52,8 @@ public interface FuntimeChatroomMapper {
 
     int updateScreenFlag(@Param("roomId") Long roomId,@Param("flag") Integer flag);
 
+    int updateRankFlag(@Param("roomId") Long roomId,@Param("flag") Integer flag);
+
     int insertUserRoomLog(Map<String, Object> map);
 
     List<Map<String, Object>> getRoomList(Integer tagId);

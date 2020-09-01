@@ -10,6 +10,7 @@
     <result column="activity_price" jdbcType="DECIMAL" property="activityPrice" />
     <result column="special_effect"  property="specialEffect" />
     <result column="bestowed" jdbcType="INTEGER" property="bestowed" />
+    <result column="unlock" jdbcType="INTEGER" property="unlock" />
     <result column="animation_type" jdbcType="VARCHAR" property="animationType" />
     <result column="animation_url" jdbcType="VARCHAR" property="animationUrl" />
     <result column="image_url" jdbcType="VARCHAR" property="imageUrl" />
@@ -20,7 +21,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     id, type,gift_tag_id, gift_name, original_price, activity_price, special_effect,
-    bestowed, animation_type, animation_url, animation_length, create_time, sort,image_url,sort,flag
+    bestowed, animation_type, animation_url, animation_length, create_time, sort,image_url,sort,flag,unlock
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -33,6 +34,12 @@
     <include refid="Base_Column_List" />
     from t_funtime_gift
     where bestowed = #{bestowed} and flag = 1 order by sort
+  </select>
+  <select id="getGiftListByUnlock"  parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_gift
+    where unlock = 1 and flag = 1 order by sort
   </select>
   <select id="getGiftByKnapsack"  resultType="java.util.Map">
     select

@@ -13,6 +13,7 @@
     <result column="is_block" jdbcType="INTEGER" property="isBlock" />
     <result column="is_lock" jdbcType="INTEGER" property="isLock" />
     <result column="screen_flag" jdbcType="INTEGER" property="screenFlag" />
+    <result column="rank_flag" jdbcType="INTEGER" property="rankFlag" />
     <result column="hot" jdbcType="INTEGER" property="hot" />
     <result column="hots" jdbcType="INTEGER" property="hots" />
     <result column="online_num" jdbcType="INTEGER" property="onlineNum" />
@@ -31,7 +32,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     id, name, tags, exam_desc, is_block, is_lock, hot, online_num, state, create_time,
-    chat_message_file,user_id,password,exam_url,avatar_url,background_id,hots,screen_flag
+    chat_message_file,user_id,password,exam_url,avatar_url,background_id,hots,screen_flag,rank_flag
   </sql>
 
 
@@ -74,7 +75,7 @@
   <select id="getRoomInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
      m.id, m.name, m.tags, m.exam_desc, m.is_block, m.is_lock, m.hot, m.state, m.create_time,
-     m.chat_message_file,m.user_id,m.password,m.exam_url,m.avatar_url,m.background_id,m.screen_flag
+     m.chat_message_file,m.user_id,m.password,m.exam_url,m.avatar_url,m.background_id,m.screen_flag,m.rank_flag
      ,u.portrait_address,u.nickname,u.sex,u.show_id,l.level
      ,case when h.user_id is null then null
           when h.type = 1 then l.level_url
@@ -217,7 +218,7 @@
 
         group by m.id
         having counts>0
-        order by counts desc,m.hots desc ,m.id desc limit 3
+        order by m.recommendation desc,counts desc,m.hots desc ,m.id desc limit 3
     </select>
 
   <select id="getRoomLogList" parameterType="java.lang.Long" resultType="java.util.Map">
@@ -580,5 +581,8 @@
   </update>
   <update id="updateScreenFlag">
       update t_funtime_chatroom set screen_flag = #{flag} where id = #{roomId}
+  </update>
+    <update id="updateRankFlag">
+      update t_funtime_chatroom set rank_flag = #{flag} where id = #{roomId}
   </update>
 </mapper>

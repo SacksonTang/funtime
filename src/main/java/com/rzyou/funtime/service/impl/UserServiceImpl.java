@@ -244,6 +244,10 @@ public class UserServiceImpl implements UserService {
 
         saveUserAccount(user.getId());
 
+        String counts = parameterService.getParameterValueByKey("user_im_count");
+
+        userMapper.insertUserImDayCount(user.getId(),counts==null?10:Integer.parseInt(counts));
+
         if (openType!=null) {
             saveUserThird(user.getId(), openType, openid, unionid, accessToken,user.getNickname());
             userMapper.saveUserInfoChangeLog(user.getId(),"openid",openType+"/"+openid);
@@ -834,6 +838,13 @@ public class UserServiceImpl implements UserService {
         }
         userMapper.updateConcernsPlus(userId);
         userMapper.updateFansPlus(toUserId);
+        if (userConcernMapper.checkRecordExist(toUserId,userId)!=null){
+            Long var1 = userId>toUserId?toUserId:userId;
+            Long var2 = userId>toUserId?userId:toUserId;
+            if (userConcernMapper.checkFriendExist(var1,var2)==null) {
+                userConcernMapper.insertUserFriend(var1, var2);
+            }
+        }
     }
 
     @Override
@@ -850,6 +861,12 @@ public class UserServiceImpl implements UserService {
         }
         userMapper.updateConcernsSub(userId);
         userMapper.updateFansSub(toUserId);
+        Long var1 = userId>toUserId?toUserId:userId;
+        Long var2 = userId>toUserId?userId:toUserId;
+        if (userConcernMapper.checkFriendExist(var1,var2)!=null) {
+            userConcernMapper.delUserFriend(var1,var2);
+        }
+
     }
 
     @Override
@@ -887,7 +904,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageInfo<FuntimeUser> queryUserInfoByOnline(Integer startPage, Integer pageSize, Integer sex, Integer ageType, Long userId) {
-        PageHelper.startPage(startPage,pageSize);
+
         String startAge = null;
         String endAge = null;
         if (ageType!=null) {
@@ -911,6 +928,7 @@ public class UserServiceImpl implements UserService {
                 throw new BusinessException(ErrorMsgEnum.PARAMETER_ERROR.getValue(), ErrorMsgEnum.PARAMETER_ERROR.getDesc());
             }
         }
+        PageHelper.startPage(startPage,pageSize);
         List<FuntimeUser> list = userMapper.queryUserInfoByOnline(sex,startAge,endAge,userId);
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
@@ -951,25 +969,48 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public PageInfo<Map<String,Object>> getUserList(Integer startPage, Integer pageSize, Integer sex, Long userId, Integer tagId, BigDecimal longitude, BigDecimal latitude) {
-        PageHelper.startPage(startPage,pageSize);
+    public PageInfo<Map<String,Object>> getUserList(Integer startPage, Integer pageSize, Integer sex, Long userId, Integer tagId, BigDecimal longitude, BigDecimal latitude, String ip) {
+
         List<Map<String,Object>> list = null;
+        FuntimeDeviceInfo deviceInfo = new FuntimeDeviceInfo();
+        deviceInfo.setIp(ip);
+        deviceInfo.setUserId(userId);
         if (tagId == 81) {
+            PageHelper.startPage(startPage,pageSize);
             list = userMapper.getUserList1(sex, userId);
+            deviceInfo.setPoint("clickXiehou-tuijian");
+            doPoint(deviceInfo);
         }
         if (tagId == 82) {
+            PageHelper.startPage(startPage,pageSize);
             list = userMapper.getUserList2(sex, userId);
+            deviceInfo.setPoint("clickXiehou-zaixian");
+            doPoint(deviceInfo);
         }
         if (tagId == 83) {
+            PageHelper.startPage(startPage,pageSize);
             list = userMapper.getUserList3(sex, userId);
+            deviceInfo.setPoint("clickXiehou-qianshui");
+            doPoint(deviceInfo);
         }
         if (tagId == 84) {
             if (longitude==null||latitude==null){
-                list = null;
+                FuntimeUser user = queryUserById(userId);
+                longitude = user.getLongitude()==null?null:new BigDecimal(user.getLongitude());
+                latitude = user.getLatitude()==null?null:new BigDecimal(user.getLatitude());
+                if(longitude==null||latitude==null){
+                    list = null;
+                }else {
+                    PageHelper.startPage(startPage, pageSize);
+                    list = userMapper.getUserList4(sex, userId, longitude, latitude);
+                }
             }else {
                 updateUserLocation(userId,longitude.toString(),latitude.toString());
+                PageHelper.startPage(startPage,pageSize);
                 list = userMapper.getUserList4(sex, userId, longitude, latitude);
             }
+            deviceInfo.setPoint("clickXiehou-fujin");
+            doPoint(deviceInfo);
         }
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
@@ -1005,6 +1046,50 @@ public class UserServiceImpl implements UserService {
 
             return new PageInfo<>(list);
         }
+    }
+
+    @Override
+    public void doAction(Long userId, String page, String ip) {
+
+        userMapper.insertUserAction(userId,page,ip);
+    }
+
+    @Override
+    public Map<String, Object> checkSendImCounts(Long userId, Long toUserId) {
+        Map<String, Object> result = new HashMap<>();
+        Integer dayTime = DateUtil.getCurrentInt();
+        Integer k = userMapper.getUserImRecord(userId,toUserId,dayTime);
+        if (k == null){
+            k = userMapper.getUserImDayCount(userId,dayTime);
+            if(k>0){
+                result.put("sendAgreen",true);
+            }else{
+                result.put("sendAgreen",false);
+                result.put("unlockGifts",giftMapper.getGiftListByUnlock());
+            }
+        }else{
+            result.put("sendAgreen",true);
+        }
+
+        return result;
+    }
+
+    @Override
+    public void subImCounts(Long userId, Long toUserId) {
+        Integer dayTime = DateUtil.getCurrentInt();
+        Integer k = userMapper.getUserImRecord(userId,toUserId,dayTime);
+        if (k == null) {
+            k = userMapper.getUserImDayCount(userId,dayTime);
+            if(k<1){
+                throw new BusinessException(ErrorMsgEnum.USER_IMCOUNTS_EXCEED.getValue(),ErrorMsgEnum.USER_IMCOUNTS_EXCEED.getDesc());
+            }
+            userMapper.insertUserImRecord(userId, toUserId, dayTime,2);
+        }
+    }
+
+    @Override
+    public void insertUserImRecord(Long userId, Long toUserId, Integer dayTime,Integer unlock){
+        userMapper.insertUserImRecord(userId, toUserId, dayTime,unlock);
     }
 
     @Override
@@ -1462,13 +1547,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageInfo<Map<String, Object>> getInvitationUserList(Integer startPage, Integer pageSize, Long userId, Long roomId, Integer type, String content) {
-        PageHelper.startPage(startPage,pageSize);
+
         List<Map<String, Object>> list;
         if (type == 1){
+            PageHelper.startPage(startPage,pageSize);
             list = userMapper.getInvitationUserList(userId,roomId,content);
         }else if (type == 2){
+            PageHelper.startPage(startPage,pageSize);
             list = userMapper.getInvitationUserList2(userId,roomId,content);
         }else if (type == 3){
+            PageHelper.startPage(startPage,pageSize);
             list = userMapper.getInvitationUserList3(userId,roomId,content);
         }else{
             list = null;
@@ -1482,29 +1570,44 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageInfo<Map<String, Object>> getInvitationList(Integer startPage, Integer pageSize, Long userId, Long roomId, Integer tagId, String content, BigDecimal longitude, BigDecimal latitude) {
-        PageHelper.startPage(startPage,pageSize);
+
         List<Map<String, Object>> list = null;
         if (tagId == 87) {
+            PageHelper.startPage(startPage,pageSize);
             list = userMapper.getInvitationUserList87( userId,content,roomId);
         }
         if (tagId == 88) {
+            PageHelper.startPage(startPage,pageSize);
             list = userMapper.getInvitationUserList88( userId,content,roomId);
         }
         if (tagId == 89) {
+            PageHelper.startPage(startPage,pageSize);
             list = userMapper.getInvitationUserList89( userId,content,roomId);
         }
         if (tagId == 90) {
             if (longitude==null||latitude==null){
-                list = null;
+                FuntimeUser user = queryUserById(userId);
+                longitude = user.getLongitude()==null?null:new BigDecimal(user.getLongitude());
+                latitude = user.getLatitude()==null?null:new BigDecimal(user.getLatitude());
+                if(longitude==null||latitude==null){
+                    list = null;
+                }else {
+                    PageHelper.startPage(startPage, pageSize);
+                    list = userMapper.getInvitationUserList90(userId, content, longitude, latitude, roomId);
+                }
+
             }else {
                 updateUserLocation(userId,longitude.toString(),latitude.toString());
+                PageHelper.startPage(startPage,pageSize);
                 list = userMapper.getInvitationUserList90( userId,content, longitude, latitude,roomId);
             }
         }
         if (tagId == 85){
+            PageHelper.startPage(startPage,pageSize);
             list = userMapper.getInvitationUserList(userId,roomId,content);
         }
         if (tagId == 86){
+            PageHelper.startPage(startPage,pageSize);
             list = userMapper.getInvitationUserList2(userId,roomId,content);
         }
 

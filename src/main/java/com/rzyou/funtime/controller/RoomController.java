@@ -31,6 +31,70 @@ public class RoomController {
     RoomService roomService;
 
     /**
+     * 打开排行榜
+     * @param request
+     * @return
+     */
+    @PostMapping("openRoomRank")
+    public ResultMsg<Object> openRoomRank(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long roomId = paramJson.getLong("roomId");
+            Long userId = HttpHelper.getUserId();
+            if (roomId==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            roomService.openRoomRank(roomId,userId);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 关闭排行榜
+     * @param request
+     * @return
+     */
+    @PostMapping("closeRoomRank")
+    public ResultMsg<Object> closeRoomRank(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long roomId = paramJson.getLong("roomId");
+            Long userId = HttpHelper.getUserId();
+            if (roomId==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            roomService.closeRoomRank(roomId,userId);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 打开公屏
      * @param request
      * @return
@@ -63,7 +127,7 @@ public class RoomController {
     }
 
     /**
-     * 打开公屏
+     * 关闭公屏
      * @param request
      * @return
      */
