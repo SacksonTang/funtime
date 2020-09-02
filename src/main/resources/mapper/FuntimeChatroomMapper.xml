@@ -185,10 +185,10 @@
         inner join t_funtime_user u on m.user_id = u.id
         left join (t_funtime_chatroom_mic cu inner join t_funtime_user u2 on cu.mic_user_id = u2.id  and u2.online_state = 1 ) on m.id = cu.room_id
         left join t_funtime_tag g on g.id = m.tags
-        where m.is_block = 2 and m.state = 1 and m.hot>0
+        where m.is_block = 2 and m.state = 1 and m.recommendation>0
         group by m.id
         having counts>0
-        order by m.hot desc,counts desc,m.hots desc ,m.id desc limit 3
+        order by m.recommendation desc,counts desc,m.hots desc ,m.id desc limit 3
     </select>
     <select id="getRecommendRoomList2"  resultType="java.util.Map">
         select
@@ -208,17 +208,10 @@
         inner join t_funtime_user u on m.user_id = u.id
         left join (t_funtime_chatroom_mic cu inner join t_funtime_user u2 on cu.mic_user_id = u2.id  and u2.online_state = 1 ) on m.id = cu.room_id
         left join t_funtime_tag g on g.id = m.tags
-        where m.is_block = 2 and m.state = 1
-        <if test="list!=null and list.size()>0">
-            and m.id not in
-            <foreach collection="list" item="id"  open="(" separator="," close=")">
-                #{id}
-            </foreach>
-        </if>
-
+        where m.is_block = 2 and m.state = 1 and m.realhot>0
         group by m.id
         having counts>0
-        order by m.recommendation desc,counts desc,m.hots desc ,m.id desc limit 3
+        order by m.realhot desc,counts desc,m.hots desc ,m.id desc limit 3
     </select>
 
   <select id="getRoomLogList" parameterType="java.lang.Long" resultType="java.util.Map">

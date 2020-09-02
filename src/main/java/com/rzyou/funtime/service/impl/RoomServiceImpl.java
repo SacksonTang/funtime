@@ -1724,16 +1724,11 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Map<String,Object> getRecommendRoomList() {
 
+        //小编推荐
         List<Map<String, Object>> list = chatroomMapper.getRecommendRoomList1();
-        List<Long> params = null;
-        if (list!=null&&list.size()>0){
-            params = new ArrayList<>();
-            for (Map<String, Object> map : list){
-                Long roomId = Long.parseLong(map.get("id").toString());
-                params.add(roomId);
-            }
-        }
-        List<Map<String, Object>> list2 = chatroomMapper.getRecommendRoomList2(params);
+
+        //实时热门
+        List<Map<String, Object>> list2 = chatroomMapper.getRecommendRoomList2();
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("recommends",list);
         resultMap.put("hots",list2);

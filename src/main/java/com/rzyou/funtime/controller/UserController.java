@@ -1695,7 +1695,8 @@ public class UserController {
                 return result;
             }
 
-            result.setData(JsonUtil.getMap("invitationUserList",userService.getInvitationList(startPage,pageSize,userId,roomId,tagId,content,longitude,latitude)));
+            String ip = HttpHelper.getClientIpAddr(request);
+            result.setData(JsonUtil.getMap("invitationUserList",userService.getInvitationList(startPage,pageSize,userId,roomId,tagId,content,longitude,latitude,ip)));
 
             return result;
         } catch (BusinessException be) {

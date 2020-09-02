@@ -1569,7 +1569,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageInfo<Map<String, Object>> getInvitationList(Integer startPage, Integer pageSize, Long userId, Long roomId, Integer tagId, String content, BigDecimal longitude, BigDecimal latitude) {
+    public PageInfo<Map<String, Object>> getInvitationList(Integer startPage, Integer pageSize, Long userId, Long roomId, Integer tagId, String content, BigDecimal longitude, BigDecimal latitude, String ip) {
 
         List<Map<String, Object>> list = null;
         if (tagId == 87) {

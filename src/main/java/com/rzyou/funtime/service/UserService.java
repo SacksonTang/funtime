@@ -445,9 +445,10 @@ public interface UserService {
      * @param content
      * @param longitude
      * @param latitude
+     * @param ip
      * @return
      */
-    PageInfo<Map<String,Object>> getInvitationList(Integer startPage, Integer pageSize, Long userId, Long roomId, Integer tagId, String content, BigDecimal longitude, BigDecimal latitude);
+    PageInfo<Map<String,Object>> getInvitationList(Integer startPage, Integer pageSize, Long userId, Long roomId, Integer tagId, String content, BigDecimal longitude, BigDecimal latitude, String ip);
 
     /**
      * 版本管理

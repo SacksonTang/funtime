@@ -52,6 +52,11 @@ public class LoginController {
             Long userId = paramJson.getLong("userId");
             String page = paramJson.getString("page");
             String ip = HttpHelper.getClientIpAddr(request);
+            if (StringUtils.isBlank(page)){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
             userService.doAction(userId,page,ip);
             return result;
         } catch (BusinessException be) {
