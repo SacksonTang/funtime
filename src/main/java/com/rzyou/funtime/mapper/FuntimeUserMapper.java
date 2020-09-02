@@ -175,7 +175,7 @@ public interface FuntimeUserMapper {
 
     Integer getUserImRecord(@Param("userId") Long userId,@Param("toUserId") Long toUserId,@Param("dayTime") Integer dayTime);
 
-    int insertUserImRecord(@Param("userId") Long userId,@Param("toUserId") Long toUserId,@Param("dayTime") Integer dayTime,@Param("unlock") Integer unlock);
+    int insertUserImRecord(@Param("userId") Long userId,@Param("toUserId") Long toUserId,@Param("dayTime") Integer dayTime,@Param("unlocked") Integer unlocked);
 
     Integer getUserImDayCount(@Param("userId") Long userId,@Param("dayTime") Integer dayTime);
 }

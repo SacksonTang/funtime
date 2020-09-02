@@ -25,12 +25,12 @@
     <result column="animation_type" jdbcType="VARCHAR" property="animationType" />
     <result column="animation_url" jdbcType="VARCHAR" property="animationUrl" />
     <result column="concerned"  property="concerned" />
-    <result column="unlock"  property="unlock" />
+    <result column="unlocked"  property="unlocked" />
 
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, action_type, operation_type, operation_desc, amount, num, gift_id, gift_name, 
-    to_user_id, give_channel_id, state, create_time, version, complete_time,order_no,box_basic,black_amount,unlock
+    to_user_id, give_channel_id, state, create_time, version, complete_time,order_no,box_basic,black_amount,unlocked
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -98,8 +98,8 @@
       <if test="userId != null">
         user_id,
       </if>
-      <if test="unlock != null">
-        unlock,
+      <if test="unlocked != null">
+        unlocked,
       </if>
       <if test="roomId != null">
         room_id,
@@ -160,8 +160,8 @@
       <if test="userId != null">
         #{userId,jdbcType=BIGINT},
       </if>
-      <if test="unlock != null">
-        #{unlock},
+      <if test="unlocked != null">
+        #{unlocked},
       </if>
       <if test="roomId != null">
         #{roomId},

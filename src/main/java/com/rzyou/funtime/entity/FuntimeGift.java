@@ -39,5 +39,6 @@ public class FuntimeGift implements Serializable {
 
     private Integer flag;
 
+    private Integer unlocked;
 
 }

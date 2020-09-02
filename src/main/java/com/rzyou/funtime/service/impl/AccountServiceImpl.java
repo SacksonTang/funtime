@@ -3066,7 +3066,7 @@ public class AccountServiceImpl implements AccountService {
         record.setGiftId(giftId);
         record.setGiftName(giftName);
         record.setRoomId(roomId);
-        record.setUnlock(unlock);
+        record.setUnlocked(unlock);
         record.setBlackAmount(black);
         record.setGiveChannelId(giveChannelId);
         record.setNum(num);
