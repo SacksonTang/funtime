@@ -972,26 +972,18 @@ public class UserServiceImpl implements UserService {
     public PageInfo<Map<String,Object>> getUserList(Integer startPage, Integer pageSize, Integer sex, Long userId, Integer tagId, BigDecimal longitude, BigDecimal latitude, String ip) {
 
         List<Map<String,Object>> list = null;
-        FuntimeDeviceInfo deviceInfo = new FuntimeDeviceInfo();
-        deviceInfo.setIp(ip);
-        deviceInfo.setUserId(userId);
+
         if (tagId == 81) {
             PageHelper.startPage(startPage,pageSize);
             list = userMapper.getUserList1(sex, userId);
-            deviceInfo.setPoint("clickXiehou-tuijian");
-            doPoint(deviceInfo);
         }
         if (tagId == 82) {
             PageHelper.startPage(startPage,pageSize);
             list = userMapper.getUserList2(sex, userId);
-            deviceInfo.setPoint("clickXiehou-zaixian");
-            doPoint(deviceInfo);
         }
         if (tagId == 83) {
             PageHelper.startPage(startPage,pageSize);
             list = userMapper.getUserList3(sex, userId);
-            deviceInfo.setPoint("clickXiehou-qianshui");
-            doPoint(deviceInfo);
         }
         if (tagId == 84) {
             if (longitude==null||latitude==null){
@@ -1009,8 +1001,6 @@ public class UserServiceImpl implements UserService {
                 PageHelper.startPage(startPage,pageSize);
                 list = userMapper.getUserList4(sex, userId, longitude, latitude);
             }
-            deviceInfo.setPoint("clickXiehou-fujin");
-            doPoint(deviceInfo);
         }
         if(list==null||list.isEmpty()){
             return new PageInfo<>();
@@ -1061,7 +1051,7 @@ public class UserServiceImpl implements UserService {
         Integer k = userMapper.getUserImRecord(userId,toUserId,dayTime);
         if (k == null){
             k = userMapper.getUserImDayCount(userId,dayTime);
-            if(k>0){
+            if(k!=null&&k>0){
                 result.put("sendAgreen",true);
             }else{
                 result.put("sendAgreen",false);

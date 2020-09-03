@@ -32,4 +32,6 @@ public interface FuntimeChatroomManagerMapper {
     List<Map<String, Object>> getRoomManagerList(Long roomId);
 
     int delRoomManager(Long id);
+
+    List<Long> getRoomManagerIds(Long roomId);
 }

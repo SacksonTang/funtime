@@ -1415,6 +1415,11 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    public List<Long> getRoomManagerIds(Long roomId) {
+        return chatroomManagerMapper.getRoomManagerIds(roomId);
+    }
+
+    @Override
     public List<Map<String, Object>> getDurationConfs() {
         return chatroomManagerMapper.getDurationConfs();
     }

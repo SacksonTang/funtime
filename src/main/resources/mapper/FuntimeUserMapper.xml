@@ -1101,15 +1101,16 @@
   </select>
 
   <select id="getUserImDayCount" resultType="java.lang.Integer">
-      select t.counts-count(d.to_user_id) from t_funtime_user_imdaycount t left join t_funtime_user_im_record d on t.user_id = d.user_id
-       where t.user_id = #{userId} and d.day_time = #{dayTime} and d.unlocked = 2
+      select t.counts-ifnull(count(d.to_user_id),0) from t_funtime_user_imdaycount t left join t_funtime_user_im_record d on t.user_id = d.user_id
+       and d.day_time = #{dayTime} and d.unlocked = 2
+       where t.user_id = #{userId}
        group by t.user_id
   </select>
 
   <insert id="insertUserImDayCount">
       insert into t_funtime_user_imdaycount (user_id,counts) values (#{userId},#{counts})
   </insert>
-  <select id="getUserImRecord">
+  <select id="getUserImRecord" resultType="java.lang.Integer">
       select 1 from t_funtime_user_im_record where user_id = #{userId} and to_user_id = #{toUserId} and day_time = #{dayTime}
   </select>
   <insert id="insertUserImRecord">

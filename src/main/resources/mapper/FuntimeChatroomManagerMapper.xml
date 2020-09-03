@@ -25,7 +25,16 @@
      left join t_funtime_user_headwear_current h on u.id = h.user_id
      where m.room_id = #{roomId}
   </select>
-
+  <select id="getRoomManagerIds" resultType="java.lang.Long">
+    SELECT
+	   m.user_id
+    FROM
+        t_funtime_chatroom_manager m
+        INNER JOIN t_funtime_chatroom_mic c ON m.room_id = c.room_id
+        AND m.user_id = c.mic_user_id
+    WHERE
+        m.room_id = #{roomId}
+  </select>
   <select id="getDurationConfById" resultType="java.lang.Integer">
     select duration from t_funtime_duration_conf where id = #{id}
   </select>

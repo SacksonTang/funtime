@@ -417,6 +417,13 @@ public interface RoomService {
     PageInfo<Map<String, Object>> getRoomManagerList(Long roomId, Integer startPage, Integer pageSize);
 
     /**
+     * 房内管理员
+     * @param roomId
+     * @return
+     */
+    List<Long> getRoomManagerIds(Long roomId);
+
+    /**
      * 时长配置
      * @return
      */

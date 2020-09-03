@@ -38,8 +38,10 @@
 
   <select id="getInvitationConf" resultType="java.lang.Long">
       select
-      case when type = 1 then (select id from t_funtime_chatroom order by online_num desc limit 1)
+      case when type = 1 then (select m.id from t_funtime_chatroom m inner join t_funtime_chatroom_mic c on m.id = c.room_id inner join t_funtime_user u on c.mic_user_id = u.id where u.online_state = 1 GROUP BY m.id   order by count(c.mic_user_id) desc limit 1)
 			     when type = 2 then (select id from t_funtime_chatroom order by hot desc limit 1)
+			     when type = 4 then (select id from t_funtime_chatroom order by realhot desc limit 1)
+			     when type = 5 then (select id from t_funtime_chatroom order by recommendation desc limit 1)
                  when type = 3 then room_id
                  else null
                  end roomId
