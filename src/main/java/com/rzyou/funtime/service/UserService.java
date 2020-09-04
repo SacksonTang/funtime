@@ -662,4 +662,27 @@ public interface UserService {
      * @param unlock
      */
     void insertUserImRecord(Long userId, Long toUserId, Integer dayTime,Integer unlock);
+
+    /**
+     * 黑名单列表
+     * @param startPage
+     * @param pageSize
+     * @param userId
+     * @return
+     */
+    PageInfo<Map<String,Object>> getBlacklists(Integer startPage, Integer pageSize,Long userId);
+
+    /**
+     * 加入黑名单
+     * @param userId
+     * @param toUserId
+     */
+    void addBlacklist(Long userId, Long toUserId);
+
+    /**
+     * 移除黑名单
+     * @param userId
+     * @param toUserId
+     */
+    void delBlacklist(Long userId, Long toUserId);
 }

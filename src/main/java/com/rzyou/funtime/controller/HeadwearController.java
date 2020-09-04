@@ -117,4 +117,40 @@ public class HeadwearController {
         }
     }
 
+    /**
+     * 设置头饰
+     */
+    @PostMapping("cancelHeadwear")
+    public ResultMsg<Object> cancelHeadwear(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer headwearId = paramJson.getInteger("headwearId");
+            Integer type = paramJson.getInteger("type");
+
+            if (userId == null||(headwearId == null&&type == 2)) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            if (type == 2) {
+                headwearService.cancelHeadwear(userId, headwearId);
+            }else{
+                headwearService.cancelHeadwear(userId);
+            }
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
 }

@@ -178,4 +178,12 @@ public interface FuntimeUserMapper {
     int insertUserImRecord(@Param("userId") Long userId,@Param("toUserId") Long toUserId,@Param("dayTime") Integer dayTime,@Param("unlocked") Integer unlocked);
 
     Integer getUserImDayCount(@Param("userId") Long userId,@Param("dayTime") Integer dayTime);
+
+    Integer checkBlacklist(@Param("userId") Long userId,@Param("toUserId") Long toUserId);
+
+    int insertUserBlacklist(@Param("userId") Long userId,@Param("toUserId") Long toUserId);
+
+    int delBlacklist(@Param("userId") Long userId,@Param("toUserId") Long toUserId);
+
+    List<Map<String,Object>> getBlacklists(Long userId);
 }

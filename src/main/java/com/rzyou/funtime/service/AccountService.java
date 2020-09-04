@@ -654,4 +654,11 @@ public interface AccountService {
      * @return
      */
     List<Map<String,Object>> getBoxList();
+
+    /**
+     * 取消座驾
+     * @param userId
+     * @param carId
+     */
+    void cancelCar(Long userId, Integer carId);
 }

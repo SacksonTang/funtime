@@ -1775,7 +1775,7 @@ public class RoomServiceImpl implements RoomService {
         if (!userId.equals(chatroom.getUserId())) {
             throw new BusinessException(ErrorMsgEnum.ROOM_NOT_CREATER.getValue(), ErrorMsgEnum.ROOM_NOT_CREATER.getDesc());
         }
-        int k = chatroomMapper.updateRankFlag(roomId,1);
+        int k = chatroomMapper.updateRankFlag(roomId,2);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }

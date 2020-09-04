@@ -41,6 +41,103 @@ public class UserController {
     @Autowired
     ParameterService parameterService;
 
+
+
+    /**
+     * 黑名单列表
+     * @return
+     */
+    @PostMapping("getBlacklists")
+    public ResultMsg<Object> getBlacklists(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Integer startPage = paramJson.getInteger("startPage")==null?1:paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize")==null?20:paramJson.getInteger("pageSize");
+
+            if (userId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            result.setData(JsonUtil.getMap("blacklist",userService.getBlacklists(startPage,pageSize,userId)));
+
+        }catch (BusinessException be){
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return result;
+
+    }
+
+    /**
+     * 加入黑名单
+     * @return
+     */
+    @PostMapping("addBlacklist")
+    public ResultMsg<Object> addBlacklist(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long toUserId = paramJson.getLong("toUserId");
+            Long userId = HttpHelper.getUserId();
+            if (toUserId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            userService.addBlacklist(userId,toUserId);
+
+        }catch (BusinessException be){
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return result;
+
+    }
+
+    /**
+     * 加入黑名单
+     * @return
+     */
+    @PostMapping("delBlacklist")
+    public ResultMsg<Object> delBlacklist(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long toUserId = paramJson.getLong("toUserId");
+            Long userId = HttpHelper.getUserId();
+            if (toUserId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            userService.delBlacklist(userId,toUserId);
+
+        }catch (BusinessException be){
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return result;
+
+    }
+
     /**
      * 监测是否可以发送消息
      * @return
@@ -315,6 +412,36 @@ public class UserController {
                 return result;
             }
             accountService.setCar(userId,carId);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 取消坐骑
+     */
+    @PostMapping("cancelCar")
+    public ResultMsg<Object> cancelCar(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            Long userId = HttpHelper.getUserId();
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer carId = paramJson.getInteger("carId");
+            if (userId == null||carId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            accountService.cancelCar(userId,carId);
             return result;
         } catch (BusinessException be) {
             be.printStackTrace();

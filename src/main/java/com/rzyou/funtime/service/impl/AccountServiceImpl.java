@@ -291,7 +291,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void portraitSetLevelUrl(Long userId,String levelUrl){
         String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
-        boolean flag = TencentUtil.portraitSet(userSig, userId.toString(), null, levelUrl);
+        boolean flag = TencentUtil.portraitSet(userSig, userId.toString(), levelUrl);
         if (!flag) {
             throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(), ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
         }
@@ -1285,8 +1285,17 @@ public class AccountServiceImpl implements AccountService {
         if (userCarId == null){
             throw new BusinessException(ErrorMsgEnum.USER_CAR_NOT_EXIST.getValue(),ErrorMsgEnum.USER_CAR_NOT_EXIST.getDesc());
         }
-        checkUser(userId);
         userService.updateUserCar(userId,carId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void cancelCar(Long userId, Integer carId) {
+        Long userCarId = carMapper.getUserCarById(userId, carId);
+        if (userCarId == null){
+            throw new BusinessException(ErrorMsgEnum.USER_CAR_NOT_EXIST.getValue(),ErrorMsgEnum.USER_CAR_NOT_EXIST.getDesc());
+        }
+        userService.updateUserCar(userId,null);
     }
 
     @Override

@@ -1047,39 +1047,72 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Object> checkSendImCounts(Long userId, Long toUserId) {
         Map<String, Object> result = new HashMap<>();
-        Integer dayTime = DateUtil.getCurrentInt();
-        Integer k = userMapper.getUserImRecord(userId,toUserId,dayTime);
-        if (k == null){
-            k = userMapper.getUserImDayCount(userId,dayTime);
-            if(k!=null&&k>0){
-                result.put("sendAgreen",true);
+        Long var1 = userId>toUserId?toUserId:userId;
+        Long var2 = userId>toUserId?userId:toUserId;
+        if (userConcernMapper.checkFriendExist(var1,var2)==null) {
+            Integer dayTime = DateUtil.getCurrentInt();
+            Integer k = userMapper.getUserImRecord(userId,toUserId,dayTime);
+            if (k == null){
+                k = userMapper.getUserImDayCount(userId,dayTime);
+                if(k!=null&&k>0){
+                    result.put("sendAgreen",true);
+                }else{
+                    result.put("sendAgreen",false);
+                    result.put("unlockGifts",giftMapper.getGiftListByUnlock());
+                }
             }else{
-                result.put("sendAgreen",false);
-                result.put("unlockGifts",giftMapper.getGiftListByUnlock());
+                result.put("sendAgreen",true);
             }
         }else{
             result.put("sendAgreen",true);
         }
-
         return result;
     }
 
     @Override
     public void subImCounts(Long userId, Long toUserId) {
-        Integer dayTime = DateUtil.getCurrentInt();
-        Integer k = userMapper.getUserImRecord(userId,toUserId,dayTime);
-        if (k == null) {
-            k = userMapper.getUserImDayCount(userId,dayTime);
-            if(k<1){
-                throw new BusinessException(ErrorMsgEnum.USER_IMCOUNTS_EXCEED.getValue(),ErrorMsgEnum.USER_IMCOUNTS_EXCEED.getDesc());
+        Long var1 = userId>toUserId?toUserId:userId;
+        Long var2 = userId>toUserId?userId:toUserId;
+        if (userConcernMapper.checkFriendExist(var1,var2)==null) {
+            Integer dayTime = DateUtil.getCurrentInt();
+            Integer k = userMapper.getUserImRecord(userId, toUserId, dayTime);
+            if (k == null) {
+                k = userMapper.getUserImDayCount(userId, dayTime);
+                if (k < 1) {
+                    throw new BusinessException(ErrorMsgEnum.USER_IMCOUNTS_EXCEED.getValue(), ErrorMsgEnum.USER_IMCOUNTS_EXCEED.getDesc());
+                }
+                userMapper.insertUserImRecord(userId, toUserId, dayTime, 2);
             }
-            userMapper.insertUserImRecord(userId, toUserId, dayTime,2);
         }
     }
 
     @Override
     public void insertUserImRecord(Long userId, Long toUserId, Integer dayTime,Integer unlock){
         userMapper.insertUserImRecord(userId, toUserId, dayTime,unlock);
+    }
+
+    @Override
+    public PageInfo<Map<String,Object>> getBlacklists(Integer startPage, Integer pageSize, Long userId) {
+        PageHelper.startPage(startPage,pageSize);
+        List<Map<String, Object>> blacklists = userMapper.getBlacklists(userId);
+        if(blacklists==null||blacklists.isEmpty()) {
+            return new PageInfo<>();
+        }
+        return new PageInfo<>(blacklists);
+    }
+
+    @Override
+    public void addBlacklist(Long userId, Long toUserId) {
+        if (userMapper.checkBlacklist(userId,toUserId) == null) {
+            userMapper.insertUserBlacklist(userId, toUserId);
+        }
+    }
+
+    @Override
+    public void delBlacklist(Long userId, Long toUserId) {
+        if (userMapper.checkBlacklist(userId,toUserId) != null) {
+            userMapper.delBlacklist(userId, toUserId);
+        }
     }
 
     @Override

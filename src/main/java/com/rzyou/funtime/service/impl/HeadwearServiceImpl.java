@@ -136,6 +136,7 @@ public class HeadwearServiceImpl implements HeadwearService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void setHeadwear(Long userId, Integer headwearId) {
         Long userHeadwearId = headwearMapper.getUserHeadwearById(userId, headwearId);
         if (userHeadwearId == null){
@@ -156,6 +157,7 @@ public class HeadwearServiceImpl implements HeadwearService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void setHeadwear(Long userId) {
         Integer type = headwearMapper.getCurrnetHeadwear(userId);
         int k;
@@ -171,6 +173,24 @@ public class HeadwearServiceImpl implements HeadwearService {
         if (StringUtils.isNotBlank(url)) {
             accountService.portraitSetLevelUrl(userId, url);
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void cancelHeadwear(Long userId, Integer headwearId) {
+        Long userHeadwearId = headwearMapper.getUserHeadwearById(userId, headwearId);
+        if (userHeadwearId == null){
+            throw new BusinessException(ErrorMsgEnum.USER_HEADWEAR_NOT_EXIST.getValue(),ErrorMsgEnum.USER_HEADWEAR_NOT_EXIST.getDesc());
+        }
+        headwearMapper.deleteUserHeadwearCurrent(userId);
+        accountService.portraitSetLevelUrl(userId,"");
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void cancelHeadwear(Long userId) {
+        headwearMapper.deleteUserHeadwearCurrent(userId);
+        accountService.portraitSetLevelUrl(userId,"");
     }
 
     @Override

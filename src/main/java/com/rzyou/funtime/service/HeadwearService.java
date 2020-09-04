@@ -46,4 +46,17 @@ public interface HeadwearService {
      * 定时头饰清理
      */
     void setHeadwearTask();
+
+    /**
+     * 取消头饰
+     * @param userId
+     * @param headwearId
+     */
+    void cancelHeadwear(Long userId, Integer headwearId);
+
+    /**
+     * 取消头饰
+     * @param userId
+     */
+    void cancelHeadwear(Long userId);
 }
