@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeDynamicMapper">
+
+    <insert id="insertDynamic" parameterType="com.rzyou.funtime.entity.FuntimeDynamic">
+        insert into t_funtime_dynamic (user_id,dynamic,resource_type,resource1,resource2,
+                 resource3,resource4,resource5,resource6,resource7,resource8,resource9)
+        values (#{userId},#{dynamic},#{resourceType},#{resource1},#{resource2}
+            ,#{resource3},#{resource4},#{resource5},#{resource6},#{resource7},#{resource8},#{resource9})
+    </insert>
+
+    <delete id="delDynamic">
+        delete from t_funtime_dynamic where id = #{id}
+    </delete>
+    <insert id="insertComment" parameterType="com.rzyou.funtime.entity.FuntimeComment" >
+
+        insert into t_funtime_comment (user_id, dynamic_id,
+        comment, to_user_id, to_comment_id)
+        values (#{userId,jdbcType=BIGINT}, #{dynamicId,jdbcType=BIGINT},
+        #{comment,jdbcType=VARCHAR}, #{toUserId,jdbcType=BIGINT}, #{toCommentId,jdbcType=BIGINT})
+    </insert>
+    <delete id="delCommentById">
+        delete from t_funtime_comment where id = #{id}
+    </delete>
+    <delete id="delCommentByDynamicId">
+        delete from t_funtime_comment where id = #{dynamicId}
+    </delete>
+    <insert id="insertDynamicLike">
+        insert into t_funtime_dynamic_like (user_id,dynamic_id) values (#{userId},#{dynamicId})
+    </insert>
+
+    <delete id="delDynamicLike">
+        delete from t_funtime_dynamic_like where user_id = #{userId} and dynamic_id = #{dynamicId}
+    </delete>
+    <select id="checkDynamicLike" resultType="java.lang.Integer">
+        select 1 from t_funtime_dynamic_like where user_id = #{userId} and dynamic_id = #{dynamicId}
+    </select>
+
+    <select id="getDynamicList" resultType="java.util.Map">
+        select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
+                 d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
+                 d.create_time as createTime,
+                 u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
+                 IF(k.dynamic_id is null,0,1) likeState,
+                 if(e.user_id is null,0,1) concernState,
+                 count(t.id) as commentCounts, count(l.user_id) as likeCounts
+
+        from t_funtime_dynamic d inner join t_funtime_user u on d.user_id = u.id
+             left join t_funtime_comment t on d.id = t.dynamic_id
+             left join t_funtime_dynamic_like l on d.id = l.dynamic_id
+             left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
+             left join t_funtime_dynamic_like k on k.dynamic_id = d.id and k.user_id = #{userId}
+             left join t_funtime_user_concern e on e.to_user_id = d.user_id and e.user_id = #{userId}
+        where 1=1
+         <if test="lastId!=null">
+             and d.id <![CDATA[<]]> #{lastId}
+         </if>
+        group by d.id,c.room_id
+        order by d.id desc
+        limit ${counts}
+    </select>
+    <select id="getMyDynamicList" resultType="java.util.Map">
+        select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
+        d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
+        d.create_time as createTime,
+        u.nickname,u.portrait_address as portraitAddress,u.sex,
+
+        count(t.id) as commentCounts, count(l.user_id) as likeCounts
+
+        from t_funtime_dynamic d inner join t_funtime_user u on d.user_id = u.id
+        left join t_funtime_comment t on d.id = t.dynamic_id
+        left join t_funtime_dynamic_like l on d.id = l.dynamic_id
+        left join t_funtime_dynamic_like k on k.dynamic_id = d.id and k.user_id = #{userId}
+        where d.user_id = #{userId}
+        <if test="lastId!=null">
+            and d.id <![CDATA[<]]> #{lastId}
+        </if>
+        group by d.id
+        order by d.id desc
+        limit ${counts}
+    </select>
+    <select id="getCommentList" resultType="java.util.Map">
+        select t.id,t.user_id as userId,t.comment,t.to_user_id as toUserId,
+               u.nickname,u.portrait_address as portraitAddress,u.sex,
+               u1.nickname as toNickname
+        from t_funtime_comment t inner join t_funtime_user u on t.user_id = u.id
+             left join t_funtime_user u1 on t.to_user_id = u1.id
+        where t.dynamic_id = #{dynamicId}
+        <if test="lastId!=null">
+            and t.id <![CDATA[<]]> #{lastId}
+        </if>
+        order by t.id desc
+        limit ${counts}
+    </select>
+
+    <select id="getDynamicById" resultType="java.lang.Long">
+        select user_id from t_funtime_dynamic where id = #{id}
+    </select>
+    <select id="getCommentById" resultType="java.lang.Long">
+        select user_id from t_funtime_comment where id = #{id}
+    </select>
+</mapper>

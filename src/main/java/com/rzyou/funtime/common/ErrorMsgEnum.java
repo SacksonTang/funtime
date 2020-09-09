@@ -176,7 +176,11 @@ public enum ErrorMsgEnum {
     DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启"),
     DRAW_ACTIVITY_USER_EXIST("90003","活动已经参与过，不能重复参与"),
     DRAW_ACTIVITY_EMPIRE("90004","本活动仅对注册x小时内用户开放喔~"),
-    DRAW_ACTIVITY_ID_ERROR("90005","触娱ID错误，请进入触娱App-我的-触娱ID中复制")
+    DRAW_ACTIVITY_ID_ERROR("90005","触娱ID错误，请进入触娱App-我的-触娱ID中复制"),
+    DYNAMIC_NOT_EXISTS("90006","动态已删除"),
+    DYNAMIC_DEL_ERROR("90007","不能删除非本人创建的动态"),
+    COMMENT_NOT_EXISTS("90008","评论已删除"),
+    COMMENT_DEL_ERROR("90009","无此权限")
 
     ;
 
