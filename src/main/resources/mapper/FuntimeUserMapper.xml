@@ -53,6 +53,13 @@
     province,city,district,guild_id,platform,channel,show_id,car_id
   </sql>
 
+  <select id="getDdzUserInfoById" resultType="java.util.Map">
+      select u.id,u.nickname,u.show_id as showId,u.portrait_address as portraitAddress
+      ,t.level,t.gold_coin as goldCoin
+      from t_funtime_user u inner join t_funtime_user_account t on u.id = t.user_id
+      where u.id = #{userId}
+  </select>
+
   <select id="getBeautyNumbers" resultType="java.lang.Long">
       select beauty from t_funtime_user_beauty
   </select>
@@ -206,6 +213,38 @@
            d.create_time between #{startDate} and #{endDate}
       GROUP BY
           d.user_id,t.level
+      ORDER BY
+          amountSum DESC,max(d.id) ASC
+      limit ${endCount}
+  </select>
+  <select id="getHotList" resultType="java.util.Map">
+
+      SELECT
+          d.to_user_id as userId,
+          count( d.id ) amountSum,
+          u.nickname,
+          u.portrait_address as portraitAddress,
+          u.show_id as showId,
+          u.sex,
+          t.level,
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrl,
+          case when h.user_id is null then null
+          when h.type = 1 then l.level_url
+          when h.type = 2 then (select w.headwear_url_h5 from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+          else null end levelUrlGif
+      FROM
+          t_funtime_user_account_gifttrans_record d
+          inner join t_funtime_user u on u.id = d.to_user_id
+          inner join (t_funtime_user_account t
+          inner join t_funtime_user_level_conf l on t.level = l.level) on d.user_id = t.user_id
+          left join t_funtime_user_headwear_current h on u.id = h.user_id
+      WHERE d.amount = 0 and
+           d.create_time between #{startDate} and #{endDate}
+      GROUP BY
+          d.to_user_id,t.level
       ORDER BY
           amountSum DESC,max(d.id) ASC
       limit ${endCount}

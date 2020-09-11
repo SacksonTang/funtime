@@ -14,6 +14,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserMapper {
 
+    Map<String,Object> getDdzUserInfoById(Long userId);
+
     List<Long> getBeautyNumbers();
 
     Long getMaxShowId();
@@ -97,6 +99,8 @@ public interface FuntimeUserMapper {
     List<FuntimeUser> getFansList(Long userId);
 
     List<Map<String, Object>> getContributionList(@Param("startDate") String startDate, @Param("endDate") String endDate,@Param("endCount") int endCount);
+
+    List<Map<String, Object>> getHotList(@Param("startDate") String startDate, @Param("endDate") String endDate,@Param("endCount") int endCount);
 
     List<Map<String, Object>> getCharmList(@Param("startDate") String startDate, @Param("endDate") String endDate,@Param("endCount") int endCount);
 

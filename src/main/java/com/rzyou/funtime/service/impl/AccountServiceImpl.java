@@ -1385,8 +1385,10 @@ public class AccountServiceImpl implements AccountService {
             resultMsg.setData(JsonUtil.getMap("amount",total));
             return resultMsg;
         }
-        //用户送减去蓝钻
-        userService.updateUserAccountForSub(userId, null, new BigDecimal(total), null);
+        if(total>0) {
+            //用户送减去蓝钻
+            userService.updateUserAccountForSub(userId, null, new BigDecimal(total), null);
+        }
         String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
         String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black");
@@ -1408,8 +1410,10 @@ public class AccountServiceImpl implements AccountService {
                 userService.insertUserImRecord(userId,toUserId,DateUtil.getCurrentInt(),1);
             }
             Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
-            //用户收加上黑钻,魅力值
-            userService.updateUserAccountForPlusGift(toUserId, black, giftNum,charmVal);
+            if(black.intValue()>0) {
+                //用户收加上黑钻,魅力值
+                userService.updateUserAccountForPlusGift(toUserId, black, giftNum, charmVal);
+            }
             saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
             //用户送的日志
             saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
@@ -1458,7 +1462,7 @@ public class AccountServiceImpl implements AccountService {
                 }
             }
         }
-        if (roomId!=null) {
+        if (roomId!=null&&total>0) {
             roomService.updateHotsPlus(roomId, new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
             game123Service.saveGame123Val(toUsers,roomId,amount);
         }

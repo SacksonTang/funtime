@@ -10,6 +10,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeChatroomMicMapper {
 
+    List<String> getRoomUserByRoomIdAll2(Long roomId);
+
     List<Map<String, Object>> getMicInfoByRoomId(Long roomId);
 
     Long checkUserIsInMic(Long userId);

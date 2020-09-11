@@ -1882,7 +1882,7 @@ public class UserController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             String userId = paramJson.getString("userId");
-            Integer type = paramJson.getInteger("type");//1-魅力榜2-贡献榜
+            Integer type = paramJson.getInteger("type");//1-魅力榜2-贡献榜3-人气榜
             Integer dateType = paramJson.getInteger("dateType");//1-日2-周3-月
 
             if (type==null) {

@@ -1785,6 +1785,11 @@ public class RoomServiceImpl implements RoomService {
         }
     }
 
+    @Override
+    public List<String> getRoomUserByRoomIdAll2(Long roomId) {
+        return chatroomMicMapper.getRoomUserByRoomIdAll2(roomId);
+    }
+
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){
         return chatroomMicMapper.getInfoByRoomIdAndUser(roomId,userId);
     }

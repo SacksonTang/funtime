@@ -549,4 +549,11 @@ public interface RoomService {
      * @param userId
      */
     void closeRoomRank(Long roomId, Long userId);
+
+    /**
+     * 房间内头像
+     * @param roomId
+     * @return
+     */
+    List<String> getRoomUserByRoomIdAll2(Long roomId);
 }

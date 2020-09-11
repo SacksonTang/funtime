@@ -68,6 +68,14 @@
     where m.room_id = #{roomId} and u.online_state = 1
 
   </select>
+  <select id="getRoomUserByRoomIdAll2" resultType="java.lang.String" >
+    select
+    u.portrait_address
+    from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
+    where m.room_id = #{roomId} and u.online_state = 1
+    order by m.create_time desc
+
+  </select>
   <select id="getRoomManagerByRoomId" resultType="java.lang.String" parameterType="java.lang.Long">
     select
     g.user_id

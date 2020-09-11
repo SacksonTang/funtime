@@ -1116,6 +1116,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Map<String, Object> getDdzUserInfoById(Long userId) {
+        return userMapper.getDdzUserInfoById(userId);
+    }
+
+    @Override
     public List<Map<String,Object>> getGiftByUserId(Long userId) {
         List<Map<String, Object>> list = giftMapper.getGiftByUserId(userId);
         if (list==null||list.isEmpty()){
@@ -1322,8 +1327,10 @@ public class UserServiceImpl implements UserService {
 
         if (type == 1){
             list = userMapper.getCharmList(startDate,endDate,endCount);
-        }else{
+        }else if(type == 2){
             list = userMapper.getContributionList(startDate,endDate,endCount);
+        }else{
+            list = userMapper.getHotList(startDate,endDate,endCount);
         }
 
         if (list==null||list.isEmpty()){

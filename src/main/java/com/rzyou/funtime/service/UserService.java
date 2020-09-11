@@ -685,4 +685,11 @@ public interface UserService {
      * @param toUserId
      */
     void delBlacklist(Long userId, Long toUserId);
+
+    /**
+     * 斗地主个人信息
+     * @param userId
+     * @return
+     */
+    Map<String,Object> getDdzUserInfoById(Long userId);
 }

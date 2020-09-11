@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeDdzMapper">
+
+
+    <insert id="insertDdzRecord" parameterType="com.rzyou.funtime.entity.FuntimeDdz" useGeneratedKeys="true" keyProperty="id">
+        insert into t_funtime_ddz_record (user1,gold1,user2,gold2,user3,gold3)
+        values (#{user1},#{gold1},#{user2},#{gold2},#{user3},#{gold3})
+    </insert>
+
+</mapper>
