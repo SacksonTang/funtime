@@ -36,16 +36,51 @@
         select 1 from t_funtime_dynamic_like where user_id = #{userId} and dynamic_id = #{dynamicId}
     </select>
 
+    <select id="getDynamicDetailById" resultType="java.util.Map">
+        select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
+        d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
+        DATE_FORMAT(d.create_time,'%Y-%m-%d') as createTime,
+        u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
+        IF(k.dynamic_id is null,0,1) likeState,
+        if(e.user_id is null,0,1) concernState,
+        count(t.id) as commentCounts, count(l.user_id) as likeCounts
+        ,
+        case when h.user_id is null then null
+        when h.type = 1 then f.level_url
+        when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+        else null end levelUrl
+
+        from t_funtime_dynamic d inner join t_funtime_user u on d.user_id = u.id
+        inner join (t_funtime_user_account a
+        inner join t_funtime_user_level_conf f on a.level = f.level) on d.user_id = a.user_id
+        left join t_funtime_user_headwear_current h on u.id = h.user_id
+        left join t_funtime_comment t on d.id = t.dynamic_id
+        left join t_funtime_dynamic_like l on d.id = l.dynamic_id
+        left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
+        left join t_funtime_dynamic_like k on k.dynamic_id = d.id and k.user_id = #{userId}
+        left join t_funtime_user_concern e on e.to_user_id = d.user_id and e.user_id = #{userId}
+        where d.id = #{dynamicId}
+        group by d.id,c.room_id
+    </select>
+
     <select id="getDynamicList" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
                  d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
-                 d.create_time as createTime,
+                 DATE_FORMAT(d.create_time,'%Y-%m-%d')  as createTime,
                  u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
                  IF(k.dynamic_id is null,0,1) likeState,
                  if(e.user_id is null,0,1) concernState,
                  count(t.id) as commentCounts, count(l.user_id) as likeCounts
+                ,
+                case when h.user_id is null then null
+                when h.type = 1 then f.level_url
+                when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+                else null end levelUrl
 
         from t_funtime_dynamic d inner join t_funtime_user u on d.user_id = u.id
+            inner join (t_funtime_user_account a
+            inner join t_funtime_user_level_conf f on a.level = f.level) on d.user_id = a.user_id
+            left join t_funtime_user_headwear_current h on u.id = h.user_id
              left join t_funtime_comment t on d.id = t.dynamic_id
              left join t_funtime_dynamic_like l on d.id = l.dynamic_id
              left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
@@ -59,15 +94,53 @@
         order by d.id desc
         limit ${counts}
     </select>
-    <select id="getMyDynamicList" resultType="java.util.Map">
+    <select id="getOtherDynamicList" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
-        d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
-        d.create_time as createTime,
-        u.nickname,u.portrait_address as portraitAddress,u.sex,
+                d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
+                DATE_FORMAT(d.create_time,'%Y-%m-%d')  as createTime,
+                u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
+                IF(k.dynamic_id is null,0,1) likeState,
 
-        count(t.id) as commentCounts, count(l.user_id) as likeCounts
+                count(t.id) as commentCounts, count(l.user_id) as likeCounts
+                ,
+                case when h.user_id is null then null
+                when h.type = 1 then f.level_url
+                when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+                else null end levelUrl
 
         from t_funtime_dynamic d inner join t_funtime_user u on d.user_id = u.id
+        inner join (t_funtime_user_account a
+        inner join t_funtime_user_level_conf f on a.level = f.level) on d.user_id = a.user_id
+        left join t_funtime_user_headwear_current h on u.id = h.user_id
+        left join t_funtime_comment t on d.id = t.dynamic_id
+        left join t_funtime_dynamic_like l on d.id = l.dynamic_id
+        left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
+        left join t_funtime_dynamic_like k on k.dynamic_id = d.id and k.user_id = #{userId}
+
+        where d.user_id = #{toUserId}
+        <if test="lastId!=null">
+            and d.id <![CDATA[<]]> #{lastId}
+        </if>
+        group by d.id,c.room_id
+        order by d.id desc
+        limit ${counts}
+    </select>
+    <select id="getMyDynamicList" resultType="java.util.Map">
+        select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
+                d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
+                DATE_FORMAT(d.create_time,'%Y-%m-%d')  as createTime,
+                u.nickname,u.portrait_address as portraitAddress,u.sex,
+
+                count(t.id) as commentCounts, count(l.user_id) as likeCounts
+                ,
+                case when h.user_id is null then null
+                when h.type = 1 then f.level_url
+                when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+                else null end levelUrl
+        from t_funtime_dynamic d inner join t_funtime_user u on d.user_id = u.id
+        inner join (t_funtime_user_account a
+        inner join t_funtime_user_level_conf f on a.level = f.level) on d.user_id = a.user_id
+        left join t_funtime_user_headwear_current h on u.id = h.user_id
         left join t_funtime_comment t on d.id = t.dynamic_id
         left join t_funtime_dynamic_like l on d.id = l.dynamic_id
         left join t_funtime_dynamic_like k on k.dynamic_id = d.id and k.user_id = #{userId}
@@ -82,9 +155,35 @@
     <select id="getCommentList" resultType="java.util.Map">
         select t.id,t.user_id as userId,t.comment,t.to_user_id as toUserId,
                u.nickname,u.portrait_address as portraitAddress,u.sex,
-               u1.nickname as toNickname
+               u1.nickname as toNickname,
+                DATE_FORMAT(t.create_time,'%Y-%m-%d %H:%i') createTime,
+                case when h.user_id is null then null
+                when h.type = 1 then f.level_url
+                when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+                else null end levelUrl
         from t_funtime_comment t inner join t_funtime_user u on t.user_id = u.id
+            inner join (t_funtime_user_account a
+            inner join t_funtime_user_level_conf f on a.level = f.level) on t.user_id = a.user_id
+            left join t_funtime_user_headwear_current h on u.id = h.user_id
              left join t_funtime_user u1 on t.to_user_id = u1.id
+        where t.dynamic_id = #{dynamicId}
+        <if test="lastId!=null">
+            and t.id <![CDATA[<]]> #{lastId}
+        </if>
+        order by t.id desc
+        limit ${counts}
+    </select>
+    <select id="getLikeList" resultType="java.util.Map">
+        select t.id,t.user_id as userId,
+            u.portrait_address as portraitAddress,u.sex,
+            case when h.user_id is null then null
+            when h.type = 1 then f.level_url
+            when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+            else null end levelUrl
+        from t_funtime_dynamic_like t inner join t_funtime_user u on t.user_id = u.id
+        inner join (t_funtime_user_account a
+        inner join t_funtime_user_level_conf f on a.level = f.level) on t.user_id = a.user_id
+        left join t_funtime_user_headwear_current h on u.id = h.user_id
         where t.dynamic_id = #{dynamicId}
         <if test="lastId!=null">
             and t.id <![CDATA[<]]> #{lastId}

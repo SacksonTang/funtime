@@ -134,6 +134,17 @@ public class RoomServiceImpl implements RoomService {
             throw new BusinessException(ErrorMsgEnum.ROOM_CREATER_ERROR.getValue(),ErrorMsgEnum.ROOM_CREATER_ERROR.getDesc());
         }
 
+        if (chatroom.getMicCounts()!=null&&!chatroom1.getMicCounts().equals(chatroom.getMicCounts())){
+            Integer counts = chatroomMicMapper.checkMicChange(chatroom.getId());
+            if (counts>0){
+                throw new BusinessException(ErrorMsgEnum.ROOM_MIC_CHANGE_ERROR.getValue(),ErrorMsgEnum.ROOM_MIC_CHANGE_ERROR.getDesc());
+            }
+            List<String> userIds = getRoomUserByRoomIdAll(chatroom.getId());
+            if (userIds!=null&&userIds.size()>0) {
+                noticeService.notice45(userIds,chatroom.getUserId(),chatroom.getId(),chatroom.getMicCounts());
+            }
+        }
+
         updateChatroom(chatroom);
 
     }

@@ -9,6 +9,7 @@
     <result column="exam_url" jdbcType="VARCHAR" property="examUrl" />
     <result column="avatar_url" jdbcType="VARCHAR" property="avatarUrl" />
     <result column="tags"  property="tags" />
+    <result column="mic_counts"  property="micCounts" />
     <result column="exam_desc" jdbcType="VARCHAR" property="examDesc" />
     <result column="is_block" jdbcType="INTEGER" property="isBlock" />
     <result column="is_lock" jdbcType="INTEGER" property="isLock" />
@@ -32,7 +33,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     id, name, tags, exam_desc, is_block, is_lock, hot, online_num, state, create_time,
-    chat_message_file,user_id,password,exam_url,avatar_url,background_id,hots,screen_flag,rank_flag
+    chat_message_file,user_id,password,exam_url,avatar_url,background_id,hots,screen_flag,rank_flag,mic_counts
   </sql>
 
 
@@ -76,7 +77,7 @@
   </select>
   <select id="getRoomInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
-     m.id, m.name, m.tags, m.exam_desc, m.is_block, m.is_lock, m.hot, m.state, m.create_time,
+     m.id, m.name, m.tags, m.exam_desc, m.is_block, m.is_lock, m.hot, m.state, m.create_time,m.mic_counts,
      m.chat_message_file,m.user_id,m.password,m.exam_url,m.avatar_url,m.background_id,m.screen_flag,m.rank_flag
      ,u.portrait_address,u.nickname,u.sex,u.show_id,l.level
      ,case when h.user_id is null then null
@@ -383,6 +384,9 @@
       <if test="name != null">
         name,
       </if>
+        <if test="micCounts != null">
+            mic_counts,
+        </if>
       <if test="examUrl != null">
         exam_url,
       </if>
@@ -433,6 +437,9 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
+        <if test="micCounts != null">
+            #{micCounts},
+        </if>
       <if test="examUrl != null">
         #{examUrl},
       </if>
@@ -481,6 +488,9 @@
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
       </if>
+        <if test="micCounts != null">
+           mic_counts =  #{micCounts},
+        </if>
       <if test="password != null and password!=''">
         password = #{password},
       </if>

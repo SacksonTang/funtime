@@ -6,11 +6,14 @@ import com.rzyou.funtime.entity.FuntimeComment;
 import com.rzyou.funtime.entity.FuntimeDynamic;
 import com.rzyou.funtime.mapper.FuntimeDynamicMapper;
 import com.rzyou.funtime.service.DynamicService;
+import com.rzyou.funtime.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,14 +23,22 @@ public class DynamicServiceImpl implements DynamicService {
 
     @Autowired
     FuntimeDynamicMapper dynamicMapper;
+    @Autowired
+    UserService userService;
 
     @Override
     public void addDynamic(FuntimeDynamic dynamic) {
+        if (StringUtils.isNotBlank(dynamic.getDynamic())) {
+            userService.checkSensitive(dynamic.getDynamic());
+        }
         dynamicMapper.insertDynamic(dynamic);
     }
 
     @Override
     public void addComment(FuntimeComment comment) {
+        if (StringUtils.isNotBlank(comment.getComment())) {
+            userService.checkSensitive(comment.getComment());
+        }
         dynamicMapper.insertComment(comment);
     }
 
@@ -100,5 +111,35 @@ public class DynamicServiceImpl implements DynamicService {
         }
 
         return dynamicMapper.getMyDynamicList(pageSize,lastId,userId);
+    }
+
+    @Override
+    public List<Map<String, Object>> getOtherDynamicList(Long lastId, Integer startPage, Integer pageSize, Long userId, Long toUserId) {
+        if (startPage == 1){
+            lastId = null;
+        }
+
+        return dynamicMapper.getOtherDynamicList(pageSize,lastId,userId,toUserId);
+    }
+
+    @Override
+    public List<Map<String, Object>> getLikeList(Long lastId, Long dynamicId, Integer startPage, Integer pageSize) {
+        if (startPage == 1){
+            lastId = null;
+        }
+
+        return dynamicMapper.getLikeList(pageSize,lastId,dynamicId);
+    }
+
+    @Override
+    public Map<String, Object> getDynamicById(Long userId, Long dynamicId) {
+        Map<String,Object> resultMap = new HashMap<>();
+        Map<String,Object> dynamicMap = dynamicMapper.getDynamicDetailById(userId,dynamicId);
+        resultMap.put("dynamic",dynamicMap);
+        List<Map<String, Object>> commentList = dynamicMapper.getCommentList(20, null, dynamicId);
+        resultMap.put("commentList",commentList);
+        List<Map<String, Object>> likeList = dynamicMapper.getLikeList(20, null, dynamicId);
+        resultMap.put("likeList",likeList);
+        return resultMap;
     }
 }

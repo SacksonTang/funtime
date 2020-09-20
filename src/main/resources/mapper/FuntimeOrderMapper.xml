@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeOrderMapper">
+
+
+    <select id="getOrderById" resultType="com.rzyou.funtime.entity.FuntimeOrder" parameterType="java.lang.Long" >
+
+        select
+        user_id as userId, order_time as orderTime, start_hour as startHour, end_hour as endHour, service_tag as serviceTag, tag_text as tagText, price_type as priceType, price,
+        order_state as orderState, recommendation,service_text as serviceText
+        from t_funtime_order
+        where user_id = #{userId}
+    </select>
+
+    <select id="getOrderList" resultType="java.util.Map">
+        select d.user_id as userId,d.service_text as serviceText,unix_timestamp(d.create_time) createTime,d.tag_text tagText,
+            if(price_type = 1 ,concat(d.price,'钻/次'),concat(d.price,'钻/10分钟')) price,
+            u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
+            case when h.user_id is null then null
+            when h.type = 1 then f.level_url
+            when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+            else null end levelUrl,
+            (select GROUP_CONCAT(g.tag_name,'/',ifnull(g.tag_color,'')) from t_funtime_tag g where g.tag_type = 'order' and FIND_IN_SET(g.id,d.service_tag)>0  ) as tags
+        from t_funtime_order d inner join t_funtime_user u on d.user_id = u.id
+            inner join (t_funtime_user_account a
+            inner join t_funtime_user_level_conf f on a.level = f.level) on d.user_id = a.user_id
+            left join t_funtime_user_headwear_current h on u.id = h.user_id
+            left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
+        where d.order_state = 1
+
+        <if test="lastId!=null">
+            and d.create_time <![CDATA[<]]> #{lastId}
+        </if>
+        <if test="tagId!=null">
+            and FIND_IN_SET(#{tagId},d.service_tag)>0
+        </if>
+        <if test="sex!=null">
+            and u.sex = #{sex}
+        </if>
+        order by d.create_time desc
+        limit ${counts}
+    </select>
+    <select id="getRecommendationOrderList" resultType="java.util.Map">
+        select d.user_id as userId,
+            if(price_type = 1 ,concat(d.price,'钻/次'),concat(d.price,'钻/10分钟')) as price,
+            u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
+            case when h.user_id is null then null
+            when h.type = 1 then f.level_url
+            when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+            else null end levelUrl
+        from t_funtime_order d inner join t_funtime_user u on d.user_id = u.id
+            inner join (t_funtime_user_account a
+            inner join t_funtime_user_level_conf f on a.level = f.level) on d.user_id = a.user_id
+            left join t_funtime_user_headwear_current h on u.id = h.user_id
+            left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
+        where d.order_state = 1 and recommendation = 1
+        order by d.create_time desc
+    </select>
+
+    <insert id="insertOrder" parameterType="com.rzyou.funtime.entity.FuntimeOrder" >
+        insert into t_funtime_order (user_id, order_time, start_hour,
+        end_hour, service_tag, tag_text,
+        price_type, price, order_state,
+         service_text
+        )
+        values (#{userId,jdbcType=BIGINT}, #{orderTime,jdbcType=VARCHAR}, #{startHour,jdbcType=VARCHAR},
+        #{endHour,jdbcType=VARCHAR}, #{serviceTag,jdbcType=VARCHAR}, #{tagText,jdbcType=VARCHAR},
+        #{priceType,jdbcType=INTEGER}, #{price,jdbcType=INTEGER}, #{orderState,jdbcType=INTEGER},
+        #{serviceText,jdbcType=LONGVARCHAR}
+        )
+    </insert>
+
+    <update id="updateOrder" parameterType="com.rzyou.funtime.entity.FuntimeOrder" >
+
+        update t_funtime_order
+        <set >
+            <if test="orderTime != null" >
+                order_time = #{orderTime,jdbcType=VARCHAR},
+            </if>
+            <if test="startHour != null" >
+                start_hour = #{startHour,jdbcType=VARCHAR},
+            </if>
+            <if test="endHour != null" >
+                end_hour = #{endHour,jdbcType=VARCHAR},
+            </if>
+            <if test="serviceTag != null" >
+                service_tag = #{serviceTag,jdbcType=VARCHAR},
+            </if>
+            <if test="tagText != null" >
+                tag_text = #{tagText,jdbcType=VARCHAR},
+            </if>
+            <if test="priceType != null" >
+                price_type = #{priceType,jdbcType=INTEGER},
+            </if>
+            <if test="price != null" >
+                price = #{price,jdbcType=INTEGER},
+            </if>
+            <if test="orderState != null" >
+                order_state = #{orderState,jdbcType=INTEGER},
+            </if>
+            <if test="recommendation != null" >
+                recommendation = #{recommendation,jdbcType=INTEGER},
+            </if>
+            <if test="serviceText != null" >
+                service_text = #{serviceText,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where user_id = #{userId,jdbcType=BIGINT}
+    </update>
+    
+
+</mapper>

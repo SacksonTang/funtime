@@ -16,6 +16,8 @@ public class FuntimeChatroom implements Serializable {
 
     private String name;
 
+    private Integer micCounts;
+
     private String examUrl;
 
     private String avatarUrl;

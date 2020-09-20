@@ -171,6 +171,7 @@ public enum ErrorMsgEnum {
     ROOM_RANK_OPEN("80043","排行榜已打开"),
     ROOM_RANK_CLOSE("80044","排行榜已关闭"),
     ROOM_NOT_CREATER("80045","只有房主才能进行此项操作"),
+    ROOM_MIC_CHANGE_ERROR("80046","变更麦位需先将其他人下麦"),
 
     DRAW_POOL_NOT_EN("90001","奖池余额不足"),
     DRAW_TIME_OUT("90002","该活动已结束,敬请期待下次开启"),

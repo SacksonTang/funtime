@@ -1081,7 +1081,7 @@ public class UserServiceImpl implements UserService {
                 if (k < 1) {
                     throw new BusinessException(ErrorMsgEnum.USER_IMCOUNTS_EXCEED.getValue(), ErrorMsgEnum.USER_IMCOUNTS_EXCEED.getDesc());
                 }
-                userMapper.insertUserImRecord(userId, toUserId, dayTime, 2);
+                insertUserImRecord(userId, toUserId, dayTime, 2);
             }
         }
     }

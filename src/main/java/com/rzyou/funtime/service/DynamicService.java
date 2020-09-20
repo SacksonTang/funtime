@@ -78,4 +78,33 @@ public interface DynamicService {
      * @return
      */
     List<Map<String, Object>> getMyDynamicList(Long lastId, Integer startPage, Integer pageSize, Long userId);
+
+    /**
+     * 其他人的动态
+     * @param lastId
+     * @param startPage
+     * @param pageSize
+     * @param userId
+     * @param toUserId
+     * @return
+     */
+    List<Map<String, Object>> getOtherDynamicList(Long lastId, Integer startPage, Integer pageSize, Long userId, Long toUserId);
+
+    /**
+     * 点赞列表
+     * @param lastId
+     * @param dynamicId
+     * @param startPage
+     * @param pageSize
+     * @return
+     */
+    List<Map<String, Object>> getLikeList(Long lastId, Long dynamicId, Integer startPage, Integer pageSize);
+
+    /**
+     * 动态详情
+     * @param userId
+     * @param dynamicId
+     * @return
+     */
+    Map<String, Object> getDynamicById(Long userId, Long dynamicId);
 }

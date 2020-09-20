@@ -40,7 +40,7 @@ public class DynamicController {
         try {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
             FuntimeDynamic dynamic = JSONObject.toJavaObject(paramJson,FuntimeDynamic.class);
-            if (StringUtils.isBlank(dynamic.getResource1())){
+            if (StringUtils.isBlank(dynamic.getResource1())&&StringUtils.isBlank(dynamic.getDynamic())){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
@@ -235,6 +235,41 @@ public class DynamicController {
     }
 
     /**
+     * 动态详情
+     * @param request
+     * @return
+     */
+    @PostMapping("getDynamicById")
+    public ResultMsg<Object> getDynamicById(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Long dynamicId = paramJson.getLong("dynamicId");
+            if (dynamicId==null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            Map<String,Object> map = dynamicService.getDynamicById(userId,dynamicId);
+            result.setData(map);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
      * 动态列表
      * @param request
      * @return
@@ -251,11 +286,7 @@ public class DynamicController {
             startPage = startPage == null?1:startPage;
             pageSize = pageSize == null?20:pageSize;
             Long lastId = paramJson.getLong("lastId");
-            if (startPage>1&&lastId == null){
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
-            }
+
             List<Map<String, Object>> dynamicList = dynamicService.getDynamicList(lastId, startPage, pageSize,userId);
             Map<String, Object> map = JsonUtil.getMap("dynamicList", dynamicList);
             if (dynamicList!=null&&!dynamicList.isEmpty()) {
@@ -294,11 +325,7 @@ public class DynamicController {
             startPage = startPage == null?1:startPage;
             pageSize = pageSize == null?20:pageSize;
             Long lastId = paramJson.getLong("lastId");
-            if (startPage>1&&lastId == null){
-                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
-                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
-                return result;
-            }
+
             List<Map<String, Object>> dynamicList = dynamicService.getMyDynamicList(lastId, startPage, pageSize,userId);
             Map<String, Object> map = JsonUtil.getMap("dynamicList", dynamicList);
             if (dynamicList!=null&&!dynamicList.isEmpty()) {
@@ -321,6 +348,91 @@ public class DynamicController {
     }
 
     /**
+     * 其他人的动态列表
+     * @param request
+     * @return
+     */
+    @PostMapping("getOtherDynamicList")
+    public ResultMsg<Object> getOtherDynamicList(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Integer startPage = paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize");
+            startPage = startPage == null?1:startPage;
+            pageSize = pageSize == null?20:pageSize;
+            Long lastId = paramJson.getLong("lastId");
+            Long toUserId = paramJson.getLong("toUserId");
+            if (toUserId == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            List<Map<String, Object>> dynamicList = dynamicService.getOtherDynamicList(lastId, startPage, pageSize,userId,toUserId);
+            Map<String, Object> map = JsonUtil.getMap("dynamicList", dynamicList);
+            if (dynamicList!=null&&!dynamicList.isEmpty()) {
+                map.put("lastId", dynamicList.get(dynamicList.size() - 1).get("id"));
+            }
+            result.setData(map);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+    /**
+     * 点赞列表
+     * @param request
+     * @return
+     */
+    @PostMapping("getLikeList")
+    public ResultMsg<Object> getLikeList(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer startPage = paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize");
+            startPage = startPage == null?1:startPage;
+            pageSize = pageSize == null?20:pageSize;
+            Long lastId = paramJson.getLong("lastId");
+            Long dynamicId = paramJson.getLong("dynamicId");
+            if (dynamicId == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            List<Map<String, Object>> likeList = dynamicService.getLikeList(lastId,dynamicId, startPage, pageSize);
+            Map<String, Object> map = JsonUtil.getMap("likeList", likeList);
+            if (likeList!=null&&!likeList.isEmpty()) {
+                map.put("lastId", likeList.get(likeList.size() - 1).get("id"));
+            }
+            result.setData(map);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+    /**
      * 评论列表
      * @param request
      * @return
@@ -337,7 +449,7 @@ public class DynamicController {
             pageSize = pageSize == null?20:pageSize;
             Long lastId = paramJson.getLong("lastId");
             Long dynamicId = paramJson.getLong("dynamicId");
-            if ((startPage>1&&lastId == null)||dynamicId == null){
+            if (dynamicId == null){
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;

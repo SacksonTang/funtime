@@ -10,6 +10,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeChatroomMicMapper {
 
+    Integer checkMicChange(Long roomId);
+
     List<String> getRoomUserByRoomIdAll2(Long roomId);
 
     List<Map<String, Object>> getMicInfoByRoomId(Long roomId);

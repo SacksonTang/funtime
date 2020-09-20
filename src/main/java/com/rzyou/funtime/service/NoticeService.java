@@ -512,4 +512,13 @@ public interface NoticeService {
      * @param userId
      */
     void notice44(List<String> userIds, Long roomId, Long userId);
+
+    /**
+     * 麦位变更
+     * @param userIds
+     * @param userId
+     * @param roomId
+     * @param micCounts
+     */
+    void notice45(List<String> userIds, Long userId, Long roomId, Integer micCounts);
 }

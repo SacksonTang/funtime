@@ -31,10 +31,15 @@ public interface FuntimeDynamicMapper {
 
     int delDynamicLike(@Param("userId") Long userId, @Param("dynamicId") Long dynamicId);
 
+    Map<String,Object> getDynamicDetailById(@Param("userId") Long userId, @Param("dynamicId") Long dynamicId);
+
     List<Map<String,Object>> getDynamicList(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("userId") Long userId);
 
     List<Map<String,Object>> getMyDynamicList(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("userId") Long userId);
 
+    List<Map<String,Object>> getOtherDynamicList(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("userId") Long userId, @Param("toUserId") Long toUserId);
+
     List<Map<String,Object>> getCommentList(@Param("counts") Integer counts, @Param("lastId") Long lastId,@Param("dynamicId") Long dynamicId);
 
+    List<Map<String, Object>> getLikeList(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("dynamicId") Long dynamicId);
 }

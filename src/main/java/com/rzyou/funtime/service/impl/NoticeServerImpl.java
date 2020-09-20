@@ -867,6 +867,18 @@ public class NoticeServerImpl implements NoticeService {
     }
 
     @Override
+    public void notice45(List<String> userIds, Long userId, Long roomId, Integer micCounts) {
+        JSONObject object = new JSONObject();
+        object.put("rid",roomId);
+        object.put("uid",userId);
+        object.put("micCounts",micCounts);
+        object.put("type",Constant.ROOM_MIC_CHANGE);
+        String data = StringEscapeUtils.unescapeJava(object.toJSONString());
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+        sendRoomUserNotice(userSig,data,userIds);
+    }
+
+    @Override
     public void notice20001(List<String> userIds, List<FuntimeRoomGame21> list, int timestamp, int rounds, long stamp, List<FuntimeRoomGame21> totalmics, String timeZone) {
         JSONObject object = new JSONObject();
         object.put("type",Constant.GAME21_START);
