@@ -115,7 +115,8 @@ public class DynamicController {
                 return result;
             }
             comment.setUserId(HttpHelper.getUserId());
-            dynamicService.addComment(comment);
+            Long id = dynamicService.addComment(comment);
+            result.setData(JsonUtil.getMap("id",id));
             return result;
 
         } catch (BusinessException be) {
@@ -458,6 +459,44 @@ public class DynamicController {
             Map<String, Object> map = JsonUtil.getMap("commentList", commentList);
             if (commentList!=null&&!commentList.isEmpty()) {
                 map.put("lastId", commentList.get(commentList.size() - 1).get("id"));
+            }
+            result.setData(map);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 动态消息列表
+     * @param request
+     * @return
+     */
+    @PostMapping("getDynamicNoticeList")
+    public ResultMsg<Object> getDynamicNoticeList(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer startPage = paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize");
+            startPage = startPage == null?1:startPage;
+            pageSize = pageSize == null?20:pageSize;
+            Long lastId = paramJson.getLong("lastId");
+            Long userId = HttpHelper.getUserId();
+            List<Map<String, Object>> noticeList = dynamicService.getDynamicNoticeList(lastId,userId, startPage, pageSize);
+            Map<String, Object> map = JsonUtil.getMap("noticeList", noticeList);
+            if (noticeList!=null&&!noticeList.isEmpty()) {
+                map.put("lastId", noticeList.get(noticeList.size() - 1).get("createTime"));
             }
             result.setData(map);
             return result;

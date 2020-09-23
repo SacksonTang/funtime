@@ -35,18 +35,49 @@ public class DynamicServiceImpl implements DynamicService {
     }
 
     @Override
-    public void addComment(FuntimeComment comment) {
+    @Transactional(rollbackFor = Throwable.class)
+    public Long addComment(FuntimeComment comment) {
         if (StringUtils.isNotBlank(comment.getComment())) {
             userService.checkSensitive(comment.getComment());
         }
+        Long dyUserId = dynamicMapper.getDynamicById(comment.getDynamicId());
+        if (dyUserId==null){
+            throw new BusinessException(ErrorMsgEnum.DYNAMIC_NOT_EXISTS.getValue(), ErrorMsgEnum.DYNAMIC_NOT_EXISTS.getDesc());
+        }
         dynamicMapper.insertComment(comment);
+
+        if (comment.getToUserId()==null){
+            addCounts(dyUserId);
+        }else{
+            addCounts(comment.getToUserId());
+            if (!dyUserId.equals(comment.getToUserId())){
+                addCounts(dyUserId);
+            }
+        }
+
+        return comment.getId();
+    }
+
+    public void addCounts(Long userId){
+        Integer counts = dynamicMapper.getNoticeCounts(userId);
+        if (counts == null){
+            dynamicMapper.insertDyCounts(userId);
+        }else{
+            dynamicMapper.updateDyCounts(userId);
+        }
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void addLike(Long userId, Long dynamicId) {
+        Long dyUserId = dynamicMapper.getDynamicById(dynamicId);
+        if (dyUserId==null){
+            throw new BusinessException(ErrorMsgEnum.DYNAMIC_NOT_EXISTS.getValue(), ErrorMsgEnum.DYNAMIC_NOT_EXISTS.getDesc());
+        }
         if (dynamicMapper.checkDynamicLike(userId,dynamicId)==null){
             dynamicMapper.insertDynamicLike(userId, dynamicId);
         }
+        addCounts(dyUserId);
     }
 
     @Override
@@ -136,10 +167,17 @@ public class DynamicServiceImpl implements DynamicService {
         Map<String,Object> resultMap = new HashMap<>();
         Map<String,Object> dynamicMap = dynamicMapper.getDynamicDetailById(userId,dynamicId);
         resultMap.put("dynamic",dynamicMap);
-        List<Map<String, Object>> commentList = dynamicMapper.getCommentList(20, null, dynamicId);
-        resultMap.put("commentList",commentList);
-        List<Map<String, Object>> likeList = dynamicMapper.getLikeList(20, null, dynamicId);
-        resultMap.put("likeList",likeList);
+
         return resultMap;
+    }
+
+    @Override
+    public List<Map<String, Object>> getDynamicNoticeList(Long lastId, Long userId, Integer startPage, Integer pageSize) {
+        if (startPage == 1){
+            dynamicMapper.delDyCounts(userId);
+            lastId = null;
+        }
+
+        return dynamicMapper.getDynamicNoticeList(pageSize,lastId,userId);
     }
 }

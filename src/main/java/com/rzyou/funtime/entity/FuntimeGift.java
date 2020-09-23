@@ -25,6 +25,8 @@ public class FuntimeGift implements Serializable {
 
     private Integer bestowed;
 
+    private Integer isOrder;
+
     private String animationType;
 
     private String animationUrl;

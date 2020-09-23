@@ -556,4 +556,10 @@ public interface RoomService {
      * @return
      */
     List<String> getRoomUserByRoomIdAll2(Long roomId);
+
+    /**
+     * 下单礼物
+     * @return
+     */
+    List<FuntimeGift> getGiftListByOrder();
 }

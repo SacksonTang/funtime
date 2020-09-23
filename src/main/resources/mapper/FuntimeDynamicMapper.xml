@@ -2,6 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.rzyou.funtime.mapper.FuntimeDynamicMapper">
 
+    <select id="getNoticeCounts" resultType="java.lang.Integer">
+        select counts from t_funtime_dynotice_count where user_id = #{userId}
+    </select>
+
+    <insert id="insertDyCounts">
+        insert into t_funtime_dynotice_count (user_id,counts) values (#{userId},1)
+    </insert>
+
+    <update id="updateDyCounts">
+        update t_funtime_dynotice_count set counts = counts+1 where user_id = #{userId}
+    </update>
+
+    <delete id="delDyCounts">
+        delete from t_funtime_dynotice_count where user_id = #{userId}
+    </delete>
+
     <insert id="insertDynamic" parameterType="com.rzyou.funtime.entity.FuntimeDynamic">
         insert into t_funtime_dynamic (user_id,dynamic,resource_type,resource1,resource2,
                  resource3,resource4,resource5,resource6,resource7,resource8,resource9)
@@ -12,7 +28,7 @@
     <delete id="delDynamic">
         delete from t_funtime_dynamic where id = #{id}
     </delete>
-    <insert id="insertComment" parameterType="com.rzyou.funtime.entity.FuntimeComment" >
+    <insert id="insertComment" parameterType="com.rzyou.funtime.entity.FuntimeComment" keyProperty="id" useGeneratedKeys="true">
 
         insert into t_funtime_comment (user_id, dynamic_id,
         comment, to_user_id, to_comment_id)
@@ -36,6 +52,36 @@
         select 1 from t_funtime_dynamic_like where user_id = #{userId} and dynamic_id = #{dynamicId}
     </select>
 
+    <select id="getDynamicNoticeList" resultType="java.util.Map">
+        select s.* ,
+        u.nickname,u.portrait_address as  portraitAddress,u.sex,
+        case when h.user_id is null then null
+                    when h.type = 1 then f.level_url
+                    when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
+                    else null end levelUrl
+        from  (
+        select d.id as dynamicId,  d.resource1,d.dynamic ,t.id,t.user_id as userId,t.`comment`,u.nickname as toNickname, unix_timestamp(t.create_time) as createTime,'1' as type
+        from t_funtime_dynamic d inner join t_funtime_comment t on d.id = t.dynamic_id
+        left join t_funtime_user u on t.to_user_id = u.id
+        where d.user_id = #{userId}
+        union all
+        select d.id as dynamicId,d.resource1,d.dynamic,l.id,l.user_id as userId ,null as `comment`,null as toNickname, unix_timestamp(l.create_time) as createTime,'2' as type
+        from t_funtime_dynamic d inner join t_funtime_dynamic_like l on d.id = l.dynamic_id
+        where d.user_id = #{userId}
+        ) s
+        inner join t_funtime_user u on s.userId = u.id
+        inner join (t_funtime_user_account a
+        inner join t_funtime_user_level_conf f on a.level = f.level) on u.id = a.user_id
+        left join t_funtime_user_headwear_current h on u.id = h.user_id
+        where 1=1
+        <if test="lastId!=null">
+            and s.createTime <![CDATA[<]]> from_unixtime(#{lastId})
+        </if>
+        order by s.createTime desc
+        limit ${counts}
+
+    </select>
+
     <select id="getDynamicDetailById" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
         d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
@@ -43,7 +89,7 @@
         u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
         IF(k.dynamic_id is null,0,1) likeState,
         if(e.user_id is null,0,1) concernState,
-        count(t.id) as commentCounts, count(l.user_id) as likeCounts
+        count(distinct t.id) as commentCounts, count(distinct l.user_id) as likeCounts
         ,
         case when h.user_id is null then null
         when h.type = 1 then f.level_url
@@ -70,7 +116,7 @@
                  u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
                  IF(k.dynamic_id is null,0,1) likeState,
                  if(e.user_id is null,0,1) concernState,
-                 count(t.id) as commentCounts, count(l.user_id) as likeCounts
+                 count(distinct t.id) as commentCounts, count( distinct l.user_id) as likeCounts
                 ,
                 case when h.user_id is null then null
                 when h.type = 1 then f.level_url
@@ -101,7 +147,7 @@
                 u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
                 IF(k.dynamic_id is null,0,1) likeState,
 
-                count(t.id) as commentCounts, count(l.user_id) as likeCounts
+                count(distinct t.id) as commentCounts, count(distinct l.user_id) as likeCounts
                 ,
                 case when h.user_id is null then null
                 when h.type = 1 then f.level_url
@@ -131,7 +177,7 @@
                 DATE_FORMAT(d.create_time,'%Y-%m-%d')  as createTime,
                 u.nickname,u.portrait_address as portraitAddress,u.sex,
 
-                count(t.id) as commentCounts, count(l.user_id) as likeCounts
+                count(distinct t.id) as commentCounts, count(distinct l.user_id) as likeCounts
                 ,
                 case when h.user_id is null then null
                 when h.type = 1 then f.level_url

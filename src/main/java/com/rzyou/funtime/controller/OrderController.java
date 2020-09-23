@@ -7,7 +7,6 @@ import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.entity.FuntimeOrder;
 import com.rzyou.funtime.service.OrderService;
-import com.rzyou.funtime.utils.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -135,8 +133,9 @@ public class OrderController {
 
         ResultMsg<Object> result = new ResultMsg<>();
         try {
-
-            Map<String, Object> map = orderService.getRecommendationOrderList();
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer tagId = paramJson.getInteger("tagId");
+            Map<String, Object> map = orderService.getRecommendationOrderList(tagId);
 
             result.setData(map);
             return result;

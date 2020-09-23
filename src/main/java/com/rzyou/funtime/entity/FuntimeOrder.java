@@ -17,9 +17,11 @@ public class FuntimeOrder {
 
     private String tagText;
 
+    private String game;
+
     private Integer priceType;
 
-    private Integer price;
+    private String price;
 
     private Integer orderState;
 

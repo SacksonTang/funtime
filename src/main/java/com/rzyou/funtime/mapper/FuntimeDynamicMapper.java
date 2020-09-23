@@ -11,6 +11,14 @@ import java.util.Map;
 @Mapper
 public interface FuntimeDynamicMapper {
 
+    Integer getNoticeCounts(Long userId);
+
+    int insertDyCounts(Long userId);
+
+    int updateDyCounts(Long userId);
+
+    int delDyCounts(Long userId);
+
     int insertDynamic(FuntimeDynamic dynamic);
 
     int insertComment(FuntimeComment comment);
@@ -30,6 +38,8 @@ public interface FuntimeDynamicMapper {
     Integer checkDynamicLike(@Param("userId") Long userId, @Param("dynamicId") Long dynamicId);
 
     int delDynamicLike(@Param("userId") Long userId, @Param("dynamicId") Long dynamicId);
+
+    List<Map<String,Object>> getDynamicNoticeList(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("userId") Long userId);
 
     Map<String,Object> getDynamicDetailById(@Param("userId") Long userId, @Param("dynamicId") Long dynamicId);
 

@@ -169,6 +169,18 @@ public interface AccountService {
     ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId,Integer unlock);
 
     /**
+     * 下单送礼
+     * @param userId
+     * @param toUserIds
+     * @param giftId
+     * @param giftNum
+     * @param operationDesc
+     * @param giveChannelId
+     * @param unlock
+     * @return
+     */
+    ResultMsg<Object> createGiftTransForOrder(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Integer unlock);
+    /**
      * 送宝箱
      * @param userId
      * @param toUserIds

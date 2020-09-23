@@ -13,6 +13,8 @@ public interface FuntimeGiftMapper {
 
     List<FuntimeGift> getGiftListByBestowed(Integer bestowed);
 
+    List<FuntimeGift> getGiftListByOrder();
+
     List<Map<String,Object>> getGiftByUserId(Long userId);
 
     FuntimeGift selectByPrimaryKey(Integer id);

@@ -1435,6 +1435,31 @@ public class RoomController {
         }
     }
 
+    /**
+     * 查询参与下单的礼物
+     * @param request
+     * @return
+     */
+    @PostMapping("getGiftListByOrder")
+    public ResultMsg<Object> getGiftListByOrder(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+
+            result.setData(JsonUtil.getMap("gifts",roomService.getGiftListByOrder()));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
     @PostMapping("getGiftList")
     public ResultMsg<Object> getGiftList(HttpServletRequest request){
         ResultMsg<Object> result = new ResultMsg<>();

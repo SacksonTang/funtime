@@ -18,9 +18,10 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="sort" jdbcType="INTEGER" property="sort" />
     <result column="flag" jdbcType="INTEGER" property="flag" />
+    <result column="is_order" jdbcType="INTEGER" property="isOrder" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, type,gift_tag_id, gift_name, original_price, activity_price, special_effect,
+    id, type,gift_tag_id, gift_name, original_price, activity_price, special_effect,is_order,
     bestowed, animation_type, animation_url, animation_length, create_time, sort,image_url,sort,flag,unlocked
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -35,11 +36,17 @@
     from t_funtime_gift
     where bestowed = #{bestowed} and flag = 1 order by sort
   </select>
-  <select id="getGiftListByUnlock"  parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="getGiftListByUnlock"   resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from t_funtime_gift
     where unlocked = 1 and flag = 1 order by sort
+  </select>
+  <select id="getGiftListByOrder"   resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_funtime_gift
+    where is_order = 1 and flag = 1 order by sort
   </select>
   <select id="getGiftByKnapsack"  resultType="java.util.Map">
     select

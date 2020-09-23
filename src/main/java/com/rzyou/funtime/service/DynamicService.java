@@ -17,8 +17,9 @@ public interface DynamicService {
     /**
      * 发表评论
      * @param comment
+     *
      */
-    void addComment(FuntimeComment comment);
+    Long addComment(FuntimeComment comment);
 
     /**
      * 点赞
@@ -107,4 +108,14 @@ public interface DynamicService {
      * @return
      */
     Map<String, Object> getDynamicById(Long userId, Long dynamicId);
+
+    /**
+     * 动态消息列表
+     * @param lastId
+     * @param userId
+     * @param startPage
+     * @param pageSize
+     * @return
+     */
+    List<Map<String, Object>> getDynamicNoticeList(Long lastId, Long userId, Integer startPage, Integer pageSize);
 }

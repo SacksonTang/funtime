@@ -27,11 +27,12 @@ public interface OrderService {
      * @param userId
      * @return
      */
-    FuntimeOrder getOrderById(Long userId);
+    Map<String,Object> getOrderById(Long userId);
 
     /**
      * 推荐列表
      * @return
+     * @param tagId
      */
-    Map<String, Object> getRecommendationOrderList();
+    Map<String, Object> getRecommendationOrderList(Integer tagId);
 }

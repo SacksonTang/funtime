@@ -1801,6 +1801,11 @@ public class RoomServiceImpl implements RoomService {
         return chatroomMicMapper.getRoomUserByRoomIdAll2(roomId);
     }
 
+    @Override
+    public List<FuntimeGift> getGiftListByOrder() {
+        return giftMapper.getGiftListByOrder();
+    }
+
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){
         return chatroomMicMapper.getInfoByRoomIdAndUser(roomId,userId);
     }

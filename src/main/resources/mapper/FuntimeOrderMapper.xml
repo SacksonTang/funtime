@@ -6,15 +6,26 @@
     <select id="getOrderById" resultType="com.rzyou.funtime.entity.FuntimeOrder" parameterType="java.lang.Long" >
 
         select
-        user_id as userId, order_time as orderTime, start_hour as startHour, end_hour as endHour, service_tag as serviceTag, tag_text as tagText, price_type as priceType, price,
+        user_id as userId, order_time as orderTime, start_hour as startHour, end_hour as endHour, service_tag as serviceTag, tag_text as tagText,  price,game,
         order_state as orderState, recommendation,service_text as serviceText
         from t_funtime_order
-        where user_id = #{userId}
+        where user_id = #{userId} and order_state = 1
+    </select>
+    <select id="checkOrder" resultType="java.lang.Integer" parameterType="java.lang.Long" >
+
+        select
+        1
+        from t_funtime_order
+        where user_id = #{userId} and order_state = 1
+    </select>
+
+    <select id="getServiceTags" resultType="java.util.Map">
+        select id,tag_name as tagName,tag_color as tagColor,tag_url as tagUrl from t_funtime_tag where tag_type = 'order' and FIND_IN_SET(id,#{serviceTag})>0 order by sort
     </select>
 
     <select id="getOrderList" resultType="java.util.Map">
         select d.user_id as userId,d.service_text as serviceText,unix_timestamp(d.create_time) createTime,d.tag_text tagText,
-            if(price_type = 1 ,concat(d.price,'钻/次'),concat(d.price,'钻/10分钟')) price,
+            d.price,d.game,
             u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
             case when h.user_id is null then null
             when h.type = 1 then f.level_url
@@ -29,7 +40,7 @@
         where d.order_state = 1
 
         <if test="lastId!=null">
-            and d.create_time <![CDATA[<]]> #{lastId}
+            and d.create_time <![CDATA[<]]> from_unixtime(#{lastId})
         </if>
         <if test="tagId!=null">
             and FIND_IN_SET(#{tagId},d.service_tag)>0
@@ -42,7 +53,7 @@
     </select>
     <select id="getRecommendationOrderList" resultType="java.util.Map">
         select d.user_id as userId,
-            if(price_type = 1 ,concat(d.price,'钻/次'),concat(d.price,'钻/10分钟')) as price,
+            d.price,
             u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
             case when h.user_id is null then null
             when h.type = 1 then f.level_url
@@ -54,18 +65,21 @@
             left join t_funtime_user_headwear_current h on u.id = h.user_id
             left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
         where d.order_state = 1 and recommendation = 1
+        <if test="tagId!=null">
+            and FIND_IN_SET(#{tagId},d.service_tag)>0
+        </if>
         order by d.create_time desc
     </select>
 
     <insert id="insertOrder" parameterType="com.rzyou.funtime.entity.FuntimeOrder" >
         insert into t_funtime_order (user_id, order_time, start_hour,
-        end_hour, service_tag, tag_text,
-        price_type, price, order_state,
+        end_hour, service_tag, tag_text,game,
+        price, order_state,
          service_text
         )
         values (#{userId,jdbcType=BIGINT}, #{orderTime,jdbcType=VARCHAR}, #{startHour,jdbcType=VARCHAR},
-        #{endHour,jdbcType=VARCHAR}, #{serviceTag,jdbcType=VARCHAR}, #{tagText,jdbcType=VARCHAR},
-        #{priceType,jdbcType=INTEGER}, #{price,jdbcType=INTEGER}, #{orderState,jdbcType=INTEGER},
+        #{endHour,jdbcType=VARCHAR}, #{serviceTag,jdbcType=VARCHAR}, #{tagText,jdbcType=VARCHAR},#{game},
+        #{price}, #{orderState,jdbcType=INTEGER},
         #{serviceText,jdbcType=LONGVARCHAR}
         )
     </insert>
@@ -89,11 +103,11 @@
             <if test="tagText != null" >
                 tag_text = #{tagText,jdbcType=VARCHAR},
             </if>
-            <if test="priceType != null" >
-                price_type = #{priceType,jdbcType=INTEGER},
+            <if test="game != null" >
+                game = #{game,jdbcType=VARCHAR},
             </if>
             <if test="price != null" >
-                price = #{price,jdbcType=INTEGER},
+                price = #{price},
             </if>
             <if test="orderState != null" >
                 order_state = #{orderState,jdbcType=INTEGER},

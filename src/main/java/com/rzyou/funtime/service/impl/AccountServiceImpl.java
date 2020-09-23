@@ -1349,6 +1349,75 @@ public class AccountServiceImpl implements AccountService {
         return boxMapper.getBoxList();
     }
 
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public ResultMsg<Object> createGiftTransForOrder(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Integer unlock) {
+
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+        Long toUserId = Long.valueOf(toUserIds);
+        if (toUserId.equals(userId)){
+            throw new BusinessException(ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getValue(),ErrorMsgEnum.REDPACKET_IS_NOT_SELF.getDesc());
+        }
+        FuntimeUser user = getUserById(userId);
+        FuntimeUserAccount userAccount = getUserAccountByUserId(userId);
+        FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
+        if (funtimeGift==null||funtimeGift.getIsOrder()!=1){
+            throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
+        }
+        BigDecimal price = funtimeGift.getActivityPrice()==null?funtimeGift.getOriginalPrice():funtimeGift.getActivityPrice();
+        Integer amount= price.intValue()*giftNum;
+        Integer total = amount;
+        //账户余额不足
+        if (userAccount.getBlueDiamond().intValue()<total){
+            resultMsg.setCode(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getValue());
+            resultMsg.setMsg(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN.getDesc());
+            resultMsg.setData(JsonUtil.getMap("amount",total));
+            return resultMsg;
+        }
+        if(total>0) {
+            //用户送减去蓝钻
+            userService.updateUserAccountForSub(userId, null, new BigDecimal(total), null);
+        }
+        String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
+        String giftHornLength = parameterService.getParameterValueByKey("gift_horn_length");
+        String blue_to_black = parameterService.getParameterValueByKey("blue_to_black2");
+        String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm2");
+        BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
+        List<RoomGiftNotice> notices = new ArrayList<>();
+        FuntimeUser toUser = userService.queryUserById(toUserId);
+        if (toUser==null){
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+        }
+        Long recordId = saveFuntimeUserAccountGifttransRecord(userId, operationDesc, new BigDecimal(amount)
+                , giftNum, giftId, funtimeGift.getGiftName(), toUserId, giveChannelId, null, OperationType.GIVEGIFTORDER.getOperationType(),black,unlock);
+
+        if(unlock!=null&&unlock == 1){
+            userService.insertUserImRecord(userId,toUserId,DateUtil.getCurrentInt(),1);
+        }
+        Integer charmVal = new BigDecimal(blue_to_charm).multiply(new BigDecimal(amount)).intValue();
+        if(black.intValue()>0) {
+            //用户收加上黑钻,魅力值
+            userService.updateUserAccountForPlusGift(toUserId, black, giftNum, charmVal);
+        }
+        saveUserAccountCharmRecord(toUserId,charmVal,recordId,1);
+        //用户送的日志
+        saveUserAccountBlueLog(userId, new BigDecimal(amount), recordId
+                , OperationType.GIVEGIFTORDER.getAction(), OperationType.GIVEGIFTORDER.getOperationType(), null);
+
+        //用户收的日志
+        saveUserAccountBlackLog(toUserId, black, recordId, OperationType.RECEIVEGIFTORDER.getAction()
+                , OperationType.RECEIVEGIFTORDER.getOperationType());
+
+        if (noticeAmount!=null){
+            if (total>=new BigDecimal(noticeAmount).intValue()){
+                noticeService.notice10002("送给"+toUser.getNickname(),userId,null,user.getNickname(),user.getSex(),user.getPortraitAddress(),funtimeGift.getGiftName(),giftNum,giftHornLength);
+            }
+        }
+
+        return resultMsg;
+    }
+
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public ResultMsg<Object> createGiftTrans(Long userId, String toUserIds, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannelId, Long roomId,Integer unlock) {

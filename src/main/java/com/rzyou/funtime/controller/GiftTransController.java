@@ -61,6 +61,8 @@ public class GiftTransController {
                 return accountService.sendGiftForKnapsack(userId, toUserIds, giftId, giftNum, "送礼物-背包", giveChannel, roomId,unlock);
             }else if (type == 3){
                 return accountService.sendGiftForBox(userId, toUserIds, giftId, giftNum, "送礼物-宝箱", giveChannel, roomId);
+            }else if (type == 4){
+                return accountService.createGiftTransForOrder(userId, toUserIds, giftId, giftNum, "送礼物-下单", giveChannel,unlock);
             }
             else{
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
