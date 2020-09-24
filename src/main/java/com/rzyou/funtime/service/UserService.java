@@ -668,9 +668,10 @@ public interface UserService {
      * @param startPage
      * @param pageSize
      * @param userId
+     * @param lastId
      * @return
      */
-    PageInfo<Map<String,Object>> getBlacklists(Integer startPage, Integer pageSize,Long userId);
+    PageInfo<Map<String,Object>> getBlacklists(Integer startPage, Integer pageSize, Long userId);
 
     /**
      * 加入黑名单
@@ -692,4 +693,12 @@ public interface UserService {
      * @return
      */
     Map<String,Object> getDdzUserInfoById(Long userId);
+
+    /**
+     * 检测黑名单
+     * @param userId
+     * @param toUserId
+     * @return
+     */
+    void checkBlacklist(Long userId, Long toUserId);
 }

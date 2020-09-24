@@ -61,7 +61,38 @@ public class UserController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            result.setData(JsonUtil.getMap("blacklist",userService.getBlacklists(startPage,pageSize,userId)));
+            result.setData(userService.getBlacklists(startPage,pageSize,userId));
+
+        }catch (BusinessException be){
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+        return result;
+
+    }
+
+    /**
+     * 检测黑名单
+     * @return
+     */
+    @PostMapping("checkBlacklist")
+    public ResultMsg<Object> checkBlacklist(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long toUserId = paramJson.getLong("toUserId");
+            Long userId = HttpHelper.getUserId();
+            if (toUserId == null) {
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            userService.checkBlacklist(userId,toUserId);
 
         }catch (BusinessException be){
             be.printStackTrace();
@@ -108,7 +139,7 @@ public class UserController {
     }
 
     /**
-     * 加入黑名单
+     * 删除黑名单
      * @return
      */
     @PostMapping("delBlacklist")

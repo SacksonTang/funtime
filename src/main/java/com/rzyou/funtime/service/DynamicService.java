@@ -118,4 +118,11 @@ public interface DynamicService {
      * @return
      */
     List<Map<String, Object>> getDynamicNoticeList(Long lastId, Long userId, Integer startPage, Integer pageSize);
+
+    /**
+     * 动态通知
+     * @param userId
+     * @return
+     */
+    Map<String, Object> getDynamicNoticeCounts(Long userId);
 }

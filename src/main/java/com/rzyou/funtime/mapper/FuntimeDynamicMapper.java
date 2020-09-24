@@ -13,6 +13,8 @@ public interface FuntimeDynamicMapper {
 
     Integer getNoticeCounts(Long userId);
 
+    Map<String,Object> getDynamicNotice(Long userId);
+
     int insertDyCounts(Long userId);
 
     int updateDyCounts(Long userId);

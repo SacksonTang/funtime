@@ -64,21 +64,41 @@
         from t_funtime_dynamic d inner join t_funtime_comment t on d.id = t.dynamic_id
         left join t_funtime_user u on t.to_user_id = u.id
         where d.user_id = #{userId}
+        <if test="lastId!=null">
+            and t.create_time <![CDATA[<]]> FROM_UNIXTIME(#{lastId})
+        </if>
         union all
         select d.id as dynamicId,d.resource1,d.dynamic,l.id,l.user_id as userId ,null as `comment`,null as toNickname, unix_timestamp(l.create_time) as createTime,'2' as type
         from t_funtime_dynamic d inner join t_funtime_dynamic_like l on d.id = l.dynamic_id
         where d.user_id = #{userId}
+        <if test="lastId!=null">
+            and l.create_time <![CDATA[<]]> FROM_UNIXTIME(#{lastId})
+        </if>
+        order by createTime desc
+        limit ${counts}
         ) s
         inner join t_funtime_user u on s.userId = u.id
         inner join (t_funtime_user_account a
         inner join t_funtime_user_level_conf f on a.level = f.level) on u.id = a.user_id
         left join t_funtime_user_headwear_current h on u.id = h.user_id
-        where 1=1
-        <if test="lastId!=null">
-            and s.createTime <![CDATA[<]]> from_unixtime(#{lastId})
-        </if>
+    </select>
+
+    <select id="getDynamicNotice" resultType="java.util.Map">
+        select
+        u.portrait_address as  portraitAddress,u.sex
+        from  (
+        select t.user_id as userId, unix_timestamp(t.create_time) as createTime
+        from t_funtime_dynamic d inner join t_funtime_comment t on d.id = t.dynamic_id
+        left join t_funtime_user u on t.to_user_id = u.id
+        where d.user_id = #{userId} limit 1
+        union all
+        select l.user_id as userId , unix_timestamp(l.create_time) as createTime
+        from t_funtime_dynamic d inner join t_funtime_dynamic_like l on d.id = l.dynamic_id
+        where d.user_id = #{userId} limit 1
+        ) s
+        inner join t_funtime_user u on s.userId = u.id
         order by s.createTime desc
-        limit ${counts}
+        limit 1
 
     </select>
 

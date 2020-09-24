@@ -180,4 +180,15 @@ public class DynamicServiceImpl implements DynamicService {
 
         return dynamicMapper.getDynamicNoticeList(pageSize,lastId,userId);
     }
+
+    @Override
+    public Map<String, Object> getDynamicNoticeCounts(Long userId) {
+        Integer noticeCounts = dynamicMapper.getNoticeCounts(userId);
+
+        Map<String, Object> map = dynamicMapper.getDynamicNotice(userId);
+        if (map!=null) {
+            map.put("counts",noticeCounts);
+        }
+        return map;
+    }
 }

@@ -2,6 +2,7 @@ package com.rzyou.funtime.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alipay.api.domain.EcoRenthouseRoomInfoList;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
@@ -1118,6 +1119,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Object> getDdzUserInfoById(Long userId) {
         return userMapper.getDdzUserInfoById(userId);
+    }
+
+    @Override
+    public void checkBlacklist(Long userId, Long toUserId) {
+        Integer k = userMapper.checkBlacklist(userId, toUserId);
+        if (k != null){
+            throw new BusinessException(ErrorMsgEnum.USER_BLACKLIST_ADDED.getValue(), ErrorMsgEnum.USER_BLACKLIST_ADDED.getDesc());
+        }
+        k = userMapper.checkBlacklist(toUserId,userId);
+        if (k != null){
+            throw new BusinessException(ErrorMsgEnum.USER_BLACKLIST_ADDED2.getValue(), ErrorMsgEnum.USER_BLACKLIST_ADDED2.getDesc());
+        }
     }
 
     @Override

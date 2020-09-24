@@ -1184,6 +1184,7 @@
     left join t_funtime_user_headwear_current h on u.id = h.user_id
     left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id )on u.id = cm.mic_user_id
     where  b.user_id=#{userId} and u.flag = 1
+
     order by u.online_state asc,b.create_time desc
 
     </select>
