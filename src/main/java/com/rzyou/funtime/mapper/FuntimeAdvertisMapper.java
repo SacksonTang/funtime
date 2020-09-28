@@ -1,11 +1,10 @@
 package com.rzyou.funtime.mapper;
 
-import com.rzyou.funtime.entity.FuntimeKuaishouAdMonitor;
-import com.rzyou.funtime.entity.FuntimeTencentAd;
-import com.rzyou.funtime.entity.FuntimeTencentAdMonitor;
-import com.rzyou.funtime.entity.FuntimeToutiaoAdMonitor;
+import com.rzyou.funtime.entity.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.Map;
 
 @Mapper
 public interface FuntimeAdvertisMapper {
@@ -24,9 +23,21 @@ public interface FuntimeAdvertisMapper {
 
     String getCallBackUrlForQTTApple(String idfa);
 
+    Map<String,String> getCallBackInfoForWifiApple(String idfa);
+
+    String getCallBackUrlForZhihuApple(String idfa);
+
     String getCallBackUrlForKS2(String ip);
 
     String getCallBackUrlForQTT2(String ip);
 
+    Map<String,String> getCallBackInfoForWIFI(String ip);
+
+    String getCallBackUrlForZhihu(String ip);
+
     int saveToutiaoAdMonitor(FuntimeToutiaoAdMonitor ad);
+
+    int saveWifiAdMonitor(FuntimeWifiAdMonitor ad);
+
+    int saveZhihuAdMonitor(FuntimeZhihuAdMonitor ad);
 }

@@ -187,7 +187,7 @@ public class DynamicServiceImpl implements DynamicService {
 
         Map<String, Object> map = dynamicMapper.getDynamicNotice(userId);
         if (map!=null) {
-            map.put("counts",noticeCounts);
+            map.put("counts",noticeCounts==null?"":(noticeCounts>99?"99+":noticeCounts));
         }
         return map;
     }

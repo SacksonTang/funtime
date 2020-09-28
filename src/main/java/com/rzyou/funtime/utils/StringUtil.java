@@ -1,15 +1,29 @@
 package com.rzyou.funtime.utils;
 
 
-import com.alibaba.fastjson.JSONObject;
-import com.rzyou.funtime.entity.FuntimeUser;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 
+
+import java.security.MessageDigest;
 import java.util.*;
 
 public class StringUtil {
 
+
+    /**
+     * 生成 MD5
+     *
+     * @param data 待处理数据
+     * @return MD5结果
+     */
+    public static String MD5(String data) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] array = md.digest(data.getBytes("UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        for (byte item : array) {
+            sb.append(Integer.toHexString((item & 0xFF) | 0x100).substring(1, 3));
+        }
+        return sb.toString().toUpperCase();
+    }
     /**
      * 创建指定数量的随机字符串
      *
@@ -54,12 +68,9 @@ public class StringUtil {
         return currency+str;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
 
-        FuntimeUser user = new FuntimeUser();
-        user.setId(1l);
-        Map map = (JSONObject)(JSONObject.toJSON(user));
-        System.out.println(map);
+
     }
 
 }

@@ -71,8 +71,8 @@ public enum ErrorMsgEnum {
     USER_DEVICE_BLOCK("10058","设备已封禁"),
     USER_FORBIDDEN_WORDS("10059","您发布了违规信息，已被禁言X小时，再次违规将被重罚。"),
     USER_IMCOUNTS_EXCEED("10060","您今天撩人已达上限，送任意礼物可畅聊"),
-    USER_BLACKLIST_ADDED("10061","你已将此用户加入黑名单"),
-    USER_BLACKLIST_ADDED2("10062","对方已将你加入黑名单"),
+    USER_BLACKLIST_ADDED("10061","你已将对方加入黑名单"),
+    USER_BLACKLIST_ADDED2("10062","你已被对方加入黑名单"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),
@@ -183,7 +183,8 @@ public enum ErrorMsgEnum {
     DYNAMIC_NOT_EXISTS("90006","动态已删除"),
     DYNAMIC_DEL_ERROR("90007","不能删除非本人创建的动态"),
     COMMENT_NOT_EXISTS("90008","评论已删除"),
-    COMMENT_DEL_ERROR("90009","无此权限")
+    COMMENT_DEL_ERROR("90009","无此权限"),
+    COMMENT_PRICE_ERROR("90010","价格异常")
 
     ;
 

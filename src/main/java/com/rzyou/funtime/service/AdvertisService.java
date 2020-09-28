@@ -1,9 +1,8 @@
 package com.rzyou.funtime.service;
 
-import com.rzyou.funtime.entity.FuntimeKuaishouAdMonitor;
-import com.rzyou.funtime.entity.FuntimeTencentAd;
-import com.rzyou.funtime.entity.FuntimeTencentAdMonitor;
-import com.rzyou.funtime.entity.FuntimeToutiaoAdMonitor;
+import com.rzyou.funtime.entity.*;
+
+import java.util.Map;
 
 public interface AdvertisService {
 
@@ -22,9 +21,21 @@ public interface AdvertisService {
 
     String getCallBackUrlForQTTApple(String idfa);
 
+    String getCallBackUrlForZhihuApple(String idfa);
+
     String getCallBackUrlForKS2(String ip);
 
     String getCallBackUrlForQTT2(String ip);
 
+    String getCallBackUrlForZhihu(String ip);
+
+    Map<String,String> getCallBackInfoForWIFI(String ip);
+
     void saveToutiaoAdMonitor(FuntimeToutiaoAdMonitor ad);
+
+    void saveWifiAdMonitor(FuntimeWifiAdMonitor ad);
+
+    void saveZhihuAdMonitor(FuntimeZhihuAdMonitor ad);
+
+    Map<String,String> getCallBackInfoForWifiApple(String idfa);
 }

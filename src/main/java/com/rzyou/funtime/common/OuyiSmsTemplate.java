@@ -2,11 +2,11 @@ package com.rzyou.funtime.common;
 
 public enum OuyiSmsTemplate {
 
-    REGISTER(SmsType.REGISTER_LOGIN.getValue(),"登陆注册验证码 : #，为保证账号安全，请勿泄露给他人【欢时科技】"),
-    REAL_VALID(SmsType.REAL_VALID.getValue(),"实名认证验证码 : #，为保证账号安全，请勿泄露给他人【欢时科技】"),
-    UPDATE_PHONENUMBER(SmsType.UPDATE_PHONENUMBER.getValue(),"修改手机号验证码 : #，为保证账号安全，请勿泄露给他人【欢时科技】"),
-    BIND_PHONENUMBER(SmsType.BIND_PHONENUMBER.getValue(),"绑定手机号验证码 : #，为保证账号安全，请勿泄露给他人【欢时科技】"),
-    USERCANCELATION(SmsType.USERCANCELATION.getValue(),"用户注销验证码 : #，为保证账号安全，请勿泄露给他人【欢时科技】");
+    REGISTER(SmsType.REGISTER_LOGIN.getValue(),"登陆注册验证码 : #，为保证账号安全，请勿泄露给他人【触娱】"),
+    REAL_VALID(SmsType.REAL_VALID.getValue(),"实名认证验证码 : #，为保证账号安全，请勿泄露给他人【触娱】"),
+    UPDATE_PHONENUMBER(SmsType.UPDATE_PHONENUMBER.getValue(),"修改手机号验证码 : #，为保证账号安全，请勿泄露给他人【触娱】"),
+    BIND_PHONENUMBER(SmsType.BIND_PHONENUMBER.getValue(),"绑定手机号验证码 : #，为保证账号安全，请勿泄露给他人【触娱】"),
+    USERCANCELATION(SmsType.USERCANCELATION.getValue(),"用户注销验证码 : #，为保证账号安全，请勿泄露给他人【触娱】");
     private int value;
     private String desc;
 

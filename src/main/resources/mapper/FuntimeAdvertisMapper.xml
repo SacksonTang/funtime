@@ -11,6 +11,16 @@
     order by id desc
     limit 1
   </select>
+  <select id="getCallBackInfoForWifiApple" resultType="java.util.Map">
+    select cid,sid,stime,os,idfa,mac,imei from t_funtime_wifi_ad_monitor where idfa = #{idfa}
+    order by id desc
+    limit 1
+  </select>
+  <select id="getCallBackUrlForZhihuApple" resultType="java.lang.String">
+    select callback_url from t_funtime_zhihu_ad_monitor where idfa = #{idfa}
+    order by id desc
+    limit 1
+  </select>
   <select id="getCallBackUrlForKS" resultType="java.lang.String">
     select callback from t_funtime_kuaishou_ad_monitor where android_id3 = #{androidId}
       <if test="imei!=null and imei!=''">
@@ -33,6 +43,7 @@
         order by id desc
         limit 1
     </select>
+
   <select id="getCallBackUrlForKS2" resultType="java.lang.String">
     select callback from t_funtime_kuaishou_ad_monitor where ip = #{ip}
     order by id desc
@@ -40,6 +51,16 @@
   </select>
   <select id="getCallBackUrlForQTT2" resultType="java.lang.String">
     select callback_url from t_funtime_toutiao_ad_monitor where  ip = #{ip}
+    order by id desc
+    limit 1
+  </select>
+  <select id="getCallBackInfoForWIFI" resultType="java.util.Map">
+    select cid,sid,stime,os,idfa,mac,imei from t_funtime_wifi_ad_monitor where  ip = #{ip}
+    order by id desc
+    limit 1
+  </select>
+  <select id="getCallBackUrlForZhihu" resultType="java.lang.String">
+    select callback from t_funtime_zhihu_ad_monitor where ip = #{ip}
     order by id desc
     limit 1
   </select>
@@ -116,5 +137,31 @@
     #{unit,jdbcType=VARCHAR}, #{plan,jdbcType=VARCHAR}, #{uid,jdbcType=VARCHAR}, #{ua,jdbcType=VARCHAR},
     #{androididmd5,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR},
     #{dpLink,jdbcType=VARCHAR},#{type})
+  </insert>
+  <insert id="saveWifiAdMonitor" parameterType="com.rzyou.funtime.entity.FuntimeWifiAdMonitor" >
+
+    insert into t_funtime_wifi_ad_monitor ( aid, cid,
+    cgid, uid, pid, sid,
+    stime, os, idfa, mac,
+    imei, android_id, ip
+    )
+    values ( #{aid,jdbcType=VARCHAR}, #{cid,jdbcType=VARCHAR},
+    #{cgid,jdbcType=VARCHAR}, #{uid,jdbcType=VARCHAR}, #{pid,jdbcType=VARCHAR}, #{sid,jdbcType=VARCHAR},
+    #{stime,jdbcType=VARCHAR}, #{os,jdbcType=INTEGER}, #{idfa,jdbcType=VARCHAR}, #{mac,jdbcType=VARCHAR},
+    #{imei,jdbcType=VARCHAR}, #{androidId,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}
+    )
+  </insert>
+  <insert id="saveZhihuAdMonitor" parameterType="com.rzyou.funtime.entity.FuntimeZhihuAdMonitor" >
+
+    insert into t_funtime_zhihu_ad_monitor (imei, oaid,
+    android_id, idfa, session_id,
+    callback, ip, ua, os,
+    campaign, creative, ts
+    )
+    values (#{imei,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR},
+    #{androidId,jdbcType=VARCHAR}, #{idfa,jdbcType=VARCHAR}, #{sessionId,jdbcType=VARCHAR},
+    #{callback,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{ua,jdbcType=VARCHAR}, #{os,jdbcType=INTEGER},
+    #{campaign,jdbcType=VARCHAR}, #{creative,jdbcType=VARCHAR}, #{ts,jdbcType=INTEGER}
+    )
   </insert>
 </mapper>

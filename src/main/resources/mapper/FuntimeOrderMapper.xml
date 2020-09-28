@@ -36,7 +36,7 @@
             inner join (t_funtime_user_account a
             inner join t_funtime_user_level_conf f on a.level = f.level) on d.user_id = a.user_id
             left join t_funtime_user_headwear_current h on u.id = h.user_id
-            left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
+            left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id and u.online_state = 1
         where d.order_state = 1
 
         <if test="lastId!=null">
@@ -63,7 +63,7 @@
             inner join (t_funtime_user_account a
             inner join t_funtime_user_level_conf f on a.level = f.level) on d.user_id = a.user_id
             left join t_funtime_user_headwear_current h on u.id = h.user_id
-            left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
+            left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id and u.online_state = 1
         where d.order_state = 1 and recommendation = 1
         <if test="tagId!=null">
             and FIND_IN_SET(#{tagId},d.service_tag)>0

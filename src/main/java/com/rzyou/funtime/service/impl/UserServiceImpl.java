@@ -16,6 +16,7 @@ import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
 import com.rzyou.funtime.utils.DateUtil;
+import com.rzyou.funtime.utils.StringUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
@@ -646,14 +647,33 @@ public class UserServiceImpl implements UserService {
                             url = URLDecoder.decode(url,"utf-8");
                             url = url + "&event_type=1&event_time=" + System.currentTimeMillis();
                             HttpClientUtil.doGet(url);
-                        }
-                        //头条
-                        url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
-                        if (StringUtils.isNotBlank(url)) {
-                            log.info("**************苹果头条激活数据上报*****************idfa:{}",deviceInfo.getIdfa());
-                            url = URLDecoder.decode(url,"utf-8");
-                            url = url + "&op2=0&opt_active_time=" + System.currentTimeMillis();
-                            HttpClientUtil.doGet(url);
+                        }else {
+                            //头条
+                            url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
+                            if (StringUtils.isNotBlank(url)) {
+                                log.info("**************苹果头条激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                url = URLDecoder.decode(url, "utf-8");
+                                url = url + "&op2=0&opt_active_time=" + System.currentTimeMillis();
+                                HttpClientUtil.doGet(url);
+                            }else{
+                                //wifi
+                                Map<String,String> map = advertisService.getCallBackInfoForWifiApple(deviceInfo.getIdfa());
+                                if (map!=null&&!map.isEmpty()){
+                                    log.info("**************苹果WIFI激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                    url = getUrl(map, "1");
+                                    HttpClientUtil.doGet(url);
+                                }else{
+                                    url = advertisService.getCallBackUrlForZhihuApple(deviceInfo.getIdfa());
+                                    if (StringUtils.isNotBlank(url)) {
+                                        log.info("**************苹果知乎激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                        url = URLDecoder.decode(url, "utf-8");
+                                        url = url.replaceAll("__EVENTTYPE__", "install")
+                                                .replaceAll("__TIMESTAMP__", String.valueOf(System.currentTimeMillis()));
+                                        HttpClientUtil.doGet(url);
+                                    }
+                                }
+
+                            }
                         }
                     }
                 }else if ("startIndex".equals(deviceInfo.getPoint())){
@@ -666,14 +686,32 @@ public class UserServiceImpl implements UserService {
                             url = URLDecoder.decode(url,"utf-8");
                             url = url + "&event_type=2&event_time=" + System.currentTimeMillis();
                             HttpClientUtil.doGet(url);
-                        }
-                        //头条
-                        url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
-                        if (StringUtils.isNotBlank(url)) {
-                            log.info("**************苹果头条首页数据上报*****************idfa:{}",deviceInfo.getIdfa());
-                            url = URLDecoder.decode(url,"utf-8");
-                            url = url + "&op2=1&opt_active_time=" + System.currentTimeMillis();
-                            HttpClientUtil.doGet(url);
+                        }else {
+                            //头条
+                            url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
+                            if (StringUtils.isNotBlank(url)) {
+                                log.info("**************苹果头条首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                url = URLDecoder.decode(url, "utf-8");
+                                url = url + "&op2=1&opt_active_time=" + System.currentTimeMillis();
+                                HttpClientUtil.doGet(url);
+                            }else{
+                                //wifi
+                                Map<String,String> map = advertisService.getCallBackInfoForWifiApple(deviceInfo.getIdfa());
+                                if (map!=null&&!map.isEmpty()){
+                                    log.info("**************苹果WIFI首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                    url = getUrl(map, "2");
+                                    HttpClientUtil.doGet(url);
+                                }else{
+                                    url = advertisService.getCallBackUrlForZhihuApple(deviceInfo.getIdfa());
+                                    if (StringUtils.isNotBlank(url)) {
+                                        log.info("**************苹果知乎首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                        url = URLDecoder.decode(url, "utf-8");
+                                        url = url.replaceAll("__EVENTTYPE__", "reged")
+                                                .replaceAll("__TIMESTAMP__", String.valueOf(System.currentTimeMillis()));
+                                        HttpClientUtil.doGet(url);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -728,6 +766,54 @@ public class UserServiceImpl implements UserService {
                             }
                         }
                     }
+                }else if ("wifi".equals(deviceInfo.getChannel())){
+                    if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
+                        if (count == 0) {
+                            log.info("**************WIFI激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            Map<String,String> data = advertisService.getCallBackInfoForWIFI(deviceInfo.getIp());
+                            if (data!=null&&!data.isEmpty()) {
+                                String url = getUrl(data, "1");
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    } else if ("startIndex".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
+                        if (count == 0) {
+                            log.info("**************WIFI首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            Map<String,String> data = advertisService.getCallBackInfoForWIFI(deviceInfo.getIp());
+                            if (data!=null&&!data.isEmpty()) {
+                                String url = getUrl(data, "2");
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    }
+                }else if ("zhihu".equals(deviceInfo.getChannel())){
+                    if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
+                        if (count == 0) {
+                            log.info("**************知乎激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackUrlForZhihu(deviceInfo.getIp());
+                            if (StringUtils.isNotBlank(url)) {
+                                url = URLDecoder.decode(url, "utf-8");
+                                url = url.replaceAll("__EVENTTYPE__", "install")
+                                        .replaceAll("__TIMESTAMP__", String.valueOf(System.currentTimeMillis()));
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    } else if ("startIndex".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
+                        if (count == 0) {
+                            log.info("**************知乎首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackUrlForZhihu(deviceInfo.getIp());
+                            if (StringUtils.isNotBlank(url)) {
+                                url = URLDecoder.decode(url, "utf-8");
+                                url = url.replaceAll("__EVENTTYPE__", "reged")
+                                        .replaceAll("__TIMESTAMP__", String.valueOf(System.currentTimeMillis()));
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    }
                 }
             }else{
 
@@ -736,6 +822,24 @@ public class UserServiceImpl implements UserService {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public static String getUrl(Map<String, String> data,String eventType) throws Exception {
+        data.put("clientid",Constant.WIFI_CLIENT_ID);
+        data.put("ts",System.currentTimeMillis()+"");
+        data.put("event_type",eventType);
+        Set<String> keySet = data.keySet();
+        String[] keyArray = keySet.toArray(new String[keySet.size()]);
+        Arrays.sort(keyArray);
+        StringBuilder sb = new StringBuilder();
+        for (String k : keyArray) {
+            if (StringUtils.isNotBlank(data.get(k))) // 参数值为空，则不参与签名
+                sb.append(k).append("=").append(data.get(k).trim()).append("&");
+        }
+        String url = Constant.WIFI_CALLBACKURL+sb.toString();
+        sb.append("secretkey=").append(Constant.WIFI_SECRETKEY);
+        return url+"sign="+StringUtil.MD5(sb.toString()).toUpperCase();
+
     }
 
 
@@ -1048,11 +1152,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Object> checkSendImCounts(Long userId, Long toUserId) {
         Map<String, Object> result = new HashMap<>();
+        result.put("isBlacklist",false);
+        Integer k = userMapper.checkBlacklist(userId, toUserId);
+        if (k != null){
+            result.put("isBlacklist",true);
+            result.put("msg",ErrorMsgEnum.USER_BLACKLIST_ADDED.getDesc());
+        }
+        k = userMapper.checkBlacklist(toUserId,userId);
+        if (k != null){
+            result.put("isBlacklist",true);
+            result.put("msg",ErrorMsgEnum.USER_BLACKLIST_ADDED2.getDesc());
+        }
+
         Long var1 = userId>toUserId?toUserId:userId;
         Long var2 = userId>toUserId?userId:toUserId;
         if (userConcernMapper.checkFriendExist(var1,var2)==null) {
             Integer dayTime = DateUtil.getCurrentInt();
-            Integer k = userMapper.getUserImRecord(userId,toUserId,dayTime);
+            k = userMapper.getUserImRecord(userId,toUserId,dayTime);
             if (k == null){
                 k = userMapper.getUserImDayCount(userId,dayTime);
                 if(k!=null&&k>0){

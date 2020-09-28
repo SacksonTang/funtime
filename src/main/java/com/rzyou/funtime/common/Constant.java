@@ -3,6 +3,12 @@ package com.rzyou.funtime.common;
 
 public class Constant {
 
+    //wifiid
+    public final static String WIFI_CLIENT_ID = "4c778273857e5b981c8cce089cf84846";
+    //wifi的secretkey
+    public final static String WIFI_SECRETKEY = "w_EjzRtwbcRth46I";
+    public final static String WIFI_CALLBACKURL = "http://c2.wkanx.com/tracking?";
+
     public final static String SEX_MALE_COLOR = "#0093FF";
     public final static String SEX_FEMALE_COLOR = "#FF0096";
     public final static String HEIGHT_COLOR = "#FF9500";

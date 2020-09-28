@@ -1,15 +1,14 @@
 package com.rzyou.funtime.service.impl;
 
-import com.rzyou.funtime.entity.FuntimeKuaishouAdMonitor;
-import com.rzyou.funtime.entity.FuntimeTencentAd;
-import com.rzyou.funtime.entity.FuntimeTencentAdMonitor;
-import com.rzyou.funtime.entity.FuntimeToutiaoAdMonitor;
+import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.FuntimeAdvertisMapper;
 import com.rzyou.funtime.service.AdvertisService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 public class AdvertisServiceImpl implements AdvertisService {
@@ -70,6 +69,11 @@ public class AdvertisServiceImpl implements AdvertisService {
     }
 
     @Override
+    public String getCallBackUrlForZhihuApple(String idfa) {
+        return advertisMapper.getCallBackUrlForZhihuApple(idfa);
+    }
+
+    @Override
     public String getCallBackUrlForKS2(String ip) {
         return advertisMapper.getCallBackUrlForKS2(ip);
     }
@@ -80,7 +84,32 @@ public class AdvertisServiceImpl implements AdvertisService {
     }
 
     @Override
+    public String getCallBackUrlForZhihu(String ip) {
+        return advertisMapper.getCallBackUrlForZhihu(ip);
+    }
+
+    @Override
+    public Map<String, String> getCallBackInfoForWIFI(String ip) {
+        return advertisMapper.getCallBackInfoForWIFI(ip);
+    }
+
+    @Override
     public void saveToutiaoAdMonitor(FuntimeToutiaoAdMonitor ad) {
         advertisMapper.saveToutiaoAdMonitor(ad);
+    }
+
+    @Override
+    public void saveWifiAdMonitor(FuntimeWifiAdMonitor ad) {
+        advertisMapper.saveWifiAdMonitor(ad);
+    }
+
+    @Override
+    public void saveZhihuAdMonitor(FuntimeZhihuAdMonitor ad) {
+        advertisMapper.saveZhihuAdMonitor(ad);
+    }
+
+    @Override
+    public Map<String, String> getCallBackInfoForWifiApple(String idfa) {
+        return advertisMapper.getCallBackInfoForWifiApple(idfa);
     }
 }

@@ -399,4 +399,42 @@ public class CallbackController {
 
     }
 
+    /**
+     * WIFI监测链接
+     * @param params
+     * @return
+     */
+    @GetMapping(value = "wifiMonitor")
+    public JSONObject wifiMonitor(@RequestParam(required = false) Map<String, Object> params,HttpServletRequest request) {
+
+        JSONObject result = new JSONObject();
+        result.put("status",0);
+        JSONObject obj = new JSONObject(params);
+        FuntimeWifiAdMonitor ad = JSONObject.toJavaObject(obj,FuntimeWifiAdMonitor.class);
+
+        ad.setIp(HttpHelper.getClientIpAddr(request));
+        advertisService.saveWifiAdMonitor(ad);
+        return result;
+
+    }
+    /**
+     * 知乎监测链接
+     * @param params
+     * @return
+     */
+    @GetMapping(value = "zhihuMonitor")
+    public JSONObject zhihuMonitor(@RequestParam(required = false) Map<String, Object> params,HttpServletRequest request) {
+
+        JSONObject result = new JSONObject();
+        result.put("status",0);
+        JSONObject obj = new JSONObject(params);
+        FuntimeZhihuAdMonitor ad = JSONObject.toJavaObject(obj,FuntimeZhihuAdMonitor.class);
+        if (StringUtils.isBlank(ad.getIp())) {
+            ad.setIp(HttpHelper.getClientIpAddr(request));
+        }
+        advertisService.saveZhihuAdMonitor(ad);
+        return result;
+
+    }
+
 }

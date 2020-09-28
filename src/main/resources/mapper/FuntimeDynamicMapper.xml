@@ -90,7 +90,7 @@
         select t.user_id as userId, unix_timestamp(t.create_time) as createTime
         from t_funtime_dynamic d inner join t_funtime_comment t on d.id = t.dynamic_id
         left join t_funtime_user u on t.to_user_id = u.id
-        where d.user_id = #{userId} limit 1
+        where d.user_id = #{userId}
         union all
         select l.user_id as userId , unix_timestamp(l.create_time) as createTime
         from t_funtime_dynamic d inner join t_funtime_dynamic_like l on d.id = l.dynamic_id
@@ -122,7 +122,7 @@
         left join t_funtime_user_headwear_current h on u.id = h.user_id
         left join t_funtime_comment t on d.id = t.dynamic_id
         left join t_funtime_dynamic_like l on d.id = l.dynamic_id
-        left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
+        left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id and u.online_state = 1
         left join t_funtime_dynamic_like k on k.dynamic_id = d.id and k.user_id = #{userId}
         left join t_funtime_user_concern e on e.to_user_id = d.user_id and e.user_id = #{userId}
         where d.id = #{dynamicId}
@@ -149,7 +149,7 @@
             left join t_funtime_user_headwear_current h on u.id = h.user_id
              left join t_funtime_comment t on d.id = t.dynamic_id
              left join t_funtime_dynamic_like l on d.id = l.dynamic_id
-             left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
+             left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id and u.online_state = 1
              left join t_funtime_dynamic_like k on k.dynamic_id = d.id and k.user_id = #{userId}
              left join t_funtime_user_concern e on e.to_user_id = d.user_id and e.user_id = #{userId}
         where 1=1

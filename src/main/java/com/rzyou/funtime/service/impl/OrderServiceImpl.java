@@ -1,5 +1,7 @@
 package com.rzyou.funtime.service.impl;
 
+import com.rzyou.funtime.common.BusinessException;
+import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.entity.FuntimeOrder;
 import com.rzyou.funtime.mapper.FuntimeOrderMapper;
 import com.rzyou.funtime.service.OrderService;
@@ -20,6 +22,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void addOrder(FuntimeOrder order) {
+        if (StringUtils.isBlank(order.getPrice())){
+            throw new BusinessException(ErrorMsgEnum.COMMENT_PRICE_ERROR.getValue(),ErrorMsgEnum.COMMENT_PRICE_ERROR.getDesc());
+        }
+        try {
+            doPrice(order.getPrice());
+        } catch (Exception e) {
+            throw new BusinessException(ErrorMsgEnum.COMMENT_PRICE_ERROR.getValue(),ErrorMsgEnum.COMMENT_PRICE_ERROR.getDesc());
+        }
         if (orderMapper.checkOrder(order.getUserId()) == null) {
             orderMapper.insertOrder(order);
         }else {
@@ -48,7 +58,12 @@ public class OrderServiceImpl implements OrderService {
             String price = order.getPrice();
             if (StringUtils.isNotBlank(price)&&StringUtils.isNotBlank(serviceTag)) {
 
-                Map<Integer, Map<String, Object>> tagMap = doPrice(price);
+                Map<Integer, Map<String, Object>> tagMap;
+                try {
+                    tagMap = doPrice(price);
+                } catch (Exception e) {
+                    throw new BusinessException(ErrorMsgEnum.COMMENT_PRICE_ERROR.getValue(),ErrorMsgEnum.COMMENT_PRICE_ERROR.getDesc());
+                }
 
                 List<Map<String, Object>> serviceTags = orderMapper.getServiceTags(serviceTag);
                 if (serviceTags != null && !serviceTags.isEmpty()) {
@@ -75,7 +90,7 @@ public class OrderServiceImpl implements OrderService {
         return resultMap;
     }
 
-    public Map<Integer, Map<String, Object>> doPrice(String price){
+    public Map<Integer, Map<String, Object>> doPrice(String price) throws Exception{
         Map<Integer, Map<String, Object>> tagMap = new HashMap<>();
 
         String[] split = price.split(",");
@@ -104,7 +119,11 @@ public class OrderServiceImpl implements OrderService {
         Map<String, Object> tagPriceMap;
         for (Map<String, Object> map : recommendations){
             String price = map.get("price").toString();
-            priceMap = doPrice(price);
+            try {
+                priceMap = doPrice(price);
+            } catch (Exception e) {
+                throw new BusinessException(ErrorMsgEnum.COMMENT_PRICE_ERROR.getValue(),ErrorMsgEnum.COMMENT_PRICE_ERROR.getDesc());
+            }
             tagPriceMap = priceMap.get(tagId);
             if (tagPriceMap!=null){
                 map.put("price",tagPriceMap.get("price"));
@@ -131,7 +150,12 @@ public class OrderServiceImpl implements OrderService {
                     continue;
                 }
                 String price = map.get("price").toString();
-                Map<Integer, Map<String, Object>> priceMap = doPrice(price);
+                Map<Integer, Map<String, Object>> priceMap = null;
+                try {
+                    priceMap = doPrice(price);
+                } catch (Exception e) {
+                    throw new BusinessException(ErrorMsgEnum.COMMENT_PRICE_ERROR.getValue(),ErrorMsgEnum.COMMENT_PRICE_ERROR.getDesc());
+                }
                 Map<String, Object> tagPriceMap = priceMap.get(tagId);
                 if (tagPriceMap!=null){
                     map.put("price",tagPriceMap.get("price"));
