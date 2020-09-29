@@ -35,6 +35,8 @@ public class FuntimeDynamic implements Serializable {
 
     private String resource9;
 
+    private String coverUrl;
+
     private Date createTime;
 
 }

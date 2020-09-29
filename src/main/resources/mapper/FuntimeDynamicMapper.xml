@@ -19,9 +19,9 @@
     </delete>
 
     <insert id="insertDynamic" parameterType="com.rzyou.funtime.entity.FuntimeDynamic">
-        insert into t_funtime_dynamic (user_id,dynamic,resource_type,resource1,resource2,
+        insert into t_funtime_dynamic (user_id,dynamic,resource_type,resource1,resource2,cover_url,
                  resource3,resource4,resource5,resource6,resource7,resource8,resource9)
-        values (#{userId},#{dynamic},#{resourceType},#{resource1},#{resource2}
+        values (#{userId},#{dynamic},#{resourceType},#{resource1},#{resource2},#{coverUrl}
             ,#{resource3},#{resource4},#{resource5},#{resource6},#{resource7},#{resource8},#{resource9})
     </insert>
 
@@ -60,7 +60,7 @@
                     when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
                     else null end levelUrl
         from  (
-        select d.id as dynamicId,  d.resource1,d.dynamic ,t.id,t.user_id as userId,t.`comment`,u.nickname as toNickname, unix_timestamp(t.create_time) as createTime,'1' as type
+        select d.id as dynamicId,  d.resource1,cover_url as coverUrl,d.dynamic ,t.id,t.user_id as userId,t.`comment`,u.nickname as toNickname, unix_timestamp(t.create_time) as createTime,'1' as type
         from t_funtime_dynamic d inner join t_funtime_comment t on d.id = t.dynamic_id
         left join t_funtime_user u on t.to_user_id = u.id
         where d.user_id = #{userId}
@@ -68,7 +68,7 @@
             and t.create_time <![CDATA[<]]> FROM_UNIXTIME(#{lastId})
         </if>
         union all
-        select d.id as dynamicId,d.resource1,d.dynamic,l.id,l.user_id as userId ,null as `comment`,null as toNickname, unix_timestamp(l.create_time) as createTime,'2' as type
+        select d.id as dynamicId,d.resource1,cover_url as coverUrl,d.dynamic,l.id,l.user_id as userId ,null as `comment`,null as toNickname, unix_timestamp(l.create_time) as createTime,'2' as type
         from t_funtime_dynamic d inner join t_funtime_dynamic_like l on d.id = l.dynamic_id
         where d.user_id = #{userId}
         <if test="lastId!=null">
@@ -104,7 +104,7 @@
 
     <select id="getDynamicDetailById" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
-        d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
+        d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,cover_url as coverUrl,
         DATE_FORMAT(d.create_time,'%Y-%m-%d') as createTime,
         u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
         IF(k.dynamic_id is null,0,1) likeState,
@@ -131,7 +131,7 @@
 
     <select id="getDynamicList" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
-                 d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
+                 d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,cover_url as coverUrl,
                  DATE_FORMAT(d.create_time,'%Y-%m-%d')  as createTime,
                  u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
                  IF(k.dynamic_id is null,0,1) likeState,
@@ -162,7 +162,7 @@
     </select>
     <select id="getOtherDynamicList" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
-                d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
+                d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,cover_url as coverUrl,
                 DATE_FORMAT(d.create_time,'%Y-%m-%d')  as createTime,
                 u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
                 IF(k.dynamic_id is null,0,1) likeState,
@@ -193,7 +193,7 @@
     </select>
     <select id="getMyDynamicList" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
-                d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,
+                d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,cover_url as coverUrl,
                 DATE_FORMAT(d.create_time,'%Y-%m-%d')  as createTime,
                 u.nickname,u.portrait_address as portraitAddress,u.sex,
 

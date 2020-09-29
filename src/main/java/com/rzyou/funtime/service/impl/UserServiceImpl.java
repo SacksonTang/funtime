@@ -715,7 +715,7 @@ public class UserServiceImpl implements UserService {
                         }
                     }
                 }
-            }else if("1".equals(deviceInfo.getOs())&&StringUtils.isNotBlank(deviceInfo.getIp())&&StringUtils.isNotBlank(deviceInfo.getAndroidId())){
+            }else if("0".equals(deviceInfo.getOs())&&StringUtils.isNotBlank(deviceInfo.getIp())&&StringUtils.isNotBlank(deviceInfo.getAndroidId())){
                 if ("kuaishou".equals(deviceInfo.getChannel())) {
                     if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
                         count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
