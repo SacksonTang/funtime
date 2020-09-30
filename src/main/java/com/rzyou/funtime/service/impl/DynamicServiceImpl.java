@@ -4,6 +4,7 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.entity.FuntimeComment;
 import com.rzyou.funtime.entity.FuntimeDynamic;
+import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.mapper.FuntimeDynamicMapper;
 import com.rzyou.funtime.service.DynamicService;
 import com.rzyou.funtime.service.UserService;
@@ -188,6 +189,12 @@ public class DynamicServiceImpl implements DynamicService {
         Map<String, Object> map = dynamicMapper.getDynamicNotice(userId);
         if (map!=null) {
             map.put("counts",noticeCounts==null?"":(noticeCounts>99?"99+":noticeCounts));
+        }else{
+            map = new HashMap<>();
+            FuntimeUser user = userService.queryUserById(userId);
+            map.put("portraitAddress",user.getPortraitAddress());
+            map.put("sex",user.getSex());
+            map.put("counts","");
         }
         return map;
     }
