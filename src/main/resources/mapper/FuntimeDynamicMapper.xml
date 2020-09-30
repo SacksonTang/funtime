@@ -53,7 +53,7 @@
     </select>
 
     <select id="getDynamicNoticeList" resultType="java.util.Map">
-        select s.dynamicId,s.resource1,s.coverUrl,s.dynamic,s.id,s.userId,s.comment,s.toNickname,
+        select s.dynamicId,s.resource1,s.coverUrl,s.dynamic,s.id,s.userId,s.comment,s.toNickname,s.resourceType,
         case when TIMESTAMPDIFF(minute,s.createTime,now()) <![CDATA[<]]> 1 then '刚刚'
         when TIMESTAMPDIFF(minute,s.createTime,now()) >= 1 and TIMESTAMPDIFF(minute,s.createTime,now()) <![CDATA[<]]> 60 then CONCAT(TIMESTAMPDIFF(minute,s.createTime,now()),'分钟前')
         when TIMESTAMPDIFF(hour,s.createTime,now())>=1 and TIMESTAMPDIFF(hour,s.createTime,now()) <![CDATA[<]]> 24 then CONCAT(TIMESTAMPDIFF(hour,s.createTime,now()),'小时前')
@@ -65,7 +65,7 @@
                     when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
                     else null end levelUrl
         from  (
-        select d.id as dynamicId,  d.resource1,d.cover_url as coverUrl,d.dynamic ,t.id,t.user_id as userId,t.`comment`,u.nickname as toNickname, t.create_time as createTime,'1' as type
+        select d.id as dynamicId,  d.resource1,d.resource_type as resourceType,d.cover_url as coverUrl,d.dynamic ,t.id,t.user_id as userId,t.`comment`,u.nickname as toNickname, t.create_time as createTime,'1' as type
         from t_funtime_dynamic d inner join t_funtime_comment t on d.id = t.dynamic_id
         left join t_funtime_user u on t.to_user_id = u.id
         where d.user_id = #{userId} or t.to_user_id = #{userId}
@@ -73,7 +73,7 @@
             and t.create_time <![CDATA[<]]> FROM_UNIXTIME(#{lastId})
         </if>
         union all
-        select d.id as dynamicId,d.resource1,d.cover_url as coverUrl,d.dynamic,l.id,l.user_id as userId ,null as `comment`,null as toNickname, l.create_time as createTime,'2' as type
+        select d.id as dynamicId,d.resource1,d.resource_type as resourceType,d.cover_url as coverUrl,d.dynamic,l.id,l.user_id as userId ,null as `comment`,null as toNickname, l.create_time as createTime,'2' as type
         from t_funtime_dynamic d inner join t_funtime_dynamic_like l on d.id = l.dynamic_id
         where d.user_id = #{userId}
         <if test="lastId!=null">
