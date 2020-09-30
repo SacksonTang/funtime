@@ -53,22 +53,27 @@
     </select>
 
     <select id="getDynamicNoticeList" resultType="java.util.Map">
-        select s.* ,
+        select s.dynamicId,s.resource1,s.coverUrl,s.dynamic,s.id,s.userId,s.comment,s.toNickname,
+        case when TIMESTAMPDIFF(minute,s.createTime,now()) <![CDATA[<]]> 1 then '刚刚'
+        when TIMESTAMPDIFF(minute,s.createTime,now()) >= 1 and TIMESTAMPDIFF(minute,s.createTime,now()) <![CDATA[<]]> 60 then CONCAT(TIMESTAMPDIFF(minute,s.createTime,now()),'分钟前')
+        when TIMESTAMPDIFF(hour,s.createTime,now())>=1 and TIMESTAMPDIFF(hour,s.createTime,now()) <![CDATA[<]]> 24 then CONCAT(TIMESTAMPDIFF(hour,s.createTime,now()),'小时前')
+        else  DATE_FORMAT(s.createTime,'%Y-%m-%d') end createTime,
+        s.type ,unix_timestamp(s.createTime) as lastId,
         u.nickname,u.portrait_address as  portraitAddress,u.sex,
         case when h.user_id is null then null
                     when h.type = 1 then f.level_url
                     when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
                     else null end levelUrl
         from  (
-        select d.id as dynamicId,  d.resource1,cover_url as coverUrl,d.dynamic ,t.id,t.user_id as userId,t.`comment`,u.nickname as toNickname, unix_timestamp(t.create_time) as createTime,'1' as type
+        select d.id as dynamicId,  d.resource1,d.cover_url as coverUrl,d.dynamic ,t.id,t.user_id as userId,t.`comment`,u.nickname as toNickname, t.create_time as createTime,'1' as type
         from t_funtime_dynamic d inner join t_funtime_comment t on d.id = t.dynamic_id
         left join t_funtime_user u on t.to_user_id = u.id
-        where d.user_id = #{userId}
+        where d.user_id = #{userId} or t.to_user_id = #{userId}
         <if test="lastId!=null">
             and t.create_time <![CDATA[<]]> FROM_UNIXTIME(#{lastId})
         </if>
         union all
-        select d.id as dynamicId,d.resource1,cover_url as coverUrl,d.dynamic,l.id,l.user_id as userId ,null as `comment`,null as toNickname, unix_timestamp(l.create_time) as createTime,'2' as type
+        select d.id as dynamicId,d.resource1,d.cover_url as coverUrl,d.dynamic,l.id,l.user_id as userId ,null as `comment`,null as toNickname, l.create_time as createTime,'2' as type
         from t_funtime_dynamic d inner join t_funtime_dynamic_like l on d.id = l.dynamic_id
         where d.user_id = #{userId}
         <if test="lastId!=null">
@@ -105,7 +110,10 @@
     <select id="getDynamicDetailById" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
         d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,cover_url as coverUrl,
-        DATE_FORMAT(d.create_time,'%Y-%m-%d') as createTime,
+        case when TIMESTAMPDIFF(minute,d.create_time,now()) <![CDATA[<]]> 1 then '刚刚'
+        when TIMESTAMPDIFF(minute,d.create_time,now()) >= 1 and TIMESTAMPDIFF(minute,d.create_time,now()) <![CDATA[<]]> 60 then CONCAT(TIMESTAMPDIFF(minute,d.create_time,now()),'分钟前')
+        when TIMESTAMPDIFF(hour,d.create_time,now())>=1 and TIMESTAMPDIFF(hour,d.create_time,now()) <![CDATA[<]]> 24 then CONCAT(TIMESTAMPDIFF(hour,d.create_time,now()),'小时前')
+        else  DATE_FORMAT(d.create_time,'%Y-%m-%d') end createTime,
         u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
         IF(k.dynamic_id is null,0,1) likeState,
         if(e.user_id is null,0,1) concernState,
@@ -126,13 +134,16 @@
         left join t_funtime_dynamic_like k on k.dynamic_id = d.id and k.user_id = #{userId}
         left join t_funtime_user_concern e on e.to_user_id = d.user_id and e.user_id = #{userId}
         where d.id = #{dynamicId}
-        group by d.id,c.room_id
+        group by d.id,c.room_id,a.level
     </select>
 
     <select id="getDynamicList" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
                  d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,cover_url as coverUrl,
-                 DATE_FORMAT(d.create_time,'%Y-%m-%d')  as createTime,
+                case when TIMESTAMPDIFF(minute,d.create_time,now()) <![CDATA[<]]> 1 then '刚刚'
+                when TIMESTAMPDIFF(minute,d.create_time,now()) >= 1 and TIMESTAMPDIFF(minute,d.create_time,now()) <![CDATA[<]]> 60 then CONCAT(TIMESTAMPDIFF(minute,d.create_time,now()),'分钟前')
+                when TIMESTAMPDIFF(hour,d.create_time,now())>=1 and TIMESTAMPDIFF(hour,d.create_time,now()) <![CDATA[<]]> 24 then CONCAT(TIMESTAMPDIFF(hour,d.create_time,now()),'小时前')
+                else  DATE_FORMAT(d.create_time,'%Y-%m-%d') end createTime,
                  u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
                  IF(k.dynamic_id is null,0,1) likeState,
                  if(e.user_id is null,0,1) concernState,
@@ -156,14 +167,17 @@
          <if test="lastId!=null">
              and d.id <![CDATA[<]]> #{lastId}
          </if>
-        group by d.id,c.room_id
+        group by d.id,c.room_id,a.level
         order by d.id desc
         limit ${counts}
     </select>
     <select id="getOtherDynamicList" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
                 d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,cover_url as coverUrl,
-                DATE_FORMAT(d.create_time,'%Y-%m-%d')  as createTime,
+                case when TIMESTAMPDIFF(minute,d.create_time,now()) <![CDATA[<]]> 1 then '刚刚'
+                when TIMESTAMPDIFF(minute,d.create_time,now()) >= 1 and TIMESTAMPDIFF(minute,d.create_time,now()) <![CDATA[<]]> 60 then CONCAT(TIMESTAMPDIFF(minute,d.create_time,now()),'分钟前')
+                when TIMESTAMPDIFF(hour,d.create_time,now())>=1 and TIMESTAMPDIFF(hour,d.create_time,now()) <![CDATA[<]]> 24 then CONCAT(TIMESTAMPDIFF(hour,d.create_time,now()),'小时前')
+                else  DATE_FORMAT(d.create_time,'%Y-%m-%d') end createTime,
                 u.nickname,u.portrait_address as portraitAddress,u.sex,c.room_id as roomId,
                 IF(k.dynamic_id is null,0,1) likeState,
 
@@ -187,14 +201,17 @@
         <if test="lastId!=null">
             and d.id <![CDATA[<]]> #{lastId}
         </if>
-        group by d.id,c.room_id
+        group by d.id,c.room_id,a.level
         order by d.id desc
         limit ${counts}
     </select>
     <select id="getMyDynamicList" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
                 d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,cover_url as coverUrl,
-                DATE_FORMAT(d.create_time,'%Y-%m-%d')  as createTime,
+                case when TIMESTAMPDIFF(minute,d.create_time,now()) <![CDATA[<]]> 1 then '刚刚'
+                when TIMESTAMPDIFF(minute,d.create_time,now()) >= 1 and TIMESTAMPDIFF(minute,d.create_time,now()) <![CDATA[<]]> 60 then CONCAT(TIMESTAMPDIFF(minute,d.create_time,now()),'分钟前')
+                when TIMESTAMPDIFF(hour,d.create_time,now())>=1 and TIMESTAMPDIFF(hour,d.create_time,now()) <![CDATA[<]]> 24 then CONCAT(TIMESTAMPDIFF(hour,d.create_time,now()),'小时前')
+                else  DATE_FORMAT(d.create_time,'%Y-%m-%d') end createTime,
                 u.nickname,u.portrait_address as portraitAddress,u.sex,
 
                 count(distinct t.id) as commentCounts, count(distinct l.user_id) as likeCounts
@@ -222,7 +239,10 @@
         select t.id,t.user_id as userId,t.comment,t.to_user_id as toUserId,
                u.nickname,u.portrait_address as portraitAddress,u.sex,
                u1.nickname as toNickname,
-                DATE_FORMAT(t.create_time,'%Y-%m-%d %H:%i') createTime,
+                case when TIMESTAMPDIFF(minute,t.create_time,now()) <![CDATA[<]]> 1 then '刚刚'
+                when TIMESTAMPDIFF(minute,t.create_time,now()) >= 1 and TIMESTAMPDIFF(minute,t.create_time,now()) <![CDATA[<]]> 60 then CONCAT(TIMESTAMPDIFF(minute,t.create_time,now()),'分钟前')
+                when TIMESTAMPDIFF(hour,t.create_time,now())>=1 and TIMESTAMPDIFF(hour,t.create_time,now()) <![CDATA[<]]> 24 then CONCAT(TIMESTAMPDIFF(hour,t.create_time,now()),'小时前')
+                else  DATE_FORMAT(t.create_time,'%Y-%m-%d') end createTime,
                 case when h.user_id is null then null
                 when h.type = 1 then f.level_url
                 when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)

@@ -352,6 +352,7 @@ public class RoomServiceImpl implements RoomService {
             Integer state = game123Service.getStateByRoomId(roomId);
             result.put("valueGameState",state);
         }
+        result.put("ddzShow",parameterService.getParameterValueByKey("ddz_show"));
         return result;
     }
 

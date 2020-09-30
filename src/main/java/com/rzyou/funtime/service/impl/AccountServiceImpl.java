@@ -1384,7 +1384,6 @@ public class AccountServiceImpl implements AccountService {
         String blue_to_black = parameterService.getParameterValueByKey("blue_to_black2");
         String blue_to_charm = parameterService.getParameterValueByKey("blue_to_charm2");
         BigDecimal black = new BigDecimal(blue_to_black).multiply(new BigDecimal(amount)).setScale(2, RoundingMode.DOWN);
-        List<RoomGiftNotice> notices = new ArrayList<>();
         FuntimeUser toUser = userService.queryUserById(toUserId);
         if (toUser==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());

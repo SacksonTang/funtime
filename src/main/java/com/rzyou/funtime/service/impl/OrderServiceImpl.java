@@ -172,7 +172,7 @@ public class OrderServiceImpl implements OrderService {
                         String[] tagArray = str.split("/");
                         if(StringUtils.isNotBlank(tagText)&&"其他".equals(tagArray[0])) {
                             tagMap.put("tagName", tagText);
-                        }else if (StringUtils.isNotBlank(tagText)&&"开黑".equals(tagArray[0])){
+                        }else if (StringUtils.isNotBlank(game)&&"开黑".equals(tagArray[0])){
                             tagMap.put("tagName", game);
                         }
                         else{

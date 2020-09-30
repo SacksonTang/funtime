@@ -496,7 +496,7 @@ public class DynamicController {
             List<Map<String, Object>> noticeList = dynamicService.getDynamicNoticeList(lastId,userId, startPage, pageSize);
             Map<String, Object> map = JsonUtil.getMap("noticeList", noticeList);
             if (noticeList!=null&&!noticeList.isEmpty()) {
-                map.put("lastId", noticeList.get(noticeList.size() - 1).get("createTime"));
+                map.put("lastId", noticeList.get(noticeList.size() - 1).get("lastId"));
             }
             result.setData(map);
             return result;
