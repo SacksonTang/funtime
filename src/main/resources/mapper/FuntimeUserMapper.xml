@@ -419,8 +419,8 @@
       inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
       left join t_funtime_user_headwear_current h on u.id = h.user_id
       left join (t_funtime_chatroom m inner join t_funtime_chatroom_mic cm on m.id = cm.room_id and m.state = 1) on u.id = cm.mic_user_id and u.online_state = 1
-    where  u.flag = 1 and u.state = 1
-        and u.last_login_time BETWEEN DATE_SUB(now(),INTERVAL 3 day) and DATE_SUB(now(),INTERVAL 1 day)
+    where  u.online_state = 2 and  u.flag = 1 and u.state = 1
+        and u.last_login_time BETWEEN DATE_SUB(now(),INTERVAL 3 day) and now()
 
         <if test="userId!=null">
           and u.id!=#{userId}
@@ -443,7 +443,7 @@
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
-    where  u.flag = 1 and u.state = 1
+    where  u.online_state = 2 and  u.flag = 1 and u.state = 1
     and u.last_login_time BETWEEN DATE_SUB(now(),INTERVAL 3 day) and DATE_SUB(now(),INTERVAL 1 day)
       and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = u.id and t.room_id = #{roomId})
       and u.id!=#{userId}
@@ -512,9 +512,9 @@
     from t_funtime_user u
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
-
     where u.online_state = 2 and u.flag = 1 and u.state = 1
-    <if test="userId!=null">
+      and u.last_login_time <![CDATA[<]]> DATE_SUB(now(),INTERVAL 3 day)
+      <if test="userId!=null">
       and u.id!=#{userId}
     </if>
     <if test="sex!=null">
@@ -537,7 +537,7 @@
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
     where  u.online_state = 2 and u.flag = 1 and u.state = 1
-    and u.last_login_time BETWEEN DATE_SUB(now(),INTERVAL 3 day) and DATE_SUB(now(),INTERVAL 1 day)
+    and u.last_login_time <![CDATA[<]]> DATE_SUB(now(),INTERVAL 3 day)
     and not exists (select t.id from t_funtime_chatroom_mic t where t.mic_user_id = u.id and t.room_id = #{roomId})
     and u.id!=#{userId}
     <if test="content!=null and content!=''">
