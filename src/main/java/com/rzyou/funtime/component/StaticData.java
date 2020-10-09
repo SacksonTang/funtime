@@ -29,6 +29,8 @@ public class StaticData {
     public String certPath ;
     @Value("${app.pay.appleUrl}")
     public String appleUrl ;
+    @Value("${app.pay.h5pay}")
+    public String h5pay ;
 
     @Value("${alipay.merchantCertPath}")
     public String merchantCertPath ;
@@ -64,12 +66,14 @@ public class StaticData {
     public static String ALIPAYCERTPATH;
     public static String ALIPAYROOTCERTPATH;
     public static String ALIPAYNOTIFYURL;
+    public static String H5_PAY;
 
     @PostConstruct
     public void init(){
         TENCENT_YUN_SDK_APPID = imSdkAppId;
         TENCENT_YUN_SDK_APPSECRET = imSdkAppSecret;
         APPLE_URL = appleUrl;
+        H5_PAY = h5pay;
         CERT_PATH = certPath;
         IOS_PUSHCERTDEVID = iosPushCertDevId;
         IOS_PUSHCERTPRODID = iosPushCertProdId;

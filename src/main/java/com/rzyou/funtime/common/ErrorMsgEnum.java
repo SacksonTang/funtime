@@ -101,6 +101,7 @@ public enum ErrorMsgEnum {
     RECHARGE_RMB_NOT_SAME("40006","金额不一致"),
     RECHARGE_LEVEL_NOT_EXISTS("40007","充值等级配置不存在"),
     RECHARGE_TRANSACTIONID_EXISTS("40008","transactionId已存在"),
+    RECHARGE_LIMIT("40009","https://api.rzyou.com/home/h5/pay/"),
 
     REDPACKET_IS_OVER("50001","红包已经抢完"),
     REDPACKET_IS_GRABED("50002","亲,您已经抢过,请点其他红包,谢谢"),

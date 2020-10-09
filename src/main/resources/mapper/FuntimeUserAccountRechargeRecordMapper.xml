@@ -38,6 +38,13 @@
     where  d.state in (1,2)
      and d.create_time >= DATE_SUB(NOW(),INTERVAL 10 MINUTE)
   </select>
+  <select id="checkIosRecharge" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select
+    ifnull(round(sum(rmb),0),0)
+    from t_funtime_user_account_recharge_record
+    where user_id = #{userId} and pay_type = 4 and state = 3
+    and create_time between  DATE_SUB(NOW(),INTERVAL 90 day) and now()
+  </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />

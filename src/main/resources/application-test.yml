@@ -71,6 +71,7 @@ app:
     notifyUrl: https://test.rzyou.com/callback/notifyWxPay
     certPath: /usr/cert/apiclient_cert.p12
     appleUrl: https://sandbox.itunes.apple.com/verifyReceipt
+    h5pay: https://test.rzyou.com/home/h5/pay/
   logpath: /opt/log/pro_log
   im:
     imSdkAppId: 1400323798

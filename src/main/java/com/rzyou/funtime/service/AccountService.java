@@ -673,4 +673,11 @@ public interface AccountService {
      * @param carId
      */
     void cancelCar(Long userId, Integer carId);
+
+    /**
+     * 苹果充值去向
+     * @param userId
+     * @return
+     */
+    Map<String,Object> checkIosRecharge(Long userId);
 }

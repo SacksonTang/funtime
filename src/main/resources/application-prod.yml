@@ -64,6 +64,7 @@ app:
     notifyUrl: https://api.rzyou.com/callback/notifyWxPay
     certPath: /usr/cert/zjqF56nqXswklqA8.p12
     appleUrl: https://buy.itunes.apple.com/verifyReceipt
+    h5pay: https://api.rzyou.com/home/h5/pay/
   logpath: /var/local/logs/funtimelogs
   im:
     imSdkAppId: 1400308918

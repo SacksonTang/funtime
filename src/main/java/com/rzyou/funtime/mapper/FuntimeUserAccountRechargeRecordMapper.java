@@ -11,6 +11,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserAccountRechargeRecordMapper {
 
+    Integer checkIosRecharge(Long userId);
+
     Integer checkTransactionIdExist(String transactionId);
 
     List<FuntimeUserAccountRechargeRecord> getRechargeRecordByTask();

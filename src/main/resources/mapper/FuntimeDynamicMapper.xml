@@ -163,7 +163,7 @@
              left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id and u.online_state = 1
              left join t_funtime_dynamic_like k on k.dynamic_id = d.id and k.user_id = #{userId}
              left join t_funtime_user_concern e on e.to_user_id = d.user_id and e.user_id = #{userId}
-        where 1=1
+        where  u.state = 1
          <if test="lastId!=null">
              and d.id <![CDATA[<]]> #{lastId}
          </if>
@@ -197,7 +197,7 @@
         left join t_funtime_chatroom_mic c on d.user_id = c.mic_user_id
         left join t_funtime_dynamic_like k on k.dynamic_id = d.id and k.user_id = #{userId}
 
-        where d.user_id = #{toUserId}
+        where d.user_id = #{toUserId} and u.state = 1
         <if test="lastId!=null">
             and d.id <![CDATA[<]]> #{lastId}
         </if>
@@ -227,7 +227,7 @@
         left join t_funtime_comment t on d.id = t.dynamic_id
         left join t_funtime_dynamic_like l on d.id = l.dynamic_id
         left join t_funtime_dynamic_like k on k.dynamic_id = d.id and k.user_id = #{userId}
-        where d.user_id = #{userId}
+        where d.user_id = #{userId} and u.state = 1
         <if test="lastId!=null">
             and d.id <![CDATA[<]]> #{lastId}
         </if>

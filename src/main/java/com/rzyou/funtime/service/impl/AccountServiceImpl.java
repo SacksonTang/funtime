@@ -8,6 +8,7 @@ import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.payment.alipay.MyAlipayOld;
 import com.rzyou.funtime.common.payment.iospay.IosPayUtil;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
+import com.rzyou.funtime.component.StaticData;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
 import com.rzyou.funtime.service.*;
@@ -1296,6 +1297,20 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.USER_CAR_NOT_EXIST.getValue(),ErrorMsgEnum.USER_CAR_NOT_EXIST.getDesc());
         }
         userService.updateUserCar(userId,null);
+    }
+
+    @Override
+    public Map<String, Object> checkIosRecharge(Long userId) {
+        Map<String,Object> result = new HashMap<>();
+        Integer counts = userAccountRechargeRecordMapper.checkIosRecharge(userId);
+        String rechargeLimit = parameterService.getParameterValueByKey("recharge_limit");
+        if (counts>Integer.parseInt(rechargeLimit)){
+            result.put("type",2);
+            result.put("url", StaticData.H5_PAY+"?sid="+getUserById(userId).getShowId());
+        }else{
+            result.put("type",1);
+        }
+        return result;
     }
 
     @Override
