@@ -8,6 +8,7 @@ public class Constant {
     //wifi的secretkey
     public final static String WIFI_SECRETKEY = "w_EjzRtwbcRth46I";
     public final static String WIFI_CALLBACKURL = "http://c2.wkanx.com/tracking?";
+    public final static String BSTATION_CALLBACKURL = "https://cm.bilibili.com/conv/api/conversion/ad/cb/v1?";
 
     public final static String SEX_MALE_COLOR = "#0093FF";
     public final static String SEX_FEMALE_COLOR = "#FF0096";

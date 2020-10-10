@@ -112,7 +112,22 @@ public class AdvertisServiceImpl implements AdvertisService {
     }
 
     @Override
+    public void saveBstationAdMonitor(FuntimeBstationAdMonitor ad) {
+        advertisMapper.saveBstationAdMonitor(ad);
+    }
+
+    @Override
     public Map<String, String> getCallBackInfoForWifiApple(String idfa) {
         return advertisMapper.getCallBackInfoForWifiApple(idfa);
+    }
+
+    @Override
+    public String getTrackidForBstationApple(String idfa) {
+        return advertisMapper.getTrackidForBstationApple(idfa);
+    }
+
+    @Override
+    public String getTrackidForBstation(String ip, Integer channel) {
+        return advertisMapper.getTrackidForBstation(ip,channel);
     }
 }

@@ -663,6 +663,7 @@ public class UserServiceImpl implements UserService {
                                     url = getUrl(map, "1");
                                     HttpClientUtil.doGet(url);
                                 }else{
+                                    //知乎
                                     url = advertisService.getCallBackUrlForZhihuApple(deviceInfo.getIdfa());
                                     if (StringUtils.isNotBlank(url)) {
                                         log.info("**************苹果知乎激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
@@ -670,6 +671,14 @@ public class UserServiceImpl implements UserService {
                                         url = url.replaceAll("__EVENTTYPE__", "install")
                                                 .replaceAll("__TIMESTAMP__", String.valueOf(System.currentTimeMillis()));
                                         HttpClientUtil.doGet(url);
+                                    }else{
+                                        //b站
+                                        String trackid = advertisService.getTrackidForBstationApple(deviceInfo.getIdfa());
+                                        if (StringUtils.isNotBlank(trackid)) {
+                                            log.info("**************苹果b站激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                            url = Constant.BSTATION_CALLBACKURL+"conv_type=APP_FIRST_ACTIVE&conv_time="+System.currentTimeMillis()+"&client_ip="+deviceInfo.getIp()+"&track_id="+trackid;
+                                            HttpClientUtil.doGet(url);
+                                        }
                                     }
                                 }
 
@@ -709,6 +718,14 @@ public class UserServiceImpl implements UserService {
                                         url = url.replaceAll("__EVENTTYPE__", "reged")
                                                 .replaceAll("__TIMESTAMP__", String.valueOf(System.currentTimeMillis()));
                                         HttpClientUtil.doGet(url);
+                                    }else{
+                                        //b站
+                                        String trackid = advertisService.getTrackidForBstationApple(deviceInfo.getIdfa());
+                                        if (StringUtils.isNotBlank(trackid)) {
+                                            log.info("**************苹果b站首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                            url = Constant.BSTATION_CALLBACKURL+"conv_type=USER_REGISTER&conv_time="+System.currentTimeMillis()+"&client_ip="+deviceInfo.getIp()+"&track_id="+trackid;
+                                            HttpClientUtil.doGet(url);
+                                        }
                                     }
                                 }
                             }
@@ -810,6 +827,31 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url = url.replaceAll("__EVENTTYPE__", "reged")
                                         .replaceAll("__TIMESTAMP__", String.valueOf(System.currentTimeMillis()));
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    }
+                }else if("b-jwn".equals(deviceInfo.getChannel())||"b-chujian".equals(deviceInfo.getChannel())){
+                    Integer channel = "b-jwn".equals(deviceInfo.getChannel())?1:2;
+                    if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
+                        if (count == 0) {
+                            log.info("**************B站激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String trackid = advertisService.getTrackidForBstation(deviceInfo.getIp(),channel);
+                            if (StringUtils.isNotBlank(trackid)) {
+                                String url = Constant.BSTATION_CALLBACKURL+"conv_type=APP_FIRST_ACTIVE&conv_time="+System.currentTimeMillis()+"&client_ip="+deviceInfo.getIp()+"&track_id="+trackid;
+
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    } else if ("startIndex".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
+                        if (count == 0) {
+                            log.info("**************B站首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String trackid = advertisService.getTrackidForBstation(deviceInfo.getIp(),channel);
+                            if (StringUtils.isNotBlank(trackid)) {
+                                String url = Constant.BSTATION_CALLBACKURL+"conv_type=USER_REGISTER&conv_time="+System.currentTimeMillis()+"&client_ip="+deviceInfo.getIp()+"&track_id="+trackid;
+
                                 HttpClientUtil.doGet(url);
                             }
                         }

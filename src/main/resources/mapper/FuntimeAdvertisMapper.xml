@@ -17,7 +17,12 @@
     limit 1
   </select>
   <select id="getCallBackUrlForZhihuApple" resultType="java.lang.String">
-    select callback_url from t_funtime_zhihu_ad_monitor where idfa = #{idfa}
+    select callback from t_funtime_zhihu_ad_monitor where idfa = #{idfa}
+    order by id desc
+    limit 1
+  </select>
+  <select id="getTrackidForBstationApple" resultType="java.lang.String">
+    select trackid from t_funtime_bstation_ad_monitor where idfa = #{idfa}
     order by id desc
     limit 1
   </select>
@@ -61,6 +66,11 @@
   </select>
   <select id="getCallBackUrlForZhihu" resultType="java.lang.String">
     select callback from t_funtime_zhihu_ad_monitor where ip = #{ip}
+    order by id desc
+    limit 1
+  </select>
+  <select id="getTrackidForBstation" resultType="java.lang.String">
+    select trackid from t_funtime_bstation_ad_monitor where ip = #{ip} and channel = #{channel}
     order by id desc
     limit 1
   </select>
@@ -162,6 +172,21 @@
     #{androidId,jdbcType=VARCHAR}, #{idfa,jdbcType=VARCHAR}, #{sessionId,jdbcType=VARCHAR},
     #{callback,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{ua,jdbcType=VARCHAR}, #{os,jdbcType=INTEGER},
     #{campaign,jdbcType=VARCHAR}, #{creative,jdbcType=VARCHAR}, #{ts,jdbcType=INTEGER}
+    )
+  </insert>
+  <insert id="saveBstationAdMonitor" parameterType="com.rzyou.funtime.entity.FuntimeBstationAdMonitor" >
+
+    insert into t_funtime_bstation_ad_monitor (channel, trackid,
+    creativeid, os, imei,
+    mac1, idfa, aaid, androidid,
+    oaid, ip, ua, ts,
+    shopid, upmid
+    )
+    values (#{channel,jdbcType=INTEGER}, #{trackid,jdbcType=VARCHAR},
+    #{creativeid,jdbcType=VARCHAR}, #{os,jdbcType=INTEGER}, #{imei,jdbcType=VARCHAR},
+    #{mac1,jdbcType=VARCHAR}, #{idfa,jdbcType=VARCHAR}, #{aaid,jdbcType=VARCHAR}, #{androidid,jdbcType=VARCHAR},
+    #{oaid,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{ua,jdbcType=VARCHAR}, #{ts,jdbcType=VARCHAR},
+    #{shopid,jdbcType=VARCHAR}, #{upmid,jdbcType=VARCHAR}
     )
   </insert>
 </mapper>

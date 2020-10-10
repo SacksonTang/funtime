@@ -229,7 +229,7 @@ public class CallbackController {
      */
     @RequestMapping(value = "notifyIosReturnPay", produces = MediaType.APPLICATION_JSON_VALUE)
     public String notifyIosReturnPay(HttpServletRequest request) throws Exception {
-        //获取支付宝POST过来反馈信息
+        //获取苹果退款POST过来反馈信息
         Map<String,String> params = new HashMap<>();
         Map<String, String[]> requestParams = request.getParameterMap();
         for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
@@ -244,31 +244,8 @@ public class CallbackController {
             //valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
             params.put(name, valueStr);
         }
-        log.info("支付宝回调参数:{}",params);
-        MyAliPayConfig aliPayConfig = new MyAliPayConfig();
-        Boolean verifyNotify = AlipaySignature.rsaCertCheckV1(params,aliPayConfig.getAlipayCertPath(),"utf-8",aliPayConfig.getSignType());
-        if (!verifyNotify){
-            log.error("支付宝支付回调签名不正确");
-            return "sign error";
-        }
-        //商户订单号
-        String outTradeNo = request.getParameter("out_trade_no");
-        //交易状态
-        String tradeStatus = request.getParameter("trade_status");
-        //资金总额
-        String totalAmount = request.getParameter("total_amount");
-        //支付宝账户流水
-        String tradeNo = request.getParameter("trade_no");
-        //买家支付宝账户
-        String buyerLogonId = request.getParameter("buyer_logon_id");
-        //签名
-        String sign = request.getParameter("sign");
+        log.info("苹果退款回调参数:{}",params);
 
-        if (StringUtils.isBlank(outTradeNo)||StringUtils.isBlank(tradeStatus)||StringUtils.isBlank(totalAmount)){
-            return "success";
-        }
-
-        accountService.aliPayOrderCallBack(outTradeNo,tradeStatus,new BigDecimal(totalAmount),tradeNo);
 
         return "success";
 
@@ -488,6 +465,26 @@ public class CallbackController {
             ad.setIp(HttpHelper.getClientIpAddr(request));
         }
         advertisService.saveZhihuAdMonitor(ad);
+        return result;
+
+    }
+
+    /**
+     * B站监测链接
+     * @param params
+     * @return
+     */
+    @GetMapping(value = "bstationMonitor")
+    public JSONObject bstationMonitor(@RequestParam(required = false) Map<String, Object> params,HttpServletRequest request) {
+
+        JSONObject result = new JSONObject();
+        result.put("status",0);
+        JSONObject obj = new JSONObject(params);
+        FuntimeBstationAdMonitor ad = JSONObject.toJavaObject(obj,FuntimeBstationAdMonitor.class);
+        if (StringUtils.isBlank(ad.getIp())) {
+            ad.setIp(HttpHelper.getClientIpAddr(request));
+        }
+        advertisService.saveBstationAdMonitor(ad);
         return result;
 
     }
