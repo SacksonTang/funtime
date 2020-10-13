@@ -11,6 +11,17 @@ import java.util.Map;
 public interface UserService {
 
     /**
+     * 冻结账户
+     * @param id
+     */
+    void updateAccountState(Long id);
+
+    /**
+     * 账户冻结
+     * @param userId
+     */
+    void checkAccountState(Long userId);
+    /**
      * 保存用户来源
      * @param userId
      * @param activityId

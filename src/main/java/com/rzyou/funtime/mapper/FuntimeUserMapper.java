@@ -18,6 +18,8 @@ public interface FuntimeUserMapper {
 
     List<Long> getBeautyNumbers();
 
+    Integer getAccountState(Long userId);
+
     Long getMaxShowId();
 
     Integer checkSensitive(String content);
@@ -190,4 +192,6 @@ public interface FuntimeUserMapper {
     int delBlacklist(@Param("userId") Long userId,@Param("toUserId") Long toUserId);
 
     List<Map<String,Object>> getBlacklists(Long userId);
+
+    int updateAccountState(Long id);
 }

@@ -43,6 +43,7 @@
     <result column="isBlock"  property="isBlock" />
     <result column="roomState"  property="roomState" />
     <result column="car_id"  property="carId" />
+    <result column="account_state"  property="accountState" />
 
   </resultMap>
   <sql id="Base_Column_List">
@@ -50,7 +51,7 @@
     phone_imei, drainage_channel, portrait_address, sex, birthday, height, sign_text,
     state, realname_authentication_flag, token, online_state, create_room, registration_time,
     update_time, last_login_time, concerns, fans, ip, flag, version,longitude,latitude,location_desc,
-    province,city,district,guild_id,platform,channel,show_id,car_id
+    province,city,district,guild_id,platform,channel,show_id,car_id,account_state
   </sql>
 
   <select id="getDdzUserInfoById" resultType="java.util.Map">
@@ -60,6 +61,9 @@
       where u.id = #{userId}
   </select>
 
+    <select id="getAccountState" resultType="java.lang.Integer">
+      select account_state from t_funtime_user where id = #{userId}
+  </select>
   <select id="getBeautyNumbers" resultType="java.lang.Long">
       select beauty from t_funtime_user_beauty
   </select>
@@ -97,7 +101,7 @@
     id, username, fullname, nickname, password, phone_number,
     drainage_channel,token, portrait_address, sex, birthday, height, sign_text,version,
     state, realname_authentication_flag, online_state, create_room, registration_time,longitude,latitude,
-    update_time, last_login_time, concerns, fans, ip, flag, guild_id,platform,channel,show_id,car_id
+    update_time, last_login_time, concerns, fans, ip, flag, guild_id,platform,channel,show_id,car_id,account_state
     from t_funtime_user
     where id = #{id,jdbcType=BIGINT} and flag = 1
   </select>
@@ -106,7 +110,7 @@
     id, username, fullname, nickname, password, phone_number,
     drainage_channel, portrait_address, sex, birthday, height, sign_text,
     state, realname_authentication_flag, online_state, create_room, registration_time,
-    update_time, last_login_time, concerns, fans, ip, flag, guild_id,platform,channel,show_id,car_id
+    update_time, last_login_time, concerns, fans, ip, flag, guild_id,platform,channel,show_id,car_id,account_state
     from t_funtime_user
     where show_id = #{showId} and flag = 1
   </select>
@@ -1004,6 +1008,11 @@
   <update id="updateOnlineState">
     update t_funtime_user set online_state = #{onlineState},update_time =now() where id = #{id}
   </update>
+
+
+    <update id="updateAccountState">
+        update t_funtime_user set account_state = 2 where id = #{id}
+    </update>
 
   <update id="updateConcernsPlus" parameterType="java.lang.Long">
     update t_funtime_user set concerns = concerns+1,update_time =now() where id = #{id}

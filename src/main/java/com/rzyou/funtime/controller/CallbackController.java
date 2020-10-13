@@ -1,5 +1,6 @@
 package com.rzyou.funtime.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.rzyou.funtime.common.BusinessException;
@@ -230,23 +231,30 @@ public class CallbackController {
     @RequestMapping(value = "notifyIosReturnPay", produces = MediaType.APPLICATION_JSON_VALUE)
     public String notifyIosReturnPay(HttpServletRequest request) throws Exception {
         //获取苹果退款POST过来反馈信息
-        Map<String,String> params = new HashMap<>();
-        Map<String, String[]> requestParams = request.getParameterMap();
-        for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
-            String name = (String) iter.next();
-            String[] values = requestParams.get(name);
-            String valueStr = "";
-            for (int i = 0; i < values.length; i++) {
-                valueStr = (i == values.length - 1) ? valueStr + values[i]
-                        : valueStr + values[i] + ",";
-            }
-            //乱码解决，这段代码在出现乱码时使用。
-            //valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
-            params.put(name, valueStr);
+        String str = HttpHelper.getBodyString(request);
+        if (StringUtils.isBlank(str)){
+            return "error";
         }
-        log.info("苹果退款回调参数:{}",params);
-
-
+        JSONObject obj = JSONObject.parseObject(str);
+        if(obj==null){
+            return "error";
+        }
+        JSONObject data = obj.getJSONObject("unified_receipt");
+        if (data == null){
+            return "error";
+        }
+        JSONArray unified_receipt = data.getJSONArray("latest_receipt_info");
+        if (unified_receipt == null||unified_receipt.size() == 0){
+            return "error";
+        }
+        FuntimeAppleRefund funtimeAppleRefund;
+        List<FuntimeAppleRefund> list = new ArrayList<>();
+        for (int i = 0;i<unified_receipt.size();i++){
+            JSONObject o = unified_receipt.getJSONObject(i);
+            funtimeAppleRefund = JSONObject.toJavaObject(o,FuntimeAppleRefund.class);
+            list.add(funtimeAppleRefund);
+        }
+        accountService.operateAppleRefund(list);
         return "success";
 
     }

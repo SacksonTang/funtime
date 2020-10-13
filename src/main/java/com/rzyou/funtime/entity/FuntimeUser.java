@@ -32,6 +32,8 @@ public class FuntimeUser implements Serializable {
 
     private Integer sex;
 
+    private Integer accountState;
+
     private String sexColor;
 
     private Integer birthday;

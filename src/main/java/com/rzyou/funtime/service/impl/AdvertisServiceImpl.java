@@ -71,7 +71,7 @@ public class AdvertisServiceImpl implements AdvertisService {
     @Override
     public String getCallBackUrlForZhihuApple(String idfa) {
         if (StringUtils.isNotBlank(idfa)) {
-            idfa = DigestUtils.md5Hex(idfa.toUpperCase());
+            idfa = DigestUtils.md5Hex(idfa).toUpperCase();
         }
         return advertisMapper.getCallBackUrlForZhihuApple(idfa);
     }
@@ -118,6 +118,9 @@ public class AdvertisServiceImpl implements AdvertisService {
 
     @Override
     public Map<String, String> getCallBackInfoForWifiApple(String idfa) {
+        if (StringUtils.isNotBlank(idfa)) {
+            idfa = DigestUtils.md5Hex(idfa);
+        }
         return advertisMapper.getCallBackInfoForWifiApple(idfa);
     }
 

@@ -21,6 +21,8 @@ public class FuntimeUserAccountRechargeRecord implements Serializable {
 
     private String rechargeCardId;
 
+    private Integer appleRefundState;
+
     private Integer rechargeChannelId;
 
     private Integer rechargeConfId;

@@ -2,7 +2,6 @@ package com.rzyou.funtime.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alipay.api.domain.EcoRenthouseRoomInfoList;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.rzyou.funtime.common.*;
@@ -478,6 +477,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUserAccountForSub(Long userId,BigDecimal blackDiamond, BigDecimal blueDiamond, Integer hornNumber) {
+        checkAccountState(userId);
         FuntimeUserAccount info = getUserAccountInfoById(userId);
         if (info==null){
             throw new BusinessException(ErrorMsgEnum.UNKNOWN_ERROR.getValue(),ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
@@ -517,6 +517,7 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public void updateUserAccountGoldCoinSub(Long userId, Integer goldCoin) {
+        checkAccountState(userId);
         int k = accountMapper.updateUserAccountGoldCoinSub(userId,goldCoin);
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
@@ -549,6 +550,23 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
 
+    }
+
+    @Override
+    public void updateAccountState(Long id) {
+        FuntimeUser user = queryUserById(id);
+        if (user!=null&&user.getAccountState() == 1){
+            userMapper.updateAccountState(id);
+        }
+
+    }
+
+    @Override
+    public void checkAccountState(Long userId){
+        Integer accountState = userMapper.getAccountState(userId);
+        if (accountState==null||accountState == 2){
+            throw new BusinessException(ErrorMsgEnum.USER_ACCOUNT_STOP.getValue(),ErrorMsgEnum.USER_ACCOUNT_STOP.getDesc());
+        }
     }
 
     @Override
@@ -783,7 +801,7 @@ public class UserServiceImpl implements UserService {
                             }
                         }
                     }
-                }else if ("wifi".equals(deviceInfo.getChannel())){
+                }else if ("wifi".equals(deviceInfo.getChannel())||"bjtz-wifi".equals(deviceInfo.getChannel())){
                     if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
                         count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
                         if (count == 0) {

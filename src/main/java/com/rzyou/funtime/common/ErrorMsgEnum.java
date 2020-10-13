@@ -73,6 +73,7 @@ public enum ErrorMsgEnum {
     USER_IMCOUNTS_EXCEED("10060","您今天撩人已达上限，送任意礼物可畅聊"),
     USER_BLACKLIST_ADDED("10061","你已将对方加入黑名单"),
     USER_BLACKLIST_ADDED2("10062","你已被对方加入黑名单"),
+    USER_ACCOUNT_STOP("10063","账户已被冻结,请联系客服"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),

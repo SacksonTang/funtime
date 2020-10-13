@@ -8,6 +8,7 @@ import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.payment.alipay.MyAlipayOld;
 import com.rzyou.funtime.common.payment.iospay.IosPayUtil;
 import com.rzyou.funtime.common.payment.wxpay.MyWxPay;
+import com.rzyou.funtime.common.sms.ouyi.OuyiSmsUtil;
 import com.rzyou.funtime.component.StaticData;
 import com.rzyou.funtime.entity.*;
 import com.rzyou.funtime.mapper.*;
@@ -1058,7 +1059,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         FuntimeUser user = getUserById(userId);
-
+        userService.checkAccountState(userId);
         FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
         if (funtimeGift==null){
             throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
@@ -1311,6 +1312,36 @@ public class AccountServiceImpl implements AccountService {
             result.put("type",1);
         }
         return result;
+    }
+
+    @Override
+    @Transactional
+    public void operateAppleRefund(List<FuntimeAppleRefund> list) {
+
+        String orderNos = "";
+        for (FuntimeAppleRefund appleRefund : list){
+            String transactionId = appleRefund.getTransactionId();
+            FuntimeUserAccountRechargeRecord record = userAccountRechargeRecordMapper.checkTransactionIdRefund(transactionId);
+            if (record!=null&&record.getId()!=null){
+                updateAppleRefundState(record.getId(),2);
+                insertAppleRefund(appleRefund);
+                userService.updateAccountState(record.getUserId());
+                orderNos +=transactionId+",";
+            }
+
+        }
+        if (!orderNos.equals("")){
+            orderNos = orderNos.substring(0,orderNos.length()-1);
+        }
+        String content = "苹果支付退款订单号: "+orderNos;
+        OuyiSmsUtil.sengSindleSMS("18138826369",content);
+        OuyiSmsUtil.sengSindleSMS("13302902681",content);
+    }
+
+    private void insertAppleRefund(FuntimeAppleRefund appleRefund){
+        if(userAccountRechargeRecordMapper.checkTransactionId(appleRefund.getTransactionId())==null){
+            userAccountRechargeRecordMapper.insertAppleRefund(appleRefund);
+        }
     }
 
     @Override
@@ -2012,6 +2043,7 @@ public class AccountServiceImpl implements AccountService {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
 
         FuntimeUser user = getUserById(userId);
+        userService.checkAccountState(userId);
 
         FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
         if (funtimeGift==null){
@@ -2375,6 +2407,7 @@ public class AccountServiceImpl implements AccountService {
     public ResultMsg<Object> sendGiftForMic2(Long userId, Integer giftId, Integer giftNum, String operationDesc, Integer giveChannel, Long roomId) {
         ResultMsg<Object> resultMsg = new ResultMsg<>();
         FuntimeUser user = getUserById(userId);
+        userService.checkAccountState(userId);
         FuntimeGift funtimeGift = giftMapper.selectByPrimaryKey(giftId);
         if (funtimeGift==null){
             throw new BusinessException(ErrorMsgEnum.GIFT_NOT_EXISTS.getValue(),ErrorMsgEnum.GIFT_NOT_EXISTS.getDesc());
@@ -3583,6 +3616,17 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
     }
+
+    public void updateAppleRefundState(Long id, Integer appleRefundState){
+        FuntimeUserAccountRechargeRecord record = new FuntimeUserAccountRechargeRecord();
+        record.setId(id);
+        record.setAppleRefundState(appleRefundState);
+        int k = userAccountRechargeRecordMapper.updateByPrimaryKeySelective(record);
+        if(k!=1){
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
+    }
+
     @Override
     public void updateRechargeRecordState(Long id,Integer state){
         FuntimeUserAccountRechargeRecord record = new FuntimeUserAccountRechargeRecord();

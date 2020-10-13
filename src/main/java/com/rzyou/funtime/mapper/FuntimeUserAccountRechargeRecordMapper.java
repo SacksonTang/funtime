@@ -1,5 +1,6 @@
 package com.rzyou.funtime.mapper;
 
+import com.rzyou.funtime.entity.FuntimeAppleRefund;
 import com.rzyou.funtime.entity.FuntimeUserAccountRechargeRecord;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -10,6 +11,10 @@ import java.util.Map;
 
 @Mapper
 public interface FuntimeUserAccountRechargeRecordMapper {
+
+    FuntimeUserAccountRechargeRecord checkTransactionIdRefund(String transactionId);
+
+    Integer checkTransactionId(String transactionId);
 
     Integer checkIosRecharge(Long userId);
 
@@ -32,5 +37,7 @@ public interface FuntimeUserAccountRechargeRecordMapper {
     FuntimeUserAccountRechargeRecord getRechargeRecordByOrderNo(String orderNo);
 
     int updateByPrimaryKeySelective(FuntimeUserAccountRechargeRecord record);
+
+    int insertAppleRefund(FuntimeAppleRefund appleRefund);
 
 }

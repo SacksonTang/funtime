@@ -680,4 +680,10 @@ public interface AccountService {
      * @return
      */
     Map<String,Object> checkIosRecharge(Long userId);
+
+    /**
+     * 苹果支付退款处理
+     * @param list
+     */
+    void operateAppleRefund(List<FuntimeAppleRefund> list);
 }

@@ -58,4 +58,34 @@ public class OuyiSmsUtil {
         }
 
     }
+
+    public static void sengSindleSMS(String phone, String content) {
+        //以下参数均由前端页面传来
+        String result = "";
+       // String content = OuyiSmsTemplate.getDescByValue(smsType).replace("#",code);
+        //因做测试 故原地址与外部编码不参与测试 实际情况有需要从前端定义参数获取
+        try {
+            //做URLEncoder - UTF-8编码
+            String sm = URLEncoder.encode(content, "utf8");
+            //将参数进行封装
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("un", username);
+            paramMap.put("pw", password);
+            //paramMap.put("sa",source_address);
+
+            //单一内容时群发  将手机号用;隔开
+            paramMap.put("da", phone);
+            paramMap.put("sm", sm);
+            //发送POST请求
+            result = HttpClient.SendPOST(mt,paramMap);
+            log.debug("ouyi sms result : {}",result);
+            JSONObject resultObj = JSONObject.parseObject(result);
+            if(!resultObj.getBoolean("success")){
+                throw new BusinessException(ErrorMsgEnum.USER_SMS_FAIL.getValue(),ErrorMsgEnum.USER_SMS_FAIL.getDesc());
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new BusinessException(ErrorMsgEnum.USER_SMS_FAIL.getValue(),ErrorMsgEnum.USER_SMS_FAIL.getDesc());
+        }
+
+    }
 }

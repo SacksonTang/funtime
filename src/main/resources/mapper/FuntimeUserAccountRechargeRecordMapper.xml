@@ -69,7 +69,12 @@
     from t_funtime_user_account_recharge_record
     where recharge_card_id = #{transactionId}
   </select>
-
+  <select id="checkTransactionIdRefund"  resultMap="BaseResultMap">
+    select
+     id,user_id
+    from t_funtime_user_account_recharge_record
+    where recharge_card_id = #{transactionId} and state = 3 and apple_refund_state = 1 and pay_type = 4 limit 1
+  </select>
   <select id="getUserLevel" parameterType="java.lang.Integer" resultType="java.util.Map">
     select
      level,level_url as levelUrl
@@ -278,9 +283,35 @@
       <if test="completeTime != null">
         complete_time = #{completeTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="appleRefundState!=null">
+        apple_refund_state = #{appleRefundState},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+
+  <select id="checkTransactionId" resultType="java.lang.Integer">
+    select 1 from t_funtime_apple_refund where transaction_id = #{transactionId}
+  </select>
+
+  <insert id="insertAppleRefund" parameterType="com.rzyou.funtime.entity.FuntimeAppleRefund" >
+
+    insert into t_funtime_apple_refund (transaction_id, product_id,
+    quantity, purchase_date, purchase_date_ms,
+    purchase_date_pst, original_purchase_date,
+    original_purchase_date_ms, original_purchase_date_pst,
+    is_trial_period, original_transaction_id, cancellation_date,
+    cancellation_date_ms, cancellation_date_pst,
+    cancellation_reason)
+    values (#{transactionId,jdbcType=VARCHAR}, #{productId,jdbcType=VARCHAR},
+    #{quantity,jdbcType=INTEGER}, #{purchaseDate,jdbcType=VARCHAR}, #{purchaseDateMs,jdbcType=VARCHAR},
+    #{purchaseDatePst,jdbcType=VARCHAR}, #{originalPurchaseDate,jdbcType=VARCHAR},
+    #{originalPurchaseDateMs,jdbcType=VARCHAR}, #{originalPurchaseDatePst,jdbcType=VARCHAR},
+    #{isTrialPeriod,jdbcType=VARCHAR}, #{originalTransactionId,jdbcType=VARCHAR}, #{cancellationDate,jdbcType=VARCHAR},
+    #{cancellationDateMs,jdbcType=VARCHAR}, #{cancellationDatePst,jdbcType=VARCHAR},
+    #{cancellationReason,jdbcType=VARCHAR})
+  </insert>
 
 
 </mapper>
