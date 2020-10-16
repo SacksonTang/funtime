@@ -1143,9 +1143,9 @@
   <insert id="insertUserLocationLog">
     insert into t_funtime_user_location_log (user_id,longitude,latitude) values (#{userId},#{longitude},#{latitude})
   </insert>
-  <select id="insertUserAction">
+  <insert id="insertUserAction">
       insert into t_funtime_user_action (user_id,page,ip) values (#{userId},#{page},#{ip})
-  </select>
+  </insert>
 
   <select id="getUserImDayCount" resultType="java.lang.Integer">
       select t.counts-ifnull(count(d.to_user_id),0) from t_funtime_user_imdaycount t left join t_funtime_user_im_record d on t.user_id = d.user_id

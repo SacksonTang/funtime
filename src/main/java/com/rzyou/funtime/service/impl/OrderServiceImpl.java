@@ -114,6 +114,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Map<String, Object> getRecommendationOrderList(Integer tagId) {
         Map<String,Object> resultMap = new HashMap<>();
+        tagId = tagId == 0 ?null:tagId;
         List<Map<String, Object>> recommendations = orderMapper.getRecommendationOrderList(tagId);
         Map<Integer, Map<String, Object>> priceMap;
         Map<String, Object> tagPriceMap;
@@ -124,9 +125,17 @@ public class OrderServiceImpl implements OrderService {
             } catch (Exception e) {
                 throw new BusinessException(ErrorMsgEnum.COMMENT_PRICE_ERROR.getValue(),ErrorMsgEnum.COMMENT_PRICE_ERROR.getDesc());
             }
-            tagPriceMap = priceMap.get(tagId);
-            if (tagPriceMap!=null){
-                map.put("price",tagPriceMap.get("price"));
+            if (tagId!=null) {
+                tagPriceMap = priceMap.get(tagId);
+                if (tagPriceMap != null) {
+                    map.put("price", tagPriceMap.get("price"));
+                }
+            }else{
+                for (Integer key : priceMap.keySet()){
+                    map.put("price", priceMap.get(key).get("price"));
+                    break;
+                }
+
             }
         }
         resultMap.put("recommendationList",recommendations);
@@ -139,6 +148,7 @@ public class OrderServiceImpl implements OrderService {
         if (startPage == 1){
             lastId = null;
         }
+        tagId = tagId == 0 ?null:tagId;
         List<Map<String, Object>> orderList = orderMapper.getOrderList(pageSize, lastId, tagId,sex);
 
         if (orderList!=null&&!orderList.isEmpty()) {
@@ -156,9 +166,17 @@ public class OrderServiceImpl implements OrderService {
                 } catch (Exception e) {
                     throw new BusinessException(ErrorMsgEnum.COMMENT_PRICE_ERROR.getValue(),ErrorMsgEnum.COMMENT_PRICE_ERROR.getDesc());
                 }
-                Map<String, Object> tagPriceMap = priceMap.get(tagId);
-                if (tagPriceMap!=null){
-                    map.put("price",tagPriceMap.get("price"));
+                if (tagId!=null) {
+                    Map<String, Object> tagPriceMap = priceMap.get(tagId);
+                    if (tagPriceMap != null) {
+                        map.put("price", tagPriceMap.get("price"));
+                    }
+                }else{
+                    for (Integer key : priceMap.keySet()){
+                        map.put("price", priceMap.get(key).get("price"));
+                        break;
+                    }
+
                 }
 
                 String tags = map.get("tags").toString();

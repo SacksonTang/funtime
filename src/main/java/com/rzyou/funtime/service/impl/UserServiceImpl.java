@@ -430,16 +430,23 @@ public class UserServiceImpl implements UserService {
     public List<Map<String,Object>> queryTagsByType(String tagType, Integer type) {
         List<Map<String,Object>> list = tagMapper.queryTagsByType(tagType);
         List<Map<String,Object>> results = new ArrayList<>();
-        if (type!=null&&type == 1){
-            if (list!=null&&!list.isEmpty()){
-                Map<String,Object> map = new HashMap<>();
-                map.put("id",0);
-                map.put("tagName","全部");
-                results.add(map);
-                map = new HashMap<>();
-                map.put("id",-1);
-                map.put("tagName","热门");
-                results.add(map);
+        if (type!=null){
+            if (list!=null&&!list.isEmpty()) {
+                if (type == 1) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", 0);
+                    map.put("tagName", "全部");
+                    results.add(map);
+                    map = new HashMap<>();
+                    map.put("id", -1);
+                    map.put("tagName", "热门");
+                    results.add(map);
+                }else if (type == 2){
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", 0);
+                    map.put("tagName", "全部");
+                    results.add(map);
+                }
             }
 
         }
@@ -1206,7 +1213,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void doAction(Long userId, String page, String ip) {
 
-        userMapper.insertUserAction(userId,page,ip);
+        int k = userMapper.insertUserAction(userId,page,ip);
     }
 
     @Override

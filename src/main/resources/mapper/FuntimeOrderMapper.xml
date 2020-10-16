@@ -68,7 +68,7 @@
         <if test="tagId!=null">
             and FIND_IN_SET(#{tagId},d.service_tag)>0
         </if>
-        order by d.create_time desc
+        order by d.create_time desc limit 3
     </select>
 
     <insert id="insertOrder" parameterType="com.rzyou.funtime.entity.FuntimeOrder" >
