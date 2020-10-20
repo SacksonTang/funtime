@@ -893,25 +893,27 @@ public class UserServiceImpl implements UserService {
                             }
                         }
                     }
-                }
-            }else if ("sohu".equals(deviceInfo.getChannel())){
-                if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
-                    count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
-                    if (count == 0) {
-                        log.info("**************sohu激活数据上报*****************androidId:{}", deviceInfo.getAndroidId());
-                    }
-                } else if ("startIndex".equals(deviceInfo.getPoint())) {
-                    count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
-                    if (count == 0) {
-                        log.info("**************sohu首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
-                        String url = advertisService.getCallBackForSohu(deviceInfo.getIp());
-                        if (StringUtils.isNotBlank(url)) {
-                            url = URLDecoder.decode(url, "utf-8");
-                            url = url.replaceAll("__TS__", String.valueOf(System.currentTimeMillis()));
-                            HttpClientUtil.doGet(url);
+                }else if ("sohu".equals(deviceInfo.getChannel())){
+                    if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
+                        if (count == 0) {
+                            log.info("**************sohu激活数据上报*****************androidId:{}", deviceInfo.getAndroidId());
+                        }
+                    } else if ("startIndex".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
+                        if (count == 0) {
+                            log.info("**************sohu首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackForSohu(deviceInfo.getIp());
+                            if (StringUtils.isNotBlank(url)) {
+                                url = URLDecoder.decode(url, "utf-8");
+                                url = url.replaceAll("__TS__", String.valueOf(System.currentTimeMillis()));
+                                HttpClientUtil.doGet(url);
+                            }
                         }
                     }
                 }
+            }else {
+
             }
 
         }catch (Exception e){
