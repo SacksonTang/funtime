@@ -117,6 +117,11 @@ public class AdvertisServiceImpl implements AdvertisService {
     }
 
     @Override
+    public void saveSohuAdMonitor(FuntimeSohuAdMonitor ad) {
+        advertisMapper.saveSohuAdMonitor(ad);
+    }
+
+    @Override
     public Map<String, String> getCallBackInfoForWifiApple(String idfa) {
         if (StringUtils.isNotBlank(idfa)) {
             idfa = DigestUtils.md5Hex(idfa);
@@ -132,5 +137,15 @@ public class AdvertisServiceImpl implements AdvertisService {
     @Override
     public String getTrackidForBstation(String ip, Integer channel) {
         return advertisMapper.getTrackidForBstation(ip,channel);
+    }
+
+    @Override
+    public String getCallBackForSohuApple(String idfa) {
+        return advertisMapper.getCallBackForSohuApple(idfa);
+    }
+
+    @Override
+    public String getCallBackForSohu(String ip) {
+        return advertisMapper.getCallBackForSohu(ip);
     }
 }

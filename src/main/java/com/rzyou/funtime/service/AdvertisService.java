@@ -39,9 +39,15 @@ public interface AdvertisService {
 
     void saveBstationAdMonitor(FuntimeBstationAdMonitor ad);
 
+    void saveSohuAdMonitor(FuntimeSohuAdMonitor ad);
+
     Map<String,String> getCallBackInfoForWifiApple(String idfa);
 
     String getTrackidForBstationApple(String idfa);
 
     String getTrackidForBstation(String ip,Integer channel);
+
+    String getCallBackForSohuApple(String idfa);
+
+    String getCallBackForSohu(String ip);
 }

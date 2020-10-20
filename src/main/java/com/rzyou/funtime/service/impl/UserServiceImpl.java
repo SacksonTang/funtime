@@ -703,6 +703,11 @@ public class UserServiceImpl implements UserService {
                                             log.info("**************苹果b站激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                             url = Constant.BSTATION_CALLBACKURL+"conv_type=APP_FIRST_ACTIVE&conv_time="+System.currentTimeMillis()+"&client_ip="+deviceInfo.getIp()+"&track_id="+trackid;
                                             HttpClientUtil.doGet(url);
+                                        }else{
+                                            //sohu
+                                            url = advertisService.getCallBackForSohuApple(deviceInfo.getIdfa());
+                                            log.info("**************苹果sohu激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
+
                                         }
                                     }
                                 }
@@ -749,6 +754,13 @@ public class UserServiceImpl implements UserService {
                                         if (StringUtils.isNotBlank(trackid)) {
                                             log.info("**************苹果b站首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                             url = Constant.BSTATION_CALLBACKURL+"conv_type=USER_REGISTER&conv_time="+System.currentTimeMillis()+"&client_ip="+deviceInfo.getIp()+"&track_id="+trackid;
+                                            HttpClientUtil.doGet(url);
+                                        }else{
+                                            //sohu
+                                            url = advertisService.getCallBackForSohuApple(deviceInfo.getIdfa());
+                                            log.info("**************苹果sohu激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                            url = URLDecoder.decode(url, "utf-8");
+                                            url = url.replaceAll("__TS__",String.valueOf(System.currentTimeMillis()));
                                             HttpClientUtil.doGet(url);
                                         }
                                     }
@@ -882,8 +894,24 @@ public class UserServiceImpl implements UserService {
                         }
                     }
                 }
-            }else{
-
+            }else if ("sohu".equals(deviceInfo.getChannel())){
+                if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
+                    count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
+                    if (count == 0) {
+                        log.info("**************sohu激活数据上报*****************androidId:{}", deviceInfo.getAndroidId());
+                    }
+                } else if ("startIndex".equals(deviceInfo.getPoint())) {
+                    count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
+                    if (count == 0) {
+                        log.info("**************sohu首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                        String url = advertisService.getCallBackForSohu(deviceInfo.getIp());
+                        if (StringUtils.isNotBlank(url)) {
+                            url = URLDecoder.decode(url, "utf-8");
+                            url = url.replaceAll("__TS__", String.valueOf(System.currentTimeMillis()));
+                            HttpClientUtil.doGet(url);
+                        }
+                    }
+                }
             }
 
         }catch (Exception e){

@@ -21,6 +21,11 @@
     order by id desc
     limit 1
   </select>
+  <select id="getCallBackForSohuApple" resultType="java.lang.String">
+    select callback from t_funtime_sohu_ad_monitor where idfa = #{idfa}
+    order by id desc
+    limit 1
+  </select>
   <select id="getTrackidForBstationApple" resultType="java.lang.String">
     select trackid from t_funtime_bstation_ad_monitor where idfa = #{idfa}
     order by id desc
@@ -66,6 +71,11 @@
   </select>
   <select id="getCallBackUrlForZhihu" resultType="java.lang.String">
     select callback from t_funtime_zhihu_ad_monitor where ip = #{ip}
+    order by id desc
+    limit 1
+  </select>
+  <select id="getCallBackForSohu" resultType="java.lang.String">
+    select callback from t_funtime_sohu_ad_monitor where ip = #{ip}
     order by id desc
     limit 1
   </select>
@@ -188,5 +198,18 @@
     #{oaid,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{ua,jdbcType=VARCHAR}, #{ts,jdbcType=VARCHAR},
     #{shopid,jdbcType=VARCHAR}, #{upmid,jdbcType=VARCHAR}
     )
+  </insert>
+  <insert id="saveSohuAdMonitor" parameterType="com.rzyou.funtime.entity.FuntimeSohuAdMonitor" >
+
+    insert into t_funtime_sohu_ad_monitor (os, imei,
+    oaid, idfa, idfa1,
+    gid, aid, clickts,
+    clickid, callback, ip,
+    ua)
+    values (#{os,jdbcType=VARCHAR}, #{imei,jdbcType=VARCHAR},
+    #{oaid,jdbcType=VARCHAR}, #{idfa,jdbcType=VARCHAR}, #{idfa1,jdbcType=VARCHAR},
+    #{gid,jdbcType=VARCHAR}, #{aid,jdbcType=VARCHAR}, #{clickts,jdbcType=VARCHAR},
+    #{clickid,jdbcType=VARCHAR}, #{callback,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR},
+    #{ua,jdbcType=VARCHAR})
   </insert>
 </mapper>

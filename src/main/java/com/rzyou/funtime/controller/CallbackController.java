@@ -476,6 +476,26 @@ public class CallbackController {
         return result;
 
     }
+    /**
+     * sohu监测链接
+     * @param params
+     * @return
+     */
+    @GetMapping(value = "sohuMonitor")
+    public JSONObject sohuMonitor(@RequestParam(required = false) Map<String, Object> params,HttpServletRequest request) {
+
+        JSONObject result = new JSONObject();
+        result.put("status",true);
+        result.put("desc","成功");
+        JSONObject obj = new JSONObject(params);
+        FuntimeSohuAdMonitor ad = JSONObject.toJavaObject(obj,FuntimeSohuAdMonitor.class);
+        if (StringUtils.isBlank(ad.getIp())) {
+            ad.setIp(HttpHelper.getClientIpAddr(request));
+        }
+        advertisService.saveSohuAdMonitor(ad);
+        return result;
+
+    }
 
     /**
      * B站监测链接

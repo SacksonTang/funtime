@@ -17,6 +17,8 @@ public interface FuntimeAdvertisMapper {
 
     int saveBstationAdMonitor(FuntimeBstationAdMonitor ad);
 
+    int saveSohuAdMonitor(FuntimeSohuAdMonitor ad);
+
     String getCallBackUrlForKS(@Param("imei") String imei, @Param("androidId") String androidId, @Param("oaid") String oaid);
 
     String getCallBackUrlForQTT(@Param("imei") String imei, @Param("androidId") String androidId, @Param("oaid") String oaid);
@@ -31,6 +33,8 @@ public interface FuntimeAdvertisMapper {
 
     String getCallBackUrlForZhihuApple(String idfa);
 
+    String getCallBackForSohuApple(String idfa);
+
     String getCallBackUrlForKS2(String ip);
 
     String getCallBackUrlForQTT2(String ip);
@@ -38,6 +42,8 @@ public interface FuntimeAdvertisMapper {
     Map<String,String> getCallBackInfoForWIFI(String ip);
 
     String getCallBackUrlForZhihu(String ip);
+
+    String getCallBackForSohu(String ip);
 
     String getTrackidForBstation(@Param("ip") String ip, @Param("channel") Integer channel);
 
