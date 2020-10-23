@@ -198,4 +198,26 @@ public class DynamicServiceImpl implements DynamicService {
         }
         return map;
     }
+
+    @Override
+    public Map<String, Object> getDynamicList(Long lastId, Integer startPage, Integer pageSize) {
+        if (startPage == 1){
+            lastId = null;
+        }
+        Map<String,Object> result = new HashMap<>();
+        List<Map<String, Object>> dynamicList = dynamicMapper.getDynamicListForPc(pageSize, lastId);
+        result.put("dynamicList",dynamicList);
+        if (dynamicList!=null&&!dynamicList.isEmpty()){
+            result.put("lastId",dynamicList.get(dynamicList.size() - 1).get("id"));
+            for (Map<String, Object> map : dynamicList){
+                Long dynamicId = Long.parseLong(map.get("id").toString());
+                List<Map<String, Object>> commentListForPc = dynamicMapper.getCommentListForPc(2, null, dynamicId);
+                map.put("commentList",commentListForPc);
+                List<Map<String, Object>> likeList = dynamicMapper.getLikeList(7, null, dynamicId);
+                map.put("likeList",likeList);
+            }
+        }
+        return result;
+
+    }
 }

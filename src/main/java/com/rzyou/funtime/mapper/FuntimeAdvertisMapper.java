@@ -35,6 +35,8 @@ public interface FuntimeAdvertisMapper {
 
     String getCallBackForSohuApple(String idfa);
 
+    String getCallBackUrlForMeipaiApple(String idfa);
+
     String getCallBackUrlForKS2(String ip);
 
     String getCallBackUrlForQTT2(String ip);
@@ -45,6 +47,8 @@ public interface FuntimeAdvertisMapper {
 
     String getCallBackForSohu(String ip);
 
+    String getCallBackUrlForMeipai(String ip);
+
     String getTrackidForBstation(@Param("ip") String ip, @Param("channel") Integer channel);
 
     int saveToutiaoAdMonitor(FuntimeToutiaoAdMonitor ad);
@@ -52,4 +56,6 @@ public interface FuntimeAdvertisMapper {
     int saveWifiAdMonitor(FuntimeWifiAdMonitor ad);
 
     int saveZhihuAdMonitor(FuntimeZhihuAdMonitor ad);
+
+    int saveMeipaiAdMonitor(FuntimeMeipaiAdMonitor ad);
 }

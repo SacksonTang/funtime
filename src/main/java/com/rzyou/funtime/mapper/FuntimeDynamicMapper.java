@@ -45,6 +45,8 @@ public interface FuntimeDynamicMapper {
 
     Map<String,Object> getDynamicDetailById(@Param("userId") Long userId, @Param("dynamicId") Long dynamicId);
 
+    List<Map<String,Object>> getDynamicListForPc(@Param("counts") Integer counts, @Param("lastId") Long lastId);
+
     List<Map<String,Object>> getDynamicList(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("userId") Long userId);
 
     List<Map<String,Object>> getMyDynamicList(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("userId") Long userId);
@@ -53,5 +55,9 @@ public interface FuntimeDynamicMapper {
 
     List<Map<String,Object>> getCommentList(@Param("counts") Integer counts, @Param("lastId") Long lastId,@Param("dynamicId") Long dynamicId);
 
+    List<Map<String,Object>> getCommentListForPc(@Param("counts") Integer counts, @Param("lastId") Long lastId,@Param("dynamicId") Long dynamicId);
+
     List<Map<String, Object>> getLikeList(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("dynamicId") Long dynamicId);
+
+    List<Map<String, Object>> getLikeListForPc(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("dynamicId") Long dynamicId);
 }

@@ -707,6 +707,16 @@ public class UserServiceImpl implements UserService {
                                             //sohu
                                             url = advertisService.getCallBackForSohuApple(deviceInfo.getIdfa());
                                             log.info("**************苹果sohu激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                            if (StringUtils.isNotBlank(url)){
+
+                                            }else{
+                                                url = advertisService.getCallBackUrlForMeipaiApple(deviceInfo.getIdfa());
+                                                if (StringUtils.isNotBlank(url)){
+                                                    log.info("**************苹果美拍激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                                    url = URLDecoder.decode(url, "utf-8");
+                                                    HttpClientUtil.doGet(url);
+                                                }
+                                            }
 
                                         }
                                     }
@@ -758,10 +768,20 @@ public class UserServiceImpl implements UserService {
                                         }else{
                                             //sohu
                                             url = advertisService.getCallBackForSohuApple(deviceInfo.getIdfa());
-                                            log.info("**************苹果sohu激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
-                                            url = URLDecoder.decode(url, "utf-8");
-                                            url = url.replaceAll("__TS__",String.valueOf(System.currentTimeMillis()));
-                                            HttpClientUtil.doGet(url);
+                                            if(StringUtils.isNotBlank(url)) {
+                                                log.info("**************苹果sohu首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                                url = URLDecoder.decode(url, "utf-8");
+                                                url = url.replaceAll("__TS__", String.valueOf(System.currentTimeMillis()));
+                                                HttpClientUtil.doGet(url);
+                                            }else{
+                                                url = advertisService.getCallBackUrlForMeipaiApple(deviceInfo.getIdfa());
+                                                if (StringUtils.isNotBlank(url)){
+                                                    log.info("**************苹果美拍首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                                    url = URLDecoder.decode(url, "utf-8");
+                                                    url += "&event_type=1";
+                                                    HttpClientUtil.doGet(url);
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -907,6 +927,29 @@ public class UserServiceImpl implements UserService {
                             if (StringUtils.isNotBlank(url)) {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url = url.replaceAll("__TS__", String.valueOf(System.currentTimeMillis()));
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    }
+                }else if("meipai".equals(deviceInfo.getChannel())){
+                    if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
+                        if (count == 0) {
+                            log.info("**************美拍激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackUrlForMeipai(deviceInfo.getIp());
+                            if (StringUtils.isNotBlank(url)) {
+                                url = URLDecoder.decode(url, "utf-8");
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    } else if ("startIndex".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
+                        if (count == 0) {
+                            log.info("**************美拍首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackUrlForMeipai(deviceInfo.getIp());
+                            if (StringUtils.isNotBlank(url)) {
+                                url = URLDecoder.decode(url, "utf-8");
+                                url+="&event_type=1";
                                 HttpClientUtil.doGet(url);
                             }
                         }

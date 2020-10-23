@@ -74,7 +74,7 @@ public class MyWxPay {
             WXPay wxpay = new WXPay(config);
 
             Map<String, String> data = new HashMap<>();
-            data.put("body", "FUNTIME-RECHARGE");
+            data.put("body", "触娱充值");
             data.put("out_trade_no", orderNo);
             data.put("device_info", imei);
             data.put("fee_type", "CNY");
@@ -114,7 +114,7 @@ public class MyWxPay {
             WXPay wxpay = new WXPay(config);
 
             Map<String, String> data = new HashMap<>();
-            data.put("body", "FUNTIME-RECHARGE");
+            data.put("body", "触娱充值");
             data.put("out_trade_no", orderNo);
             data.put("device_info", imei);
             data.put("fee_type", "CNY");
@@ -155,7 +155,7 @@ public class MyWxPay {
             WXPay wxpay = new WXPay(config);
 
             Map<String, String> data = new HashMap<>();
-            data.put("body", "FUNTIME-RECHARGE");
+            data.put("body", "触娱充值");
             data.put("out_trade_no", orderNo);
             data.put("device_info", imei);
             data.put("fee_type", "CNY");

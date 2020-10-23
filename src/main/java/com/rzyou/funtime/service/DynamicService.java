@@ -125,4 +125,13 @@ public interface DynamicService {
      * @return
      */
     Map<String, Object> getDynamicNoticeCounts(Long userId);
+
+    /**
+     * PC动态
+     * @param lastId
+     * @param startPage
+     * @param pageSize
+     * @return
+     */
+    Map<String, Object> getDynamicList(Long lastId, Integer startPage, Integer pageSize);
 }

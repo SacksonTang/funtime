@@ -41,6 +41,8 @@ public interface AdvertisService {
 
     void saveSohuAdMonitor(FuntimeSohuAdMonitor ad);
 
+    void saveMeipaiAdMonitor(FuntimeMeipaiAdMonitor ad);
+
     Map<String,String> getCallBackInfoForWifiApple(String idfa);
 
     String getTrackidForBstationApple(String idfa);
@@ -50,4 +52,8 @@ public interface AdvertisService {
     String getCallBackForSohuApple(String idfa);
 
     String getCallBackForSohu(String ip);
+
+    String getCallBackUrlForMeipai(String ip);
+
+    String getCallBackUrlForMeipaiApple(String idfa);
 }

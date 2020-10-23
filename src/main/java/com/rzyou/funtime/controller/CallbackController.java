@@ -498,6 +498,26 @@ public class CallbackController {
     }
 
     /**
+     * 美拍监测链接
+     * @param params
+     * @return
+     */
+    @GetMapping(value = "meipaiMonitor")
+    public JSONObject meipaiMonitor(@RequestParam(required = false) Map<String, Object> params,HttpServletRequest request) {
+
+        JSONObject result = new JSONObject();
+        result.put("status",200);
+        JSONObject obj = new JSONObject(params);
+        FuntimeMeipaiAdMonitor ad = JSONObject.toJavaObject(obj,FuntimeMeipaiAdMonitor.class);
+        if (StringUtils.isBlank(ad.getIp())) {
+            ad.setIp(HttpHelper.getClientIpAddr(request));
+        }
+        advertisService.saveMeipaiAdMonitor(ad);
+        return result;
+
+    }
+
+    /**
      * B站监测链接
      * @param params
      * @return

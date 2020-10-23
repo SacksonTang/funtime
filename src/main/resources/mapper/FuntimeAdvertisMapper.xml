@@ -26,6 +26,11 @@
     order by id desc
     limit 1
   </select>
+  <select id="getCallBackUrlForMeipaiApple" resultType="java.lang.String">
+    select callback_url from t_funtime_meipai_ad_monitor where idfa = #{idfa}
+    order by id desc
+    limit 1
+  </select>
   <select id="getTrackidForBstationApple" resultType="java.lang.String">
     select trackid from t_funtime_bstation_ad_monitor where idfa = #{idfa}
     order by id desc
@@ -76,6 +81,11 @@
   </select>
   <select id="getCallBackForSohu" resultType="java.lang.String">
     select callback from t_funtime_sohu_ad_monitor where ip = #{ip}
+    order by id desc
+    limit 1
+  </select>
+  <select id="getCallBackUrlForMeipai" resultType="java.lang.String">
+    select callback_url from t_funtime_meipai_ad_monitor where ip = #{ip}
     order by id desc
     limit 1
   </select>
@@ -211,5 +221,19 @@
     #{gid,jdbcType=VARCHAR}, #{aid,jdbcType=VARCHAR}, #{clickts,jdbcType=VARCHAR},
     #{clickid,jdbcType=VARCHAR}, #{callback,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR},
     #{ua,jdbcType=VARCHAR})
+  </insert>
+  <insert id="saveMeipaiAdMonitor" parameterType="com.rzyou.funtime.entity.FuntimeMeipaiAdMonitor" >
+
+    insert into t_funtime_meipai_ad_monitor (os, imei,
+    oaid, idfa, customer_id,
+    ad_group_id, ad_id, creative_id,
+    ts, mt_link_source, uniid,
+    callback_url, callback, ip
+    )
+    values ( #{os,jdbcType=VARCHAR}, #{imei,jdbcType=VARCHAR},
+    #{oaid,jdbcType=VARCHAR}, #{idfa,jdbcType=VARCHAR}, #{customerId,jdbcType=VARCHAR},
+    #{adGroupId,jdbcType=VARCHAR}, #{adId,jdbcType=VARCHAR}, #{creativeId,jdbcType=VARCHAR},
+    #{ts,jdbcType=VARCHAR}, #{mtLinkSource,jdbcType=VARCHAR}, #{uniid,jdbcType=VARCHAR},
+    #{callbackUrl,jdbcType=VARCHAR}, #{callback,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR})
   </insert>
 </mapper>

@@ -39,6 +39,8 @@ public class LoginController {
     ParameterService parameterService;
     @Autowired
     RoomService roomService;
+    @Autowired
+    DynamicService dynamicService;
     /**
      * 用户行为记录
      * @param request
@@ -644,6 +646,41 @@ public class LoginController {
             result.setMsg(be.getMsg());
             return result;
         } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * PC动态列表
+     * @param request
+     * @return
+     */
+    @PostMapping("getDynamicList")
+    public ResultMsg<Object> getDynamicList(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer startPage = paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize");
+            startPage = startPage == null?1:startPage;
+            pageSize = pageSize == null?20:pageSize;
+            Long lastId = paramJson.getLong("lastId");
+
+            Map<String, Object> map = dynamicService.getDynamicList(lastId, startPage, pageSize);
+
+            result.setData(map);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
             e.printStackTrace();
             result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
             result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());

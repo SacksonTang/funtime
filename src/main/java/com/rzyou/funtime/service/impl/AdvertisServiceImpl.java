@@ -122,6 +122,11 @@ public class AdvertisServiceImpl implements AdvertisService {
     }
 
     @Override
+    public void saveMeipaiAdMonitor(FuntimeMeipaiAdMonitor ad) {
+        advertisMapper.saveMeipaiAdMonitor(ad);
+    }
+
+    @Override
     public Map<String, String> getCallBackInfoForWifiApple(String idfa) {
         if (StringUtils.isNotBlank(idfa)) {
             idfa = DigestUtils.md5Hex(idfa);
@@ -147,5 +152,15 @@ public class AdvertisServiceImpl implements AdvertisService {
     @Override
     public String getCallBackForSohu(String ip) {
         return advertisMapper.getCallBackForSohu(ip);
+    }
+
+    @Override
+    public String getCallBackUrlForMeipai(String ip) {
+        return advertisMapper.getCallBackUrlForMeipai(ip);
+    }
+
+    @Override
+    public String getCallBackUrlForMeipaiApple(String idfa) {
+        return advertisMapper.getCallBackUrlForMeipaiApple(idfa);
     }
 }

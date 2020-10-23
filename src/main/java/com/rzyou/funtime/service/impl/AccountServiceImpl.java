@@ -487,8 +487,8 @@ public class AccountServiceImpl implements AccountService {
                 log.info("支付回调中金额与系统订单金额不一致,微信订单金额:{},系统订单金额:{}",total_fee,record.getRmb().multiply(new BigDecimal(100)).toString());
                 return;
             }
-            Integer hornNum = null;
-            Integer goldNum = null;
+            Integer hornNum = record.getHornNum();
+            Integer goldNum = record.getGoldNum();
             //首充送三个
             if (isFirstRecharge(record.getUserId())){
                 String first_recharge_horn = parameterService.getParameterValueByKey("first_recharge_horn");
@@ -583,8 +583,8 @@ public class AccountServiceImpl implements AccountService {
                             return;
                         }
                         //修改订单状态
-                        Integer hornNum = null;
-                        Integer goldNum = null;
+                        Integer hornNum = record.getHornNum();
+                        Integer goldNum = record.getGoldNum();
                         //首充送三个
                         if (isFirstRecharge(record.getUserId())){
                             String first_recharge_horn = parameterService.getParameterValueByKey("first_recharge_horn");

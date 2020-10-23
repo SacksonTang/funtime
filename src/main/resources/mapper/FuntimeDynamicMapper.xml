@@ -136,7 +136,28 @@
         where d.id = #{dynamicId}
         group by d.id,c.room_id,a.level
     </select>
+    <select id="getDynamicListForPc" resultType="java.util.Map">
+        select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
+        d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,cover_url as coverUrl,
+        case when TIMESTAMPDIFF(minute,d.create_time,now()) <![CDATA[<]]> 1 then '刚刚'
+        when TIMESTAMPDIFF(minute,d.create_time,now()) >= 1 and TIMESTAMPDIFF(minute,d.create_time,now()) <![CDATA[<]]> 60 then CONCAT(TIMESTAMPDIFF(minute,d.create_time,now()),'分钟前')
+        when TIMESTAMPDIFF(hour,d.create_time,now())>=1 and TIMESTAMPDIFF(hour,d.create_time,now()) <![CDATA[<]]> 24 then CONCAT(TIMESTAMPDIFF(hour,d.create_time,now()),'小时前')
+        else  DATE_FORMAT(d.create_time,'%Y-%m-%d') end createTime,
+        u.nickname,u.portrait_address as portraitAddress,u.sex,
+        count(distinct t.id) as commentCounts,
+        count( distinct l.user_id) as likeCounts
+        from t_funtime_dynamic d inner join t_funtime_user u on d.user_id = u.id
+        left join t_funtime_comment t on d.id = t.dynamic_id
+        left join t_funtime_dynamic_like l on d.id = l.dynamic_id
 
+        where  u.state = 1
+        <if test="lastId!=null">
+            and d.id <![CDATA[<]]> #{lastId}
+        </if>
+        group by d.id
+        order by d.id desc
+        limit ${counts}
+    </select>
     <select id="getDynamicList" resultType="java.util.Map">
         select d.id,d.user_id as userId,dynamic,d.resource_type as resourceType,d.resource1,d.resource2,
                  d.resource3,d.resource4,d.resource5,d.resource6,d.resource7,d.resource8,d.resource9,cover_url as coverUrl,
@@ -259,6 +280,23 @@
         order by t.id desc
         limit ${counts}
     </select>
+    <select id="getCommentListForPc" resultType="java.util.Map">
+        select t.id,t.user_id as userId,t.comment,t.to_user_id as toUserId,
+        u.nickname,u.portrait_address as portraitAddress,u.sex,
+        u1.nickname as toNickname,
+        case when TIMESTAMPDIFF(minute,t.create_time,now()) <![CDATA[<]]> 1 then '刚刚'
+        when TIMESTAMPDIFF(minute,t.create_time,now()) >= 1 and TIMESTAMPDIFF(minute,t.create_time,now()) <![CDATA[<]]> 60 then CONCAT(TIMESTAMPDIFF(minute,t.create_time,now()),'分钟前')
+        when TIMESTAMPDIFF(hour,t.create_time,now())>=1 and TIMESTAMPDIFF(hour,t.create_time,now()) <![CDATA[<]]> 24 then CONCAT(TIMESTAMPDIFF(hour,t.create_time,now()),'小时前')
+        else  DATE_FORMAT(t.create_time,'%Y-%m-%d') end createTime
+        from t_funtime_comment t inner join t_funtime_user u on t.user_id = u.id
+        left join t_funtime_user u1 on t.to_user_id = u1.id
+        where t.dynamic_id = #{dynamicId}
+        <if test="lastId!=null">
+            and t.id <![CDATA[<]]> #{lastId}
+        </if>
+        order by t.id desc
+        limit ${counts}
+    </select>
     <select id="getLikeList" resultType="java.util.Map">
         select t.id,t.user_id as userId,
             u.portrait_address as portraitAddress,u.sex,
@@ -270,6 +308,17 @@
         inner join (t_funtime_user_account a
         inner join t_funtime_user_level_conf f on a.level = f.level) on t.user_id = a.user_id
         left join t_funtime_user_headwear_current h on u.id = h.user_id
+        where t.dynamic_id = #{dynamicId}
+        <if test="lastId!=null">
+            and t.id <![CDATA[<]]> #{lastId}
+        </if>
+        order by t.id desc
+        limit ${counts}
+    </select>
+    <select id="getLikeListForPc" resultType="java.util.Map">
+        select t.id,t.user_id as userId,
+        u.portrait_address as portraitAddress,u.sex
+        from t_funtime_dynamic_like t inner join t_funtime_user u on t.user_id = u.id
         where t.dynamic_id = #{dynamicId}
         <if test="lastId!=null">
             and t.id <![CDATA[<]]> #{lastId}
