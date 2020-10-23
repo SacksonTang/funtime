@@ -537,4 +537,29 @@ public class CallbackController {
 
     }
 
+    /**
+     * 触宝监测链接
+     * @param params
+     * @return
+     */
+    @GetMapping(value = "chubaoMonitor")
+    public JSONObject chubaoMonitor(@RequestParam(required = false) Map<String, Object> params,HttpServletRequest request) {
+
+        JSONObject result = new JSONObject();
+        result.put("status",0);
+        JSONObject obj = new JSONObject(params);
+        FuntimeChubaoAdMonitor ad = JSONObject.toJavaObject(obj,FuntimeChubaoAdMonitor.class);
+        if (StringUtils.isBlank(ad.getIp())) {
+            ad.setIp(HttpHelper.getClientIpAddr(request));
+        }
+        String url = Constant.CHUBAO_CALLBACKURL+"clickid="+ad.getClickid()
+                +"&event_type=0"+"&androidid="+ad.getAndroidid()+"&imei="+ad.getImei()
+                +"&oaid="+ad.getOaid()+"&pkg="+ad.getPkg()+"&idfa="+ad.getIdfa()+"&ip="+ad.getIp();
+
+        ad.setCallbackUrl(url);
+        advertisService.saveChubaoAdMonitor(ad);
+        return result;
+
+    }
+
 }

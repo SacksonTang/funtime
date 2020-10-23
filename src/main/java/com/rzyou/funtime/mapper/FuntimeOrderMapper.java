@@ -22,5 +22,7 @@ public interface FuntimeOrderMapper {
 
     List<Map<String,Object>> getOrderList(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("tagId") Integer tagId, @Param("sex") Integer sex);
 
+    List<Map<String,Object>> getOrderListForPc(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("tagId") Integer tagId);
+
     List<Map<String, Object>> getRecommendationOrderList(Integer tagId);
 }

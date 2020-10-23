@@ -780,6 +780,14 @@ public class UserServiceImpl implements UserService {
                                                     url = URLDecoder.decode(url, "utf-8");
                                                     url += "&event_type=1";
                                                     HttpClientUtil.doGet(url);
+                                                }else {
+                                                    url = advertisService.getCallBackUrlForChubaoApple(deviceInfo.getIdfa());
+                                                    if (StringUtils.isNotBlank(url)) {
+                                                        log.info("**************苹果触宝首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                                        url = URLDecoder.decode(url, "utf-8");
+                                                        url += "&conv_time="+System.currentTimeMillis();
+                                                        HttpClientUtil.doGet(url);
+                                                    }
                                                 }
                                             }
                                         }
@@ -950,6 +958,19 @@ public class UserServiceImpl implements UserService {
                             if (StringUtils.isNotBlank(url)) {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url+="&event_type=1";
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    }
+                }else if("chubao".equals(deviceInfo.getChannel())){
+                    if ("startIndex".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
+                        if (count == 0) {
+                            log.info("**************触宝首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackUrlForChubao(deviceInfo.getIp());
+                            if (StringUtils.isNotBlank(url)) {
+                                url = URLDecoder.decode(url, "utf-8");
+                                url+="&conv_time="+System.currentTimeMillis();
                                 HttpClientUtil.doGet(url);
                             }
                         }

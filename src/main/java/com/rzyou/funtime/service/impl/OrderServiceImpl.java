@@ -143,6 +143,75 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Map<String, Object> getOrderList(Long lastId, Integer startPage, Integer pageSize, Integer tagId) {
+        Map<String,Object> resultMap = new HashMap<>();
+        if (startPage == 1){
+            lastId = null;
+        }
+        tagId = tagId == 0 ?null:tagId;
+        List<Map<String, Object>> orderList = orderMapper.getOrderListForPc(pageSize, lastId, tagId);
+
+        if (orderList!=null&&!orderList.isEmpty()) {
+            resultMap.put("lastId",orderList.get(orderList.size()-1).get("createTime"));
+            for (Map<String, Object> map : orderList){
+                if (map.get("tags")==null){
+                    continue;
+                }
+                String price = map.get("price").toString();
+                Map<Integer, Map<String, Object>> priceMap = null;
+                try {
+                    priceMap = doPrice(price);
+                } catch (Exception e) {
+                    throw new BusinessException(ErrorMsgEnum.COMMENT_PRICE_ERROR.getValue(),ErrorMsgEnum.COMMENT_PRICE_ERROR.getDesc());
+                }
+                if (tagId!=null) {
+                    Map<String, Object> tagPriceMap = priceMap.get(tagId);
+                    if (tagPriceMap != null) {
+                        map.put("price", tagPriceMap.get("price"));
+                    }
+                }else{
+                    for (Integer key : priceMap.keySet()){
+                        tagId = key;
+                        map.put("price", priceMap.get(key).get("price"));
+                        break;
+                    }
+
+                }
+
+                map.put("tagId",tagId);
+                String tags = map.get("tags").toString();
+                String tagText = map.get("tagText") == null?null:map.get("tagText").toString();
+                String game = map.get("game") == null?null:map.get("game").toString();
+                String[] split = tags.split(",");
+                if (split.length>0){
+                    for (String str : split){
+                        String[] tagArray = str.split("/");
+                        if (tagArray[1].equals(tagId.toString())){
+                            if(StringUtils.isNotBlank(tagText)&&"其他".equals(tagArray[0])) {
+                                map.put("tagName", tagText);
+                            }else if (StringUtils.isNotBlank(game)&&"开黑".equals(tagArray[0])){
+                                map.put("tagName", game);
+                            }
+                            else{
+                                map.put("tagName", tagArray[0]);
+                            }
+                            break;
+                        }
+                    }
+                }
+                map.remove("tagText");
+                map.remove("game");
+                map.remove("tags");
+
+            }
+
+        }
+        resultMap.put("orderList",orderList);
+
+        return resultMap;
+    }
+
+    @Override
     public Map<String, Object> getOrderList(Long lastId, Integer startPage, Integer pageSize, Integer tagId, Integer sex) {
         Map<String,Object> resultMap = new HashMap<>();
         if (startPage == 1){

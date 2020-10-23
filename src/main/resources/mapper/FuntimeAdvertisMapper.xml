@@ -31,6 +31,11 @@
     order by id desc
     limit 1
   </select>
+    <select id="getCallBackUrlForChubaoApple" resultType="java.lang.String">
+    select callback_url from t_funtime_chubao_ad_monitor where idfa = #{idfa}
+    order by id desc
+    limit 1
+  </select>
   <select id="getTrackidForBstationApple" resultType="java.lang.String">
     select trackid from t_funtime_bstation_ad_monitor where idfa = #{idfa}
     order by id desc
@@ -86,6 +91,11 @@
   </select>
   <select id="getCallBackUrlForMeipai" resultType="java.lang.String">
     select callback_url from t_funtime_meipai_ad_monitor where ip = #{ip}
+    order by id desc
+    limit 1
+  </select>
+    <select id="getCallBackUrlForChubao" resultType="java.lang.String">
+    select callback_url from t_funtime_chubao_ad_monitor where ip = #{ip}
     order by id desc
     limit 1
   </select>
@@ -236,4 +246,17 @@
     #{ts,jdbcType=VARCHAR}, #{mtLinkSource,jdbcType=VARCHAR}, #{uniid,jdbcType=VARCHAR},
     #{callbackUrl,jdbcType=VARCHAR}, #{callback,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR})
   </insert>
+    <insert id="saveChubaoAdMonitor" parameterType="com.rzyou.funtime.entity.FuntimeChubaoAdMonitor" >
+
+        insert into t_funtime_chubao_ad_monitor (crid, cid,
+        ip, androidid, imei,
+        mac, idfa, make, model,
+        os, pkg, clickid,oaid,osv,callback_url
+        )
+        values ( #{crid,jdbcType=VARCHAR}, #{cid,jdbcType=VARCHAR},
+        #{ip,jdbcType=VARCHAR}, #{androidid,jdbcType=VARCHAR}, #{imei,jdbcType=VARCHAR},
+        #{mac,jdbcType=VARCHAR}, #{idfa,jdbcType=VARCHAR}, #{make,jdbcType=VARCHAR}, #{model,jdbcType=VARCHAR},
+        #{os,jdbcType=VARCHAR}, #{pkg,jdbcType=VARCHAR}, #{clickid,jdbcType=VARCHAR},#{oaid},#{osv},#{callbackUrl}
+        )
+    </insert>
 </mapper>

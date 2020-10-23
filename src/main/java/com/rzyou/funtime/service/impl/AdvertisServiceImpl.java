@@ -163,4 +163,19 @@ public class AdvertisServiceImpl implements AdvertisService {
     public String getCallBackUrlForMeipaiApple(String idfa) {
         return advertisMapper.getCallBackUrlForMeipaiApple(idfa);
     }
+
+    @Override
+    public String getCallBackUrlForChubaoApple(String idfa) {
+        return advertisMapper.getCallBackUrlForChubaoApple(idfa);
+    }
+
+    @Override
+    public String getCallBackUrlForChubao(String ip) {
+        return advertisMapper.getCallBackUrlForChubao(ip);
+    }
+
+    @Override
+    public void saveChubaoAdMonitor(FuntimeChubaoAdMonitor ad) {
+        advertisMapper.saveChubaoAdMonitor(ad);
+    }
 }

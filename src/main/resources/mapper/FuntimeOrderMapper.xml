@@ -51,6 +51,23 @@
         order by d.create_time desc
         limit ${counts}
     </select>
+    <select id="getOrderListForPc" resultType="java.util.Map">
+        select d.user_id as userId,d.service_text as serviceText,unix_timestamp(d.create_time) createTime,d.tag_text tagText,
+        d.price,d.game,
+        u.nickname,u.portrait_address as portraitAddress,u.sex,
+        (select GROUP_CONCAT(g.tag_name,'/',ifnull(g.id,'')) from t_funtime_tag g where g.tag_type = 'order' and FIND_IN_SET(g.id,d.service_tag)>0  ) as tags
+        from t_funtime_order d inner join t_funtime_user u on d.user_id = u.id
+        where d.order_state = 1
+        <if test="lastId!=null">
+            and d.create_time <![CDATA[<]]> from_unixtime(#{lastId})
+        </if>
+        <if test="tagId!=null">
+            and FIND_IN_SET(#{tagId},d.service_tag)>0
+        </if>
+
+        order by d.create_time desc
+        limit ${counts}
+    </select>
     <select id="getRecommendationOrderList" resultType="java.util.Map">
         select d.user_id as userId,
             d.price,

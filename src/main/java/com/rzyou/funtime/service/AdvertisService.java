@@ -56,4 +56,10 @@ public interface AdvertisService {
     String getCallBackUrlForMeipai(String ip);
 
     String getCallBackUrlForMeipaiApple(String idfa);
+
+    String getCallBackUrlForChubaoApple(String idfa);
+
+    String getCallBackUrlForChubao(String ip);
+
+    void saveChubaoAdMonitor(FuntimeChubaoAdMonitor ad);
 }

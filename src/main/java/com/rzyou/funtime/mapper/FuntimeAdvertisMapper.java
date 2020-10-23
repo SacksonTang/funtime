@@ -58,4 +58,10 @@ public interface FuntimeAdvertisMapper {
     int saveZhihuAdMonitor(FuntimeZhihuAdMonitor ad);
 
     int saveMeipaiAdMonitor(FuntimeMeipaiAdMonitor ad);
+
+    int saveChubaoAdMonitor(FuntimeChubaoAdMonitor ad);
+
+    String getCallBackUrlForChubaoApple(String idfa);
+
+    String getCallBackUrlForChubao(String ip);
 }

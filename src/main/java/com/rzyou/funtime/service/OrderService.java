@@ -35,4 +35,14 @@ public interface OrderService {
      * @param tagId
      */
     Map<String, Object> getRecommendationOrderList(Integer tagId);
+
+    /**
+     * 官网下单列表
+     * @param lastId
+     * @param startPage
+     * @param pageSize
+     * @param tagId
+     * @return
+     */
+    Map<String, Object> getOrderList(Long lastId, Integer startPage, Integer pageSize, Integer tagId);
 }

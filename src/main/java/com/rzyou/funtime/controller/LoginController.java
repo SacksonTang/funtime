@@ -7,7 +7,6 @@ import com.rzyou.funtime.common.encryption.RsaUtils;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
-import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.component.StaticData;
 import com.rzyou.funtime.entity.FuntimeDeviceInfo;
 import com.rzyou.funtime.entity.FuntimeUser;
@@ -41,6 +40,8 @@ public class LoginController {
     RoomService roomService;
     @Autowired
     DynamicService dynamicService;
+    @Autowired
+    OrderService orderService;
     /**
      * 用户行为记录
      * @param request
@@ -671,6 +672,42 @@ public class LoginController {
             Long lastId = paramJson.getLong("lastId");
 
             Map<String, Object> map = dynamicService.getDynamicList(lastId, startPage, pageSize);
+
+            result.setData(map);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 下单列表
+     * @param request
+     * @return
+     */
+    @PostMapping("getOrderList")
+    public ResultMsg<Object> getOrderList(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Integer startPage = paramJson.getInteger("startPage");
+            Integer pageSize = paramJson.getInteger("pageSize");
+            Integer tagId = paramJson.getInteger("tagId");
+            startPage = startPage == null?1:startPage;
+            pageSize = pageSize == null?20:pageSize;
+            Long lastId = paramJson.getLong("lastId");
+
+            Map<String, Object> map = orderService.getOrderList(lastId, startPage, pageSize,tagId);
 
             result.setData(map);
             return result;
