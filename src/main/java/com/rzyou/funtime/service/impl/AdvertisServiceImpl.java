@@ -178,4 +178,19 @@ public class AdvertisServiceImpl implements AdvertisService {
     public void saveChubaoAdMonitor(FuntimeChubaoAdMonitor ad) {
         advertisMapper.saveChubaoAdMonitor(ad);
     }
+
+    @Override
+    public String getCallBackForZuiyou(String ip) {
+        return advertisMapper.getCallBackForZuiyou(ip);
+    }
+
+    @Override
+    public String getCallBackForZuiyouApple(String idfa) {
+        return advertisMapper.getCallBackForZuiyouApple(idfa);
+    }
+
+    @Override
+    public void saveZuiyouAdMonitor(FuntimeZuiyouAdMonitor ad) {
+        advertisMapper.saveZuiyouAdMonitor(ad);
+    }
 }

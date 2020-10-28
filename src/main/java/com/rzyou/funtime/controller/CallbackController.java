@@ -562,4 +562,24 @@ public class CallbackController {
 
     }
 
+    /**
+     * 最右监测链接
+     * @param params
+     * @return
+     */
+    @GetMapping(value = "zuiyouMonitor")
+    public JSONObject zuiyouMonitor(@RequestParam(required = false) Map<String, Object> params,HttpServletRequest request) {
+
+        JSONObject result = new JSONObject();
+        result.put("status",0);
+        JSONObject obj = new JSONObject(params);
+        FuntimeZuiyouAdMonitor ad = JSONObject.toJavaObject(obj,FuntimeZuiyouAdMonitor.class);
+        if (StringUtils.isBlank(ad.getIp())) {
+            ad.setIp(HttpHelper.getClientIpAddr(request));
+        }
+        advertisService.saveZuiyouAdMonitor(ad);
+        return result;
+
+    }
+
 }

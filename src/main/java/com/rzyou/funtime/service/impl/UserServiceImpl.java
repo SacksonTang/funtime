@@ -710,11 +710,29 @@ public class UserServiceImpl implements UserService {
                                             if (StringUtils.isNotBlank(url)){
 
                                             }else{
+                                                //美拍
                                                 url = advertisService.getCallBackUrlForMeipaiApple(deviceInfo.getIdfa());
                                                 if (StringUtils.isNotBlank(url)){
                                                     log.info("**************苹果美拍激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                                     url = URLDecoder.decode(url, "utf-8");
                                                     HttpClientUtil.doGet(url);
+                                                }else{
+                                                    //最又
+                                                    url = advertisService.getCallBackForZuiyouApple(deviceInfo.getIdfa());
+                                                    if (StringUtils.isNotBlank(url)) {
+                                                        log.info("**************苹果最右激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                                        url = URLDecoder.decode(url, "utf-8");
+                                                        url = url.replace("__EVENT__","0");
+                                                        HttpClientUtil.doGet(url);
+                                                    }else{
+                                                        url = advertisService.getCallBackUrlForChubaoApple(deviceInfo.getIdfa());
+                                                        if (StringUtils.isNotBlank(url)) {
+                                                            log.info("**************苹果触宝激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                                            url = URLDecoder.decode(url, "utf-8");
+                                                            url += "&conv_time=" + System.currentTimeMillis();
+                                                            HttpClientUtil.doGet(url);
+                                                        }
+                                                    }
                                                 }
                                             }
 
@@ -781,12 +799,21 @@ public class UserServiceImpl implements UserService {
                                                     url += "&event_type=1";
                                                     HttpClientUtil.doGet(url);
                                                 }else {
-                                                    url = advertisService.getCallBackUrlForChubaoApple(deviceInfo.getIdfa());
+                                                    //url = advertisService.getCallBackUrlForChubaoApple(deviceInfo.getIdfa());
+                                                    url = null;
                                                     if (StringUtils.isNotBlank(url)) {
                                                         log.info("**************苹果触宝首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                                         url = URLDecoder.decode(url, "utf-8");
                                                         url += "&conv_time="+System.currentTimeMillis();
                                                         HttpClientUtil.doGet(url);
+                                                    }else{
+                                                        url = advertisService.getCallBackForZuiyouApple(deviceInfo.getIdfa());
+                                                        if (StringUtils.isNotBlank(url)) {
+                                                            log.info("**************苹果最右首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
+                                                            url = URLDecoder.decode(url, "utf-8");
+                                                            url = url.replace("__EVENT__","1");
+                                                            HttpClientUtil.doGet(url);
+                                                        }
                                                     }
                                                 }
                                             }
@@ -963,14 +990,38 @@ public class UserServiceImpl implements UserService {
                         }
                     }
                 }else if("chubao".equals(deviceInfo.getChannel())){
-                    if ("startIndex".equals(deviceInfo.getPoint())) {
+                    if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
                         count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
                         if (count == 0) {
-                            log.info("**************触宝首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            log.info("**************触宝激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
                             String url = advertisService.getCallBackUrlForChubao(deviceInfo.getIp());
                             if (StringUtils.isNotBlank(url)) {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url+="&conv_time="+System.currentTimeMillis();
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    }
+                }else if ("zuiyou".equals(deviceInfo.getChannel())){
+                    if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "consentAgreement");
+                        if (count == 0) {
+                            log.info("**************最右激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackForZuiyou(deviceInfo.getIp());
+                            if (StringUtils.isNotBlank(url)) {
+                                url = URLDecoder.decode(url, "utf-8");
+                                url = url.replace("__EVENT__","0");
+                                HttpClientUtil.doGet(url);
+                            }
+                        }
+                    } else if ("startIndex".equals(deviceInfo.getPoint())) {
+                        count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
+                        if (count == 0) {
+                            log.info("**************最右首页数据上报*****************androidId:{}",deviceInfo.getAndroidId());
+                            String url = advertisService.getCallBackForZuiyou(deviceInfo.getIp());
+                            if (StringUtils.isNotBlank(url)) {
+                                url = URLDecoder.decode(url, "utf-8");
+                                url = url.replace("__EVENT__","1");
                                 HttpClientUtil.doGet(url);
                             }
                         }

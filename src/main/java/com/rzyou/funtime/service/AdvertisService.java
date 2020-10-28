@@ -62,4 +62,10 @@ public interface AdvertisService {
     String getCallBackUrlForChubao(String ip);
 
     void saveChubaoAdMonitor(FuntimeChubaoAdMonitor ad);
+
+    String getCallBackForZuiyou(String ip);
+
+    String getCallBackForZuiyouApple(String idfa);
+
+    void saveZuiyouAdMonitor(FuntimeZuiyouAdMonitor ad);
 }

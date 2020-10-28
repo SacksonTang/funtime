@@ -3,41 +3,55 @@
 <mapper namespace="com.rzyou.funtime.mapper.FuntimeAdvertisMapper">
   <select id="getCallBackUrlForKSApple" resultType="java.lang.String">
     select callback from t_funtime_kuaishou_ad_monitor where idfa3 = #{idfa}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getCallBackUrlForQTTApple" resultType="java.lang.String">
     select callback_url from t_funtime_toutiao_ad_monitor where idfa = #{idfa}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getCallBackInfoForWifiApple" resultType="java.util.Map">
     select cid,sid,stime,os,idfa,mac,imei from t_funtime_wifi_ad_monitor where idfa = #{idfa}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getCallBackUrlForZhihuApple" resultType="java.lang.String">
     select callback from t_funtime_zhihu_ad_monitor where idfa = #{idfa}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getCallBackForSohuApple" resultType="java.lang.String">
     select callback from t_funtime_sohu_ad_monitor where idfa = #{idfa}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
+    order by id desc
+    limit 1
+  </select>
+  <select id="getCallBackForZuiyouApple" resultType="java.lang.String">
+    select callback from t_funtime_zuiyou_ad_monitor where idfa = #{idfa}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getCallBackUrlForMeipaiApple" resultType="java.lang.String">
     select callback_url from t_funtime_meipai_ad_monitor where idfa = #{idfa}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
     <select id="getCallBackUrlForChubaoApple" resultType="java.lang.String">
     select callback_url from t_funtime_chubao_ad_monitor where idfa = #{idfa}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getTrackidForBstationApple" resultType="java.lang.String">
     select trackid from t_funtime_bstation_ad_monitor where idfa = #{idfa}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
@@ -66,41 +80,55 @@
 
   <select id="getCallBackUrlForKS2" resultType="java.lang.String">
     select callback from t_funtime_kuaishou_ad_monitor where ip = #{ip}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getCallBackUrlForQTT2" resultType="java.lang.String">
     select callback_url from t_funtime_toutiao_ad_monitor where  ip = #{ip}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getCallBackInfoForWIFI" resultType="java.util.Map">
     select cid,sid,stime,os,idfa,mac,imei from t_funtime_wifi_ad_monitor where  ip = #{ip}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getCallBackUrlForZhihu" resultType="java.lang.String">
     select callback from t_funtime_zhihu_ad_monitor where ip = #{ip}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getCallBackForSohu" resultType="java.lang.String">
     select callback from t_funtime_sohu_ad_monitor where ip = #{ip}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
+    order by id desc
+    limit 1
+  </select>
+  <select id="getCallBackForZuiyou" resultType="java.lang.String">
+    select callback from t_funtime_zuiyou_ad_monitor where ip = #{ip}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getCallBackUrlForMeipai" resultType="java.lang.String">
     select callback_url from t_funtime_meipai_ad_monitor where ip = #{ip}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
     <select id="getCallBackUrlForChubao" resultType="java.lang.String">
     select callback_url from t_funtime_chubao_ad_monitor where ip = #{ip}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
   <select id="getTrackidForBstation" resultType="java.lang.String">
     select trackid from t_funtime_bstation_ad_monitor where ip = #{ip} and channel = #{channel}
+    and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
   </select>
@@ -259,4 +287,17 @@
         #{os,jdbcType=VARCHAR}, #{pkg,jdbcType=VARCHAR}, #{clickid,jdbcType=VARCHAR},#{oaid},#{osv},#{callbackUrl}
         )
     </insert>
+  <insert id="saveZuiyouAdMonitor" parameterType="com.rzyou.funtime.entity.FuntimeZuiyouAdMonitor" >
+
+    insert into t_funtime_zuiyou_ad_monitor (idfa, imei,
+    campaignid, creativeid, callback,
+    os, androidid, oaid,
+    ip, ua, ts
+    )
+    values (#{idfa,jdbcType=VARCHAR}, #{imei,jdbcType=VARCHAR},
+    #{campaignid,jdbcType=VARCHAR}, #{creativeid,jdbcType=VARCHAR}, #{callback,jdbcType=VARCHAR},
+    #{os,jdbcType=VARCHAR}, #{androidid,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR},
+    #{ip,jdbcType=VARCHAR}, #{ua,jdbcType=VARCHAR}, #{ts,jdbcType=VARCHAR}
+    )
+  </insert>
 </mapper>
