@@ -654,6 +654,9 @@ public class UserServiceImpl implements UserService {
 
         dataReport(deviceInfo);
 
+        if (deviceInfo.getAdv() == null){
+            deviceInfo.setAdv(2);
+        }
         userMapper.insertDeviceInfo(deviceInfo);
 
     }
@@ -664,14 +667,16 @@ public class UserServiceImpl implements UserService {
             if ("1".equals(deviceInfo.getOs())&&StringUtils.isNotBlank(deviceInfo.getIdfa())) {
                 if ("startup".equals(deviceInfo.getPoint())) {
                     count = userMapper.checkDeviceExistsForApple(deviceInfo.getIdfa(),"startup");
+                    String url = null;
                     if (count == 0) {
                         //快手
-                        String url = advertisService.getCallBackUrlForKSApple(deviceInfo.getIdfa());
+                        //url = advertisService.getCallBackUrlForKSApple(deviceInfo.getIdfa());
                         if (StringUtils.isNotBlank(url)) {
                             log.info("**************苹果快手激活数据上报*****************idfa:{}",deviceInfo.getIdfa());
                             url = URLDecoder.decode(url,"utf-8");
                             url = url + "&event_type=1&event_time=" + System.currentTimeMillis();
                             HttpClientUtil.doGet(url);
+                            deviceInfo.setAdv(1);
                         }else {
                             //头条
                             url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
@@ -680,22 +685,26 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url = url + "&op2=0&opt_active_time=" + System.currentTimeMillis();
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }else{
                                 //wifi
-                                Map<String,String> map = advertisService.getCallBackInfoForWifiApple(deviceInfo.getIdfa());
+                                //Map<String,String> map = advertisService.getCallBackInfoForWifiApple(deviceInfo.getIdfa());
+                                Map<String,String> map = null;
                                 if (map!=null&&!map.isEmpty()){
                                     log.info("**************苹果WIFI激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                     url = getUrl(map, "1");
                                     HttpClientUtil.doGet(url);
+                                    deviceInfo.setAdv(1);
                                 }else{
                                     //知乎
-                                    url = advertisService.getCallBackUrlForZhihuApple(deviceInfo.getIdfa());
+                                    //url = advertisService.getCallBackUrlForZhihuApple(deviceInfo.getIdfa());
                                     if (StringUtils.isNotBlank(url)) {
                                         log.info("**************苹果知乎激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                         url = URLDecoder.decode(url, "utf-8");
                                         url = url.replaceAll("__EVENTTYPE__", "install")
                                                 .replaceAll("__TIMESTAMP__", String.valueOf(System.currentTimeMillis()));
                                         HttpClientUtil.doGet(url);
+                                        deviceInfo.setAdv(1);
                                     }else{
                                         //b站
                                         String trackid = advertisService.getTrackidForBstationApple(deviceInfo.getIdfa());
@@ -703,6 +712,7 @@ public class UserServiceImpl implements UserService {
                                             log.info("**************苹果b站激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                             url = Constant.BSTATION_CALLBACKURL+"conv_type=APP_FIRST_ACTIVE&conv_time="+System.currentTimeMillis()+"&client_ip="+deviceInfo.getIp()+"&track_id="+trackid;
                                             HttpClientUtil.doGet(url);
+                                            deviceInfo.setAdv(1);
                                         }else{
                                             //sohu
                                             url = advertisService.getCallBackForSohuApple(deviceInfo.getIdfa());
@@ -716,6 +726,7 @@ public class UserServiceImpl implements UserService {
                                                     log.info("**************苹果美拍激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                                     url = URLDecoder.decode(url, "utf-8");
                                                     HttpClientUtil.doGet(url);
+                                                    deviceInfo.setAdv(1);
                                                 }else{
                                                     //最又
                                                     url = advertisService.getCallBackForZuiyouApple(deviceInfo.getIdfa());
@@ -724,6 +735,7 @@ public class UserServiceImpl implements UserService {
                                                         url = URLDecoder.decode(url, "utf-8");
                                                         url = url.replace("__EVENT__","0");
                                                         HttpClientUtil.doGet(url);
+                                                        deviceInfo.setAdv(1);
                                                     }else{
                                                         url = advertisService.getCallBackUrlForChubaoApple(deviceInfo.getIdfa());
                                                         if (StringUtils.isNotBlank(url)) {
@@ -731,6 +743,7 @@ public class UserServiceImpl implements UserService {
                                                             url = URLDecoder.decode(url, "utf-8");
                                                             url += "&conv_time=" + System.currentTimeMillis();
                                                             HttpClientUtil.doGet(url);
+                                                            deviceInfo.setAdv(1);
                                                         }
                                                     }
                                                 }
@@ -745,14 +758,16 @@ public class UserServiceImpl implements UserService {
                     }
                 }else if ("startIndex".equals(deviceInfo.getPoint())){
                     count = userMapper.checkDeviceExistsForApple(deviceInfo.getIdfa(),"startIndex");
+                    String url = null;
                     if (count == 0) {
                         //快手
-                        String url = advertisService.getCallBackUrlForKSApple(deviceInfo.getIdfa());
+                        //url = advertisService.getCallBackUrlForKSApple(deviceInfo.getIdfa());
                         if (StringUtils.isNotBlank(url)) {
                             log.info("**************苹果快手首页数据上报*****************idfa:{}",deviceInfo.getIdfa());
                             url = URLDecoder.decode(url,"utf-8");
                             url = url + "&event_type=2&event_time=" + System.currentTimeMillis();
                             HttpClientUtil.doGet(url);
+                            deviceInfo.setAdv(1);
                         }else {
                             //头条
                             url = advertisService.getCallBackUrlForQTTApple(deviceInfo.getIdfa());
@@ -761,21 +776,25 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url = url + "&op2=1&opt_active_time=" + System.currentTimeMillis();
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }else{
                                 //wifi
-                                Map<String,String> map = advertisService.getCallBackInfoForWifiApple(deviceInfo.getIdfa());
+                                //Map<String,String> map = advertisService.getCallBackInfoForWifiApple(deviceInfo.getIdfa());
+                                Map<String,String> map = null;
                                 if (map!=null&&!map.isEmpty()){
                                     log.info("**************苹果WIFI首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                     url = getUrl(map, "2");
                                     HttpClientUtil.doGet(url);
+                                    deviceInfo.setAdv(1);
                                 }else{
-                                    url = advertisService.getCallBackUrlForZhihuApple(deviceInfo.getIdfa());
+                                    //url = advertisService.getCallBackUrlForZhihuApple(deviceInfo.getIdfa());
                                     if (StringUtils.isNotBlank(url)) {
                                         log.info("**************苹果知乎首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                         url = URLDecoder.decode(url, "utf-8");
                                         url = url.replaceAll("__EVENTTYPE__", "reged")
                                                 .replaceAll("__TIMESTAMP__", String.valueOf(System.currentTimeMillis()));
                                         HttpClientUtil.doGet(url);
+                                        deviceInfo.setAdv(1);
                                     }else{
                                         //b站
                                         String trackid = advertisService.getTrackidForBstationApple(deviceInfo.getIdfa());
@@ -783,6 +802,7 @@ public class UserServiceImpl implements UserService {
                                             log.info("**************苹果b站首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                             url = Constant.BSTATION_CALLBACKURL+"conv_type=USER_REGISTER&conv_time="+System.currentTimeMillis()+"&client_ip="+deviceInfo.getIp()+"&track_id="+trackid;
                                             HttpClientUtil.doGet(url);
+                                            deviceInfo.setAdv(1);
                                         }else{
                                             //sohu
                                             url = advertisService.getCallBackForSohuApple(deviceInfo.getIdfa());
@@ -791,6 +811,7 @@ public class UserServiceImpl implements UserService {
                                                 url = URLDecoder.decode(url, "utf-8");
                                                 url = url.replaceAll("__TS__", String.valueOf(System.currentTimeMillis()));
                                                 HttpClientUtil.doGet(url);
+                                                deviceInfo.setAdv(1);
                                             }else{
                                                 url = advertisService.getCallBackUrlForMeipaiApple(deviceInfo.getIdfa());
                                                 if (StringUtils.isNotBlank(url)){
@@ -798,6 +819,7 @@ public class UserServiceImpl implements UserService {
                                                     url = URLDecoder.decode(url, "utf-8");
                                                     url += "&event_type=1";
                                                     HttpClientUtil.doGet(url);
+                                                    deviceInfo.setAdv(1);
                                                 }else {
                                                     //url = advertisService.getCallBackUrlForChubaoApple(deviceInfo.getIdfa());
                                                     url = null;
@@ -806,6 +828,7 @@ public class UserServiceImpl implements UserService {
                                                         url = URLDecoder.decode(url, "utf-8");
                                                         url += "&conv_time="+System.currentTimeMillis();
                                                         HttpClientUtil.doGet(url);
+                                                        deviceInfo.setAdv(1);
                                                     }else{
                                                         url = advertisService.getCallBackForZuiyouApple(deviceInfo.getIdfa());
                                                         if (StringUtils.isNotBlank(url)) {
@@ -813,6 +836,7 @@ public class UserServiceImpl implements UserService {
                                                             url = URLDecoder.decode(url, "utf-8");
                                                             url = url.replace("__EVENT__","1");
                                                             HttpClientUtil.doGet(url);
+                                                            deviceInfo.setAdv(1);
                                                         }
                                                     }
                                                 }
@@ -835,6 +859,7 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url = url + "&event_type=1&event_time=" + System.currentTimeMillis();
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     } else if ("startIndex".equals(deviceInfo.getPoint())) {
@@ -846,6 +871,7 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url = url + "&event_type=2&event_time=" + System.currentTimeMillis();
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
 
@@ -861,6 +887,7 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url = url + "&op2=0&opt_active_time=" + System.currentTimeMillis();
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     } else if ("startIndex".equals(deviceInfo.getPoint())) {
@@ -872,6 +899,7 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url = url + "&op2=1&opt_active_time=" + System.currentTimeMillis();
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     }
@@ -884,6 +912,7 @@ public class UserServiceImpl implements UserService {
                             if (data!=null&&!data.isEmpty()) {
                                 String url = getUrl(data, "1");
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     } else if ("startIndex".equals(deviceInfo.getPoint())) {
@@ -894,6 +923,7 @@ public class UserServiceImpl implements UserService {
                             if (data!=null&&!data.isEmpty()) {
                                 String url = getUrl(data, "2");
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     }
@@ -908,6 +938,7 @@ public class UserServiceImpl implements UserService {
                                 url = url.replaceAll("__EVENTTYPE__", "install")
                                         .replaceAll("__TIMESTAMP__", String.valueOf(System.currentTimeMillis()));
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     } else if ("startIndex".equals(deviceInfo.getPoint())) {
@@ -920,6 +951,7 @@ public class UserServiceImpl implements UserService {
                                 url = url.replaceAll("__EVENTTYPE__", "reged")
                                         .replaceAll("__TIMESTAMP__", String.valueOf(System.currentTimeMillis()));
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     }
@@ -934,6 +966,7 @@ public class UserServiceImpl implements UserService {
                                 String url = Constant.BSTATION_CALLBACKURL+"conv_type=APP_FIRST_ACTIVE&conv_time="+System.currentTimeMillis()+"&client_ip="+deviceInfo.getIp()+"&track_id="+trackid;
 
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     } else if ("startIndex".equals(deviceInfo.getPoint())) {
@@ -945,6 +978,7 @@ public class UserServiceImpl implements UserService {
                                 String url = Constant.BSTATION_CALLBACKURL+"conv_type=USER_REGISTER&conv_time="+System.currentTimeMillis()+"&client_ip="+deviceInfo.getIp()+"&track_id="+trackid;
 
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     }
@@ -963,6 +997,7 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url = url.replaceAll("__TS__", String.valueOf(System.currentTimeMillis()));
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     }
@@ -975,6 +1010,7 @@ public class UserServiceImpl implements UserService {
                             if (StringUtils.isNotBlank(url)) {
                                 url = URLDecoder.decode(url, "utf-8");
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     } else if ("startIndex".equals(deviceInfo.getPoint())) {
@@ -986,6 +1022,7 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url+="&event_type=1";
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     }
@@ -999,6 +1036,7 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url+="&conv_time="+System.currentTimeMillis();
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     }
@@ -1012,6 +1050,7 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url = url.replace("__EVENT__","0");
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     } else if ("startIndex".equals(deviceInfo.getPoint())) {
@@ -1023,6 +1062,7 @@ public class UserServiceImpl implements UserService {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url = url.replace("__EVENT__","1");
                                 HttpClientUtil.doGet(url);
+                                deviceInfo.setAdv(1);
                             }
                         }
                     }

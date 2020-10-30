@@ -1133,11 +1133,11 @@
   <insert id="insertDeviceInfo" parameterType="com.rzyou.funtime.entity.FuntimeDeviceInfo">
     insert into t_funtime_device_info ( point, imei,
       idfa, android_id, oaid,
-      os, mac, mac1, ip,
+      os, mac, mac1, ip,adv,
       ua,channel,user_id,brand,phone_model,phone_version,idfv)
     values ( #{point,jdbcType=VARCHAR}, #{imei,jdbcType=VARCHAR},
       #{idfa,jdbcType=VARCHAR}, #{androidId,jdbcType=VARCHAR}, #{oaid,jdbcType=VARCHAR},
-      #{os,jdbcType=VARCHAR}, #{mac,jdbcType=VARCHAR}, #{mac1,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR},
+      #{os,jdbcType=VARCHAR}, #{mac,jdbcType=VARCHAR}, #{mac1,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR},#{adv},
       #{ua,jdbcType=VARCHAR},#{channel},#{userId},#{brand},#{phoneModel},#{phoneVersion},#{idfv})
   </insert>
   <insert id="insertUserLocationLog">

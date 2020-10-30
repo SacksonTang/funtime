@@ -43,4 +43,6 @@ public class FuntimeDeviceInfo implements Serializable {
     private String phoneVersion;
 
     private String idfv;
+
+    private Integer adv;
 }
