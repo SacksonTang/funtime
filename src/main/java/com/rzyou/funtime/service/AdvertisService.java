@@ -49,7 +49,7 @@ public interface AdvertisService {
 
     String getTrackidForBstation(String ip,Integer channel);
 
-    String getCallBackForSohuApple(String idfa);
+    String getCallBackForSohuApple(String idfa, String ip);
 
     String getCallBackForSohu(String ip);
 

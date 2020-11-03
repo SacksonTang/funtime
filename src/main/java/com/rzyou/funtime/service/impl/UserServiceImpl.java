@@ -715,7 +715,7 @@ public class UserServiceImpl implements UserService {
                                             deviceInfo.setAdv(1);
                                         }else{
                                             //sohu
-                                            url = advertisService.getCallBackForSohuApple(deviceInfo.getIdfa());
+                                            //url = advertisService.getCallBackForSohuApple(deviceInfo.getIdfa(), deviceInfo.getIp());
                                             log.info("**************苹果sohu激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                             if (StringUtils.isNotBlank(url)){
 
@@ -805,7 +805,7 @@ public class UserServiceImpl implements UserService {
                                             deviceInfo.setAdv(1);
                                         }else{
                                             //sohu
-                                            url = advertisService.getCallBackForSohuApple(deviceInfo.getIdfa());
+                                            url = advertisService.getCallBackForSohuApple(deviceInfo.getIdfa(),deviceInfo.getIp());
                                             if(StringUtils.isNotBlank(url)) {
                                                 log.info("**************苹果sohu首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                                 url = URLDecoder.decode(url, "utf-8");

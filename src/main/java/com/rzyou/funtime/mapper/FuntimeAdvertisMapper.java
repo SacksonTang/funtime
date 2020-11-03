@@ -33,7 +33,7 @@ public interface FuntimeAdvertisMapper {
 
     String getCallBackUrlForZhihuApple(String idfa);
 
-    String getCallBackForSohuApple(String idfa);
+    String getCallBackForSohuApple(@Param("idfa") String idfa,@Param("ip") String ip);
 
     String getCallBackUrlForMeipaiApple(String idfa);
 

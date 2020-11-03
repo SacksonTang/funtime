@@ -145,8 +145,8 @@ public class AdvertisServiceImpl implements AdvertisService {
     }
 
     @Override
-    public String getCallBackForSohuApple(String idfa) {
-        return advertisMapper.getCallBackForSohuApple(idfa);
+    public String getCallBackForSohuApple(String idfa, String ip) {
+        return advertisMapper.getCallBackForSohuApple(idfa,ip);
     }
 
     @Override

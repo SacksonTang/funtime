@@ -27,6 +27,9 @@
   </select>
   <select id="getCallBackForSohuApple" resultType="java.lang.String">
     select callback from t_funtime_sohu_ad_monitor where idfa = #{idfa}
+    <if test="ip!=null">
+      or ip = #{ip}
+    </if>
     and create_time BETWEEN DATE_SUB(now(),INTERVAL 7 day) and now()
     order by id desc
     limit 1
