@@ -5,12 +5,19 @@ import com.rzyou.funtime.entity.FuntimeDdz;
 import com.rzyou.funtime.mapper.FuntimeDdzMapper;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.DdzService;
+import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.UserService;
+import com.rzyou.funtime.utils.DateUtil;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class DdzServiceImpl implements DdzService {
@@ -21,6 +28,8 @@ public class DdzServiceImpl implements DdzService {
     UserService userService;
     @Autowired
     AccountService accountService;
+    @Autowired
+    ParameterService parameterService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -51,5 +60,24 @@ public class DdzServiceImpl implements DdzService {
                 accountService.saveUserAccountGoldLog(ddz.getUser3(), new BigDecimal(ddz.getGold3()), ddz.getId(), OperationType.DDZ_GOLD_OUT.getAction(), OperationType.DDZ_GOLD_OUT.getOperationType());
             }
         }
+    }
+
+    @Override
+    public List<Map<String, Object>> getRankList() {
+
+        String date = "";
+        String startDate;
+        String endDate;
+        int hours = DateUtil.getCurrentHours();
+        if (hours<2){
+            startDate = DateUtil.getLastDay()+ " 20:00:00";
+            endDate = DateUtil.getCurrentDateTime(DateUtil.YYYY_MM_DD)+ " 02:00:00";
+        }else {
+            startDate = DateUtil.getCurrentDateTime(DateUtil.YYYY_MM_DD)+ " 20:00:00";
+            endDate = DateUtil.getDateTime(DateUtils.addDays(new Date(),1),DateUtil.YYYY_MM_DD)+ " 02:00:00";
+        }
+        String counts = parameterService.getParameterValueByKey("ddz_rank_count");
+        counts = counts == null?"10":counts;
+        return ddzMapper.getRankList(startDate,endDate,Integer.parseInt(counts));
     }
 }

@@ -1698,6 +1698,8 @@ public class AccountServiceImpl implements AccountService {
             resultMsg.setData(JsonUtil.getMap("amount",total));
             return resultMsg;
         }
+        Map<String,Object> result = new HashMap<>();
+        result.put("total",total);
         //用户送减去蓝钻
         userService.updateUserAccountForSub(userId, null, new BigDecimal(total), null);
         String noticeAmount = parameterService.getParameterValueByKey("gift_notice_amount");
@@ -1774,6 +1776,8 @@ public class AccountServiceImpl implements AccountService {
             roomService.updateHotsPlus(roomId, new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
             game123Service.saveGame123Val(tousersMap,roomId);
         }
+        result.put("list",noticeDatas);
+        resultMsg.setData(result);
 
         return resultMsg;
     }

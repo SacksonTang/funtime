@@ -74,6 +74,11 @@ public enum ErrorMsgEnum {
     USER_BLACKLIST_ADDED("10061","你已将对方加入黑名单"),
     USER_BLACKLIST_ADDED2("10062","你已被对方加入黑名单"),
     USER_ACCOUNT_STOP("10063","账户已被冻结,请联系客服"),
+    USER_ORDER_STOP("10064","该用户没有发布订单"),
+    USER_ORDER_NOT_EXIST("10065","订单不存在"),
+    USER_ORDER_NOT_MINE("10066","不是本人的订单"),
+    USER_ORDER_STATE_ERROR("10067","订单状态异常"),
+    USER_ORDER_ERROR("10068","订单信息异常"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),

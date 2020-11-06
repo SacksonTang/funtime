@@ -37,6 +37,31 @@ public class DdzController {
      * @param request
      * @return
      */
+    @PostMapping("getRankList")
+    public ResultMsg<Object> getRankList(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            result.setData(JsonUtil.getMap("list",ddzService.getRankList()));
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+
+    /**
+     * 个人信息
+     * @param request
+     * @return
+     */
     @PostMapping("getUserInfo")
     public ResultMsg<Object> getUserInfo(HttpServletRequest request){
 

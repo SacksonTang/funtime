@@ -14,6 +14,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserMapper {
 
+    Integer checkUserAllowOffline(Long userId);
+
     Map<String,Object> getDdzUserInfoById(Long userId);
 
     List<Long> getBeautyNumbers();

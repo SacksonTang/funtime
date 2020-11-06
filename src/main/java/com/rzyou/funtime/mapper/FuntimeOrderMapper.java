@@ -1,6 +1,7 @@
 package com.rzyou.funtime.mapper;
 
 import com.rzyou.funtime.entity.FuntimeOrder;
+import com.rzyou.funtime.entity.FuntimeUserOrderRecord;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -25,4 +26,16 @@ public interface FuntimeOrderMapper {
     List<Map<String,Object>> getOrderListForPc(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("tagId") Integer tagId);
 
     List<Map<String, Object>> getRecommendationOrderList(Integer tagId);
+
+    int insertUserOrderRecord(FuntimeUserOrderRecord record);
+
+    int updateUserOrderRecord(FuntimeUserOrderRecord record);
+
+    FuntimeUserOrderRecord getOrderRecordById(Long id);
+
+    Map<String, Object> getRecordInfoById(Long id);
+
+    List<Map<String, Object>> getReceiveOrders(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("userId") Long userId, @Param("type") Integer type);
+
+    List<Map<String, Object>> getMyOrders(@Param("counts") Integer counts, @Param("lastId") Long lastId, @Param("userId") Long userId, @Param("type") Integer type);
 }

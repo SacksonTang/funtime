@@ -138,6 +138,93 @@
         </set>
         where user_id = #{userId,jdbcType=BIGINT}
     </update>
-    
+
+    <select id="getRecordInfoById" resultType="java.util.Map">
+        select d.id,d.order_no as orderNo,d.poundage,d.tag_name as tagName,d.price,d.counts,d.total_red as totalRed,d.state
+        ,d.remark,d.reason as reason,DATE_FORMAT(d.create_time,'%Y-%m-%d %H:%i:%s') as createTime
+        ,u.sex,u.portrait_address as portraitAddress,u.nickname
+        from t_funtime_user_order_record d inner join t_funtime_user u on d.user_id = u.id
+        where d.id = #{id}
+
+    </select>
+    <select id="getReceiveOrders" resultType="java.util.Map">
+        select d.id,d.tag_name as tagName,d.price,d.counts,d.total_red as total,d.state,DATE_FORMAT(d.create_time,'%Y-%m-%d %H:%i') as createTime
+        ,u.sex,u.portrait_address as portraitAddress,u.nickname
+        from t_funtime_user_order_record d inner join t_funtime_user u on d.user_id = u.id
+        where d.to_user_id = #{userId}
+        <if test="type == 1">
+            and d.state in (1,2,4)
+        </if>
+        <if test="type == 2">
+            and d.state in (3,5,6,7)
+        </if>
+        <if test="lastId!=null">
+            and d.id <![CDATA[<]]> #{lastId}
+        </if>
+        order by d.id desc
+        limit ${counts}
+    </select>
+    <select id="getMyOrders" resultType="java.util.Map">
+        select d.id,d.tag_name as tagName,d.price,d.counts,d.total as total,d.state,DATE_FORMAT(d.create_time,'%Y-%m-%d %H:%i') as createTime
+        ,u.sex,u.portrait_address as portraitAddress,u.nickname
+        from t_funtime_user_order_record d inner join t_funtime_user u on d.to_user_id = u.id
+        where d.user_id = #{userId}
+        <if test="type == 1">
+            and d.state in (1,2,4)
+        </if>
+        <if test="type == 2">
+            and d.state in (3,5,6,7)
+        </if>
+        <if test="lastId!=null">
+            and d.id <![CDATA[<]]> #{lastId}
+        </if>
+        order by d.id desc
+        limit ${counts}
+    </select>
+
+    <select id="getOrderRecordById" resultType="com.rzyou.funtime.entity.FuntimeUserOrderRecord">
+        select id, order_no as orderNo, user_id as userId, to_user_id as toUserId, poundage, total_red as totalRed,total,
+            state
+        from t_funtime_user_order_record where id = #{id}
+    </select>
+
+    <insert id="insertUserOrderRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserOrderRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into t_funtime_user_order_record (order_no, user_id,
+        to_user_id, price, price_amount,
+        tag_name, counts, poundage,total,total_red,
+        remark, state,reason,
+        order_taking_time, complete_time,
+        to_complete_time)
+        values (#{orderNo,jdbcType=VARCHAR}, #{userId,jdbcType=BIGINT},
+        #{toUserId,jdbcType=BIGINT}, #{price,jdbcType=VARCHAR}, #{priceAmount,jdbcType=INTEGER},
+        #{tagName,jdbcType=VARCHAR}, #{counts,jdbcType=INTEGER}, #{poundage,jdbcType=DECIMAL},#{total},#{totalRed},
+        #{remark,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER},#{reason},
+        #{orderTakingTime,jdbcType=TIMESTAMP}, #{completeTime,jdbcType=TIMESTAMP},
+        #{toCompleteTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <update id="updateUserOrderRecord" parameterType="com.rzyou.funtime.entity.FuntimeUserOrderRecord" >
+
+        update t_funtime_user_order_record
+        <set >
+
+            <if test="state != null" >
+                state = #{state,jdbcType=INTEGER},
+            </if>
+            <if test="reason!=null">
+                reason = #{reason},
+            </if>
+            <if test="orderTakingTime != null" >
+                order_taking_time = #{orderTakingTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="completeTime != null" >
+                complete_time = #{completeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="toCompleteTime != null" >
+                to_complete_time = #{toCompleteTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
 
 </mapper>

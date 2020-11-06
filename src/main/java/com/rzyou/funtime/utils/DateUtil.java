@@ -108,6 +108,11 @@ public class DateUtil {
         return date+" 00:00:00";
     }
 
+    public static String getLastDay(){
+        String date = getDateTime(DateUtils.addDays(new Date(),-1),YYYY_MM_DD);
+        return date;
+    }
+
     /**
      * 获取当天时间的结束
      */
@@ -234,10 +239,15 @@ public class DateUtil {
         return SDF1.format(calendar.getTime())+" 23:59:59";
     }
 
-    public static void main(String[] args) throws Exception{
+    public static int getCurrentHours(){
+        Calendar calendar=Calendar.getInstance();
+        return calendar.get(Calendar.HOUR_OF_DAY);
+    }
 
-        System.out.println(getLastWeekStart());
-        System.out.println(getLastWeekEnd());
+
+    public static void main(String[] args) throws Exception{
+        Calendar calendar=Calendar.getInstance();
+        System.out.println(calendar.get(Calendar.SECOND));
     }
 
 }

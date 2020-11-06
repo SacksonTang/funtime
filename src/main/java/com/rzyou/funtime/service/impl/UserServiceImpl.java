@@ -2282,8 +2282,10 @@ public class UserServiceImpl implements UserService {
         String val = parameterService.getParameterValueByKey("heart_rate");
         List<Long> users = userMapper.getOfflineUserByApp(Integer.parseInt(val)+5);
         for (Long userId : users){
-            log.info("offlineUserAppTask========>updateOnlineState:userId:{}",userId);
-            updateOnlineState(userId, 2);
+            if (userMapper.checkUserAllowOffline(userId) == null) {
+                log.info("offlineUserAppTask========>updateOnlineState:userId:{}", userId);
+                updateOnlineState(userId, 2);
+            }
         }
     }
 

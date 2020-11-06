@@ -1197,5 +1197,9 @@
     order by u.online_state asc,b.create_time desc
 
     </select>
+    
+    <select id="checkUserAllowOffline" resultType="java.lang.Integer">
+        select 1 from t_funtime_user_not_offline where user_id = #{userId}
+    </select>
 
 </mapper>
