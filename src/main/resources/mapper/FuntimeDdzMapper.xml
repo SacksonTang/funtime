@@ -4,21 +4,29 @@
 
     <select id="getRankList" resultType="java.util.Map">
         SELECT
-        l.user_id as userId,
-        sum( amount ) total,
-        u.nickname,
-        u.portrait_address as portraitAddress,
-        u.show_id as showId
+        user_id as userId,u.show_id as showId,u.nickname,u.portrait_address as portraitAddress,max(ranks) ranks,
+        sum( amount ) total
+
         FROM
-            t_funtime_user_account_gold_log l
-            INNER JOIN t_funtime_user u ON l.user_id = u.id
+        (
+        SELECT
+        b.id,
+        b.user_id,
+        b.amount,
+        @rownum := @rownum + 1,
+        IF
+        ( @pdept = b.user_id, @rank := @rank + 1, @rank := 1 ) AS ranks,
+        @pdept := b.user_id
+        FROM
+        ( SELECT id, user_id, amount FROM t_funtime_user_account_gold_log WHERE operation_type IN ( 'DDZ_GOLD_OUT', 'DDZ_GOLD_IN' ) AND create_time BETWEEN #{startDate} AND #{endDate} ORDER BY user_id ) b,
+        ( SELECT @rownum := 0, @pdept := NULL, @rank := 0 ) c
+        ) result
+        INNER JOIN t_funtime_user u ON u.id = result.user_id
         WHERE
-            l.operation_type IN ( 'DDZ_GOLD_IN', 'DDZ_GOLD_OUT' )
-            and l.create_time between #{startDate} and #{endDate}
+        ranks &lt;= 10
         GROUP BY
-            l.user_id
-        ORDER BY
-            total DESC
+        user_id
+        ORDER BY total desc
         limit ${counts}
     </select>
 

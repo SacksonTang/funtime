@@ -8,6 +8,7 @@ import com.rzyou.funtime.common.*;
 import com.rzyou.funtime.common.httputil.HttpClientUtil;
 import com.rzyou.funtime.common.im.BankCardVerificationUtil;
 import com.rzyou.funtime.common.im.TencentUtil;
+import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.common.qqutils.QqLoginUtils;
 import com.rzyou.funtime.common.wxutils.WeixinLoginUtils;
 import com.rzyou.funtime.component.RedisUtil;
@@ -113,7 +114,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void updateUserInfo(Long id, Integer onlineState, String token, String imei, String ip,String nikename,String loginType,String deviceName){
+    public void updateUserInfo(Long id, Integer onlineState,String imei, String ip,String nikename,String loginType,String deviceName){
+        String uuid = StringUtil.createNonceStr();
+        String token = JwtHelper.generateJWT(id.toString(),uuid);
         FuntimeUser user = new FuntimeUser();
         user.setToken(token);
         user.setPhoneImei(imei);
@@ -125,16 +128,27 @@ public class UserServiceImpl implements UserService {
 
         //足迹
         saveRecode(id,user.getPhoneImei(),user.getIp(),1, nikename, loginType, deviceName);
+        RedisUser redisUser = new RedisUser();
+        redisUser.onlineState = 1;
+        redisUser.token = token;
+        redisUtil.set(Constant.REDISUSER_PREFIX+user.getId(),redisUser);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void updateUserInfo(FuntimeUser user){
+        String uuid = StringUtil.createNonceStr();
+        String token = JwtHelper.generateJWT(user.getId().toString(),uuid);
+        user.setToken(token);
         user.setLastLoginTime(new Date());
         updateByPrimaryKeySelective(user);
 
         //足迹
         saveRecode(user.getId(),user.getPhoneImei(),user.getIp(),1, user.getNickname(), user.getLoginType(), user.getDeviceName());
+        RedisUser redisUser = new RedisUser();
+        redisUser.onlineState = 1;
+        redisUser.token = token;
+        redisUtil.set(Constant.REDISUSER_PREFIX+user.getId(),redisUser);
     }
 
 
@@ -234,8 +248,12 @@ public class UserServiceImpl implements UserService {
             }
         }
         user.setShowId(maxShowId);
-        insertSelective(user);
 
+        insertSelective(user);
+        String uuid = StringUtil.createNonceStr();
+        String token = JwtHelper.generateJWT(user.getId().toString(),uuid);
+        user.setToken(token);
+        updateTokenById(user.getId(),token);
         if (StringUtils.isNotBlank(user.getPhoneNumber())){
             userMapper.saveUserInfoChangeLog(user.getId(),"phone_number",user.getPhoneNumber());
         }
@@ -253,6 +271,10 @@ public class UserServiceImpl implements UserService {
             saveUserThird(user.getId(), openType, openid, unionid, accessToken,user.getNickname());
             userMapper.saveUserInfoChangeLog(user.getId(),"openid",openType+"/"+openid);
         }
+        RedisUser redisUser = new RedisUser();
+        redisUser.onlineState = 1;
+        redisUser.token = token;
+        redisUtil.set(Constant.REDISUSER_PREFIX+user.getId(),redisUser);
         return true;
     }
 
@@ -2358,5 +2380,15 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
         return true;
+    }
+
+    public void updateTokenById(Long userId,String token){
+        FuntimeUser user = new FuntimeUser();
+        user.setId(userId);
+        user.setToken(token);
+        if(userMapper.updateByPrimaryKeySelective(user)!=1){
+
+            throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
+        }
     }
 }

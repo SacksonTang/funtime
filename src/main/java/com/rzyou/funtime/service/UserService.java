@@ -72,14 +72,13 @@ public interface UserService {
      * 修改用户信息
      * @param id
      * @param onlineState
-     * @param token
      * @param imei
      * @param ip
      * @param nikename
      * @param loginType
      * @param deviceName
      */
-    void updateUserInfo(Long id, Integer onlineState, String token, String imei, String ip, String nikename,String loginType,String deviceName);
+    void updateUserInfo(Long id, Integer onlineState, String imei, String ip, String nikename,String loginType,String deviceName);
 
     /**
      * 修改用户信息

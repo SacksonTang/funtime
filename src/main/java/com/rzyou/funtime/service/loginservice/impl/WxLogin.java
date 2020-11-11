@@ -52,8 +52,6 @@ public class WxLogin implements LoginStrategy {
         String openid = tokenJson.getString("openid");
 
         FuntimeUserThird userThird = userService.queryUserInfoByOpenid(openid,user.getLoginType());
-        String uuid = StringUtil.createNonceStr();
-        String userId;
         if (userThird==null){
             JSONObject refreshTokenJson = WeixinLoginUtils.refreshToken(refresh_token);
             String access_token = refreshTokenJson.getString("access_token");
@@ -92,12 +90,8 @@ public class WxLogin implements LoginStrategy {
             }
             user.setVersion(System.currentTimeMillis());
             user.setSignText("这个人很懒,什么都没有留下");
-            user.setToken(uuid);
             userService.saveUser(user,Constant.LOGIN_WX,openid,userJson.getString("unionid"),access_token);
-            userId = user.getId().toString();
-            String token = JwtHelper.generateJWT(userId,uuid);
-            user.setToken(token);
-            //userService.updateShowIdById(user.getId());
+
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
             if (!flag){
@@ -105,32 +99,21 @@ public class WxLogin implements LoginStrategy {
             }
             user.setBlueAmount(0);
             user.setNewUser(true);
-            RedisUser redisUser = new RedisUser();
-            redisUser.onlineState = 1;
-            redisUser.uuid = uuid;
-            redisUtil.set(Constant.REDISUSER_PREFIX+user.getId(),redisUser);
+
             return user;
         }else{
-            userId = userThird.getUserId().toString();
-
             FuntimeUser funtimeUser = userService.queryUserById(userThird.getUserId());
 
             if(funtimeUser.getState()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
-            String token = JwtHelper.generateJWT(userId,uuid);
             user.setId(funtimeUser.getId());
-            user.setToken(uuid);
             user.setOnlineState(1);
-
             userService.updateUserInfo(user);
-            funtimeUser.setToken(token);
+            funtimeUser.setToken(user.getToken());
             funtimeUser.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
             funtimeUser.setNewUser(false);
-            RedisUser redisUser = new RedisUser();
-            redisUser.onlineState = 1;
-            redisUser.uuid = uuid;
-            redisUtil.set(Constant.REDISUSER_PREFIX+funtimeUser.getId(),redisUser);
+
             return funtimeUser;
 
         }

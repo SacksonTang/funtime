@@ -51,8 +51,7 @@ public class QQLogin implements LoginStrategy {
         String openid = QqLoginUtils.getOpenId(accessToken);
 
         FuntimeUserThird userThird = userService.queryUserInfoByOpenid(openid, user.getLoginType());
-        String uuid = StringUtil.createNonceStr();
-        String userId;
+
         if (userThird == null) {
             //JSONObject refreshTokenJson = WeixinLoginUtils.refreshToken(refresh_token);
             //String access_token = refreshTokenJson.getString("access_token");
@@ -88,12 +87,8 @@ public class QQLogin implements LoginStrategy {
             if (user.getBirthday()==null){
                 user.setBirthday(Integer.parseInt(DateUtil.getCurrentYearAdd(new Date(),-18)));
             }
-            user.setToken(uuid);
+
             userService.saveUser(user, Constant.LOGIN_QQ, openid, userJson.getString("unionid"), accessToken);
-            userId = user.getId().toString();
-            String token = JwtHelper.generateJWT(userId, uuid);
-            user.setToken(token);
-            //userService.updateShowIdById(user.getId());
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig, user.getId().toString(), user.getNickname(), user.getPortraitAddress());
             if (!flag) {
@@ -101,32 +96,25 @@ public class QQLogin implements LoginStrategy {
             }
             user.setBlueAmount(0);
             user.setNewUser(true);
-            RedisUser redisUser = new RedisUser();
-            redisUser.onlineState = 1;
-            redisUser.uuid = uuid;
-            redisUtil.set(Constant.REDISUSER_PREFIX+user.getId(),redisUser);
+
             return user;
         } else {
-            userId = userThird.getUserId().toString();
 
             FuntimeUser funtimeUser = userService.queryUserById(userThird.getUserId());
 
             if (funtimeUser.getState() != 1) {
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(), ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
-            String token = JwtHelper.generateJWT(userId, uuid);
+
             user.setId(funtimeUser.getId());
-            user.setToken(uuid);
+
             user.setOnlineState(1);
 
             userService.updateUserInfo(user);
-            funtimeUser.setToken(token);
+            funtimeUser.setToken(user.getToken());
             funtimeUser.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
             funtimeUser.setNewUser(false);
-            RedisUser redisUser = new RedisUser();
-            redisUser.onlineState = 1;
-            redisUser.uuid = uuid;
-            redisUtil.set(Constant.REDISUSER_PREFIX+funtimeUser.getId(),redisUser);
+
             return funtimeUser;
 
         }

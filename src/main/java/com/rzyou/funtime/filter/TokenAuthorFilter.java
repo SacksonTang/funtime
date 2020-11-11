@@ -80,30 +80,39 @@ public class TokenAuthorFilter implements Filter {
                         resultInfo.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());
                         resultInfo.setMsg(ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
                     }else {
+                        FuntimeUser funtimeUser;
                         RedisUser user = (RedisUser) redisUtil.get(Constant.REDISUSER_PREFIX+map.get("userId").toString());
-
                         if (user == null) {
-                            FuntimeUser funtimeUser = userService.queryUserById(Long.parseLong(map.get("userId").toString()));
+                            funtimeUser = userService.queryUserById(Long.parseLong(map.get("userId").toString()));
                             if (funtimeUser == null){
                                 resultInfo.setCode(ErrorMsgEnum.USER_NOT_EXISTS.getValue());
                                 resultInfo.setMsg(ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
                             }else {
-                                user.onlineState = funtimeUser.getOnlineState();
-                                user.uuid = funtimeUser.getToken();
+                                if (!token.equals(funtimeUser.getToken())){
+                                    resultInfo.setCode(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getValue());
+                                    resultInfo.setMsg(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getDesc());
+                                }else {
+                                    user.onlineState = funtimeUser.getOnlineState();
+                                    user.token = funtimeUser.getToken();
 
-                            }
-                        }
-                        if (user!=null){
-                            String uuid = map.get("nonceStr").toString();
-                            if (!user.uuid.equals(uuid)){
-                                resultInfo.setCode(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getValue());
-                                resultInfo.setMsg(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getDesc());
-                            }else {
-                                if (user.onlineState == 2){
-                                    userService.updateOnlineState(Long.parseLong(map.get("userId").toString()),1);
+                                    redisUtil.set(Constant.REDISUSER_PREFIX + funtimeUser.getId(), user);
                                 }
-                                HttpHelper.setUserId(Long.parseLong(map.get("userId").toString()));
-                                isFilter = true;
+                            }
+                        }else{
+                            if (user.token == null){
+                                resultInfo.setCode(ErrorMsgEnum.USER_TOKEN_EXPIRE.getValue());
+                                resultInfo.setMsg(ErrorMsgEnum.USER_TOKEN_EXPIRE.getDesc());
+                            }else {
+                                if (!user.token.equals(token)) {
+                                    resultInfo.setCode(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getValue());
+                                    resultInfo.setMsg(ErrorMsgEnum.USER_IS_LOGIN_OTHER.getDesc());
+                                } else {
+                                    if (user.onlineState == 2) {
+                                        userService.updateOnlineState(Long.parseLong(map.get("userId").toString()), 1);
+                                    }
+                                    HttpHelper.setUserId(Long.parseLong(map.get("userId").toString()));
+                                    isFilter = true;
+                                }
                             }
                         }
                     }
@@ -118,7 +127,7 @@ public class TokenAuthorFilter implements Filter {
             }
 
 
-            if (resultInfo.getCode() != ErrorMsgEnum.SUCCESS.getValue()) {// 验证失败
+            if (!resultInfo.getCode().equals(ErrorMsgEnum.SUCCESS.getValue())) {// 验证失败
                 PrintWriter writer = null;
                 OutputStreamWriter osw = null;
                 try {

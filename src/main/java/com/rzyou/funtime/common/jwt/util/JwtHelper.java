@@ -121,9 +121,9 @@ public class JwtHelper {
     }
 
     public static void main(String[] args) {
-        String jwt = generateJWT("11", "111100");
-        Claims claims = parseJWT(jwt);
-        System.out.println(claims+""+claims.getExpiration());
+        String jwt = generateJWT("50199", "D53AA07B05694A8AB0DF6BF9A588ECCD");
+
+        System.out.println(jwt);
     }
 
 

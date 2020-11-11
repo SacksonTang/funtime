@@ -38,9 +38,6 @@ public class OnekeyLogin implements LoginStrategy {
         }
 
         String phoneNumber = LinkmeUtil.getPhone(user.getToken(),user.getChannel(),user.getPlatform(),user.getCode());
-        String uuid = StringUtil.createNonceStr();
-        String userId ;
-        String token;
         boolean isNewUser = true;
         FuntimeUser funtimeUser = userService.queryUserInfoByPhone(phoneNumber);
         if(funtimeUser==null){
@@ -69,12 +66,7 @@ public class OnekeyLogin implements LoginStrategy {
             user.setSignText("这个人很懒,什么都没有留下");
             user.setVersion(System.currentTimeMillis());
             user.setPhoneNumber(phoneNumber);
-            user.setToken(uuid);
             userService.saveUser(user, null, null, null,null);
-            userId = user.getId().toString();
-
-            token = JwtHelper.generateJWT(userId,uuid);
-            //userService.updateShowIdById(user.getId());
 
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
@@ -84,22 +76,16 @@ public class OnekeyLogin implements LoginStrategy {
 
         }else{
             isNewUser = false;
-            userId = funtimeUser.getId().toString();
             if(funtimeUser.getState()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
-            token = JwtHelper.generateJWT(userId,uuid);
-            userService.updateUserInfo(funtimeUser.getId(),1,uuid,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
+            userService.updateUserInfo(funtimeUser.getId(),1,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
 
         }
-        FuntimeUser info = userService.getUserBasicInfoById(Long.parseLong(userId));
-        info.setBlueAmount(userService.getUserAccountInfoById(Long.parseLong(userId)).getBlueDiamond().intValue());
+        FuntimeUser info = userService.getUserBasicInfoById(funtimeUser.getId());
+        info.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
         info.setNewUser(isNewUser);
-        info.setToken(token);
-        RedisUser redisUser = new RedisUser();
-        redisUser.onlineState = 1;
-        redisUser.uuid = uuid;
-        redisUtil.set(Constant.REDISUSER_PREFIX+info.getId(),redisUser);
+
         return info;
     }
 }

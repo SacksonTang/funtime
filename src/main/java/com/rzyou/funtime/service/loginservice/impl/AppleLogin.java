@@ -39,8 +39,6 @@ public class AppleLogin implements LoginStrategy {
             throw new BusinessException(ErrorMsgEnum.USER_APPLELOGIN_ERROR.getValue(),ErrorMsgEnum.USER_APPLELOGIN_ERROR.getDesc());
         }
         FuntimeUserThird userThird = userService.queryUserInfoByOpenid(user.getAppleUserId(),user.getLoginType());
-        String uuid = StringUtil.createNonceStr();
-        String userId;
         if (userThird==null){
             //新用户
             user.setOnlineState(1);
@@ -69,12 +67,7 @@ public class AppleLogin implements LoginStrategy {
             }
             user.setSignText("这个人很懒,什么都没有留下");
             user.setVersion(System.currentTimeMillis());
-            user.setToken(uuid);
             userService.saveUser(user,Constant.LOGIN_APPLE,user.getAppleUserId(),null,null);
-            //userService.updateShowIdById(user.getId());
-            userId = user.getId().toString();
-            String token = JwtHelper.generateJWT(userId,uuid);
-            user.setToken(token);
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
             if (!flag){
@@ -82,32 +75,21 @@ public class AppleLogin implements LoginStrategy {
             }
             user.setBlueAmount(0);
             user.setNewUser(true);
-            RedisUser redisUser = new RedisUser();
-            redisUser.onlineState = 1;
-            redisUser.uuid = uuid;
-            redisUtil.set(Constant.REDISUSER_PREFIX+user.getId(),redisUser);
+
             return user;
         }else{
-            userId = userThird.getUserId().toString();
-
             FuntimeUser funtimeUser = userService.queryUserById(userThird.getUserId());
 
             if(funtimeUser.getState()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
-            String token = JwtHelper.generateJWT(userId,uuid);
             user.setId(funtimeUser.getId());
-            user.setToken(uuid);
             user.setOnlineState(1);
 
             userService.updateUserInfo(user);
-            funtimeUser.setToken(token);
+            funtimeUser.setToken(user.getToken());
             funtimeUser.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
             funtimeUser.setNewUser(false);
-            RedisUser redisUser = new RedisUser();
-            redisUser.onlineState = 1;
-            redisUser.uuid = uuid;
-            redisUtil.set(Constant.REDISUSER_PREFIX+funtimeUser.getId(),redisUser);
             return funtimeUser;
         }
 
