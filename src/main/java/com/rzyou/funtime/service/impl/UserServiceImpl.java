@@ -371,6 +371,11 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }
+        if (StringUtils.isNotBlank(user.getPortraitAddress())){
+            if (user.getPortraitAddress().contains("funtime-1300805214.cos.ap-shanghai.myqcloud.com")){
+                user.setPortraitAddress(user.getPortraitAddress().replace("funtime-1300805214.cos.ap-shanghai.myqcloud.com",Constant.COS_URL_PREFIX2));
+            }
+        }
 
         updateByPrimaryKeySelective(user);
         if (StringUtils.isNotBlank(user.getNickname())||StringUtils.isNotBlank(user.getPortraitAddress())||user.getSex()!=null){
@@ -1796,6 +1801,9 @@ public class UserServiceImpl implements UserService {
                 object = array.getJSONObject(i);
                 photoAlbum = JSONObject.toJavaObject(object, FuntimeUserPhotoAlbum.class);
 
+                if (photoAlbum.getResourceUrl().contains("funtime-1300805214.cos.ap-shanghai.myqcloud.com")){
+                    photoAlbum.setResourceUrl(photoAlbum.getResourceUrl().replace("funtime-1300805214.cos.ap-shanghai.myqcloud.com",Constant.COS_URL_PREFIX2));
+                }
                 photoAlbum.setUserId(userId);
                 list.add(photoAlbum);
             }

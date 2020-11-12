@@ -38,7 +38,8 @@ public class Constant {
             "Y6tqVG9XDIFg6Np/fL8PprJb1gPT3TwoCVwM5xXHAZDiuGuu64x3c/QG6+dH2H/D1PhWq/Z7/6TDPhF5OA==";
 
 
-    public final static String COS_URL_PREFIX = "https://funtime-1300805214.cos.ap-shanghai.myqcloud.com";
+    public final static String COS_URL_PREFIX = "https://funtime-1300805214.file.myqcloud.com";
+    public final static String COS_URL_PREFIX2 = "funtime-1300805214.file.myqcloud.com";
     public final static String COS_URL_PREFIX_MUSIC = "https://music-1300805214.cos.ap-shanghai.myqcloud.com/";
     public final static String AGREEMENT_PRIVACY = "/agreement/privacy_protocol.html";
     public final static String AGREEMENT_WITHDRAL = "/agreement/withdral_protocol.html";

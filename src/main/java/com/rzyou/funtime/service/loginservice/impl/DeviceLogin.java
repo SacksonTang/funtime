@@ -47,6 +47,7 @@ public class DeviceLogin implements LoginStrategy {
         }
         FuntimeUser funtimeUser = userService.queryUserInfoByPhoneImei(user.getPhoneImei());
         boolean isNewUser = false;
+        Long userId;
         if(funtimeUser==null){
 
             //新用户
@@ -75,7 +76,7 @@ public class DeviceLogin implements LoginStrategy {
             }
             user.setVersion(System.currentTimeMillis());
             userService.saveUser(user, null, null, null,null);
-
+            userId = user.getId();
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
             if (!flag){
@@ -87,10 +88,10 @@ public class DeviceLogin implements LoginStrategy {
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
             userService.updateUserInfo(funtimeUser.getId(),1,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
-
+            userId = funtimeUser.getId();
         }
-        FuntimeUser info = userService.getUserBasicInfoById(funtimeUser.getId());
-        info.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
+        FuntimeUser info = userService.getUserBasicInfoById(userId);
+        info.setBlueAmount(userService.getUserAccountInfoById(userId).getBlueDiamond().intValue());
         info.setNewUser(isNewUser);
         return info;
     }

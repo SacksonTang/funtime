@@ -53,6 +53,7 @@ public class TelLogin implements LoginStrategy {
         }
 
         FuntimeUser funtimeUser = userService.queryUserInfoByPhone(user.getPhoneNumber());
+        Long userId;
         boolean isNewUser = true;
         if(funtimeUser==null){
 
@@ -83,7 +84,7 @@ public class TelLogin implements LoginStrategy {
             user.setVersion(System.currentTimeMillis());
 
             userService.saveUser(user, null, null, null,null);
-
+            userId = user.getId();
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
             if (!flag){
@@ -94,12 +95,12 @@ public class TelLogin implements LoginStrategy {
             if(funtimeUser.getState()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
-
+            userId = funtimeUser.getId();
             userService.updateUserInfo(funtimeUser.getId(),1,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
 
         }
-        FuntimeUser info = userService.getUserBasicInfoById(funtimeUser.getId());
-        info.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
+        FuntimeUser info = userService.getUserBasicInfoById(userId);
+        info.setBlueAmount(userService.getUserAccountInfoById(userId).getBlueDiamond().intValue());
         info.setNewUser(isNewUser);
 
         return info;

@@ -39,6 +39,7 @@ public class OnekeyLogin implements LoginStrategy {
 
         String phoneNumber = LinkmeUtil.getPhone(user.getToken(),user.getChannel(),user.getPlatform(),user.getCode());
         boolean isNewUser = true;
+        Long userId;
         FuntimeUser funtimeUser = userService.queryUserInfoByPhone(phoneNumber);
         if(funtimeUser==null){
             //新用户
@@ -68,6 +69,7 @@ public class OnekeyLogin implements LoginStrategy {
             user.setPhoneNumber(phoneNumber);
             userService.saveUser(user, null, null, null,null);
 
+            userId = user.getId();
             String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
             boolean flag = TencentUtil.accountImport(userSig,user.getId().toString(),user.getNickname(),user.getPortraitAddress());
             if (!flag){
@@ -81,9 +83,10 @@ public class OnekeyLogin implements LoginStrategy {
             }
             userService.updateUserInfo(funtimeUser.getId(),1,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
 
+            userId = funtimeUser.getId();
         }
-        FuntimeUser info = userService.getUserBasicInfoById(funtimeUser.getId());
-        info.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
+        FuntimeUser info = userService.getUserBasicInfoById(userId);
+        info.setBlueAmount(userService.getUserAccountInfoById(userId).getBlueDiamond().intValue());
         info.setNewUser(isNewUser);
 
         return info;
