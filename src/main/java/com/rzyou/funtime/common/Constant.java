@@ -118,6 +118,7 @@ public class Constant {
     public static final String LOGIN_WEIBO = "WEIBO";
     public static final String LOGIN_APPLE = "APPLE";
     public static final String LOGIN_DEVICE = "DEVICE";
+    public static final String LOGIN_PC = "PC";
 
 
     public final static String MOBPUSH_APPID = "2d2b03f3228f1";
