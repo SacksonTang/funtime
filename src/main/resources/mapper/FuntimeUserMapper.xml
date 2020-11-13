@@ -1202,4 +1202,14 @@
         select 1 from t_funtime_user_not_offline where user_id = #{userId}
     </select>
 
+    <select id="checkTokenExists" resultType="java.lang.Long">
+        select user_id from t_funtime_push_token where token = #{token}
+    </select>
+    <insert id="saveDeviceToken">
+        insert into t_funtime_push_token(token,user_id)values (#{token},#{userId})
+    </insert>
+    <update id="updateDeviceToken">
+        update t_funtime_push_token set user_id = #{userId} where token = #{token}
+    </update>
+
 </mapper>

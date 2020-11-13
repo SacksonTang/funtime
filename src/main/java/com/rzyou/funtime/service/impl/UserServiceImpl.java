@@ -1529,6 +1529,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void saveDeviceToken(String deviceToken, Long userId) {
+        userId = userId == null?0:userId;
+        List<Long> list = userMapper.checkTokenExists(deviceToken);
+        if (list==null||list.isEmpty()) {
+            userMapper.saveDeviceToken(deviceToken, userId);
+        }else{
+            if (userId > 0){
+                if (list.size() == 1&&list.get(0) == 0){
+                    userMapper.updateDeviceToken(deviceToken, userId);
+                }else {
+                    if (!list.contains(userId)) {
+                        userMapper.saveDeviceToken(deviceToken, userId);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public List<Map<String,Object>> getGiftByUserId(Long userId) {
         List<Map<String, Object>> list = giftMapper.getGiftByUserId(userId);
         if (list==null||list.isEmpty()){

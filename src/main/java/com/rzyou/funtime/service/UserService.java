@@ -711,4 +711,11 @@ public interface UserService {
      * @return
      */
     void checkBlacklist(Long userId, Long toUserId);
+
+    /**
+     * 保存推送token
+     * @param deviceToken
+     * @param userId
+     */
+    void saveDeviceToken(String deviceToken, Long userId);
 }

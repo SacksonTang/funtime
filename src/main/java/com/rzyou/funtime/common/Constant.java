@@ -39,6 +39,7 @@ public class Constant {
 
 
     public final static String COS_URL_PREFIX = "https://funtime-1300805214.file.myqcloud.com";
+    public final static String COSMUSIC_URL_PREFIX = "https://music-1300805214.file.myqcloud.com";
     public final static String COS_URL_PREFIX2 = "funtime-1300805214.file.myqcloud.com";
     public final static String COS_URL_PREFIX_MUSIC = "https://music-1300805214.cos.ap-shanghai.myqcloud.com/";
     public final static String AGREEMENT_PRIVACY = "/agreement/privacy_protocol.html";

@@ -9,6 +9,7 @@ import com.rzyou.funtime.entity.music.FuntimeMusicTag;
 import com.rzyou.funtime.entity.music.FuntimeUserMusic;
 import com.rzyou.funtime.mapper.FuntimeMusicMapper;
 import com.rzyou.funtime.service.MusicService;
+import com.rzyou.funtime.utils.DateUtil;
 import com.rzyou.funtime.utils.FileUtil;
 import com.tencentcloudapi.ame.v20190916.AmeClient;
 import com.tencentcloudapi.ame.v20190916.models.*;
@@ -123,16 +124,17 @@ public class MusicServiceImpl implements MusicService {
 
     @Override
     public void initMusics() {
-        List<String> files = FileUtil.getFiles("C:\\Users\\AC\\Desktop\\热门");
+        List<String> files = FileUtil.getFiles("C:\\Users\\AC\\Desktop\\"+ DateUtil.getCurrentInt());
         if (files!=null&&!files.isEmpty()){
             Map<String, Object> map ;
             for (String fileName:files){
-                String url = "https://music-1300805214.cos.ap-shanghai.myqcloud.com/music/热门/"+fileName;
+                String url = Constant.COSMUSIC_URL_PREFIX+"/music/"+DateUtil.getCurrentInt()+"/"+fileName;
                 map = new HashMap<>();
                 map.put("url",url);
-                map.put("tagId",79);
+                map.put("tagId",null);
                 map.put("name",fileName.replaceAll(".mp3",""));
                 map.put("searchName",fileName.replaceAll(".mp3","").toUpperCase());
+                map.put("author",fileName.split("-")[0]);
                 map.put("type","MP3");
                 musicMapper.insertMusic(map);
             }

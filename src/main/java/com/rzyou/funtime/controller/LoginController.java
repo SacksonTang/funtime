@@ -102,7 +102,32 @@ public class LoginController {
         return result;
     }
 
+    /**
+     * 埋点
+     * @param request
+     * @return
+     */
+    @PostMapping("saveDeviceToken")
+    public ResultMsg<Object> saveDeviceToken(HttpServletRequest request) {
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String deviceToken = paramJson.getString("deviceToken");
+            Long userId = paramJson.getLong("userId");
+            userService.saveDeviceToken(deviceToken,userId);
+            return result;
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
 
+        return result;
+    }
     /**
      * 检测版本
      * @param request

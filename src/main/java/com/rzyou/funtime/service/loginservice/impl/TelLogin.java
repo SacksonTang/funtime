@@ -8,6 +8,7 @@ import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
+import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.entity.RedisUser;
 import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.SmsService;
@@ -100,7 +101,9 @@ public class TelLogin implements LoginStrategy {
 
         }
         FuntimeUser info = userService.getUserBasicInfoById(userId);
-        info.setBlueAmount(userService.getUserAccountInfoById(userId).getBlueDiamond().intValue());
+        FuntimeUserAccount userAccount = userService.getUserAccountInfoById(userId);
+        info.setBlueAmount(userAccount.getBlueDiamond().intValue());
+        info.setLevel(userAccount.getLevel());
         info.setNewUser(isNewUser);
 
         return info;

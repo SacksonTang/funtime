@@ -384,7 +384,7 @@ public class MusicController {
      * @param request
      * @return
      */
-    //@PostMapping("initMusics")
+    @PostMapping("initMusics")
     public ResultMsg<Object> initMusics(HttpServletRequest request){
 
         ResultMsg<Object> result = new ResultMsg<>();

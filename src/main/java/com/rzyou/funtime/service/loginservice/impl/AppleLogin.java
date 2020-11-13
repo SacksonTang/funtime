@@ -8,6 +8,7 @@ import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
+import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.entity.FuntimeUserThird;
 import com.rzyou.funtime.entity.RedisUser;
 import com.rzyou.funtime.service.UserService;
@@ -75,6 +76,7 @@ public class AppleLogin implements LoginStrategy {
             }
             user.setBlueAmount(0);
             user.setNewUser(true);
+            user.setLevel(0);
 
             return user;
         }else{
@@ -87,9 +89,11 @@ public class AppleLogin implements LoginStrategy {
             user.setOnlineState(1);
 
             userService.updateUserInfo(user);
-            funtimeUser.setToken(user.getToken());
-            funtimeUser.setBlueAmount(userService.getUserAccountInfoById(funtimeUser.getId()).getBlueDiamond().intValue());
+            FuntimeUserAccount userAccount = userService.getUserAccountInfoById(funtimeUser.getId());
+            funtimeUser.setBlueAmount(userAccount.getBlueDiamond().intValue());
+            user.setLevel(userAccount.getLevel());
             funtimeUser.setNewUser(false);
+            funtimeUser.setToken(user.getToken());
             return funtimeUser;
         }
 

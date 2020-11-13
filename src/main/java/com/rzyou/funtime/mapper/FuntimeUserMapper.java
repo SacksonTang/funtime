@@ -196,4 +196,11 @@ public interface FuntimeUserMapper {
     List<Map<String,Object>> getBlacklists(Long userId);
 
     int updateAccountState(Long id);
+
+    List<Long> checkTokenExists(String token);
+
+    int saveDeviceToken(@Param("token") String token,@Param("userId") Long userId);
+
+    int updateDeviceToken(@Param("token") String token,@Param("userId") Long userId);
+
 }

@@ -17,10 +17,19 @@ public class ResultMsg <T>{
         this.code = code;
         this.msg = msg;
     }
+    public ResultMsg(ErrorMsgEnum msgEnum) {
+        this.code = msgEnum.getValue();
+        this.msg = msgEnum.getDesc();
+    }
 
     public ResultMsg(String code, String msg, T data) {
         this.code = code;
         this.msg = msg;
+        this.data = data;
+    }
+    public ResultMsg(ErrorMsgEnum msgEnum, T data) {
+        this.code = msgEnum.getValue();
+        this.msg = msgEnum.getDesc();
         this.data = data;
     }
 
