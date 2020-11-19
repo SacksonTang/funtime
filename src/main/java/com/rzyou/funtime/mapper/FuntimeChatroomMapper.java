@@ -64,6 +64,10 @@ public interface FuntimeChatroomMapper {
 
     List<Map<String, Object>> getRecommendRoomList1();
 
+    List<Map<String, Object>> getRecommendRoomList(Integer location);
+
+    List<Map<String, Object>> getRecommendRoomListExt();
+
     List<Map<String, Object>> getRecommendRoomList2();
 
     List<Map<String, Object>> getRoomContributionList(@Param("endCount") Integer endCount, @Param("startDate") String startDate, @Param("endDate") String endDate, @Param("roomId") Long roomId,@Param("userId") Long userId);

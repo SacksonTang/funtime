@@ -45,6 +45,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     AdvertisService advertisService;
     @Autowired
+    DdzService ddzService;
+    @Autowired
     RedisUtil redisUtil;
     @Autowired
     FuntimeUserMapper userMapper;
@@ -764,7 +766,8 @@ public class UserServiceImpl implements UserService {
                                                         HttpClientUtil.doGet(url);
                                                         deviceInfo.setAdv(1);
                                                     }else{
-                                                        url = advertisService.getCallBackUrlForChubaoApple(deviceInfo.getIdfa());
+                                                        //url = advertisService.getCallBackUrlForChubaoApple(deviceInfo.getIdfa());
+                                                        url = null;
                                                         if (StringUtils.isNotBlank(url)) {
                                                             log.info("**************苹果触宝激活数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                                             url = URLDecoder.decode(url, "utf-8");
@@ -848,8 +851,7 @@ public class UserServiceImpl implements UserService {
                                                     HttpClientUtil.doGet(url);
                                                     deviceInfo.setAdv(1);
                                                 }else {
-                                                    //url = advertisService.getCallBackUrlForChubaoApple(deviceInfo.getIdfa());
-                                                    url = null;
+                                                    url = advertisService.getCallBackUrlForChubaoApple(deviceInfo.getIdfa());
                                                     if (StringUtils.isNotBlank(url)) {
                                                         log.info("**************苹果触宝首页数据上报*****************idfa:{}", deviceInfo.getIdfa());
                                                         url = URLDecoder.decode(url, "utf-8");
@@ -1054,7 +1056,7 @@ public class UserServiceImpl implements UserService {
                         }
                     }
                 }else if("chubao".equals(deviceInfo.getChannel())){
-                    if ("consentAgreement".equals(deviceInfo.getPoint())||"rejectAgreement".equals(deviceInfo.getPoint())) {
+                    if ("startIndex".equals(deviceInfo.getPoint())) {
                         count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
                         if (count == 0) {
                             log.info("**************触宝激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
@@ -1548,6 +1550,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public String getUserCounts(String startDate, String endDate, String channel) {
+        return userMapper.getUserCounts(startDate,endDate,channel);
+    }
+
+    @Override
     public List<Map<String,Object>> getGiftByUserId(Long userId) {
         List<Map<String, Object>> list = giftMapper.getGiftByUserId(userId);
         if (list==null||list.isEmpty()){
@@ -1803,6 +1810,101 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    public Map<String, Object> getRankingList(Integer dateType, String curUserId) {
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("is_ranklist_show",parameterService.getParameterValueByKey("is_ranklist_show"));
+        String count = parameterService.getParameterValueByKey("ddz_rank_count");
+        resultMap.put("rankCount",count);
+
+        Integer dateTypeConf = dateType;
+        if (dateType == 4){
+            dateTypeConf = 1;
+        }else if (dateType == 5){
+            dateTypeConf = 2;
+        }else if (dateType == 6){
+            dateTypeConf = 3;
+        }else {
+            resultMap.put("rankingList",null);
+            return resultMap;
+        }
+
+        List<Map<String, Object>> list;
+
+        Map<String,Object> conf = new HashMap<>();
+        List<Map<String, Object>> charmList = new ArrayList<>();
+        List<Map<String, Object>> ddzList = new ArrayList<>();
+        List<Map<String, Object>> contributionList = new ArrayList<>();
+        String[] array = {"一", "二", "三", "四", "五", "六", "七", "八", "九","十"};
+        list = userMapper.getRankRewardConf(dateTypeConf);
+        if (list!=null&&!list.isEmpty()) {
+            resultMap.put("isRewardShow",true);
+            for (Map<String, Object> map : list) {
+                int rankType = Integer.parseInt(map.get("rankType").toString());
+                int ranking = Integer.parseInt(map.get("ranking").toString());
+                map.put("rankingName", "第" + array[ranking - 1] + "名");
+                if (rankType == 1) {
+                    charmList.add(map);
+                } else if (rankType == 2){
+                    contributionList.add(map);
+                }else{
+                    ddzList.add(map);
+                }
+            }
+            conf.put("charmConf", charmList);
+            conf.put("contributionConf", contributionList);
+            conf.put("ddzConf",ddzList);
+            resultMap.put("conf", conf);
+        }else{
+            resultMap.put("isRewardShow",false);
+        }
+
+
+        list = ddzService.getRankList();
+
+
+        if (list==null||list.isEmpty()){
+            resultMap.put("rankingList",null);
+            return resultMap;
+        }
+        FuntimeUser user = userMapper.selectByPrimaryKey(Long.parseLong(curUserId));
+        FuntimeUserAccount userAccount= accountMapper.selectByUserId(Long.parseLong(curUserId));
+        Map<String,Object> myInfoMap = new HashMap<>();
+        myInfoMap.put("nickname",user.getNickname());
+        myInfoMap.put("portraitAddress",user.getPortraitAddress());
+        myInfoMap.put("signText",user.getSignText());
+        myInfoMap.put("showId",user.getShowId());
+        myInfoMap.put("sex",user.getSex());
+        myInfoMap.put("level",userAccount.getLevel());
+        myInfoMap.put("levelUrl",userAccount.getLevelUrl());
+        boolean isRankMe = false;
+        for (int i =0;i<list.size();i++){
+            Map<String, Object> map = list.get(i);
+            String userId = map.get("userId").toString();
+            if (userId.equals(curUserId)){
+                isRankMe = true;
+                myInfoMap.put("isRankMe",true);
+                myInfoMap.put("mySort", i+1);
+                myInfoMap.put("myAmount", map.get("amountSum"));
+                if (i == 0){
+                    myInfoMap.put("diffAmount",0);
+                }else{
+                    BigDecimal currentAmount = new BigDecimal(map.get("amountSum").toString());
+                    BigDecimal lastAmount = new BigDecimal(list.get(i-1).get("amountSum").toString());
+                    myInfoMap.put("diffAmount",lastAmount.subtract(currentAmount).intValue());
+                }
+
+                resultMap.put("user",myInfoMap);
+            }
+        }
+        if (!isRankMe){
+            myInfoMap.put("isRankMe",false);
+            resultMap.put("user",myInfoMap);
+        }
+        resultMap.put("rankingList",list);
+        return resultMap;
+
+    }
+
 
 
     @Override
@@ -1979,10 +2081,12 @@ public class UserServiceImpl implements UserService {
         if (userMapper.checkUserExists(userId)==null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
-        updateOnlineState(userId,2);
-        Long roomId = roomService.checkUserIsInRoom(userId);
-        if (roomId!=null){
-            roomService.roomExit(userId, roomId);
+        if (userMapper.checkUserAllowOffline(userId) == null) {
+            updateOnlineState(userId, 2);
+            Long roomId = roomService.checkUserIsInRoom(userId);
+            if (roomId != null) {
+                roomService.roomExit(userId, roomId);
+            }
         }
     }
 

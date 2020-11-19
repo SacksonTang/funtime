@@ -1089,6 +1089,10 @@
     select rank_type as rankType,ranking,reward from t_funtime_rank_reward_conf where  date_type = #{dateType}
     order by ranking asc
   </select>
+    <select id="getUserCounts" resultType="java.lang.String">
+        select count(id) from t_funtime_user where drainage_channel = #{channel}
+        and registration_time between concat(#{startDate},' 00:00:00') and concat(#{endDate},' 23:59:59')
+    </select>
 
   <update id="updateUserCar">
     update t_funtime_user set car_id = #{carId} where id = #{id}

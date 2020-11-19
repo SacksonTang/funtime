@@ -2,6 +2,8 @@ package com.rzyou.funtime.service.impl;
 
 import com.rzyou.funtime.common.OperationType;
 import com.rzyou.funtime.entity.FuntimeDdz;
+import com.rzyou.funtime.entity.FuntimeUser;
+import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.mapper.FuntimeDdzMapper;
 import com.rzyou.funtime.service.AccountService;
 import com.rzyou.funtime.service.DdzService;
@@ -15,9 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class DdzServiceImpl implements DdzService {
@@ -65,7 +65,6 @@ public class DdzServiceImpl implements DdzService {
     @Override
     public List<Map<String, Object>> getRankList() {
 
-        String date = "";
         String startDate;
         String endDate;
         int hours = DateUtil.getCurrentHours();
@@ -80,4 +79,6 @@ public class DdzServiceImpl implements DdzService {
         counts = counts == null?"10":counts;
         return ddzMapper.getRankList(startDate,endDate,Integer.parseInt(counts));
     }
+
+
 }

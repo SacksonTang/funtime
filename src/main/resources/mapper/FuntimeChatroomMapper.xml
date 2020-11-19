@@ -43,6 +43,7 @@
 			     when type = 2 then (select id from t_funtime_chatroom order by hot desc limit 1)
 			     when type = 4 then (select id from t_funtime_chatroom order by realhot desc limit 1)
 			     when type = 5 then (select id from t_funtime_chatroom order by recommendation desc limit 1)
+			     when type = 6 then (select room_id from t_funtime_invitation_conf_extend where HOUR(now()) >=hour1 and hour2 > HOUR(now()) limit 1)
                  when type = 3 then room_id
                  else null
                  end roomId
@@ -74,7 +75,7 @@
     <include refid="Base_Column_List" />
     from t_funtime_chatroom
     where online_num = 0 and is_block = 2 and state = 1
-    and user_id not in (select id from t_funtime_user where show_id in (699999,700827,690308))
+    and user_id not in (select user_id from t_funtime_user_not_offline )
   </select>
   <select id="getRoomInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -170,7 +171,7 @@
     having if(u.show_id in (699999,700827,690308),1=1,counts>0)
     order by m.hot desc,counts desc,m.hots desc ,m.id desc
   </select>
-
+<!--
     <select id="getRecommendRoomList1"  resultType="java.util.Map">
         select
         m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
@@ -194,6 +195,7 @@
         having counts>0
         order by m.recommendation desc,counts desc,m.hots desc ,m.id desc limit 3
     </select>
+
     <select id="getRecommendRoomList2"  resultType="java.util.Map">
         select
         m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
@@ -217,7 +219,51 @@
         having counts>0
         order by m.realhot desc,counts desc,m.hots desc ,m.id desc limit 3
     </select>
+-->
+    <select id="getRecommendRoomList"  resultType="java.util.Map">
+     select
+        m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+        u.sex,u.show_id showId,
+        m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
+        case when 1000>m.hots then m.hots
+        when m.hots>=1000 and 1000000>m.hots then CONCAT(FORMAT(m.hots/1000,0),'K')
+        when m.hots>=1000000 and 1000000000>m.hots then CONCAT(FORMAT(m.hots/1000000,0),'M')
+        when m.hots>=1000000000  then CONCAT(FORMAT(m.hots/1000000000,0),'B')
+        else 0 end hots,
 
+        g.tag_name  tagNames,
+        g.tag_color tagColor,
+        g.tag_url2 tagUrl
+        from t_funtime_chatroom_recommend d
+				inner join t_funtime_chatroom m on d.room_id = m.id
+        inner join t_funtime_user u on m.user_id = u.id
+        left join t_funtime_tag g on g.id = m.tags
+        where m.is_block = 2 and m.state = 1 and d.location = #{location}
+				and HOUR(now()) >=d.hour1 and d.hour2 > HOUR(now())
+        group by m.id
+        order by m.hots desc ,m.id desc limit 3
+    </select>
+    <select id="getRecommendRoomListExt"  resultType="java.util.Map">
+     select
+        m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+        u.sex,u.show_id showId,
+        m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
+        case when 1000>m.hots then m.hots
+        when m.hots>=1000 and 1000000>m.hots then CONCAT(FORMAT(m.hots/1000,0),'K')
+        when m.hots>=1000000 and 1000000000>m.hots then CONCAT(FORMAT(m.hots/1000000,0),'M')
+        when m.hots>=1000000000  then CONCAT(FORMAT(m.hots/1000000000,0),'B')
+        else 0 end hots,
+
+        g.tag_name  tagNames,
+        g.tag_color tagColor,
+        g.tag_url2 tagUrl
+        from t_funtime_chatroom m
+        inner join t_funtime_user u on m.user_id = u.id
+        left join t_funtime_tag g on g.id = m.tags
+        where m.is_block = 2 and m.state = 1
+        group by m.id
+        order by m.hots desc ,m.id desc limit 3
+    </select>
   <select id="getRoomLogList" parameterType="java.lang.Long" resultType="java.util.Map">
     select
     m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,

@@ -175,6 +175,7 @@ public class OrderServiceImpl implements OrderService {
                 } catch (Exception e) {
                     throw new BusinessException(ErrorMsgEnum.COMMENT_PRICE_ERROR.getValue(),ErrorMsgEnum.COMMENT_PRICE_ERROR.getDesc());
                 }
+                Integer tagId2 = tagId;
                 if (tagId!=null) {
                     Map<String, Object> tagPriceMap = priceMap.get(tagId);
                     if (tagPriceMap != null) {
@@ -182,14 +183,17 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }else{
                     for (Integer key : priceMap.keySet()){
-                        tagId = key;
+                        tagId2 = key;
                         map.put("price", priceMap.get(key).get("price"));
                         break;
                     }
 
                 }
 
-                map.put("tagId",tagId);
+                if (tagId2 ==null){
+                    continue;
+                }
+                map.put("tagId",tagId2);
                 String tags = map.get("tags").toString();
                 String tagText = map.get("tagText") == null?null:map.get("tagText").toString();
                 String game = map.get("game") == null?null:map.get("game").toString();
@@ -197,7 +201,7 @@ public class OrderServiceImpl implements OrderService {
                 if (split.length>0){
                     for (String str : split){
                         String[] tagArray = str.split("/");
-                        if (tagArray[1].equals(tagId.toString())){
+                        if (tagArray[1].equals(tagId2.toString())){
                             if(StringUtils.isNotBlank(tagText)&&"其他".equals(tagArray[0])) {
                                 map.put("tagName", tagText);
                             }else if (StringUtils.isNotBlank(game)&&"开黑".equals(tagArray[0])){

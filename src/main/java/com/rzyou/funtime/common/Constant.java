@@ -119,6 +119,7 @@ public class Constant {
     public static final String LOGIN_APPLE = "APPLE";
     public static final String LOGIN_DEVICE = "DEVICE";
     public static final String LOGIN_PC = "PC";
+    public static final String LOGIN_DITUI = "DITUI";
 
 
     public final static String MOBPUSH_APPID = "2d2b03f3228f1";

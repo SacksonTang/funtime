@@ -55,6 +55,8 @@ public class StaticData {
     LoginStrategy deviceLogin;
     @Autowired
     LoginStrategy pcTelLogin;
+    @Autowired
+    LoginStrategy dituiLogin;
 
     public static Map<String,LoginStrategy> context = new HashMap<>();
     public static long TENCENT_YUN_SDK_APPID ;
@@ -91,6 +93,7 @@ public class StaticData {
         context.put(Constant.LOGIN_ONEKEY,onekeyLogin);
         context.put(Constant.LOGIN_APPLE,appleLogin);
         context.put(Constant.LOGIN_PC,pcTelLogin);
+        context.put(Constant.LOGIN_DITUI,dituiLogin);
         //context.put(Constant.LOGIN_DEVICE,deviceLogin);
 
     }

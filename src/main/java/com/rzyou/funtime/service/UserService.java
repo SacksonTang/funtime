@@ -718,4 +718,14 @@ public interface UserService {
      * @param userId
      */
     void saveDeviceToken(String deviceToken, Long userId);
+
+    /**
+     * 渠道用户数
+     *
+     * @param startDate
+     * @param endDate
+     * @param channel
+     * @return
+     */
+    String getUserCounts(String startDate, String endDate, String channel);
 }

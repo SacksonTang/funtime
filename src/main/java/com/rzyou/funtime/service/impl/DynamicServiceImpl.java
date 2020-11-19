@@ -1,6 +1,7 @@
 package com.rzyou.funtime.service.impl;
 
 import com.rzyou.funtime.common.BusinessException;
+import com.rzyou.funtime.common.Constant;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.entity.FuntimeComment;
 import com.rzyou.funtime.entity.FuntimeDynamic;
@@ -31,6 +32,33 @@ public class DynamicServiceImpl implements DynamicService {
     public void addDynamic(FuntimeDynamic dynamic) {
         if (StringUtils.isNotBlank(dynamic.getDynamic())) {
             userService.checkSensitive(dynamic.getDynamic());
+        }
+        if (StringUtils.isNotBlank(dynamic.getResource1())) {
+            dynamic.setResource1(dynamic.getResource1().replaceAll("funtime-1300805214.cos.ap-shanghai.myqcloud.com", Constant.COS_URL_PREFIX2));
+        }
+        if (StringUtils.isNotBlank(dynamic.getResource2())) {
+            dynamic.setResource2(dynamic.getResource2().replaceAll("funtime-1300805214.cos.ap-shanghai.myqcloud.com", Constant.COS_URL_PREFIX2));
+        }
+        if (StringUtils.isNotBlank(dynamic.getResource3())) {
+            dynamic.setResource3(dynamic.getResource3().replaceAll("funtime-1300805214.cos.ap-shanghai.myqcloud.com", Constant.COS_URL_PREFIX2));
+        }
+        if (StringUtils.isNotBlank(dynamic.getResource4())) {
+            dynamic.setResource4(dynamic.getResource4().replaceAll("funtime-1300805214.cos.ap-shanghai.myqcloud.com", Constant.COS_URL_PREFIX2));
+        }
+        if (StringUtils.isNotBlank(dynamic.getResource5())) {
+            dynamic.setResource5(dynamic.getResource5().replaceAll("funtime-1300805214.cos.ap-shanghai.myqcloud.com", Constant.COS_URL_PREFIX2));
+        }
+        if (StringUtils.isNotBlank(dynamic.getResource6())) {
+            dynamic.setResource6(dynamic.getResource6().replaceAll("funtime-1300805214.cos.ap-shanghai.myqcloud.com", Constant.COS_URL_PREFIX2));
+        }
+        if (StringUtils.isNotBlank(dynamic.getResource7())) {
+            dynamic.setResource7(dynamic.getResource7().replaceAll("funtime-1300805214.cos.ap-shanghai.myqcloud.com", Constant.COS_URL_PREFIX2));
+        }
+        if (StringUtils.isNotBlank(dynamic.getResource8())) {
+            dynamic.setResource8(dynamic.getResource8().replaceAll("funtime-1300805214.cos.ap-shanghai.myqcloud.com", Constant.COS_URL_PREFIX2));
+        }
+        if (StringUtils.isNotBlank(dynamic.getResource9())) {
+            dynamic.setResource9(dynamic.getResource9().replaceAll("funtime-1300805214.cos.ap-shanghai.myqcloud.com", Constant.COS_URL_PREFIX2));
         }
         dynamicMapper.insertDynamic(dynamic);
     }

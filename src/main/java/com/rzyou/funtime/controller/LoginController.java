@@ -738,5 +738,36 @@ public class LoginController {
             return result;
         }
     }
+    /**
+     * 获取渠道用户数
+     * @return
+     */
+    @PostMapping("getUserCounts")
+    public ResultMsg<Object> getUserCounts(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            String startDate = paramJson.getString("startDate");
+            String endDate = paramJson.getString("endDate");
+            String channel = paramJson.getString("channel");
+            String counts = userService.getUserCounts(startDate, endDate, channel);
+
+            result.setData(counts);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+
+    }
 
 }

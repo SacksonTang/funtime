@@ -6,6 +6,7 @@ import com.rzyou.funtime.entity.FuntimeUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.omg.CORBA.OBJ_ADAPTER;
+import org.yeauty.annotation.PathVariable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -203,4 +204,5 @@ public interface FuntimeUserMapper {
 
     int updateDeviceToken(@Param("token") String token,@Param("userId") Long userId);
 
+    String getUserCounts(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("channel")String channel);
 }

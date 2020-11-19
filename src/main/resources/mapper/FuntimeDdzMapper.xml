@@ -5,7 +5,7 @@
     <select id="getRankList" resultType="java.util.Map">
         SELECT
         user_id as userId,u.show_id as showId,u.nickname,u.portrait_address as portraitAddress,max(ranks) ranks,
-        sum( amount ) total
+        sum( amount ) total,sum( amount ) amountSum
 
         FROM
         (
