@@ -26,7 +26,7 @@
         ranks &lt;= 10
         GROUP BY
         user_id
-        ORDER BY total desc
+        ORDER BY ransk desc,total desc
         limit ${counts}
     </select>
 

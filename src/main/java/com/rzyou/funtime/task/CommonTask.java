@@ -193,7 +193,7 @@ public class CommonTask {
     /**
      * 房内离线用户下麦
      */
-    @Scheduled(fixedRate = 1000*30)
+    //@Scheduled(fixedRate = 1000*30)
     public void offlineUserTask(){
         log.debug("offlineUserTask:{}",DateUtil.getCurrentDateTimeExtr());
         List<Long> users = userService.getOfflineUser();

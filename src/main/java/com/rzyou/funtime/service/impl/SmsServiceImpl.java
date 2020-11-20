@@ -4,6 +4,7 @@ import com.rzyou.funtime.common.BusinessException;
 import com.rzyou.funtime.common.ErrorMsgEnum;
 import com.rzyou.funtime.common.sms.linkme.LinkmeUtil;
 import com.rzyou.funtime.common.sms.ouyi.OuyiSmsUtil;
+import com.rzyou.funtime.common.sms.tencent.TencentUtil;
 import com.rzyou.funtime.entity.FuntimeSms;
 import com.rzyou.funtime.mapper.FuntimeSmsMapper;
 import com.rzyou.funtime.service.ParameterService;
@@ -30,7 +31,8 @@ public class SmsServiceImpl implements SmsService {
         String isSend = parameterService.getParameterValueByKey("is_send");
         if (isSend!=null&&isSend.equals("1")) {
             if ("1".equals(resend)) {
-                OuyiSmsUtil.sengSindleSMS(phone, smsType, code);
+                //OuyiSmsUtil.sengSindleSMS(phone, smsType, code);
+                TencentUtil.sendSMS("+86"+phone,smsType,code);
             } else {
                 LinkmeUtil.sendSms(phone, code, smsType);
             }

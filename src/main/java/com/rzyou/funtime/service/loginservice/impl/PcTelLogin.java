@@ -56,7 +56,7 @@ public class PcTelLogin implements LoginStrategy {
             user.setOnlineState(1);
             user.setState(1);
             user.setNickname(userService.getDefaultNameBySex(1));
-
+            user.setPlatform(null);
             user.setSignText("这个人很懒,什么都没有留下");
 
             if (user.getBirthday()==null){

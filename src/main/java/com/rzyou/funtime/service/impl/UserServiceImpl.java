@@ -396,6 +396,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateQQUserImage(){
+        List<FuntimeUser> users = userMapper.getAllQqUser();
+        if (users!=null&& !users.isEmpty()) {
+            log.info("查询到的QQ用户数=====>{}", users.size());
+            for (FuntimeUser user : users){
+                int sex = user.getSex() == null?1:user.getSex();
+                List<String> userImageDefaultUrls = getUserImageDefaultUrls(sex);
+                if (userImageDefaultUrls == null || userImageDefaultUrls.isEmpty()) {
+                    if (user.getSex() == 1) {
+                        user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_MALE_HEAD_PORTRAIT);
+                    }
+                    if (user.getSex() == 2) {
+                        user.setPortraitAddress(Constant.COS_URL_PREFIX + Constant.DEFAULT_FEMALE_HEAD_PORTRAIT);
+                    }
+                } else {
+                    user.setPortraitAddress(userImageDefaultUrls.get(RandomUtils.nextInt(0, userImageDefaultUrls.size())));
+                }
+                user.setSex(null);
+                updateByPrimaryKeySelective(user);
+                String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_IDENTIFIER);
+                boolean flag = TencentUtil.portraitSet(userSig, user.getId().toString(), null, user.getPortraitAddress(),null);
+                if (!flag){
+                    throw new BusinessException(ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getValue(),ErrorMsgEnum.USER_SYNC_TENCENT_ERROR.getDesc());
+                }
+            }
+        }
+    }
+
+    @Override
     public List<String> getUserImageDefaultUrls(Integer sex){
         return userMapper.getUserImageDefaultUrls(sex);
     }

@@ -9,6 +9,10 @@ public class BusinessException extends RuntimeException {
         this.code = code;
         this.msg = msg;
     }
+    public BusinessException(ErrorMsgEnum errorMsgEnum) {
+        this.code = errorMsgEnum.getValue();
+        this.msg = errorMsgEnum.getDesc();
+    }
 
     public String getCode() {
         return code;

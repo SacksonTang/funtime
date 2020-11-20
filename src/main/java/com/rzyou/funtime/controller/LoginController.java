@@ -191,6 +191,9 @@ public class LoginController {
             if (StringUtils.isNotBlank(user.getPhoneImei())) {
                 userService.getBlockDevice(user.getPhoneImei());
             }
+            if (user.getPlatform() == null){
+                user.setPlatform(1);
+            }
             user.setAppVersion(HttpHelper.ver);
             user.setIp(HttpHelper.getClientIpAddr(request));
             user.setLastLoginTime(new Date());
@@ -769,5 +772,30 @@ public class LoginController {
         }
 
     }
+    /**
+     * 修改QQ用户头像
+     * @return
+     */
+    @PostMapping("updateQQUserImage")
+    public ResultMsg<Object> updateQQUserImage(HttpServletRequest request){
 
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+
+            userService.updateQQUserImage();
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+
+    }
 }

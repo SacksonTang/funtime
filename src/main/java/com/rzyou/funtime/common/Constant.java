@@ -168,6 +168,8 @@ public class Constant {
     public final static String TENCENT_YUN_COS_BUCKET = "funtime-1300805214";
 
     public final static String TENCENT_YUN_MUSIC_URL = "music.rzyou.com";
+    public final static String TENCENT_SMS_URL = "sms.tencentcloudapi.com";
+    public final static String TENCENT_SMS_SDKID = "1400450216";
 
     public final static int ROOM_MIC_UPPER = 1;
     public final static int ROOM_MIC_LOWER = 2;

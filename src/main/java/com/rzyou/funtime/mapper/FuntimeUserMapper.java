@@ -15,6 +15,8 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserMapper {
 
+    List<FuntimeUser> getAllQqUser();
+
     Integer checkUserAllowOffline(Long userId);
 
     Map<String,Object> getDdzUserInfoById(Long userId);

@@ -55,7 +55,7 @@ public class DituiLogin implements LoginStrategy {
             user.setOnlineState(1);
             user.setState(1);
             user.setNickname(userService.getDefaultNameBySex(1));
-
+            user.setPlatform(0);
             user.setSignText("这个人很懒,什么都没有留下");
 
             if (user.getBirthday()==null){
