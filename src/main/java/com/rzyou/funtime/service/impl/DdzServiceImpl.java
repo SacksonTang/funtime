@@ -70,7 +70,7 @@ public class DdzServiceImpl implements DdzService {
         int hours = DateUtil.getCurrentHours();
         if (hours<20){
             startDate = DateUtil.getLastDay()+ " 20:00:00";
-            endDate = DateUtil.getCurrentDateTime(DateUtil.YYYY_MM_DD)+ " 02:00:00";
+            endDate = DateUtil.getCurrentDateTime(DateUtil.YYYY_MM_DD)+ " 01:00:00";
         }else {
             startDate = DateUtil.getCurrentDateTime(DateUtil.YYYY_MM_DD)+ " 20:00:00";
             endDate = DateUtil.getDateTime(DateUtils.addDays(new Date(),1),DateUtil.YYYY_MM_DD)+ " 02:00:00";

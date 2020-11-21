@@ -82,7 +82,7 @@ public class OnekeyLogin implements LoginStrategy {
             if(funtimeUser.getState()!=1){
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
-            userService.updateUserInfo(funtimeUser.getId(),1,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
+            userService.updateUserInfo(funtimeUser.getId(),1,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName(),user.getAppVersion());
 
             userId = funtimeUser.getId();
         }

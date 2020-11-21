@@ -7,15 +7,12 @@ import com.rzyou.funtime.common.SmsType;
 import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.component.RedisUtil;
 import com.rzyou.funtime.entity.FuntimeUser;
-import com.rzyou.funtime.common.jwt.util.JwtHelper;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
-import com.rzyou.funtime.entity.RedisUser;
 import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.SmsService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.service.loginservice.LoginStrategy;
 import com.rzyou.funtime.utils.DateUtil;
-import com.rzyou.funtime.utils.StringUtil;
 import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -97,7 +94,7 @@ public class TelLogin implements LoginStrategy {
                 throw new BusinessException(ErrorMsgEnum.USER_IS_DELETE.getValue(),ErrorMsgEnum.USER_IS_DELETE.getDesc());
             }
             userId = funtimeUser.getId();
-            userService.updateUserInfo(funtimeUser.getId(),1,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName());
+            userService.updateUserInfo(funtimeUser.getId(),1,user.getPhoneImei(),user.getIp(),funtimeUser.getNickname(),user.getLoginType(),user.getDeviceName(), user.getAppVersion());
 
         }
         FuntimeUser info = userService.getUserBasicInfoById(userId);

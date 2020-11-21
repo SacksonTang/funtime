@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void updateUserInfo(Long id, Integer onlineState,String imei, String ip,String nikename,String loginType,String deviceName){
+    public void updateUserInfo(Long id, Integer onlineState, String imei, String ip, String nikename, String loginType, String deviceName, String appVersion){
         String uuid = StringUtil.createNonceStr();
         String token = JwtHelper.generateJWT(id.toString(),uuid);
         FuntimeUser user = new FuntimeUser();
@@ -125,6 +125,7 @@ public class UserServiceImpl implements UserService {
         user.setOnlineState(onlineState);
         user.setId(id);
         user.setIp(ip);
+        user.setAppVersion(appVersion);
         user.setLastLoginTime(new Date());
         updateByPrimaryKeySelective(user);
 
@@ -2460,6 +2461,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void offlineUserAppTask() {
         String val = parameterService.getParameterValueByKey("heart_rate");
         List<Long> users = userMapper.getOfflineUserByApp(Integer.parseInt(val)+5);
@@ -2467,6 +2469,7 @@ public class UserServiceImpl implements UserService {
             if (userMapper.checkUserAllowOffline(userId) == null) {
                 log.info("offlineUserAppTask========>updateOnlineState:userId:{}", userId);
                 updateOnlineState(userId, 2);
+                roomService.roomExitTask(userId);
             }
         }
     }

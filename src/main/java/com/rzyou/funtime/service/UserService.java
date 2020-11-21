@@ -77,8 +77,9 @@ public interface UserService {
      * @param nikename
      * @param loginType
      * @param deviceName
+     * @param appVersion
      */
-    void updateUserInfo(Long id, Integer onlineState, String imei, String ip, String nikename,String loginType,String deviceName);
+    void updateUserInfo(Long id, Integer onlineState, String imei, String ip, String nikename, String loginType, String deviceName, String appVersion);
 
     /**
      * 修改用户信息
