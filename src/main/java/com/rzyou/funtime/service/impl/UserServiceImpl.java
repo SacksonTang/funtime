@@ -1089,8 +1089,8 @@ public class UserServiceImpl implements UserService {
                     if ("startIndex".equals(deviceInfo.getPoint())) {
                         count = userMapper.checkDeviceExistsForAndroid(deviceInfo.getAndroidId(), "startIndex");
                         if (count == 0) {
-                            log.info("**************触宝激活数据上报*****************androidId:{}",deviceInfo.getAndroidId());
                             String url = advertisService.getCallBackUrlForChubao(deviceInfo.getIp());
+                            log.info("**************触宝注册数据上报*****************androidId:{},url=={}",deviceInfo.getAndroidId(),url==null?"no url "+deviceInfo.getIp():"url true");
                             if (StringUtils.isNotBlank(url)) {
                                 url = URLDecoder.decode(url, "utf-8");
                                 url+="&conv_time="+System.currentTimeMillis();
