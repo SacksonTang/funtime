@@ -1094,6 +1094,7 @@
   </select>
     <select id="getUserCounts" resultType="java.lang.String">
         select count(id) from t_funtime_user where drainage_channel = #{channel}
+        and phone_number is not null
         and registration_time between concat(#{startDate},' 00:00:00') and concat(#{endDate},' 23:59:59')
     </select>
 

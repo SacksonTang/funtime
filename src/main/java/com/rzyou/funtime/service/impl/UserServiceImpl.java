@@ -237,11 +237,7 @@ public class UserServiceImpl implements UserService {
         return userThirdMapper.queryUserThirdIdByType(userId,thirdType);
     }
 
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class)
-    public Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid,String accessToken) {
-
+    public synchronized Long getShowId(){
         List<Long> beautyList = userMapper.getBeautyNumbers();
         Long maxShowId = userMapper.getMaxShowId();
         for (int i = 0;i<10000;i++){
@@ -250,7 +246,14 @@ public class UserServiceImpl implements UserService {
                 break;
             }
         }
-        user.setShowId(maxShowId);
+        return maxShowId;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid,String accessToken) {
+
+        user.setShowId(getShowId());
 
         insertSelective(user);
         String uuid = StringUtil.createNonceStr();

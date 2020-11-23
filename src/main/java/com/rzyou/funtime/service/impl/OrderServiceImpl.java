@@ -431,7 +431,9 @@ public class OrderServiceImpl implements OrderService {
         if (startPage == 1){
             lastId = null;
         }
-        tagId = tagId == 0 ?null:tagId;
+        if(tagId!=null) {
+            tagId = tagId == 0 ? null : tagId;
+        }
         List<Map<String, Object>> orderList = orderMapper.getOrderList(pageSize, lastId, tagId,sex);
 
         if (orderList!=null&&!orderList.isEmpty()) {
