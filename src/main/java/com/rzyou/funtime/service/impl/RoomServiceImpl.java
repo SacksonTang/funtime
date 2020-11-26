@@ -1981,7 +1981,11 @@ public class RoomServiceImpl implements RoomService {
             }
         }
         FuntimeUser user = userService.queryUserById(userId);
-        Map<String, Object> roomMap = chatroomMicMapper.getRoomByMatch(user.getSex() == null?1:user.getSex());
+        Integer sex = 2;
+        if (user.getSex() != null&&user.getSex() == 2){
+            sex = 1;
+        }
+        Map<String, Object> roomMap = chatroomMicMapper.getRoomByMatch(sex);
         if (roomMap != null&&!roomMap.isEmpty()){
             Long roomId = Long.parseLong(roomMap.get("roomId").toString());
             Map<String, Object> nextPrice = get1v1price(userId);
