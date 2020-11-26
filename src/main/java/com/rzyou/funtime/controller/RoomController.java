@@ -939,6 +939,7 @@ public class RoomController {
             JSONObject paramJson = HttpHelper.getParamterJson(request);
 
             Integer type = paramJson.getInteger("type");//1-被邀请进房
+            Integer priceId = paramJson.getInteger("priceId");//1-被邀请进房
             Long userId = paramJson.getLong("userId");
             Long roomId = paramJson.getLong("roomId");
             String password = paramJson.getString("password");
@@ -948,8 +949,7 @@ public class RoomController {
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
-            result.setData(roomService.roomJoin(userId,roomId,password,type));
-            return result;
+            return roomService.roomJoin(userId,roomId,password,type,priceId);
         } catch (BusinessException be) {
             log.error("roomJoin BusinessException==========>{}",be.getMsg());
             be.printStackTrace();
@@ -1594,7 +1594,88 @@ public class RoomController {
 
         return result;
     }
+    /**
+     * 匹配
+     * @param request
+     * @return
+     */
+    @PostMapping("doMatch")
+    public ResultMsg<Object> doMatch(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
 
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Integer priceId = paramJson.getInteger("priceId");
+
+            return roomService.doMatch(userId,priceId);
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
+    /**
+     * 取消匹配
+     * @param request
+     * @return
+     */
+    @PostMapping("cancelMatch")
+    public ResultMsg<Object> cancelMatch(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long userId = HttpHelper.getUserId();
+            Long recordId = paramJson.getLong("recordId");
+            roomService.cancelMatch(userId,recordId);
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
+
+    /**
+     * 获取用户匹配价格
+     * @param request
+     * @return
+     */
+    @PostMapping("get1v1price")
+    public ResultMsg<Object> get1v1price(HttpServletRequest request){
+        ResultMsg<Object> result = new ResultMsg<>();
+
+        try {
+            Long userId = HttpHelper.getUserId();
+
+            Map<String,Object> map = roomService.get1v1price(userId);
+            result.setData(map);
+
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+        }
+
+        return result;
+    }
 
 
 }

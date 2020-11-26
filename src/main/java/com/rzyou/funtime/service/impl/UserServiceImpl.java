@@ -237,7 +237,7 @@ public class UserServiceImpl implements UserService {
         return userThirdMapper.queryUserThirdIdByType(userId,thirdType);
     }
 
-    public synchronized Long getShowId(){
+    public Long getShowId(){
         List<Long> beautyList = userMapper.getBeautyNumbers();
         Long maxShowId = userMapper.getMaxShowId();
         for (int i = 0;i<10000;i++){
@@ -253,7 +253,11 @@ public class UserServiceImpl implements UserService {
     @Transactional(rollbackFor = Throwable.class)
     public Boolean saveUser(FuntimeUser user, String openType, String openid, String unionid,String accessToken) {
 
-        user.setShowId(getShowId());
+        if (redisUtil.get("maxShowId") == null){
+            redisUtil.set("maxShowId",getShowId());
+        }
+        long maxShowId = redisUtil.incr("maxShowId", 1);
+        user.setShowId(maxShowId);
 
         insertSelective(user);
         String uuid = StringUtil.createNonceStr();
@@ -1583,8 +1587,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String getUserCounts(String startDate, String endDate, String channel) {
-        return userMapper.getUserCounts(startDate,endDate,channel);
+    public Map<String,Object> getUserCounts(String startDate, String endDate, String channel) {
+        Map<String,Object> result = new HashMap<>();
+        result.put("total",userMapper.getUserCounts(startDate,endDate,channel));
+        result.put("list",userMapper.getUserListByDitui(startDate,endDate,channel));
+        return result;
     }
 
     @Override
@@ -2472,6 +2479,12 @@ public class UserServiceImpl implements UserService {
             if (userMapper.checkUserAllowOffline(userId) == null) {
                 log.info("offlineUserAppTask========>updateOnlineState:userId:{}", userId);
                 updateOnlineState(userId, 2);
+                roomService.roomMicLowerTask(userId);
+            }
+        }
+        users = userMapper.getOfflineUserByApp2(Integer.parseInt(val)*2+5);
+        for (Long userId : users){
+            if (userMapper.checkUserAllowOffline(userId) == null) {
                 roomService.roomExitTask(userId);
             }
         }

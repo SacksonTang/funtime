@@ -126,6 +126,7 @@ public interface FuntimeUserMapper {
     List<Long> getOfflineUser();
 
     List<Long> getOfflineUserByApp(Integer mins);
+    List<Long> getOfflineUserByApp2(Integer mins);
 
     /**
      * 客服
@@ -207,4 +208,6 @@ public interface FuntimeUserMapper {
     int updateDeviceToken(@Param("token") String token,@Param("userId") Long userId);
 
     String getUserCounts(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("channel")String channel);
+
+    List<Map<String,Object>> getUserListByDitui(@Param("startDate") String startDate, @Param("endDate") String endDate, @Param("channel")String channel);
 }

@@ -11,6 +11,7 @@ import com.rzyou.funtime.service.*;
 
 import com.rzyou.funtime.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,8 @@ public class RoomServiceImpl implements RoomService {
     FuntimeTagMapper tagMapper;
     @Autowired
     FuntimeChatroomManagerMapper chatroomManagerMapper;
+    @Autowired
+    Funtime1v1PrivateMapper privateMapper;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -72,7 +75,7 @@ public class RoomServiceImpl implements RoomService {
         Long roomId ;
         if (chatroom!=null&&chatroom.getId()!=null){
             roomId = chatroom.getId();
-            roomJoin(userId, chatroom.getId(), null, null);
+            roomJoin(userId, chatroom.getId(), null, null, null);
             result.put("roomId",roomId);
             return result;
         }
@@ -121,7 +124,7 @@ public class RoomServiceImpl implements RoomService {
 
         Integer userRole = getUserRole(chatroom.getId(), chatroom.getUserId());
         if (userRole==null){
-            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
+            throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS);
         }
         userService.checkSensitive(chatroom.getName());
         userService.checkSensitive(chatroom.getExamDesc());
@@ -131,13 +134,23 @@ public class RoomServiceImpl implements RoomService {
         }*/
         FuntimeChatroom chatroom1 = chatroomMapper.selectByPrimaryKey(chatroom.getId());
         if (!chatroom1.getUserId().equals(chatroom.getUserId())){
-            throw new BusinessException(ErrorMsgEnum.ROOM_CREATER_ERROR.getValue(),ErrorMsgEnum.ROOM_CREATER_ERROR.getDesc());
+            throw new BusinessException(ErrorMsgEnum.ROOM_CREATER_ERROR);
+        }
+        if (chatroom.getPrivateState()!=null&&chatroom.getPrivateState() == 1){
+            chatroom.setMicCounts(2);
+            List<Long> users = getRoomUserByRoomId(chatroom.getId(), chatroom.getUserId());
+            if (users!=null&&!users.isEmpty()){
+                throw new BusinessException(ErrorMsgEnum.ROOM_PRIVATE_CHANGE_ERROR);
+            }
+            if (StringUtils.isNotBlank(chatroom.getPassword())){
+                throw new BusinessException(ErrorMsgEnum.ROOM_UPDATE_MATCH_FAIL);
+            }
         }
 
         if (chatroom.getMicCounts()!=null&&!chatroom1.getMicCounts().equals(chatroom.getMicCounts())){
             Integer counts = chatroomMicMapper.checkMicChange(chatroom.getId());
             if (counts>0){
-                throw new BusinessException(ErrorMsgEnum.ROOM_MIC_CHANGE_ERROR.getValue(),ErrorMsgEnum.ROOM_MIC_CHANGE_ERROR.getDesc());
+                throw new BusinessException(ErrorMsgEnum.ROOM_MIC_CHANGE_ERROR);
             }
             List<String> userIds = getRoomUserByRoomIdAll(chatroom.getId());
             if (userIds!=null&&userIds.size()>0) {
@@ -157,8 +170,9 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public JSONObject roomJoin(Long userId, Long roomId, String password, Integer type) {
-        JSONObject result = new JSONObject();
+    public ResultMsg<Object> roomJoin(Long userId, Long roomId, String password, Integer type, Integer priceId) {
+        ResultMsg<Object> resultObj = new ResultMsg<>();
+        Map<String,Object> result = new HashMap<>();
         //查询房间信息
         FuntimeChatroom chatroom = chatroomMapper.selectByPrimaryKey(roomId);
         if (chatroom==null){
@@ -205,14 +219,57 @@ public class RoomServiceImpl implements RoomService {
                 log.info("roomJoin==========> {}",ErrorMsgEnum.ROOM_JOIN_USER_BLOCKED.getDesc());
                 throw new BusinessException(ErrorMsgEnum.ROOM_JOIN_USER_BLOCKED.getValue(),ErrorMsgEnum.ROOM_JOIN_USER_BLOCKED.getDesc());
             }
+
+            //是否是匹配房
+            if (chatroom.getPrivateState() == 1){
+                Integer roomUserCounts = chatroomMicMapper.getRoomUserCounts(roomId);
+                if (roomUserCounts>1){
+                    resultObj = new ResultMsg<>(ErrorMsgEnum.ROOM_COUNTS_FULL);
+                    return resultObj;
+                }
+                Map<String, Object> priceMap = privateMapper.get1v1priceById(priceId);
+                if (priceId == null||priceMap==null){
+                    resultObj = new ResultMsg<>(ErrorMsgEnum.ROOM_PRIVATE_PRICE_NOT_EXIST);
+                    resultObj.setData(get1v1price(userId));
+                    return resultObj;
+                }
+                FuntimeUserAccount userAccount = accountService.getUserAccountByUserId(userId);
+                Integer priceType = Integer.parseInt(priceMap.get("priceType").toString());
+                Integer price = Integer.parseInt(priceMap.get("amount").toString());
+                BigDecimal amount;
+                if (priceType == 1){
+                    amount = userAccount.getGoldCoin();
+                    if (amount.subtract(new BigDecimal(price)).intValue()<0){
+                        resultObj = new ResultMsg<>(ErrorMsgEnum.USER_ACCOUNT_GOLD_NOT_EN);
+                        Map<String,Object> map = new HashMap<>();
+                        map.put("userBlueAmount",userAccount.getGoldCoin().intValue());
+                        map.put("price",price);
+                        resultObj.setData(map);
+                        return resultObj;
+                    }
+                }else{
+                    amount = userAccount.getBlueDiamond();
+                    if (amount.subtract(new BigDecimal(price)).intValue()<0) {
+                        resultObj = new ResultMsg<>(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN);
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("userBlueAmount", userAccount.getBlueDiamond().intValue());
+                        map.put("price", price);
+                        resultObj.setData(map);
+                        return resultObj;
+                    }
+                }
+                join1v1Room(userId,priceType,price,chatroom.getUserId(),roomId);
+            }
         }
+
         //用户所在的房间
         Long roomId2 = getRoomIdByUserId(userId);
         if (roomId2!=null) {
             //用户已有房间
             if (roomId.equals(roomId2)) {
                 result.put("isOwer",true);
-                return result;
+                resultObj.setData(result);
+                return resultObj;
             } else {
                 log.info("************进入房间前已在别的房间,现在先退出别的房间*******************");
                 //退房
@@ -263,8 +320,41 @@ public class RoomServiceImpl implements RoomService {
         roomJoinNotice(roomId,userId,user.getNickname(),carUrl,msg,animationType);
         sendRoomInfoNotice(roomId);
         result.put("isOwer",chatroom.getUserId().equals(userId));
-        return result;
+        resultObj.setData(result);
+        return resultObj;
     }
+
+    public void join1v1Room(Long userId,Integer priceType,Integer amount,Long toUserId,Long roomId){
+
+        Funtime1v1Record record = new Funtime1v1Record();
+        record.setState(2);
+        record.setUserId(userId);
+        record.setPriceType(priceType);
+        record.setPrice(amount);
+        record.setRoomId(roomId);
+        privateMapper.save1V1Record(record);
+        String val = parameterService.getParameterValueByKey("match_percent");
+        BigDecimal matchPercent = new BigDecimal(val);
+        if (priceType == 1){
+            //金币
+            userService.updateUserAccountGoldCoinSub(userId,amount);
+            accountService.saveUserAccountGoldLog(userId,new BigDecimal(amount),record.getId(),OperationType.PRIVATE_MATCH_OUT.getAction(),OperationType.PRIVATE_MATCH_OUT.getOperationType());
+            Integer gold = new BigDecimal(amount).multiply(matchPercent).intValue();
+            userService.updateUserAccountGoldCoinPlus(toUserId,gold);
+            accountService.saveUserAccountGoldLog(toUserId,new BigDecimal(gold),record.getId(),OperationType.PRIVATE_MATCH_IN.getAction(),OperationType.PRIVATE_MATCH_IN.getOperationType());
+        }
+        if (priceType == 2){
+            //蓝钻
+            userService.updateUserAccountForSub(userId,null,new BigDecimal(amount),null);
+            accountService.saveUserAccountBlueLog(userId,new BigDecimal(amount),record.getId(),OperationType.PRIVATE_MATCH_OUT.getAction(),OperationType.PRIVATE_MATCH_OUT.getOperationType(),roomId);
+            BigDecimal black = new BigDecimal(amount).multiply(matchPercent);
+            userService.updateUserAccountForPlus(toUserId,new BigDecimal(amount),null,null);
+            accountService.saveUserAccountBlackLog(toUserId,black,record.getId(),OperationType.PRIVATE_MATCH_IN.getAction(),OperationType.PRIVATE_MATCH_IN.getOperationType());
+        }
+    }
+
+
+
 
     public FuntimeChatroomMic getMicLocationUser(Long roomId,Integer micLocation){
         return chatroomMicMapper.getMicLocationUser(roomId,micLocation);
@@ -510,6 +600,7 @@ public class RoomServiceImpl implements RoomService {
         if (!userService.checkAuthorityForUserRole(userRole,UserRoleAuthority.A_4.getValue())){
             throw new BusinessException(ErrorMsgEnum.ROOM_USER_NO_AUTH.getValue(),ErrorMsgEnum.ROOM_USER_NO_AUTH.getDesc());
         }*/
+        /*
         if (!userService.checkUserExists(micUserId)){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
@@ -530,6 +621,8 @@ public class RoomServiceImpl implements RoomService {
         //发送通知
         noticeService.notice15(micLocation,roomId,micUserId);
 
+         */
+        upperWheat(userId, roomId, micLocation, micUserId);
     }
 
     public Long getMicLocationId(Long roomId, Long micUserId){
@@ -1107,9 +1200,18 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void roomExitTask(Long userId) {
+        FuntimeChatroomMic roomMic = getRoomUserInfoByUserId(userId);
+        if (roomMic!=null) {
+            log.info("offlineUserTask======>roomExitTask:userId:{}",userId);
+            roomExit(userId,roomMic.getRoomId());
+        }
+    }
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void roomMicLowerTask(Long userId) {
         Long roomId = checkUserIsInMic(userId);
         if (roomId!=null) {
-            log.info("offlineUserTask======>roomExitTask:userId:{}",userId);
+            log.info("offlineUserTask======>roomMicLowerTask:userId:{}",userId);
             lowerWheat(null, roomId, userId);
             userService.updateImHeartSync(userId);
         }
@@ -1821,6 +1923,148 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<FuntimeGift> getGiftListByOrder() {
         return giftMapper.getGiftListByOrder();
+    }
+
+    @Override
+    public Map<String, Object> get1v1price(Long userId) {
+        Integer counts = privateMapper.get1v1Counts(userId, DateUtil.getCurrentDayStart(), DateUtil.getCurrentDayEnd());
+        int times = 0;
+        if (counts==null||counts == 0){
+            times++;
+        }
+        List<Map<String, Object>> v1price = privateMapper.get1v1price(times);
+        if (v1price==null||v1price.isEmpty()){
+            v1price = privateMapper.get1v1price(0);
+        }
+        if (v1price==null||v1price.isEmpty()){
+            throw new BusinessException(ErrorMsgEnum.ROOM_PRIVATE_PRICECONF_ERROR);
+        }
+        Map<String, Object> resultMap = new HashMap<>();
+        FuntimeUserAccount userAccount = accountService.getUserAccountByUserId(userId);
+        resultMap.put("goldAmount",userAccount.getGoldCoin());
+        resultMap.put("blueAmount",userAccount.getBlueDiamond());
+        resultMap.put("prices",v1price);
+        return resultMap;
+    }
+
+    @Override
+    public ResultMsg<Object> doMatch(Long userId, Integer priceId) {
+        ResultMsg<Object> resultMsg = new ResultMsg<>();
+
+        Map<String, Object> map = privateMapper.get1v1priceById(priceId);
+        if (map == null||map.isEmpty()){
+            throw new BusinessException(ErrorMsgEnum.ROOM_PRIVATE_PRICECONF_ERROR);
+        }
+        Integer priceType = Integer.parseInt(map.get("priceType").toString());
+        Integer price = Integer.parseInt(map.get("amount").toString());
+        FuntimeUserAccount userAccount = accountService.getUserAccountByUserId(userId);
+        BigDecimal amount;
+        if (priceType == 1){
+            amount = userAccount.getGoldCoin();
+            if (amount.subtract(new BigDecimal(price)).intValue()<0){
+                resultMsg = new ResultMsg<>(ErrorMsgEnum.USER_ACCOUNT_GOLD_NOT_EN);
+                map = new HashMap<>();
+                map.put("userBlueAmount",userAccount.getGoldCoin().intValue());
+                map.put("price",price);
+                resultMsg.setData(map);
+                return resultMsg;
+            }
+        }else{
+            amount = userAccount.getBlueDiamond();
+            if (amount.subtract(new BigDecimal(price)).intValue()<0) {
+                resultMsg = new ResultMsg<>(ErrorMsgEnum.USER_ACCOUNT_BLUE_NOT_EN);
+                map = new HashMap<>();
+                map.put("userBlueAmount", userAccount.getBlueDiamond().intValue());
+                map.put("price", price);
+                resultMsg.setData(map);
+                return resultMsg;
+            }
+        }
+        FuntimeUser user = userService.queryUserById(userId);
+        Map<String, Object> roomMap = chatroomMicMapper.getRoomByMatch(user.getSex() == null?1:user.getSex());
+        if (roomMap != null&&!roomMap.isEmpty()){
+            Long roomId = Long.parseLong(roomMap.get("roomId").toString());
+            Map<String, Object> nextPrice = get1v1price(userId);
+            nextPrice.put("roomId",roomId);
+            resultMsg.setData(nextPrice);
+        }else {
+            Funtime1v1Record record = new Funtime1v1Record() ;
+            record.setPrice(price);
+            record.setPriceType(priceType);
+            record.setUserId(userId);
+            record.setState(1);
+            privateMapper.save1V1Record(record);
+            resultMsg = new ResultMsg<>(ErrorMsgEnum.ROOM_MATCH_FAIL);
+            String matchSeconds = parameterService.getParameterValueByKey("match_seconds");
+            Map<String,Object> resultMap = new HashMap<>();
+
+            resultMap.put("recordId",record.getId());
+            resultMap.put("msg",(user.getSex() == 1?"小仙女":"小帅哥")+"正在路上...\n" +
+                    "需要等待");
+            resultMap.put("matchSeconds",matchSeconds);
+            resultMsg.setData(resultMap);
+
+        }
+
+        return resultMsg;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void doMatchTask() {
+
+        privateMapper.cancelMatch();
+        List<Funtime1v1Record> records = privateMapper.get1v1RecordTask();
+        if (records!=null&&!records.isEmpty()){
+            List<Map<String, Object>> roomMaps1 = chatroomMicMapper.getRoomByMatchTask(1);
+            List<Map<String, Object>> roomMaps2 = chatroomMicMapper.getRoomByMatchTask(2);
+            FuntimeUserAccount userAccount;
+            FuntimeUser user;
+            BigDecimal amount;
+            Long roomId;
+            for (Funtime1v1Record record : records){
+                Long userId = record.getUserId();
+                user = userService.queryUserById(userId);
+                if (user.getSex()!=null&&user.getSex() == 1){
+                    if (roomMaps2 == null||roomMaps2.isEmpty()){
+                        continue;
+                    }
+                    int i = RandomUtils.nextInt(0,roomMaps2.size()-1);
+                    roomId = Long.parseLong(roomMaps2.get(i).get("roomId").toString());
+                    roomMaps2.remove(i);
+                }else{
+                    if (roomMaps1 == null||roomMaps1.isEmpty()){
+                        continue;
+                    }
+                    int i = RandomUtils.nextInt(0,roomMaps1.size()-1);
+                    roomId = Long.parseLong(roomMaps1.get(i).get("roomId").toString());
+                    roomMaps1.remove(i);
+                }
+
+                userAccount = accountService.getUserAccountByUserId(userId);
+                if (record.getPriceType() == 1){
+                    amount = userAccount.getGoldCoin();
+                    if (amount.subtract(new BigDecimal(record.getPrice())).intValue()<0){
+                        continue;
+                    }
+                }else{
+                    amount = userAccount.getBlueDiamond();
+                    if (amount.subtract(new BigDecimal(record.getPrice())).intValue()<0) {
+                        continue;
+                    }
+                }
+
+                privateMapper.compeleteMatch(record.getId(),roomId);
+                noticeService.notice46(record.getUserId(),roomId);
+            }
+
+        }
+    }
+
+    @Override
+    public void cancelMatch(Long userId, Long recordId) {
+
+        privateMapper.cancelMatchById(recordId);
     }
 
     public FuntimeChatroomMic getInfoByRoomIdAndUser(Long roomId,Long userId){

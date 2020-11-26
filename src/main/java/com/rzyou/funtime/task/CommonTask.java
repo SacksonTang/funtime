@@ -35,6 +35,18 @@ public class CommonTask {
     HeadwearService headwearService;
 
     /**
+     * 匹配
+     */
+    @Scheduled(fixedRate = 6000)
+    public void doMatchTask(){
+        try {
+            roomService.doMatchTask();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 房间热度重置
      */
     @Scheduled(cron = "0 0 0 * * ?")
@@ -200,7 +212,7 @@ public class CommonTask {
         if (users!=null&&!users.isEmpty()){
             for (Long userId : users){
                 try {
-                    roomService.roomExitTask(userId);
+                    roomService.roomMicLowerTask(userId);
                 }catch (Exception e){
                     log.error("offlineUserTask ===>异常用户ID:{}",userId);
                     e.printStackTrace();

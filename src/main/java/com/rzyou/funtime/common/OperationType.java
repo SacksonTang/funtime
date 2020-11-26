@@ -27,6 +27,7 @@ public enum OperationType {
     ,ORDER_IN("IN","ORDER_IN","订单收入")
     ,ORDER_CANCEL("IN","ORDER_CANCEL","订单取消")
     ,ORDER_REFUSE("IN","ORDER_REFUSE","订单拒绝")
+    ,PRIVATE_MATCH_IN("IN","PRIVATE_MATCH_IN","匹配收入")
 
     ,WITHDRAWAL("OUT","WITHDRAWAL","提现")
     ,GIVEREDPACKET("OUT","GIVEREDPACKET","发红包")
@@ -51,6 +52,7 @@ public enum OperationType {
     ,GIFT_KNAPSACK_OUT("OUT","GIFT_KNAPSACK_OUT","背包送出")
     ,DDZ_GOLD_OUT("OUT","DDZ_GOLD_OUT","斗地主")
     ,ORDER_OUT("OUT","ORDER_OUT","订单支出")
+    ,PRIVATE_MATCH_OUT("OUT","PRIVATE_MATCH_OUT","匹配支出")
     ;
 
      private String action;

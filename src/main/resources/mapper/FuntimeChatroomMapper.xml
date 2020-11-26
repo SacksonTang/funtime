@@ -30,10 +30,11 @@
     <result column="background_id"  property="backgroundId" />
     <result column="background_url"  property="bgUrl" />
     <result column="background_url2"  property="bgUrl2" />
+    <result column="private_state"  property="privateState" />
   </resultMap>
   <sql id="Base_Column_List">
     id, name, tags, exam_desc, is_block, is_lock, hot, online_num, state, create_time,
-    chat_message_file,user_id,password,exam_url,avatar_url,background_id,hots,screen_flag,rank_flag,mic_counts
+    chat_message_file,user_id,password,exam_url,avatar_url,background_id,hots,screen_flag,rank_flag,mic_counts,private_state
   </sql>
 
 
@@ -79,7 +80,7 @@
   </select>
   <select id="getRoomInfoById" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
-     m.id, m.name, m.tags, m.exam_desc, m.is_block, m.is_lock, m.hot, m.state, m.create_time,m.mic_counts,
+     m.id, m.name, m.tags, m.exam_desc, m.is_block, m.is_lock, m.hot, m.state, m.create_time,m.mic_counts,m.private_state,
      m.chat_message_file,m.user_id,m.password,m.exam_url,m.avatar_url,m.background_id,m.screen_flag,m.rank_flag
      ,u.portrait_address,u.nickname,u.sex,u.show_id,l.level
      ,case when h.user_id is null then null
@@ -105,7 +106,7 @@
   </select>
   <select id="getRoomList" parameterType="java.lang.Integer" resultType="java.util.Map">
     select
-    m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+    m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,m.private_state privateState,
     u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
     case when 1000>m.hots then m.hots
@@ -141,7 +142,7 @@
   </select>
   <select id="getRoomList2" parameterType="java.lang.Integer" resultType="java.util.Map">
     select
-    m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+    m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,m.private_state privateState,
     u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
     case when 1000>m.hots then m.hots
@@ -222,7 +223,7 @@
 -->
     <select id="getRecommendRoomList"  resultType="java.util.Map">
      select
-        m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+        m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,m.private_state privateState,
         u.sex,u.show_id showId,
         m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
         case when 1000>m.hots then m.hots
@@ -245,7 +246,7 @@
     </select>
     <select id="getRecommendRoomListExt"  resultType="java.util.Map">
      select
-        m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+        m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,m.private_state privateState,
         u.sex,u.show_id showId,
         m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
         case when 1000>m.hots then m.hots
@@ -260,13 +261,13 @@
         from t_funtime_chatroom m
         inner join t_funtime_user u on m.user_id = u.id
         left join t_funtime_tag g on g.id = m.tags
-        where m.is_block = 2 and m.state = 1
+        where m.is_block = 2 and m.state = 1 and m.password is null
         group by m.id
         order by m.hots desc ,m.id desc limit 3
     </select>
   <select id="getRoomLogList" parameterType="java.lang.Long" resultType="java.util.Map">
     select
-    m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,
+    m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,m.private_state privateState,
     m.online_num onlineNum,u.sex,u.show_id showId,
     m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
     case when 1000>m.hots then m.hots
@@ -468,6 +469,9 @@
       <if test="state != null">
         state,
       </if>
+        <if test="privateState != null">
+            private_state,
+        </if>
 
       <if test="chatMessageFile != null">
         chat_message_file,
@@ -520,7 +524,9 @@
       <if test="state != null">
         #{state,jdbcType=INTEGER},
       </if>
-
+        <if test="privateState != null">
+            #{privateState},
+        </if>
       <if test="chatMessageFile != null">
         #{chatMessageFile,jdbcType=VARCHAR},
       </if>
@@ -570,6 +576,9 @@
       </if>
       <if test="state != null">
         state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="privateState != null">
+            private_state = #{privateState},
       </if>
       <if test="chatMessageFile != null">
         chat_message_file = #{chatMessageFile,jdbcType=VARCHAR},

@@ -521,4 +521,11 @@ public interface NoticeService {
      * @param micCounts
      */
     void notice45(List<String> userIds, Long userId, Long roomId, Integer micCounts);
+
+    /**
+     * 匹配成功
+     * @param userId
+     * @param roomId
+     */
+    void notice46(Long userId, Long roomId);
 }

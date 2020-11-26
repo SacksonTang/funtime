@@ -589,6 +589,7 @@ public class LoginController {
             data.put("boxRuleUrl",Constant.COS_URL_PREFIX+Constant.BOX_RULE);
             data.put("invitationRoomId",roomService.getInvitationRoomId());
             data.put("invitationImageUrl",parameterService.getParameterValueByKey("invitation_image_url"));
+            data.put("1v1Url",parameterService.getParameterValueByKey("1v1_url"));
 
             data.put("roomNotice",Constant.ROOM_NOTICE);
             result.setData(data);
@@ -754,9 +755,9 @@ public class LoginController {
             String startDate = paramJson.getString("startDate");
             String endDate = paramJson.getString("endDate");
             String channel = paramJson.getString("channel");
-            String counts = userService.getUserCounts(startDate, endDate, channel);
+            Map<String, Object> map = userService.getUserCounts(startDate, endDate, channel);
 
-            result.setData(counts);
+            result.setData(map);
             return result;
 
         } catch (BusinessException be) {

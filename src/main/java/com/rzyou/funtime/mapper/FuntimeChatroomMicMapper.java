@@ -10,6 +10,12 @@ import java.util.Map;
 @Mapper
 public interface FuntimeChatroomMicMapper {
 
+    Integer getRoomUserCounts(Long roomId);
+
+    Map<String, Object> getRoomByMatch(Integer sex);
+
+    List<Map<String, Object>> getRoomByMatchTask(Integer sex);
+
     Integer checkMicChange(Long roomId);
 
     List<String> getRoomUserByRoomIdAll2(Long roomId);

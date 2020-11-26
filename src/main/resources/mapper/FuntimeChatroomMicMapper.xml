@@ -17,8 +17,34 @@
     id, room_id, mic_location, mic_user_id, create_time, update_time,state,user_role,music_auth
   </sql>
 
+  <select id="getRoomByMatch" resultType="java.util.Map">
+    select c.room_id as roomId,m.user_id toUserId from t_funtime_chatroom_mic c
+         inner join t_funtime_chatroom m on c.room_id = m.id
+         inner join t_funtime_user u on m.user_id = u.id
+    where m.private_state = 1 and m.state = 1 and m.is_block = 2 and u.sex = #{sex}
+		and c.mic_user_id is not null
+		and EXISTS (select id from t_funtime_chatroom_mic where mic_location = 10 and mic_user_id is not null)
+    group by c.room_id
+	having count(c.mic_user_id) = 1
+	limit 1
+  </select>
+  <select id="getRoomByMatchTask" resultType="java.util.Map">
+    select c.room_id as roomId,m.user_id toUserId from t_funtime_chatroom_mic c
+         inner join t_funtime_chatroom m on c.room_id = m.id
+         inner join t_funtime_user u on m.user_id = u.id
+    where m.private_state = 1 and m.state = 1 and m.is_block = 2 and u.sex = #{sex}
+		and c.mic_user_id is not null
+		and EXISTS (select id from t_funtime_chatroom_mic where mic_location = 10 and mic_user_id is not null)
+    group by c.room_id
+	having count(c.mic_user_id) = 1
+
+  </select>
+
   <select id="checkMicChange" resultType="java.lang.Integer">
     select count(id) from t_funtime_chatroom_mic where room_id = #{roomId} and mic_location !=10 and mic_user_id is not null
+  </select>
+  <select id="getRoomUserCounts" resultType="java.lang.Integer">
+    select count(id) from t_funtime_chatroom_mic where room_id = #{roomId} and mic_user_id is not null
   </select>
   <select id="getMicLocationUser"  resultMap="BaseResultMap">
     select
@@ -135,7 +161,7 @@
     from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
-    where m.room_id = #{roomId} and u.online_state = 1
+    where m.room_id = #{roomId}
     <if test="nickname!=null and nickname!=''">
       and BINARY u.nickname like concat('%',#{nickname},'%')
     </if>

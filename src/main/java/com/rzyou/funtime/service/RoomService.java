@@ -39,9 +39,10 @@ public interface RoomService {
      * @param roomId
      * @param password
      * @param type
+     * @param priceId
      * @return
      */
-    JSONObject roomJoin(Long userId, Long roomId, String password, Integer type);
+    ResultMsg<Object> roomJoin(Long userId, Long roomId, String password, Integer type, Integer priceId);
 
     /**
      * 获取房间信息
@@ -324,6 +325,12 @@ public interface RoomService {
     void roomExitTask(Long userId);
 
     /**
+     * 下麦定时任务
+     * @param userId
+     */
+    void roomMicLowerTask(Long userId);
+
+    /**
      * 背景列表
      * @param startPage
      * @param pageSize
@@ -562,4 +569,30 @@ public interface RoomService {
      * @return
      */
     List<FuntimeGift> getGiftListByOrder();
+
+    /**
+     * 获取匹配价格
+     * @param userId
+     */
+    Map<String,Object> get1v1price(Long userId);
+
+    /**
+     * 随机匹配
+     * @param userId
+     * @param priceId
+     * @return
+     */
+    ResultMsg<Object> doMatch(Long userId, Integer priceId);
+
+    /**
+     * 随机匹配任务
+     */
+    void doMatchTask();
+
+    /**
+     * 取消匹配
+     * @param userId
+     * @param recordId
+     */
+    void cancelMatch(Long userId, Long recordId);
 }
