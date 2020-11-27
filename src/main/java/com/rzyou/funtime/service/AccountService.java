@@ -686,4 +686,6 @@ public interface AccountService {
      * @param list
      */
     void operateAppleRefund(List<FuntimeAppleRefund> list);
+
+    ResultMsg<Object> doNewUserGift(Long userId);
 }

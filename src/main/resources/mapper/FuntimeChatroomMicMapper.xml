@@ -133,14 +133,17 @@
   </select>
     <select id="getMicUserByRoomId" parameterType="java.lang.Long" resultType="java.util.Map">
         select
-        m.mic_location micLocation,m.mic_user_id micUserId,m.user_role userRole,m.state,m.music_auth musicAuth,u.nickname
+        m.mic_location micLocation,m.mic_user_id micUserId,m.user_role userRole,m.state,m.music_auth musicAuth,
+        if(cm.private_state = 1,'神秘人',u.nickname) nickname
         ,u.portrait_address portraitAddress,u.sex,u.show_id showId
         ,t.level,ifnull(g.blue_amount,0) blueAmount
         ,case when h.user_id is null then null
           when h.type = 1 then l.level_url
           when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
           else null end levelUrl
-        from t_funtime_chatroom_mic m left join (t_funtime_user u
+        from t_funtime_chatroom_mic m
+        inner join t_funtime_chatroom cm on cm.id = m.room_id
+        left join (t_funtime_user u
         inner join t_funtime_user_account t on u.id = t.user_id
         inner join t_funtime_user_level_conf l on t.level = l.level) on m.mic_user_id = u.id
         left join t_funtime_user_headwear_current h on u.id = h.user_id
@@ -150,15 +153,17 @@
     </select>
   <select id="getRoomUserByIdAll"  resultType="java.util.Map">
     select
-    u.id id,u.nickname,u.portrait_address portraitAddress
-    ,u.sign_text signText,u.sex,u.show_id showId,m.user_role userRole
+    u.id id,if(cm.private_state = 1,'神秘人',u.nickname) nickname,u.portrait_address portraitAddress
+    ,u.sign_text signText,u.sex,if(cm.private_state = 1,0,u.show_id) showId,m.user_role userRole
     ,u.online_state as onlineState
     ,l.level
     ,case when h.user_id is null then null
     when h.type = 1 then l.level_url
     when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
     else null end levelUrl
-    from t_funtime_chatroom_mic m inner join t_funtime_user u on m.mic_user_id = u.id
+    from t_funtime_chatroom_mic m
+    inner join t_funtime_chatroom cm on m.room_id = cm.id
+    inner join t_funtime_user u on m.mic_user_id = u.id
     inner join (t_funtime_user_account t inner join t_funtime_user_level_conf l on t.level = l.level) on u.id = t.user_id
     left join t_funtime_user_headwear_current h on u.id = h.user_id
     where m.room_id = #{roomId}

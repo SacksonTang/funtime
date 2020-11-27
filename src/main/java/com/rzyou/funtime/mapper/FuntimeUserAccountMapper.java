@@ -12,6 +12,10 @@ import java.util.Map;
 @Mapper
 public interface FuntimeUserAccountMapper {
 
+    Integer checkNewUserGift(Long userId);
+
+    int saveUserNewGift(Long userId);
+
     List<Map<String, Object>> getLevelConf();
 
     int updateUserAccountGoldConvert(@Param("id") Long id,@Param("goldCoin") Integer goldCoin,@Param("blueDiamond") BigDecimal blueDiamond);

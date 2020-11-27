@@ -24,7 +24,7 @@
         (#{userId},#{roomId},#{priceType},#{price},#{state},DATE_ADD(now(),INTERVAL (select parameter_value-6 from t_funtime_parameter where parameter_key = 'match_seconds') second))
     </insert>
     <update id="cancelMatch">
-        update t_funtime_1v1_record set state = 3 where expire_time > now()
+        update t_funtime_1v1_record set state = 3 where expire_time > now() and state = 1
     </update>
     <update id="compeleteMatch">
         update t_funtime_1v1_record set state = 2,room_id = #{roomId} where id = #{id}

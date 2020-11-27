@@ -91,6 +91,8 @@ public class AccountServiceImpl implements AccountService {
     FuntimeSignMapper signMapper;
     @Autowired
     FuntimeBoxMapper boxMapper;
+    @Autowired
+    FuntimeHeadwearMapper headwearMapper;
 
 
     @Override
@@ -1159,7 +1161,7 @@ public class AccountServiceImpl implements AccountService {
         }
         resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum));
         if (roomId!=null) {
-            roomService.updateHotsPlus(roomId, new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+            roomService.updateHotsPlus(roomId, total == 0?giftNum*toUserIdArray.length:new BigDecimal(total).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
             game123Service.saveGame123Val(toUsers,roomId,amount);
         }
         List<String> userIds = roomService.getRoomUserByRoomIdAll(roomId);
@@ -1336,6 +1338,52 @@ public class AccountServiceImpl implements AccountService {
         String content = "苹果支付退款订单号: "+orderNos;
         OuyiSmsUtil.sengSindleSMS("18138826369",content);
         OuyiSmsUtil.sengSindleSMS("13302902681",content);
+    }
+
+    @Override
+    public ResultMsg<Object> doNewUserGift(Long userId) {
+        if (userAccountMapper.checkNewUserGift(userId)!=null){
+            return new ResultMsg<>(ErrorMsgEnum.USER_NEWUSER_USED);
+        }
+        //背包礼物
+        saveUserKnapsack(userId, 1, 208, 1000);
+        saveKnapsackLog(userId,1,208,1,OperationType.GIFT_KNAPSACK_NEWUSER_IN.getAction(),OperationType.GIFT_KNAPSACK_EGG_IN.getOperationType());
+        //金币增加
+        userService.updateUserAccountGoldCoinPlus(userId, 500);
+        saveUserAccountGoldLog(userId, new BigDecimal(500), null
+                , OperationType.NEWUSER_IN.getAction(), OperationType.NEWUSER_IN.getOperationType());
+
+        //座驾
+        Map<String,Object> map = new HashMap<>();
+        map.put("days",3);
+        map.put("userId",userId);
+        map.put("carId",5);
+        drawCar(map);
+        Map<String, Object> headwearInfoMap = headwearMapper.getHeadwearInfoById(21);
+        Long userHeadwearId = headwearMapper.getUserHeadwearById(userId,5);
+
+        headwearInfoMap.put("userId",userId);
+        if (userHeadwearId == null){
+            headwearMapper.insertUserHeadwear(headwearInfoMap);
+
+        }else{
+            headwearInfoMap.put("userHeadwearId",userHeadwearId);
+            headwearMapper.updateUserHeadwear(headwearInfoMap);
+
+        }
+
+        Integer type = headwearMapper.getCurrnetHeadwear(userId);
+        if (type !=null) {
+            headwearMapper.updateUserHeadwearCurrent(userId, 5);
+        }else{
+
+            headwearMapper.insertUserHeadwearCurrent(userId,5,2);
+        }
+        Map<String,Object> result = new HashMap<>();
+        result.put("url",parameterService.getParameterValueByKey("newuser_url"));
+        userAccountMapper.saveUserNewGift(userId);
+        return new ResultMsg<>(result);
+
     }
 
     private void insertAppleRefund(FuntimeAppleRefund appleRefund){
@@ -2157,7 +2205,7 @@ public class AccountServiceImpl implements AccountService {
         }
         resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum*userNum));
         if (roomId!=null) {
-            roomService.updateHotsPlus(roomId, new BigDecimal(amount * userNum).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+            roomService.updateHotsPlus(roomId, price.intValue() == 0?giftNum*userNum:new BigDecimal(amount * userNum).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
 
             game123Service.saveGame123Val(toUserIdArray,roomId,amount);
         }
@@ -2516,7 +2564,7 @@ public class AccountServiceImpl implements AccountService {
         }
         resultMsg.setData(JsonUtil.getMap("giftNum",itemNum-giftNum*userNum));
         if (roomId!=null) {
-            roomService.updateHotsPlus(roomId, new BigDecimal(amount * userNum).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
+            roomService.updateHotsPlus(roomId, amount==0?giftNum*userNum:new BigDecimal(amount * userNum).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
 
             game123Service.saveGame123Val(toUserIdArray,roomId,amount);
         }
@@ -3008,6 +3056,8 @@ public class AccountServiceImpl implements AccountService {
         saveUserAccountGoldLog(userId,new BigDecimal(signVal),record.getId(),OperationType.GOLD_SIGN_IN.getAction(),OperationType.GOLD_SIGN_IN.getOperationType());
 
         resultMsg.setData(JsonUtil.getMap("goldAmount",signVal));
+        resultMsg.setCode(ErrorMsgEnum.USER_SIGN_ERROR.getValue());
+        resultMsg.setMsg(ErrorMsgEnum.USER_SIGN_ERROR.getValue());
         return resultMsg;
     }
 
@@ -3506,7 +3556,7 @@ public class AccountServiceImpl implements AccountService {
         if (user.getCarId()==null){
             userService.updateUserCar(userId,carId);
         }
-        Long userCarId = carMapper.getUserCarById(Long.parseLong(map.get("userId").toString()), Integer.parseInt(map.get("carId").toString()));
+        Long userCarId = carMapper.getUserCarById(userId, carId);
         int k;
         if (userCarId == null){
             map.put("endTime",DateUtils.addDays(new Date(),days));

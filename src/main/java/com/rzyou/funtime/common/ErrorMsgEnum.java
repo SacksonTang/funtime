@@ -80,6 +80,7 @@ public enum ErrorMsgEnum {
     USER_ORDER_STATE_ERROR("10067","订单状态异常"),
     USER_ORDER_ERROR("10068","订单信息异常"),
     USER_CHANNEL_ERROR("10069","用户已有归属渠道"),
+    USER_NEWUSER_USED("10070","已领取新人礼包"),
 
     SMS_NOT_EXISTS("20000","验证码不存在"),
     SMS_IS_USED("20001","验证码已使用"),

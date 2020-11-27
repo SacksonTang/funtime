@@ -138,6 +138,7 @@ public class RoomServiceImpl implements RoomService {
         }
         if (chatroom.getPrivateState()!=null&&chatroom.getPrivateState() == 1){
             chatroom.setMicCounts(2);
+            chatroom.setName("匿名房");
             List<Long> users = getRoomUserByRoomId(chatroom.getId(), chatroom.getUserId());
             if (users!=null&&!users.isEmpty()){
                 throw new BusinessException(ErrorMsgEnum.ROOM_PRIVATE_CHANGE_ERROR);
@@ -227,8 +228,13 @@ public class RoomServiceImpl implements RoomService {
                     resultObj = new ResultMsg<>(ErrorMsgEnum.ROOM_COUNTS_FULL);
                     return resultObj;
                 }
+                if (priceId == null||priceId==0){
+                    resultObj = new ResultMsg<>(ErrorMsgEnum.ROOM_PRIVATE_PRICE_NOT_EXIST);
+                    resultObj.setData(get1v1price(userId));
+                    return resultObj;
+                }
                 Map<String, Object> priceMap = privateMapper.get1v1priceById(priceId);
-                if (priceId == null||priceMap==null){
+                if (priceMap==null){
                     resultObj = new ResultMsg<>(ErrorMsgEnum.ROOM_PRIVATE_PRICE_NOT_EXIST);
                     resultObj.setData(get1v1price(userId));
                     return resultObj;
@@ -1928,11 +1934,12 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Map<String, Object> get1v1price(Long userId) {
         Integer counts = privateMapper.get1v1Counts(userId, DateUtil.getCurrentDayStart(), DateUtil.getCurrentDayEnd());
-        int times = 0;
-        if (counts==null||counts == 0){
-            times++;
+        if (counts == null){
+            counts = 1;
+        }else{
+            counts++;
         }
-        List<Map<String, Object>> v1price = privateMapper.get1v1price(times);
+        List<Map<String, Object>> v1price = privateMapper.get1v1price(counts);
         if (v1price==null||v1price.isEmpty()){
             v1price = privateMapper.get1v1price(0);
         }

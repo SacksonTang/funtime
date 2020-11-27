@@ -361,4 +361,11 @@
     insert into t_funtime_knapsack_log (user_id,type,item_id,item_num,action_type,operation_type)
     values (#{userId},#{type},#{itemId},#{itemNum},#{actionType},#{operationType})
   </insert>
+
+  <select id="checkNewUserGift" resultType="java.lang.Integer">
+    select 1 from t_funtime_user_newgift where user_id = #{userId}
+  </select>
+  <insert id="saveUserNewGift">
+    insert into t_funtime_user_newgift(user_id) values (#{userId})
+  </insert>
 </mapper>
