@@ -323,7 +323,9 @@ public class RoomServiceImpl implements RoomService {
         }
 
         game123Service.setExitTimeByJoin(userId,roomId);
-        roomJoinNotice(roomId,userId,user.getNickname(),carUrl,msg,animationType);
+        if (chatroom.getPrivateState() !=null) {
+            roomJoinNotice(roomId, userId, user.getNickname(), carUrl, msg, animationType);
+        }
         sendRoomInfoNotice(roomId);
         result.put("isOwer",chatroom.getUserId().equals(userId));
         resultObj.setData(result);
