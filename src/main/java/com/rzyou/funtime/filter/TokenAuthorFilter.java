@@ -55,7 +55,7 @@ public class TokenAuthorFilter implements Filter {
         response.setContentType("application/json; charset=utf-8");
 
         String uri = req.getRequestURI();
-        log.info("访问URI!===========uri=========> {}",uri);
+        log.debug("访问URI!===========uri=========> {}",uri);
         if (uri.startsWith("/login")||uri.startsWith("/druid")||uri.startsWith("/callback")||uri.startsWith("/activity")){
             filterChain.doFilter(request, response);
             return;

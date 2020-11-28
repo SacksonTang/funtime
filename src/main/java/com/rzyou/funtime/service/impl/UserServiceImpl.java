@@ -258,7 +258,7 @@ public class UserServiceImpl implements UserService {
         }
         long maxShowId = redisUtil.incr("maxShowId", 1);
         user.setShowId(maxShowId);
-
+        user.setToken(null);
         insertSelective(user);
         String uuid = StringUtil.createNonceStr();
         String token = JwtHelper.generateJWT(user.getId().toString(),uuid);
