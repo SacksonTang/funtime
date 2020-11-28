@@ -185,7 +185,7 @@ public enum ErrorMsgEnum {
     ROOM_MIC_CHANGE_ERROR("80046","变更麦位需先将其他人下麦"),
     ROOM_PRIVATE_CHANGE_ERROR("80047","变更1V1语音房需要先解散房间,保持空房"),
     ROOM_PRIVATE_PRICECONF_ERROR("80048","匹配活动未开放,敬请期待"),
-    ROOM_PRIVATE_PRICE_NOT_EXIST("80049","价格缺失"),
+    ROOM_PRIVATE_PRICE_NOT_EXIST("80049","此为1V1匹配，IOS用户请等待新版本"),
     ROOM_COUNTS_FULL("80050","房间已满"),
     ROOM_MATCH_FAIL("80051","匹配失败"),
     ROOM_UPDATE_MATCH_FAIL("80052","匹配房不能设置密码"),

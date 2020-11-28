@@ -82,7 +82,7 @@
     select
      m.id, m.name, m.tags, m.exam_desc, m.is_block, m.is_lock, m.hot, m.state, m.create_time,m.mic_counts,m.private_state,
      m.chat_message_file,m.user_id,m.password,m.exam_url,m.avatar_url,m.background_id,m.screen_flag,m.rank_flag
-     ,u.portrait_address,u.nickname,u.sex,if(m.private_state = 1,'0',u.show_id) show_id,l.level
+     ,u.portrait_address,u.nickname,u.sex,if(m.private_state = 1,'000000',u.show_id) show_id,l.level
      ,case when h.user_id is null then null
           when h.type = 1 then l.level_url
           when h.type = 2 then (select w.headwear_url from t_funtime_headwear w where w.headwear_number = h.headwear_id limit 1)
@@ -142,9 +142,9 @@
   </select>
   <select id="getRoomList2" parameterType="java.lang.Integer" resultType="java.util.Map">
     select
-    m.id, m.name, m.tags, m.exam_desc examDesc, m.is_lock isLock,m.private_state privateState,
-    u.sex,u.show_id showId,
-    m.user_id userId,u.nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
+    m.id, if(m.private_state = 1,'匿名房',m.name) name, m.tags, m.exam_desc examDesc, m.is_lock isLock,m.private_state privateState,
+    u.sex,if(m.private_state = 1,'000000',u.show_id) showId,
+    m.user_id userId,if(m.private_state = 1,'神秘人',u.nickname) nickname,m.exam_url examUrl,m.avatar_url avatarUrl,
     case when 1000>m.hots then m.hots
     when m.hots>=1000 and 1000000>m.hots then CONCAT(FORMAT(m.hots/1000,0),'K')
     when m.hots>=1000000 and 1000000000>m.hots then CONCAT(FORMAT(m.hots/1000000,0),'M')
@@ -169,7 +169,7 @@
       </if>
     </if>
     group by m.id
-    having if(u.show_id in (699999,700827,690308),1=1,counts>0)
+    having if(showId in (699999,700827,690308),1=1,counts>0)
     order by m.hot desc,counts desc,m.hots desc ,m.id desc
   </select>
 <!--

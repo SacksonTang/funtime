@@ -323,7 +323,7 @@ public class RoomServiceImpl implements RoomService {
         }
 
         game123Service.setExitTimeByJoin(userId,roomId);
-        if (chatroom.getPrivateState() !=null) {
+        if (chatroom.getPrivateState() !=null&&chatroom.getPrivateState()==2) {
             roomJoinNotice(roomId, userId, user.getNickname(), carUrl, msg, animationType);
         }
         sendRoomInfoNotice(roomId);
@@ -1857,10 +1857,14 @@ public class RoomServiceImpl implements RoomService {
             list = chatroomMapper.getRecommendRoomListExt();
         }else{
             if (list.size() != 3){
+                List<String> ids = new ArrayList<>();
+                for (Map<String, Object> map : list){
+                    ids.add(map.get("id").toString());
+                }
                 List<Map<String, Object>> exts = chatroomMapper.getRecommendRoomListExt();
                 if (exts!=null&&!exts.isEmpty()){
                     for (Map<String, Object> map : exts){
-                        if (!map.get("id").equals(list.get(0).get("id"))){
+                        if (!ids.contains(map.get("id").toString())){
                             list.add(map);
                         }
                         if (list.size() == 3){

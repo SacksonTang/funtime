@@ -154,7 +154,7 @@
   <select id="getRoomUserByIdAll"  resultType="java.util.Map">
     select
     u.id id,if(cm.private_state = 1,'神秘人',u.nickname) nickname,u.portrait_address portraitAddress
-    ,u.sign_text signText,u.sex,if(cm.private_state = 1,0,u.show_id) showId,m.user_role userRole
+    ,u.sign_text signText,u.sex,if(cm.private_state = 1,'000000',u.show_id) showId,m.user_role userRole
     ,u.online_state as onlineState
     ,l.level
     ,case when h.user_id is null then null
