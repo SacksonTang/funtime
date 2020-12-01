@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rzyou.funtime.mapper.FuntimeDailyTaskMapper">
+
+    <select id="checkUserDailytask" resultType="java.lang.Integer">
+        select 1
+        from t_funtime_user_dailytask
+        where user_id = #{userId} and take_day = #{taskDay} and task_id = #{taskId}
+    </select>
+
+    <select id="getTaskInfoById">
+        select * from t_funtime_dailytask where task_id = #{taskId}
+    </select>
+
+    
+
+</mapper>
