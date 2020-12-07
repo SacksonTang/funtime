@@ -30,6 +30,7 @@ public enum OperationType {
     ,ORDER_CANCEL("IN","ORDER_CANCEL","订单取消")
     ,ORDER_REFUSE("IN","ORDER_REFUSE","订单拒绝")
     ,PRIVATE_MATCH_IN("IN","PRIVATE_MATCH_IN","匹配收入")
+    ,RECIEVEAWARD_IN("IN","RECIEVEAWARD_IN","日常任务收入")
 
     ,WITHDRAWAL("OUT","WITHDRAWAL","提现")
     ,GIVEREDPACKET("OUT","GIVEREDPACKET","发红包")

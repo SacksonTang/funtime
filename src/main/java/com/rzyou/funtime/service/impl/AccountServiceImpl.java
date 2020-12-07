@@ -50,6 +50,8 @@ public class AccountServiceImpl implements AccountService {
     HeadwearService headwearService;
     @Autowired
     Game123Service game123Service;
+    @Autowired
+    DailyTaskService dailyTaskService;
 
     @Autowired
     FuntimeCarMapper carMapper;
@@ -744,6 +746,7 @@ public class AccountServiceImpl implements AccountService {
         if (redpacket.getType() == 1) {
             roomService.updateHotsPlus(redpacket.getRoomId(), redpacket.getAmount().divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
         }
+        dailyTaskService.doDailyTask(redpacket.getUserId(),10,1);
         return redpacket.getId();
 
     }
@@ -1173,6 +1176,8 @@ public class AccountServiceImpl implements AccountService {
                 }
             }
         }
+        dailyTaskService.doDailyTask(userId,6,1);
+        dailyTaskService.doDailyTask(userId,7,toUserIdArray.length*giftNum);
         return resultMsg;
 
     }
@@ -1508,6 +1513,8 @@ public class AccountServiceImpl implements AccountService {
             }
         }
 
+        dailyTaskService.doDailyTask(userId,6,1);
+        dailyTaskService.doDailyTask(userId,7,giftNum);
         return resultMsg;
     }
 
@@ -1637,7 +1644,8 @@ public class AccountServiceImpl implements AccountService {
                 }
             }
         }
-
+        dailyTaskService.doDailyTask(userId,6,1);
+        dailyTaskService.doDailyTask(userId,7,toUserIdArray.length*giftNum);
         return resultMsg;
     }
 
@@ -1826,7 +1834,8 @@ public class AccountServiceImpl implements AccountService {
         }
         result.put("list",noticeDatas);
         resultMsg.setData(result);
-
+        dailyTaskService.doDailyTask(userId,6,1);
+        dailyTaskService.doDailyTask(userId,7,toUserIdArray.length*giftNum);
         return resultMsg;
     }
 
@@ -1929,6 +1938,8 @@ public class AccountServiceImpl implements AccountService {
         if (roomId!=null) {
             roomService.updateHotsPlus(roomId, new BigDecimal(amount).divide(new BigDecimal(10), 0, BigDecimal.ROUND_UP).intValue());
         }
+        dailyTaskService.doDailyTask(userId,6,1);
+        dailyTaskService.doDailyTask(userId,7,giftNum);
         resultMsg.setData(recordId);
         return resultMsg;
     }
@@ -2084,6 +2095,8 @@ public class AccountServiceImpl implements AccountService {
 
             game123Service.saveGame123Val(toUserIdArray,roomId,amount);
         }
+        dailyTaskService.doDailyTask(userId,6,1);
+        dailyTaskService.doDailyTask(userId,7,userNum*giftNum);
         return resultMsg;
 
     }
@@ -2209,6 +2222,8 @@ public class AccountServiceImpl implements AccountService {
 
             game123Service.saveGame123Val(toUserIdArray,roomId,amount);
         }
+        dailyTaskService.doDailyTask(userId,6,1);
+        dailyTaskService.doDailyTask(userId,7,userNum*giftNum);
         return resultMsg;
 
     }
@@ -2335,6 +2350,8 @@ public class AccountServiceImpl implements AccountService {
 
             game123Service.saveGame123Val(tousersMap,roomId);
         }
+        dailyTaskService.doDailyTask(userId,6,1);
+        dailyTaskService.doDailyTask(userId,7,userNum*giftNum);
         return resultMsg;
     }
 
@@ -2450,6 +2467,8 @@ public class AccountServiceImpl implements AccountService {
 
             game123Service.saveGame123Val(toUserIdArray,roomId,amount);
         }
+        dailyTaskService.doDailyTask(userId,6,1);
+        dailyTaskService.doDailyTask(userId,7,userNum*giftNum);
         return resultMsg;
     }
 
@@ -2568,6 +2587,8 @@ public class AccountServiceImpl implements AccountService {
 
             game123Service.saveGame123Val(toUserIdArray,roomId,amount);
         }
+        dailyTaskService.doDailyTask(userId,6,1);
+        dailyTaskService.doDailyTask(userId,7,userNum*giftNum);
         return resultMsg;
     }
 
@@ -2693,6 +2714,8 @@ public class AccountServiceImpl implements AccountService {
 
             game123Service.saveGame123Val(tousersMap,roomId);
         }
+        dailyTaskService.doDailyTask(userId,6,1);
+        dailyTaskService.doDailyTask(userId,7,userNum*giftNum);
         return resultMsg;
     }
 
@@ -3055,6 +3078,7 @@ public class AccountServiceImpl implements AccountService {
         userService.updateUserAccountGoldCoinPlus(userId,Integer.parseInt(signVal));
         saveUserAccountGoldLog(userId,new BigDecimal(signVal),record.getId(),OperationType.GOLD_SIGN_IN.getAction(),OperationType.GOLD_SIGN_IN.getOperationType());
 
+        dailyTaskService.doDailyTask(userId,1,1);
         resultMsg.setData(JsonUtil.getMap("goldAmount",signVal));
         resultMsg.setCode(ErrorMsgEnum.USER_SIGN_ERROR.getValue());
         resultMsg.setMsg(ErrorMsgEnum.USER_SIGN_ERROR.getValue());
@@ -3694,5 +3718,28 @@ public class AccountServiceImpl implements AccountService {
 
 
 
+    @Override
+    public void receiveAward(Long userId, Integer rewardType, Integer reward,Long recordId,Integer giftId) {
+
+        switch (rewardType){
+            case 1:
+                userService.updateUserAccountGoldCoinPlus(userId,reward);
+                saveUserAccountGoldLog(userId,new BigDecimal(reward),recordId
+                        , OperationType.RECIEVEAWARD_IN.getAction(),OperationType.RECIEVEAWARD_IN.getOperationType());
+                break;
+            case 2:
+                userService.updateUserAccountForPlus(userId,null,new BigDecimal(reward),null);
+                saveUserAccountBlueLog(userId,new BigDecimal(reward),recordId,
+                        OperationType.RECIEVEAWARD_IN.getAction(),OperationType.RECIEVEAWARD_IN.getOperationType(),null);
+                break;
+            case 3:
+                saveUserKnapsack(userId, 1, giftId, reward);
+                saveKnapsackLog(userId,1,giftId,reward,OperationType.RECIEVEAWARD_IN.getAction(),OperationType.RECIEVEAWARD_IN.getOperationType());
+                break;
+            default:
+                break;
+
+        }
+    }
 
 }

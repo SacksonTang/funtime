@@ -731,4 +731,6 @@ public interface UserService {
     Map<String,Object> getUserCounts(String startDate, String endDate, String channel);
 
     void updateQQUserImage();
+
+
 }

@@ -33,6 +33,8 @@ public class GameServiceImpl implements GameService {
     @Autowired
     NoticeService noticeService;
     @Autowired
+    DailyTaskService dailyTaskService;
+    @Autowired
     FuntimeGameMapper gameMapper;
 
     public List<FuntimeGameYaoyaoConf> getYaoyaoConf(int id){
@@ -292,6 +294,7 @@ public class GameServiceImpl implements GameService {
 
             roomService.updateHotsPlus(roomId,new BigDecimal(poolInfo.getQuota()/10).setScale(0,BigDecimal.ROUND_UP).intValue() );
         }
+        dailyTaskService.doDailyTask(userId,11,1);
         return result;
     }
 
@@ -777,7 +780,7 @@ public class GameServiceImpl implements GameService {
 
             roomService.updateHotsPlus(roomId,new BigDecimal(consumeAmount/10).setScale(0, BigDecimal.ROUND_UP).intValue());
         }
-
+        dailyTaskService.doDailyTask(userId,12,1);
         return resultMsg;
     }
 

@@ -7,6 +7,7 @@ import com.rzyou.funtime.common.GiveChannel;
 import com.rzyou.funtime.common.ResultMsg;
 import com.rzyou.funtime.common.request.HttpHelper;
 import com.rzyou.funtime.service.AccountService;
+import com.rzyou.funtime.service.DailyTaskService;
 import com.rzyou.funtime.utils.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +25,6 @@ public class GiftTransController {
 
     @Autowired
     AccountService accountService;
-
 
 
 
@@ -55,20 +55,22 @@ public class GiftTransController {
                 return result;
             }
             if (type == null || type == 1) {
-                return accountService.createGiftTrans(userId, toUserIds, giftId, giftNum, "送礼物", giveChannel, roomId,unlock);
+                result =  accountService.createGiftTrans(userId, toUserIds, giftId, giftNum, "送礼物", giveChannel, roomId,unlock);
             }
             else if (type == 2){
-                return accountService.sendGiftForKnapsack(userId, toUserIds, giftId, giftNum, "送礼物-背包", giveChannel, roomId,unlock);
+                result = accountService.sendGiftForKnapsack(userId, toUserIds, giftId, giftNum, "送礼物-背包", giveChannel, roomId,unlock);
             }else if (type == 3){
-                return accountService.sendGiftForBox(userId, toUserIds, giftId, giftNum, "送礼物-宝箱", giveChannel, roomId);
+                result = accountService.sendGiftForBox(userId, toUserIds, giftId, giftNum, "送礼物-宝箱", giveChannel, roomId);
             }else if (type == 4){
-                return accountService.createGiftTransForOrder(userId, toUserIds, giftId, giftNum, "送礼物-下单", giveChannel,unlock);
+                result = accountService.createGiftTransForOrder(userId, toUserIds, giftId, giftNum, "送礼物-下单", giveChannel,unlock);
             }
             else{
                 result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
                 result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
                 return result;
             }
+
+            return result;
         } catch (BusinessException be) {
             log.error("sendGift BusinessException==========>{}",be.getMsg());
             be.printStackTrace();

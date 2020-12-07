@@ -7,6 +7,7 @@ import com.rzyou.funtime.entity.FuntimeComment;
 import com.rzyou.funtime.entity.FuntimeDynamic;
 import com.rzyou.funtime.entity.FuntimeUser;
 import com.rzyou.funtime.mapper.FuntimeDynamicMapper;
+import com.rzyou.funtime.service.DailyTaskService;
 import com.rzyou.funtime.service.DynamicService;
 import com.rzyou.funtime.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,8 @@ public class DynamicServiceImpl implements DynamicService {
     FuntimeDynamicMapper dynamicMapper;
     @Autowired
     UserService userService;
+    @Autowired
+    DailyTaskService dailyTaskService;
 
     @Override
     public void addDynamic(FuntimeDynamic dynamic) {
@@ -61,6 +64,7 @@ public class DynamicServiceImpl implements DynamicService {
             dynamic.setResource9(dynamic.getResource9().replaceAll("funtime-1300805214.cos.ap-shanghai.myqcloud.com", Constant.COS_URL_PREFIX2));
         }
         dynamicMapper.insertDynamic(dynamic);
+        dailyTaskService.doDailyTask(dynamic.getUserId(),8,1);
     }
 
     @Override

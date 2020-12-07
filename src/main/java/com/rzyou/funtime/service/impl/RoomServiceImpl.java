@@ -41,6 +41,8 @@ public class RoomServiceImpl implements RoomService {
     Game123Service game123Service;
     @Autowired
     RedisUtil redisUtil;
+    @Autowired
+    DailyTaskService dailyTaskService;
 
     @Autowired
     FuntimeBackgroundMapper backgroundMapper;
@@ -96,6 +98,8 @@ public class RoomServiceImpl implements RoomService {
         //saveChatroomUser(userId,roomId,UserRole.ROOM_CREATER.getValue());
 
         result.put("roomId",roomId);
+        dailyTaskService.doDailyTask(userId,3,1); //进房
+        dailyTaskService.doDailyTask(userId,2,1); //上麦
         return result;
     }
 
@@ -329,6 +333,12 @@ public class RoomServiceImpl implements RoomService {
         sendRoomInfoNotice(roomId);
         result.put("isOwer",chatroom.getUserId().equals(userId));
         resultObj.setData(result);
+        if (userId.equals(chatroom.getUserId())) {
+            dailyTaskService.doDailyTask(userId, 3, 1); //进房
+            dailyTaskService.doDailyTask(userId, 2, 1); //上麦
+        }else {
+            dailyTaskService.doDailyTask(userId, 3, 1); //进房
+        }
         return resultObj;
     }
 
@@ -693,6 +703,7 @@ public class RoomServiceImpl implements RoomService {
         }
 
         sendRoomInfoNotice(roomId);
+        dailyTaskService.doDailyTask(userId, 2, 1); //上麦
 
     }
 

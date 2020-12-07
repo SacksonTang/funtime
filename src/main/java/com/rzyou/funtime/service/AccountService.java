@@ -688,4 +688,9 @@ public interface AccountService {
     void operateAppleRefund(List<FuntimeAppleRefund> list);
 
     ResultMsg<Object> doNewUserGift(Long userId);
+
+    /**
+     * 日常任务奖励
+     */
+    void receiveAward(Long userId,Integer rewardType ,Integer reward,Long recordId,Integer giftId);
 }

@@ -47,6 +47,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     DdzService ddzService;
     @Autowired
+    DailyTaskService dailyTaskService;
+    @Autowired
     RedisUtil redisUtil;
     @Autowired
     FuntimeUserMapper userMapper;
@@ -335,6 +337,10 @@ public class UserServiceImpl implements UserService {
         if(funtimeUser == null){
             throw new BusinessException(ErrorMsgEnum.USER_NOT_EXISTS.getValue(),ErrorMsgEnum.USER_NOT_EXISTS.getDesc());
         }
+        boolean dailyFlag = false;
+        if (StringUtils.isNotBlank(user.getNickname())&&StringUtils.isNotBlank(user.getPortraitAddress())&&StringUtils.isNotBlank(user.getSignText())){
+            dailyFlag = true;
+        }
         List<Integer> tags = new ArrayList<>();
         if (user.getTags()!=null){
             tags.addAll(user.getTags());
@@ -400,6 +406,10 @@ public class UserServiceImpl implements UserService {
             }
         }
 
+        if (dailyFlag){
+            dailyTaskService.doDailyTask(user.getId(),4,1);
+        }
+
         return true;
     }
 
@@ -431,6 +441,8 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
+
+
 
     @Override
     public List<String> getUserImageDefaultUrls(Integer sex){
@@ -676,6 +688,7 @@ public class UserServiceImpl implements UserService {
         if(k!=1){
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
+        dailyTaskService.doDailyTask(userId,5,1);
     }
 
     @Override
@@ -1519,6 +1532,7 @@ public class UserServiceImpl implements UserService {
                 insertUserImRecord(userId, toUserId, dayTime, 2);
             }
         }
+        dailyTaskService.doDailyTask(userId,9,1);
     }
 
     @Override
@@ -2570,4 +2584,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorMsgEnum.DATA_ORER_ERROR.getValue(),ErrorMsgEnum.DATA_ORER_ERROR.getDesc());
         }
     }
+
+
+
 }

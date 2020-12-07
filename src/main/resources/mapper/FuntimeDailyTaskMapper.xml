@@ -2,15 +2,36 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.rzyou.funtime.mapper.FuntimeDailyTaskMapper">
 
-    <select id="checkUserDailytask" resultType="java.lang.Integer">
-        select 1
-        from t_funtime_user_dailytask
-        where user_id = #{userId} and take_day = #{taskDay} and task_id = #{taskId}
+
+
+    <select id="getDailyTaskList" resultType="com.rzyou.funtime.entity.FuntimeDailyTask">
+        select k.task_id as taskId,k.task_desc as taskDesc,k.task_count as taskCount,k.reward_type as rewardType
+        ,k.reward,ifnull(d.complete_count,0) as completeCount,ifnull(d.state,1) as state,k.gift_id as giftId,d.id
+        ,if(task_id=5,(select count(id) from t_funtime_user_valid where user_id = #{userId}),0) as userValid
+        from  t_funtime_dailytask k left join t_funtime_user_dailytask d  on d.task_id = k.task_id
+        and d.user_id = #{userId} and d.take_day = DATE_FORMAT(now(),'%Y%m%d')
     </select>
 
-    <select id="getTaskInfoById">
-        select * from t_funtime_dailytask where task_id = #{taskId}
+    <select id="getTaskInfoById" resultType="com.rzyou.funtime.entity.FuntimeDailyTask">
+        select k.task_id as taskId,k.task_desc as taskDesc,k.task_count as taskCount,k.reward_type as rewardType
+        ,k.reward,ifnull(d.complete_count,0) as completeCount,ifnull(d.state,1) as state,k.gift_id as giftId,d.id
+        ,if(task_id=5,(select count(id) from t_funtime_user_valid where user_id = #{userId}),0) as userValid
+        from t_funtime_dailytask k left join t_funtime_user_dailytask d on d.task_id = k.task_id
+        where d.user_id = #{userId} and d.take_day = DATE_FORMAT(now(),'%Y%m%d') and d.task_id = #{taskId}
     </select>
+
+    <insert id="saveUserDailytask" parameterType="com.rzyou.funtime.entity.FuntimeDailyTask">
+        insert into t_funtime_user_dailytask (user_id,take_day,task_id,complete_count,state)
+        values (#{userId},DATE_FORMAT(now(),'%Y%m%d'),#{taskId},#{completeCount},#{state})
+    </insert>
+
+    <update id="updateCompleteCount">
+        update t_funtime_user_dailytask set complete_count = #{completeCount} where id = #{id}
+    </update>
+
+    <update id="updateTaskState">
+        update t_funtime_user_dailytask set state = 2 where id = #{id}
+    </update>
 
     
 
