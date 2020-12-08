@@ -6,10 +6,10 @@
     <select id="getOrderById" resultType="com.rzyou.funtime.entity.FuntimeOrder" parameterType="java.lang.Long" >
 
         select
-        user_id as userId, order_time as orderTime, start_hour as startHour, end_hour as endHour, service_tag as serviceTag, tag_text as tagText,  price,game,
-        order_state as orderState, recommendation,service_text as serviceText
-        from t_funtime_order
-        where user_id = #{userId} and order_state = 1
+        d.user_id as userId, d.order_time as orderTime, d.start_hour as startHour, d.end_hour as endHour, d.service_tag as serviceTag, d.tag_text as tagText,  d.price,d.game,
+        d.order_state as orderState, d.recommendation,d.service_text as serviceText,u.nickname,u.portrait_address as portraitAddress
+        from t_funtime_order d inner join t_funtime_user u on d.user_id = u.id
+        where d.user_id = #{userId} and d.order_state = 1
     </select>
     <select id="checkOrder" resultType="java.lang.Integer" parameterType="java.lang.Long" >
 

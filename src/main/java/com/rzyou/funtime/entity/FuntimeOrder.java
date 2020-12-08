@@ -7,6 +7,10 @@ public class FuntimeOrder {
     
     private Long userId;
 
+    private String portraitAddress;
+
+    private String nickname;
+
     private String orderTime;
 
     private String startHour;

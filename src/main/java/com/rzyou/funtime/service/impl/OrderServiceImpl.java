@@ -96,6 +96,8 @@ public class OrderServiceImpl implements OrderService {
 
             resultMap.put("orderTime",orderTime);
             resultMap.put("serviceText",order.getServiceText());
+            resultMap.put("nickname",order.getNickname());
+            resultMap.put("portraitAddress",order.getPortraitAddress());
         }
 
         return resultMap;
