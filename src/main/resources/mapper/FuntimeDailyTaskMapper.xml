@@ -7,7 +7,7 @@
     <select id="getDailyTaskList" resultType="com.rzyou.funtime.entity.FuntimeDailyTask">
         select k.task_id as taskId,k.task_desc as taskDesc,k.task_count as taskCount,k.reward_type as rewardType
         ,k.reward,ifnull(d.complete_count,0) as completeCount,ifnull(d.state,1) as state,k.gift_id as giftId,d.id
-        ,if(task_id=5,(select count(id) from t_funtime_user_valid where user_id = #{userId}),0) as userValid
+        ,if(k.task_id=5,(select count(id) from t_funtime_user_valid where user_id = #{userId}),0) as userValid
         from  t_funtime_dailytask k left join t_funtime_user_dailytask d  on d.task_id = k.task_id
         and d.user_id = #{userId} and d.take_day = DATE_FORMAT(now(),'%Y%m%d')
     </select>
@@ -15,7 +15,7 @@
     <select id="getTaskInfoById" resultType="com.rzyou.funtime.entity.FuntimeDailyTask">
         select k.task_id as taskId,k.task_desc as taskDesc,k.task_count as taskCount,k.reward_type as rewardType
         ,k.reward,ifnull(d.complete_count,0) as completeCount,ifnull(d.state,1) as state,k.gift_id as giftId,d.id
-        ,if(task_id=5,(select count(id) from t_funtime_user_valid where user_id = #{userId}),0) as userValid
+        ,if(k.task_id=5,(select count(id) from t_funtime_user_valid where user_id = #{userId}),0) as userValid
         from t_funtime_dailytask k left join t_funtime_user_dailytask d on d.task_id = k.task_id
         where d.user_id = #{userId} and d.take_day = DATE_FORMAT(now(),'%Y%m%d') and d.task_id = #{taskId}
     </select>
