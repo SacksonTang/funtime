@@ -141,7 +141,7 @@
 
     <select id="getRecordInfoById" resultType="java.util.Map">
         select d.id,d.order_no as orderNo,d.poundage,d.tag_name as tagName,d.price,d.counts,d.total_red as totalRed,d.state
-        ,d.remark,d.reason as reason,DATE_FORMAT(d.create_time,'%Y-%m-%d %H:%i:%s') as createTime
+        ,d.remark,d.reason as reason,DATE_FORMAT(d.create_time,'%Y-%m-%d %H:%i:%s') as createTime,d.user_id as userId,d.to_user_id as toUserId
         ,u.sex,u.portrait_address as portraitAddress,u.nickname
         from t_funtime_user_order_record d inner join t_funtime_user u on d.user_id = u.id
         where d.id = #{id}

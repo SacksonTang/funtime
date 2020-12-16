@@ -123,4 +123,10 @@ public interface OrderService {
      * @param reason
      */
     void refundOrder(Long userId, Long orderId, String reason);
+
+    /**
+     * 催单
+     * @param orderId
+     */
+    void reminderOrder(Long orderId);
 }

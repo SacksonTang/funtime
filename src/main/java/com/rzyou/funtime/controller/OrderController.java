@@ -451,6 +451,39 @@ public class OrderController {
         }
     }
     /**
+     * 催单
+     * @param request
+     * @return
+     */
+    @PostMapping("reminderOrder")
+    public ResultMsg<Object> reminderOrder(HttpServletRequest request){
+
+        ResultMsg<Object> result = new ResultMsg<>();
+        try {
+            JSONObject paramJson = HttpHelper.getParamterJson(request);
+            Long orderId = paramJson.getLong("orderId");
+
+            if (orderId == null){
+                result.setCode(ErrorMsgEnum.PARAMETER_ERROR.getValue());
+                result.setMsg(ErrorMsgEnum.PARAMETER_ERROR.getDesc());
+                return result;
+            }
+            orderService.reminderOrder(orderId);
+            return result;
+
+        } catch (BusinessException be) {
+            be.printStackTrace();
+            result.setCode(be.getCode());
+            result.setMsg(be.getMsg());
+            return result;
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setCode(ErrorMsgEnum.UNKNOWN_ERROR.getValue());
+            result.setMsg(ErrorMsgEnum.UNKNOWN_ERROR.getDesc());
+            return result;
+        }
+    }
+    /**
      * 订单详情
      * @param request
      * @return

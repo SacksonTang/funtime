@@ -1,6 +1,7 @@
 package com.rzyou.funtime.service.impl;
 
 import com.rzyou.funtime.common.*;
+import com.rzyou.funtime.common.im.TencentUtil;
 import com.rzyou.funtime.entity.FuntimeOrder;
 import com.rzyou.funtime.entity.FuntimeUserAccount;
 import com.rzyou.funtime.entity.FuntimeUserOrderRecord;
@@ -11,6 +12,7 @@ import com.rzyou.funtime.service.ParameterService;
 import com.rzyou.funtime.service.UserService;
 import com.rzyou.funtime.utils.JsonUtil;
 import com.rzyou.funtime.utils.StringUtil;
+import com.rzyou.funtime.utils.UsersigUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -411,6 +413,21 @@ public class OrderServiceImpl implements OrderService {
         }
         updateUserOrderRecord(orderId,OrderState.REFUND.getValue(),null,null,null, reason);
 
+    }
+
+    @Override
+    public void reminderOrder(Long orderId) {
+        FuntimeUserOrderRecord record = orderMapper.getOrderRecordById(orderId);
+        if (record == null){
+            throw new BusinessException(ErrorMsgEnum.USER_ORDER_NOT_EXIST.getValue(),ErrorMsgEnum.USER_ORDER_NOT_EXIST.getDesc());
+        }
+        Long userId = record.getUserId();
+        Long toUserId = record.getToUserId();
+        String userSig = UsersigUtil.getUsersig(Constant.TENCENT_YUN_SYSTEMUSER);
+        List<String> userIds = new ArrayList<>();
+        userIds.add(toUserId.toString());
+        String data = "快快接单";
+        TencentUtil.batchsendmsg(userSig,userIds,data,userId.toString());
     }
 
     public void updateUserOrderRecord(Long id, Integer state, Date orderTakingTime, Date completeTime, Date toCompleteTime, String rejectionReason){
